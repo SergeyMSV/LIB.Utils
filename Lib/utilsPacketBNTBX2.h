@@ -21,7 +21,7 @@ namespace utils
 template <class TPayload>
 struct tFormatBNTBX2
 {
-	static const unsigned char STX = 0x5F;
+	enum { STX = 0x5F };
 
 	typedef unsigned int tDeviceID;
 
@@ -70,7 +70,6 @@ protected:
 			tVectorUInt8::const_iterator CEnd = CBegin + sizeof(PayloadSize);
 
 			std::copy(CBegin, CEnd, (unsigned char*)& PayloadSize);
-
 			
 			if (Size >= GetSize(PayloadSize))
 			{

@@ -25,10 +25,10 @@ namespace utils
 	namespace packet_NMEA
 	{
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <class TPayload, unsigned int stx = '$'>
+template <class TPayload, unsigned char stx = '$'>
 struct tFormat
 {
-	static const unsigned char STX = stx;// '$';
+	enum { STX = stx, CTX = '*' };
 
 protected:
 	template <class tMsg>
@@ -41,7 +41,7 @@ protected:
 		if (Size >= GetSize(0) && *cbegin == STX)
 		{
 			tVectorUInt8::const_iterator Begin = cbegin + 1;
-			tVectorUInt8::const_iterator End = std::find(Begin, cend, '*');
+			tVectorUInt8::const_iterator End = std::find(Begin, cend, CTX);
 
 			if (End != cend)
 			{
@@ -62,7 +62,7 @@ protected:
 		if (packetVector.size() >= GetSize(0) && packetVector[0] == STX)
 		{
 			tVectorUInt8::const_iterator Begin = packetVector.cbegin() + 1;
-			tVectorUInt8::const_iterator End = std::find(Begin, packetVector.cend(), '*');
+			tVectorUInt8::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
 
 			if (End != packetVector.cend())
 			{
@@ -80,7 +80,7 @@ protected:
 		return false;
 	}
 
-	static size_t GetSize(size_t payloadSize) { return sizeof(STX) + payloadSize + 5; };//$*xx\xd\xa
+	static size_t GetSize(size_t payloadSize) { return payloadSize + 6; };//$*xx\xd\xa
 
 	void Append(tVectorUInt8& dst, const TPayload& payload) const
 	{
@@ -90,10 +90,10 @@ protected:
 
 		unsigned char CRC = utils::crc::CRC08_NMEA<tVectorUInt8::const_iterator>(dst.cbegin() + 1, dst.cend());
 
-		dst.push_back('*');
+		dst.push_back(CTX);
 
 		char StrCRC[5];
-		sprintf_s(StrCRC, "%02X", CRC);
+		sprintf(StrCRC, "%02X", CRC);
 
 		dst.push_back(StrCRC[0]);
 		dst.push_back(StrCRC[1]);
@@ -120,7 +120,9 @@ template <class TPayload> struct tFormatNMEABin : public tFormat<TPayload, '!'> 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadCommon
 {
-	std::vector<std::string> Data;
+	typedef std::vector<std::string> value_type;
+
+	value_type Data;
 
 	tPayloadCommon() { }
 

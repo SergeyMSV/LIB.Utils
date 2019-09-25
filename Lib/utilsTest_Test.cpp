@@ -4,13 +4,13 @@
 
 namespace utils
 {
-	namespace test
+	namespace unit_test
 	{
-		namespace unit_test
-		{
 
 void UnitTest_Test()
 {
+	using namespace test;
+
 	std::cout << "\n""UnitTest" << std::endl;
 
 	WARNING("TEST_1");
@@ -25,6 +25,5 @@ void UnitTest_Test()
 	std::cout << std::endl;
 }
 
-		}
 	}
 }
