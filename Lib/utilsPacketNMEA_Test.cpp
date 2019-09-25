@@ -43,7 +43,7 @@ void UnitTest_PacketNMEA_Parse(const std::string& testName, const std::string& r
 
 	bool Result = T::Find(DataVector, Packet);
 
-	std::vector<std::string> PacketData = Packet.GetMsg<std::vector<std::string>>();
+	std::vector<std::string> PacketData = Packet.GetPayload();
 
 	if (PacketData.size() == data.size())
 	{
@@ -70,7 +70,7 @@ void UnitTest_PacketNMEA_Make(const std::string& testName, const std::vector<std
 {
 	T Packet;
 
-	Packet.SetMsg(data);
+	Packet.SetPayload(data);
 
 	tVectorUInt8 DataVector = Packet.ToVector();
 
@@ -81,6 +81,10 @@ void UnitTest_PacketNMEA_Make(const std::string& testName, const std::vector<std
 
 void UnitTest_PacketNMEA()
 {
+	utils::packet::tPayloadCommon::value_type dsfsdf;
+
+	dsfsdf.push_back('e');
+
 	std::cout << "\n""tPacketNMEA\n";
 
 	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadCommon> tPacketNMEA;

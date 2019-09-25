@@ -27,7 +27,7 @@ struct tFormatStar
 {
 	typedef unsigned short tFieldDataSize;
 
-	static const unsigned char STX = '*';
+	enum { STX = '*' };
 
 protected:
 	template <class tMsg>

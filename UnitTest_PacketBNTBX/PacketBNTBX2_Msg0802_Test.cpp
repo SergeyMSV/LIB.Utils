@@ -49,7 +49,7 @@ void UnitTest_PacketBNTBX2_Msg0802()
 				{
 					try
 					{
-						tMsgBNTBX0802Rsp Msg = Packet.GetMsg<tMsgBNTBX0802Rsp>();
+						tMsgBNTBX0802Rsp Msg(Packet.GetPayload());
 
 						std::cout << "tPacketBNTBX2::GetMsg<tPayloadBNTBX0802>() OK\n";
 					}

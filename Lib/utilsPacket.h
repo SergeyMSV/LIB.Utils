@@ -12,6 +12,8 @@
 
 #include "utilsBase.h"
 
+#include <algorithm>
+
 namespace utils
 {
 	namespace packet
@@ -22,9 +24,11 @@ template
 	template <class> class TFormat,
 	class TPayload
 >
-class tPacket : public TFormat<TPayload>, TPayload
+class tPacket : public TFormat<TPayload>, public TPayload
 {
 public:
+	typedef typename TPayload::value_type payload_value_type;
+
 	tPacket() { }
 
 	static bool Find(tVectorUInt8& receivedData, tPacket& packet)
@@ -67,24 +71,22 @@ public:
 		return TFormat<TPayload>::TryParse(packetVector, packet, packet);
 	}
 
-	template <class tMsg>
-	tMsg GetMsg() const
+	payload_value_type GetPayload() const
 	{
-		return tMsg(TPayload::Data);
+		return TPayload::Data;
 	}
 
-	template <class tMsg>
-	void SetMsg(const tMsg& msg)
+	void SetPayload(const payload_value_type& value)
+	{
+		TPayload::Data = value;
+	}
+
+	template <class T>
+	void SetMsg(const T& msg)
 	{
 		TFormat<TPayload>::SetPayloadIDs(msg);
 
 		TPayload::Data = msg.ToVector();
-	}
-
-	template <class T>
-	void SetMsg(const std::vector<T>& msg)
-	{
-		TPayload::Data = msg;
 	}
 
 	tVectorUInt8 ToVector()
@@ -105,7 +107,9 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadCommon
 {
-	tVectorUInt8 Data;
+	typedef tVectorUInt8 value_type;
+
+	value_type Data;
 
 	tPayloadCommon() { }
 
