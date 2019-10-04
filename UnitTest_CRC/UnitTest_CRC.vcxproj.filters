@@ -8,6 +8,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\Lib\utilsCRC_Test.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lib\utilsTest.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
@@ -15,5 +21,8 @@
       <Filter>Lib</Filter>
     </ClInclude>
     <ClInclude Include="libConfig.h" />
+    <ClInclude Include="..\Lib\utilsTest.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
