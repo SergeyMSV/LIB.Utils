@@ -4,6 +4,8 @@ namespace utils
 	{
 		void UnitTest_Base();
 		void UnitTest_CRC();
+		void UnitTest_CryptoAES();
+		void UnitTest_CryptoRSA32();
 		void UnitTest_Key();
 		void UnitTest_PacketBNTBX2();
 		void UnitTest_PacketNMEA();
@@ -19,6 +21,8 @@ int main()
 
 	UnitTest_Base();
 	UnitTest_CRC();
+	UnitTest_CryptoAES();
+	UnitTest_CryptoRSA32();
 	UnitTest_Key();
 	UnitTest_PacketBNTBX2();
 	UnitTest_PacketNMEA();
