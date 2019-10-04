@@ -3,6 +3,7 @@ namespace utils
 	namespace unit_test
 	{
 		void UnitTest_Base();
+		void UnitTest_Key();
 		void UnitTest_PacketBNTBX2();
 		void UnitTest_PacketNMEA();
 		void UnitTest_PacketStar();
@@ -16,6 +17,7 @@ int main()
 	using namespace utils::unit_test;
 
 	UnitTest_Base();
+	UnitTest_Key();
 	UnitTest_PacketBNTBX2();
 	UnitTest_PacketNMEA();
 	UnitTest_PacketStar();

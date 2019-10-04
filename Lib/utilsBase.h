@@ -11,8 +11,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <stdlib.h>
-#include <string.h>
+#include <cassert>
+#include <cstdlib>
+#include <cstring>
 
 #include <algorithm>
 #include <vector>
@@ -21,6 +22,7 @@ namespace utils
 {
 
 typedef unsigned char tUInt8;
+typedef unsigned int tUInt32;
 typedef std::vector<tUInt8> tVectorUInt8;
 
 template<typename T>
@@ -129,6 +131,49 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Reverse(T
 	std::reverse<tUInt8*>(Begin, Begin + sizeof(value));
 
 	return value;
+}
+
+namespace type
+{
+
+template <unsigned int size>
+struct tArray1
+{
+	enum { Size = size };
+	tUInt8 Value[size];
+
+	//tArray1() in union it's deleted by default
+	//{
+	//	std::memset(Value, 0, Size);
+	//}
+
+	tUInt8& operator [] (std::size_t i)
+	{
+		assert(i < Size);
+
+		return Value[i];
+	}
+
+	bool operator == (const tArray1& value)
+	{
+		return std::memcmp(Value, value.Value, Size) == 0;
+	}
+
+	bool operator != (const tArray1& value)
+	{
+		return std::memcmp(Value, value.Value, Size) != 0;
+	}
+};
+
+template <unsigned int size>
+struct tArray2 : public tArray1<size>
+{
+	tArray2()
+	{
+		std::memset(this->Value, 0, this->Size);
+	}
+};
+
 }
 
 //char FromBCD(char dataBCD); [TBD]

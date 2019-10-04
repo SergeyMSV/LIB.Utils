@@ -29,6 +29,9 @@
     <ClCompile Include="..\Lib\utilsPacketNMEA_Test.cpp">
       <Filter>Lib</Filter>
     </ClCompile>
+    <ClCompile Include="..\Lib\utilsKey_Test.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
@@ -61,6 +64,9 @@
       <Filter>Lib</Filter>
     </ClInclude>
     <ClInclude Include="..\Lib\utilsPacketNMEA.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lib\utilsKey.h">
       <Filter>Lib</Filter>
     </ClInclude>
   </ItemGroup>
