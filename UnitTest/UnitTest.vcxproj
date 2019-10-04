@@ -135,6 +135,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Lib\utilsBase_Test.cpp" />
+    <ClCompile Include="..\Lib\utilsCRC_Test.cpp" />
     <ClCompile Include="..\Lib\utilsKey_Test.cpp" />
     <ClCompile Include="..\Lib\utilsPacketBNTBX2_Test.cpp" />
     <ClCompile Include="..\Lib\utilsPacketNMEA_Test.cpp" />

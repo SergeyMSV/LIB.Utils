@@ -1,14 +1,15 @@
-//void PacketStar();
-//void PacketStar2();
-//void PacketBNTBX2();
+namespace utils
+{
+	namespace unit_test
+	{
+		void UnitTest_CRC();
+	}
+}
+
 
 int main()
 {
-	//PacketStar();
-
-	//PacketStar2();
-
-	//PacketBNTBX2();
+	utils::unit_test::UnitTest_CRC();
 
 	return 0;
 }
