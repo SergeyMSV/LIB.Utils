@@ -38,17 +38,6 @@ void UnitTest_Base()
 		utils::test::RESULT("copy_backward 2", true);
 	}
 
-
-	//{
-	//	uint64_t A = 0x1234'5678'90AB'CDEF;
-
-	//	std::vector<bool> VectorBOOL(sizeof(A) * 8);
-
-	//	std::copy((char*)& A, ((char*)& A) + sizeof(A), VectorBOOL);
-
-	//	utils::test::RESULT("copy 1", true);
-	//}
-
 	{
 		unsigned int A = 0x12345678;
 
@@ -75,32 +64,6 @@ void UnitTest_Base()
 		utils::test::RESULT("ToVector 4", true);
 	}
 
-	////ToVector 1
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02,0x03,0x04 };
-
-	//	tVectorUInt8 Vector = ToVector(&Data[0], Data.size());
-
-	//	utils::test::RESULT("ToVector 1", Vector == Data);
-	//}
-
-	////ToVector 2
-	//{
-	//	char *Data = new char[0];
-
-	//	tVectorUInt8 Vector = ToVector(Data, 0);
-
-	//	delete[] Data;
-
-	//	utils::test::RESULT("ToVector 2 (empty)", Vector.size() == 0);
-	//}
-
-	//{
-	//	char Data[] = { 0x2A, 0x2A, 0x2A, 0x2A, 0x00, 0x00, 0x00, 0x00, 0x08, 0x01, 0x01, 0x00, 0x15, 0x01, 0x00, 0x15 };
-
-	//	tVectorUInt8 DataVector = utils::ToVector(Data, sizeof(Data));
-	//}
-
 	{
 		unsigned int Data{ 0x12345678 };
 
@@ -111,19 +74,9 @@ void UnitTest_Base()
 		utils::test::RESULT("Append 1", true);
 	}
 
-	//{
-	//	char Data[] = { 1,2,3,4,5,6,7,8 };
-
-	//	tVectorUInt8 DataVector;
-
-	//	utils::Append(DataVector, Data, Data + sizeof(Data));
-
-	//	utils::test::RESULT("Append 2", true);
-	//}
-
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//Read<unsigned int>, Endian=default
+	//Read<unsigned int>
 	{
 		tVectorUInt8 Data{ 0x01,0x02,0x03,0x04 };
 
@@ -132,89 +85,9 @@ void UnitTest_Base()
 		utils::test::RESULT("Read<unsigned int>, Endian=default", A == 0x04030201);
 	}
 
-	////Read<unsigned int>, Endian=Big, TEST 1
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02,0x03,0x04 };
-
-	//	auto A = utils::Read<unsigned int>(&Data[0], Data.size(), tEndian_Big);
-
-	//	utils::test::RESULT("Read<unsigned int>, Endian=Big, TEST 1", A == 0x01020304);
-	//}
-
-	////Read<unsigned int>, Endian=Big, TEST 2 SHORT
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02 };
-
-	//	auto A = utils::Read<unsigned int>(&Data[0], Data.size(), tEndian_Big);
-
-	//	utils::test::RESULT("Read<unsigned int>, Endian=Big, TEST 2 SHORT", A == 0x01020000);
-	//}
-
-	////Read<unsigned int>, Endian=Little, TEST 1
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02,0x03,0x04 };
-
-	//	auto A = utils::Read<unsigned int>(&Data[0], Data.size());
-
-	//	utils::test::RESULT("Read<unsigned int>, Endian=Little, TEST 1", A == 0x04030201);
-	//}
-
-	////Read<unsigned int>, Endian=Little, TEST 2 SHORT
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02 };
-
-	//	auto A = utils::Read<unsigned int>(&Data[0], Data.size());
-
-	//	utils::test::RESULT("Read<unsigned int>, Endian=Little, TEST 2 SHORT", A == 0x00000201);
-	//}
-
-	////Read<uint64_t>, Endian=Big
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08 };
-
-	//	auto A = utils::Read<uint64_t>(&Data[0], Data.size(), tEndian_Big);
-
-	//	utils::test::RESULT("Read<uint64_t>, Endian=Big", A == 0x0102030405060708);
-	//}
-
-	////Read<uint64_t>, Endian=Little
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08 };
-
-	//	auto A = utils::Read<uint64_t>(&Data[0], Data.size());
-
-	//	utils::test::RESULT("Read<uint64_t>, Endian=Little", A == 0x0807060504030201);
-	//}
-
-	////Read<int>, Endian=Little
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02,0x03,(char)0xF4 };
-
-	//	auto A = utils::Read<int>(&Data[0], Data.size());
-
-	//	utils::test::RESULT("Read<int>, Endian=Little", A == 0xF4030201);
-	//}
-
-	////Read<short>, Endian=Big
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02 };
-
-	//	auto A = utils::Read<short>(&Data[0], Data.size(), tEndian_Big);
-
-	//	utils::test::RESULT("Read<short>, Endian=Big", A == 0x0102);
-	//}
-
-	////Read<short>, Endian=Little
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02 };
-
-	//	auto A = utils::Read<short>(&Data[0], Data.size());
-
-	//	utils::test::RESULT("Read<short>, Endian=Little", A == 0x0201);
-	//}
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//Read<unsigned int, tVectorUInt8::iterator>, Endian=default
+	//Read<unsigned int, tVectorUInt8::iterator>
 	{
 		tVectorUInt8 Data{ 0x01,0x02,0x03,0x04 };
 
@@ -223,7 +96,7 @@ void UnitTest_Base()
 		utils::test::RESULT("Read<unsigned int, tVectorUInt8::iterator>, Endian=default", A == 0x04030201);
 	}
 
-	//Read<unsigned int>, Endian=Little
+	//Read<unsigned int>
 	{
 		tVectorUInt8 Data{ 0x01,0x02,0x03,0x04 };
 
@@ -232,7 +105,7 @@ void UnitTest_Base()
 		utils::test::RESULT("Read<unsigned int>, Endian=Little", A == 0x04030201);
 	}
 
-	//Read<unsigned int, tVectorUInt8::iterator>, Endian=default
+	//Read<unsigned int, tVectorUInt8::iterator>
 	{
 		tVectorUInt8 Data{ 0x01,0x02,0x03,0x04 };
 
@@ -241,16 +114,7 @@ void UnitTest_Base()
 		utils::test::RESULT("Read<unsigned int, tVectorUInt8::iterator>, Endian=default", A == 0x04030201);
 	}
 
-	////Read<unsigned int, tVectorUInt8::iterator>, Endian=Big
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02,0x03,0x04 };
-
-	//	auto A = utils::Read<unsigned int, tVectorUInt8::iterator>(Data.begin(), Data.end(), tEndian_Big);
-
-	//	utils::test::RESULT("Read<uint64_t, tVectorUInt8::iterator>, Endian=Big", A == 0x01020304);
-	//}
-
-	//Read<unsigned int, tVectorUInt8::iterator>, Endian=Little
+	//Read<unsigned int, tVectorUInt8::iterator>
 	{
 		tVectorUInt8 Data{ 0x01,0x02,0x03,0x04 };
 
@@ -259,7 +123,7 @@ void UnitTest_Base()
 		utils::test::RESULT("Read<uint64_t, tVectorUInt8::iterator>, Endian=Little", A == 0x04030201);
 	}
 
-	//Read<uint64_t, tVectorUInt8::iterator>, Endian=default
+	//Read<uint64_t, tVectorUInt8::iterator>
 	{
 		tVectorUInt8 Data{ 0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08 };
 
@@ -268,16 +132,7 @@ void UnitTest_Base()
 		utils::test::RESULT("Read<uint64_t, tVectorUInt8::iterator>, Endian=default", A == 0x0807060504030201);
 	}
 
-	////Read<uint64_t, tVectorUInt8::iterator>, Endian=Big
-	//{
-	//	tVectorUInt8 Data{ 0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08 };
-
-	//	uint64_t A = utils::Read<uint64_t, tVectorUInt8::iterator>(Data.begin(), Data.end(), tEndian_Big);
-
-	//	utils::test::RESULT("Read<uint64_t, tVectorUInt8::iterator>, Endian=Big", A == 0x0102030405060708);
-	//}
-
-	//Read<uint64_t, tVectorUInt8::iterator>, Endian=Little
+	//Read<uint64_t, tVectorUInt8::iterator>
 	{
 		tVectorUInt8 Data{ 0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08 };
 
@@ -288,7 +143,7 @@ void UnitTest_Base()
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//ToVector<double> & Read<double, tVectorUInt8::iterator>, Endian=default
+	//ToVector<double> & Read<double, tVectorUInt8::iterator>
 	{
 		double Figure = 12345678.901;
 
@@ -299,7 +154,7 @@ void UnitTest_Base()
 		utils::test::RESULT("ToVector<double> & Read<double, ...>, Endian=default", A == Figure);
 	}
 
-	//ToVector<double> & Read<double, tVectorUInt8::iterator>, Endian=default
+	//ToVector<double> & Read<double, tVectorUInt8::iterator>
 	{
 		double A = 12345678.901;
 
@@ -312,7 +167,7 @@ void UnitTest_Base()
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
-	//ToVector<int>, Endian=default
+	//ToVector<int>
 	{
 		int Figure = -1234567;
 
@@ -323,104 +178,44 @@ void UnitTest_Base()
 		utils::test::RESULT("ToVector<int>, Endian=default", A == Figure);
 	}
 
-	////ToVector<int>, Endian=Big
-	//{
-	//	int A = -1234567;//Format=LittleEndian
-
-	//	decltype(A) B = 0;
-
-	//	std::reverse_copy(((unsigned char*)& A), ((unsigned char*)& A) + sizeof(A), (unsigned char*)& B);//Format => to BigEndian
-
-	//	tVectorUInt8 Data = ToVector(B);
-
-	//	auto C = utils::Read<decltype(A), tVectorUInt8::iterator>(Data.begin(), Data.end(), tEndian_Big);
-
-	//	utils::test::RESULT("ToVector<int>, Endian=Big", C == A);
-	//}
-
-	//ToVector<int>, Endian=Little
+	//ToVector<int>
 	{
-		int A = -1234567;//Format=LittleEndian
+		int A = -1234567;
 
-		tVectorUInt8 Data = ToVector(A);//Format=LittleEndian
+		tVectorUInt8 Data = ToVector(A);
 
 		auto C = utils::Read<decltype(A), tVectorUInt8::iterator>(Data.begin(), Data.end());
 
 		utils::test::RESULT("ToVector<int>, Endian=Little", C == A);
 	}
 
-	////ToVector<unsigned int>, Endian=Big
-	//{
-	//	unsigned int A = 0x12345678;//Format=LittleEndian
-
-	//	decltype(A) B = 0;
-
-	//	std::reverse_copy(((unsigned char*)& A), ((unsigned char*)& A) + sizeof(A), (unsigned char*)& B);//Format => to BigEndian
-
-	//	tVectorUInt8 Data = ToVector(B);
-
-	//	auto C = utils::Read<decltype(A), tVectorUInt8::iterator>(Data.begin(), Data.end(), tEndian_Big);
-
-	//	utils::test::RESULT("ToVector<unsigned int>, Endian=Big", C == A);
-	//}
-
-	//ToVector<unsigned int>, Endian=Little
+	//ToVector<unsigned int>
 	{
-		unsigned int A = 0x12345678;//Format=LittleEndian
+		unsigned int A = 0x12345678;
 
-		tVectorUInt8 Data = ToVector(A);//Format=LittleEndian
+		tVectorUInt8 Data = ToVector(A);
 
 		auto C = utils::Read<decltype(A), tVectorUInt8::iterator>(Data.begin(), Data.end());
 
 		utils::test::RESULT("ToVector<unsigned int>, Endian=Little", C == A);
 	}
 
-	////ToVector<unsigned short>, Endian=Big
-	//{
-	//	unsigned short A = 0x1234;//Format=LittleEndian
-
-	//	decltype(A) B = 0;
-
-	//	std::reverse_copy(((unsigned char*)& A), ((unsigned char*)& A) + sizeof(A), (unsigned char*)& B);//Format => to BigEndian
-
-	//	tVectorUInt8 Data = ToVector(B);
-
-	//	auto C = utils::Read<decltype(A), tVectorUInt8::iterator>(Data.begin(), Data.end(), tEndian_Big);
-
-	//	utils::test::RESULT("ToVector<unsigned short>, Endian=Big", C == A);
-	//}
-
-	//ToVector<unsigned short>, Endian=Little
+	//ToVector<unsigned short>
 	{
-		unsigned short A = 0x1234;//Format=LittleEndian
+		unsigned short A = 0x1234;
 
-		tVectorUInt8 Data = ToVector(A);//Format=LittleEndian
+		tVectorUInt8 Data = ToVector(A);
 
 		auto C = utils::Read<decltype(A), tVectorUInt8::iterator>(Data.begin(), Data.end());
 
 		utils::test::RESULT("ToVector<unsigned short>, Endian=Little", C == A);
 	}
 
-	////ToVector<int64_t>, Endian=Big
-	//{
-	//	int64_t A = 0x123456789ABCDEF0;//Format=LittleEndian
-
-	//	decltype(A) B = 0;
-
-	//	std::reverse_copy(((unsigned char*)& A), ((unsigned char*)& A) + sizeof(A), (unsigned char*)& B);//Format => to BigEndian
-
-	//	tVectorUInt8 Data = ToVector(B);
-
-	//	auto C = utils::Read<decltype(A), tVectorUInt8::iterator>(Data.begin(), Data.end(), tEndian_Big);
-
-	//	utils::test::RESULT("ToVector<int64_t>, Endian=Big", C == A);
-	//}
-
-	//ToVector<int64_t>, Endian=Little
+	//ToVector<int64_t>
 	{
-		int64_t Figure = 0x123456789ABCDEF0;//Format=LittleEndian
+		int64_t Figure = 0x123456789ABCDEF0;
 
-		tVectorUInt8 Data = ToVector(Figure);//Format=LittleEndian
+		tVectorUInt8 Data = ToVector(Figure);
 
 		auto A = utils::Read<decltype(Figure), tVectorUInt8::iterator>(Data.begin(), Data.end());
 
@@ -429,9 +224,9 @@ void UnitTest_Base()
 
 	//ToVector<int64_t>, Size - 4
 	{
-		int64_t A = 0x123456789ABCDEF0;//Format=LittleEndian
+		int64_t A = 0x123456789ABCDEF0;
 
-		tVectorUInt8 Data = ToVector(A);//Format=LittleEndian
+		tVectorUInt8 Data = ToVector(A);
 
 		auto C = utils::Read<decltype(A), tVectorUInt8::iterator>(Data.begin(), Data.end() - 4);
 
@@ -686,6 +481,35 @@ void UnitTest_Base()
 		A = Reverse(A);
 
 		utils::test::RESULT("Reverse<uint64_t>", A == 0xEFCD'AB90'7856'3412);
+	}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
+
+	{
+		type::tArray2<10> Value_1;
+		type::tArray2<10> Value_2;
+
+		utils::test::RESULT("type::tArray2<10> ==", Value_1 == Value_2);
+
+		Value_1[4] = 4;
+
+		utils::test::RESULT("type::tArray2<10> !=", Value_1 != Value_2);
+	}
+
+	{
+		type::tArray1<10> Value_1;
+		type::tArray1<10> Value_2;
+
+		type::tArray2<10> Key2;
+
+		Value_1 = Key2;
+		Value_2 = Key2;
+
+		utils::test::RESULT("type::tArray1<10> ==", Value_1 == Value_2);
+
+		Value_1[4] = 4;
+
+		utils::test::RESULT("type::tArray1<10> !=", Value_1 != Value_2);
 	}
 
 	/* [TBD]
