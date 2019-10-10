@@ -63,13 +63,13 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(Iter
 }
 
 template<typename T>
-typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(const char* data, size_t dataSize)
+typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(const char* data, std::size_t dataSize)
 {
 	return Read<T, const char*>(data, data + dataSize);
 }
 
 template<typename T>
-typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(const unsigned char* data, size_t dataSize)
+typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(const unsigned char* data, std::size_t dataSize)
 {
 	const char* Begin = reinterpret_cast<const char*>(data);
 
@@ -118,7 +118,7 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(Iter
 template<typename T>
 typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(const char* data, tRadix radix)
 {
-	size_t DataSize = strlen(data);
+	std::size_t DataSize = strlen(data);
 
 	return Read<T, const char*>(data, data + DataSize, radix);
 }

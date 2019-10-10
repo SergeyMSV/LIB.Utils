@@ -29,10 +29,9 @@
 // |     18     |   2019 08 25  | Updated
 // |            |               | 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-#ifndef LIB_UTILS_CRC_H
-#define LIB_UTILS_CRC_H
+#pragma once
 
-#include <stddef.h>
+#include <cstddef>
 
 namespace utils
 {
@@ -94,7 +93,7 @@ unsigned char CRC08_BNTBX1(Iterator first, Iterator last, unsigned char prevCRC 
 	return prevCRC;
 }
 
-static unsigned char CRC08_BNTBX1(const char* data, size_t dataSize, unsigned char prevCRC = 0xFF)
+static unsigned char CRC08_BNTBX1(const char* data, std::size_t dataSize, unsigned char prevCRC = 0xFF)
 {
 	return CRC08_BNTBX1<const char*>(data, data + dataSize, prevCRC);
 }
@@ -138,7 +137,7 @@ unsigned char CRC08_DALLAS(Iterator first, Iterator last, unsigned char prevCRC 
 	return prevCRC;
 }
 
-static unsigned char CRC08_DALLAS(const char* data, size_t dataSize, unsigned char prevCRC = 0x00)
+static unsigned char CRC08_DALLAS(const char* data, std::size_t dataSize, unsigned char prevCRC = 0x00)
 {
 	return CRC08_DALLAS<const char*>(data, data + dataSize, prevCRC);
 }
@@ -197,7 +196,7 @@ unsigned char CRC08_GSM0710FCS(Iterator first, Iterator last, unsigned char prev
 	return 0xFF - prevCRC;
 }
 
-static unsigned char CRC08_GSM0710FCS(const char* data, size_t dataSize, unsigned char prevCRC = 0xFF)
+static unsigned char CRC08_GSM0710FCS(const char* data, std::size_t dataSize, unsigned char prevCRC = 0xFF)
 {
 	return CRC08_GSM0710FCS<const char*>(data, data + dataSize, prevCRC);
 }
@@ -221,7 +220,7 @@ unsigned char CRC08_NMEA(Iterator first, Iterator last, unsigned char prevCRC = 
 	return prevCRC;
 }
 
-static unsigned char CRC08_NMEA(const char* data, size_t dataSize, unsigned char prevCRC = 0x00)
+static unsigned char CRC08_NMEA(const char* data, std::size_t dataSize, unsigned char prevCRC = 0x00)
 {
 	return CRC08_NMEA<const char*>(data, data + dataSize, prevCRC);
 }
@@ -281,7 +280,7 @@ unsigned short CRC16_CCITT(Iterator first, Iterator last, unsigned short prevCRC
 	return prevCRC;
 }
 
-static unsigned short CRC16_CCITT(const char* data, size_t dataSize, unsigned short prevCRC = 0xFFFF)
+static unsigned short CRC16_CCITT(const char* data, std::size_t dataSize, unsigned short prevCRC = 0xFFFF)
 {
 	return CRC16_CCITT<const char*>(data, data + dataSize, prevCRC);
 }
@@ -292,7 +291,7 @@ unsigned short CRC16_BNTBX2(Iterator first, Iterator last, unsigned short prevCR
 	return CRC16_CCITT<Iterator>(first, last, prevCRC);
 }
 
-static unsigned short CRC16_BNTBX2(const char* data, size_t dataSize, unsigned short prevCRC = 0xFFFF)
+static unsigned short CRC16_BNTBX2(const char* data, std::size_t dataSize, unsigned short prevCRC = 0xFFFF)
 {
 	return CRC16_CCITT<const char*>(data, data + dataSize, prevCRC);
 }
@@ -352,7 +351,7 @@ unsigned short CRC16_ANSI(Iterator first, Iterator last, unsigned short prevCRC 
 	return prevCRC;
 }
 
-static unsigned short CRC16_ANSI(const char* data, size_t dataSize, unsigned short prevCRC = 0xFFFF)
+static unsigned short CRC16_ANSI(const char* data, std::size_t dataSize, unsigned short prevCRC = 0xFFFF)
 {
 	return CRC16_ANSI<const char*>(data, data + dataSize, prevCRC);
 }
@@ -436,12 +435,10 @@ unsigned int CRC32_BNTBX2(Iterator first, Iterator last, unsigned int prevCRC = 
 	return prevCRC;
 }
 
-static unsigned int CRC32_BNTBX2(const char* data, size_t dataSize, unsigned int prevCRC = 0)
+static unsigned int CRC32_BNTBX2(const char* data, std::size_t dataSize, unsigned int prevCRC = 0)
 {
 	return CRC32_BNTBX2<const char*>(data, data + dataSize, prevCRC);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 }
-
-#endif//LIB_UTILS_CRC_H

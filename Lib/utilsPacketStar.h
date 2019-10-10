@@ -35,7 +35,7 @@ protected:
 
 	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
 	{
-		size_t Size = std::distance(cbegin, cend);
+		std::size_t Size = std::distance(cbegin, cend);
 
 		if (Size >= GetSize(0) && *cbegin == STX)
 		{
@@ -80,7 +80,7 @@ protected:
 		return false;
 	}
 
-	static size_t GetSize(size_t payloadSize) { return sizeof(STX) + sizeof(tFieldDataSize) + payloadSize + 2; };
+	static std::size_t GetSize(std::size_t payloadSize) { return sizeof(STX) + sizeof(tFieldDataSize) + payloadSize + 2; };
 
 	void Append(tVectorUInt8& dst, const TPayload& payload) const
 	{
@@ -98,7 +98,7 @@ protected:
 	}
 
 private:
-	static bool VerifyCRC(tVectorUInt8::const_iterator begin, size_t crcDataSize)
+	static bool VerifyCRC(tVectorUInt8::const_iterator begin, std::size_t crcDataSize)
 	{
 		auto CRC = utils::crc::CRC16_CCITT(begin, begin + crcDataSize);
 
