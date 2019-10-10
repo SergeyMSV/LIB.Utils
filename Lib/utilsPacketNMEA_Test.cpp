@@ -47,7 +47,7 @@ void UnitTest_PacketNMEA_Parse(const std::string& testName, const std::string& r
 
 	if (PacketData.size() == data.size())
 	{
-		for (size_t i = 0; i < PacketData.size(); ++i)
+		for (std::size_t i = 0; i < PacketData.size(); ++i)
 		{
 			if (PacketData != data)
 			{
