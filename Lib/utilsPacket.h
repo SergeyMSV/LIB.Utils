@@ -50,7 +50,7 @@ public:
 			{
 				if (TryParse(PacketVector, packet))
 				{
-					size_t EraseSize = std::distance(receivedData.cbegin(), Begin);
+					std::size_t EraseSize = std::distance(receivedData.cbegin(), Begin);
 
 					EraseSize += PacketVector.size();
 
@@ -91,9 +91,9 @@ public:
 
 	tVectorUInt8 ToVector()
 	{
-		size_t PayloadSize = TPayload::GetSize();
+		std::size_t PayloadSize = TPayload::GetSize();
 
-		size_t PacketSize = TFormat<TPayload>::GetSize(PayloadSize);
+		std::size_t PacketSize = TFormat<TPayload>::GetSize(PayloadSize);
 
 		tVectorUInt8 PacketVector;
 
@@ -118,7 +118,7 @@ struct tPayloadCommon
 		Data.insert(Data.end(), cbegin, cend);
 	}
 
-	size_t GetSize() const { return Data.size(); }
+	std::size_t GetSize() const { return Data.size(); }
 
 	void Append(tVectorUInt8& dst) const
 	{

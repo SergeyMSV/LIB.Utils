@@ -37,7 +37,7 @@ struct tMsgBNTBX0802Cmd
 		}
 	}
 
-	static size_t GetSize() { return 1; };
+	static std::size_t GetSize() { return 1; };
 
 	tVectorUInt8 ToVector() const
 	{
@@ -72,7 +72,7 @@ struct tMsgBNTBX0802Rsp
 		}
 	}
 
-	static size_t GetSize() { return 1; };
+	static std::size_t GetSize() { return 1; };
 
 	tVectorUInt8 ToVector() const
 	{

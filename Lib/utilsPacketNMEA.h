@@ -36,7 +36,7 @@ protected:
 
 	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
 	{
-		size_t Size = std::distance(cbegin, cend);
+		std::size_t Size = std::distance(cbegin, cend);
 
 		if (Size >= GetSize(0) && *cbegin == STX)
 		{
@@ -45,7 +45,7 @@ protected:
 
 			if (End != cend)
 			{
-				size_t DataSize = std::distance(Begin, End);
+				std::size_t DataSize = std::distance(Begin, End);
 
 				if (Size >= GetSize(DataSize) && VerifyCRC(Begin, DataSize))
 				{
@@ -66,7 +66,7 @@ protected:
 
 			if (End != packetVector.cend())
 			{
-				size_t DataSize = std::distance(Begin, End);
+				std::size_t DataSize = std::distance(Begin, End);
 
 				if (packetVector.size() == GetSize(DataSize) && VerifyCRC(Begin, DataSize))
 				{
@@ -80,7 +80,7 @@ protected:
 		return false;
 	}
 
-	static size_t GetSize(size_t payloadSize) { return payloadSize + 6; };//$*xx\xd\xa
+	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 6; };//$*xx\xd\xa
 
 	void Append(tVectorUInt8& dst, const TPayload& payload) const
 	{
@@ -103,7 +103,7 @@ protected:
 	}
 
 private:
-	static bool VerifyCRC(tVectorUInt8::const_iterator begin, size_t crcDataSize)
+	static bool VerifyCRC(tVectorUInt8::const_iterator begin, std::size_t crcDataSize)
 	{
 		auto CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
 
@@ -146,11 +146,11 @@ struct tPayloadCommon
 		Data.push_back(LocalString);
 	}
 
-	size_t GetSize() const
+	std::size_t GetSize() const
 	{
-		size_t Size = 0;
+		std::size_t Size = 0;
 
-		for (size_t i = 0; i < Data.size(); ++i)
+		for (std::size_t i = 0; i < Data.size(); ++i)
 		{
 			Size += Data[i].size();
 
@@ -165,7 +165,7 @@ struct tPayloadCommon
 
 	void Append(tVectorUInt8& dst) const
 	{
-		for (size_t i = 0; i < Data.size(); ++i)
+		for (std::size_t i = 0; i < Data.size(); ++i)
 		{
 			dst.insert(dst.end(), Data[i].cbegin(), Data[i].cend());
 

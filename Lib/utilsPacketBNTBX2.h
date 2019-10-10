@@ -60,7 +60,7 @@ protected:
 
 	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
 	{
-		size_t Size = std::distance(cbegin, cend);
+		std::size_t Size = std::distance(cbegin, cend);
 
 		if (Size >= GetSize(0) && *cbegin == STX)
 		{
@@ -138,7 +138,7 @@ protected:
 		return false;
 	}
 
-	static size_t GetSize(size_t payloadSize) { return 11 + payloadSize; };
+	static std::size_t GetSize(std::size_t payloadSize) { return 11 + payloadSize; };
 
 	void Append(tVectorUInt8& dst, const TPayload& payload) const
 	{

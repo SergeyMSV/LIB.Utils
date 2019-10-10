@@ -127,11 +127,11 @@ std::vector<int> RSA32_Encrypt(std::vector<int>& msg, tKey32 key, tKey32 mod)
 {
 	std::vector<int> Res;
 
-	size_t Size = msg.size();
+	std::size_t Size = msg.size();
 
 	Res.reserve(Size * 2);
 
-	for (size_t i = 0; i < Size; ++i)
+	for (std::size_t i = 0; i < Size; ++i)
 	{
 		Res.push_back(RSA32::Qe2(((msg[i] >> 16) & 0x0000FFFF), key.Field.A, static_cast<int>(mod.Field.A)));
 
@@ -145,11 +145,11 @@ std::vector<int> RSA32_Decrypt(std::vector<int>& msg, tKey32 key, tKey32 mod)
 {
 	std::vector<int> Res;
 
-	size_t Size = msg.size();
+	std::size_t Size = msg.size();
 
 	Res.reserve(Size / 2);
 
-	for (size_t i = 0; i < Size; i += 2)
+	for (std::size_t i = 0; i < Size; i += 2)
 	{	
 		int Value = RSA32::Qe2(msg[i], key.Field.A, static_cast<int>(mod.Field.A)) << 16;
 
