@@ -6,7 +6,6 @@ namespace utils
 	}
 }
 
-
 int main()
 {
 	utils::unit_test::UnitTest_CRC();
