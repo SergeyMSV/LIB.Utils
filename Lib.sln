@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_CryptoAES", "UnitT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_CryptoRSA", "UnitTest_CryptoRSA\UnitTest_CryptoRSA.vcxproj", "{06AE7ED4-E54F-4EAA-B5D7-0E826B7D0F1F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Charset", "UnitTest_Charset\UnitTest_Charset.vcxproj", "{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -131,6 +133,14 @@ Global
 		{06AE7ED4-E54F-4EAA-B5D7-0E826B7D0F1F}.Release|x64.Build.0 = Release|x64
 		{06AE7ED4-E54F-4EAA-B5D7-0E826B7D0F1F}.Release|x86.ActiveCfg = Release|Win32
 		{06AE7ED4-E54F-4EAA-B5D7-0E826B7D0F1F}.Release|x86.Build.0 = Release|Win32
+		{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}.Debug|x64.ActiveCfg = Debug|x64
+		{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}.Debug|x64.Build.0 = Debug|x64
+		{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}.Debug|x86.ActiveCfg = Debug|Win32
+		{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}.Debug|x86.Build.0 = Debug|Win32
+		{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}.Release|x64.ActiveCfg = Release|x64
+		{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}.Release|x64.Build.0 = Release|x64
+		{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}.Release|x86.ActiveCfg = Release|Win32
+		{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

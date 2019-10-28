@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{555B7583-500F-47F0-8255-5284A8DA8158}</ProjectGuid>
+    <ProjectGuid>{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}</ProjectGuid>
     <RootNamespace>CPPDEMOProtocol1</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -128,10 +128,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Lib\utilsCharset.cpp" />
+    <ClCompile Include="..\Lib\utilsCharset_Test.cpp" />
+    <ClCompile Include="..\Lib\utilsTest.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Lib\utilsBase.h" />
+    <ClInclude Include="..\Lib\utilsCharset.h" />
+    <ClInclude Include="..\Lib\utilsTest.h" />
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
   </ItemGroup>
