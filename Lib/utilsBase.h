@@ -54,7 +54,7 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(Iter
 
 	auto Size = std::distance(first, last);
 
-	if (Size <= sizeof(T))
+	if (Size > 0 && Size <= static_cast<int>(sizeof(T)))
 	{
 		std::copy(first, last, reinterpret_cast<tUInt8*>(&Data));
 	}
@@ -87,15 +87,15 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(Iter
 {
 	char Str[N];//[#] and +/- and 0x00
 
-	int StrIndex = 0;
+	unsigned int StrIndex = 0;
 
 	for (; first != last && StrIndex < sizeof(Str) - 1; ++first)
 	{
 		char Byte = static_cast<char>(*first);
 
-		if (Byte >= '0' && Byte <= '9' ||
-			radix == tRadix_10 && Byte == '-' && StrIndex == 0 ||
-			radix == tRadix_16 && (Byte >= 'A' && Byte <= 'F' || Byte >= 'a' && Byte <= 'f'))
+		if ((Byte >= '0' && Byte <= '9') ||
+			(radix == tRadix_10 && Byte == '-' && StrIndex == 0) ||
+			(radix == tRadix_16 && ((Byte >= 'A' && Byte <= 'F') || (Byte >= 'a' && Byte <= 'f'))))
 		{
 			Str[StrIndex++] = Byte;
 		}
