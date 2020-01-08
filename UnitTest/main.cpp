@@ -12,6 +12,7 @@ namespace utils
 		void UnitTest_PacketStar();
 		void UnitTest_PacketStar2();
 		void UnitTest_Test();
+		void UnitTest_Trap();
 	}
 }
 
@@ -29,6 +30,7 @@ int main()
 	UnitTest_PacketStar();
 	UnitTest_PacketStar2();
 	//UnitTest_Test();
+	UnitTest_Trap();
 
 	return 0;
 }

@@ -47,6 +47,9 @@
     <ClCompile Include="..\Lib\utilsCryptoRSA32_Test.cpp">
       <Filter>Lib</Filter>
     </ClCompile>
+    <ClCompile Include="..\Lib\utilsTrap_Test.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
@@ -88,6 +91,9 @@
       <Filter>Lib</Filter>
     </ClInclude>
     <ClInclude Include="..\Lib\utilsCryptoRSA32.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lib\utilsTrap.h">
       <Filter>Lib</Filter>
     </ClInclude>
   </ItemGroup>
