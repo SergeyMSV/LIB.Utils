@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsCryptoAES.h
 //
-// Standard ISO/IEC 114882, C++17
+// Standard ISO/IEC 114882, C++11
 //
 // |   version  |    release    | Description
 // |------------|---------------|---------------------------------
@@ -16,6 +16,7 @@
 
 #include "utilsKey.h"
 
+#include <cstddef>
 #include <cassert>
 #include <vector>
 
@@ -60,12 +61,12 @@ tAES_CYPHER GetMode()
 }
 
 tAES_CERR VerifyInputECB(tAES_CYPHER mode, const tVectorUInt8& data);
-void Encrypt_ECB(tAES_CYPHER mode, unsigned char* data, int len, const unsigned char* key);//Electronic Codebook (ECB)
-void Decrypt_ECB(tAES_CYPHER mode, unsigned char* data, int len, const unsigned char* key);//Electronic Codebook (ECB)
+void Encrypt_ECB(tAES_CYPHER mode, unsigned char* data, std::size_t len, const unsigned char* key);//Electronic Codebook (ECB)
+void Decrypt_ECB(tAES_CYPHER mode, unsigned char* data, std::size_t len, const unsigned char* key);//Electronic Codebook (ECB)
 
 tAES_CERR VerifyInputCBC(tAES_CYPHER mode, const tVectorUInt8& data, const tVectorUInt8& iv);
-void Encrypt_CBC(tAES_CYPHER mode, unsigned char* data, int len, const unsigned char* key, const unsigned char* iv);
-void Decrypt_CBC(tAES_CYPHER mode, unsigned char* data, int len, const unsigned char* key, const unsigned char* iv);
+void Encrypt_CBC(tAES_CYPHER mode, unsigned char* data, std::size_t len, const unsigned char* key, const unsigned char* iv);
+void Decrypt_CBC(tAES_CYPHER mode, unsigned char* data, std::size_t len, const unsigned char* key, const unsigned char* iv);
 		}
 
 //Electronic Codebook (ECB)
