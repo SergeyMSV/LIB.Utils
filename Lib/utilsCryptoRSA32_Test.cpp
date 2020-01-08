@@ -14,20 +14,20 @@ namespace utils
 	namespace unit_test
 	{
 
-std::vector<int> ToVector32(const char* data, int dataSize)
+std::vector<int> ToVector32(const char* data, std::size_t dataSize)
 {
 	std::vector<int> Vector32;
 
-	int Size = dataSize / 4;
+	std::size_t Size = dataSize / 4;
 
 	if ((dataSize % 4) > 0)
 	{
 		Size++;
 	}
 
-	int Index = 0;
+	std::size_t Index = 0;
 
-	for (int i = 0; i < Size; ++i)
+	for (std::size_t i = 0; i < Size; ++i)
 	{
 		int Value = 0;
 
