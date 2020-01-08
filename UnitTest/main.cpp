@@ -29,6 +29,8 @@ int main()
 	UnitTest_PacketNMEA();
 	UnitTest_PacketStar();
 	UnitTest_PacketStar2();
+	UnitTest_PatternCommmand();
+	UnitTest_PatternState();
 	//UnitTest_Test();
 	UnitTest_Trap();
 
