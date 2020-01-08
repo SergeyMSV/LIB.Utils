@@ -144,7 +144,7 @@ void UnitTest_CBC(const std::string& testName, const TKey& key, const std::vecto
 
 	tVectorUInt8 IV = DataToEncrypt[0];
 
-	for (int i = 1; i < data.size() && Result; ++i)
+	for (std::size_t i = 1; i < data.size() && Result; ++i)
 	{
 		Result = Result && crypto::AES_Encrypt(key, DataToEncrypt[i], IV) == crypto::tAES_CERR_None;
 
@@ -158,7 +158,7 @@ void UnitTest_CBC(const std::string& testName, const TKey& key, const std::vecto
 		Result = Result && crypto::AES_Decrypt(key, DataToDecrypt[0]) == crypto::tAES_CERR_None;
 	}
 
-	for (int i = 1; i < DataToDecrypt.size() && i < DataToEncrypt.size() && Result; ++i)
+	for (std::size_t i = 1; i < DataToDecrypt.size() && i < DataToEncrypt.size() && Result; ++i)
 	{
 		IV = DataToEncrypt[i - 1];
 

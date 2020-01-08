@@ -335,14 +335,14 @@ tAES_CERR VerifyInputCBC(tAES_CYPHER mode, const tVectorUInt8& data, const tVect
 	return tAES_CERR_None;
 }
 
-void Encrypt_ECB(tAES_CYPHER mode, unsigned char* data, int len, const unsigned char* key)
+void Encrypt_ECB(tAES_CYPHER mode, unsigned char* data, std::size_t len, const unsigned char* key)
 {
 	unsigned char w[4 * 4 * 15] = { 0 };//round key
 	unsigned char s[4 * 4] = { 0 };//state
 
 	KeyExpansion(mode, key, w);
 
-	for (int i = 0; i < len; i += 4 * g_NB[mode])//start data cypher loop over input buffer
+	for (std::size_t i = 0; i < len; i += 4 * g_NB[mode])//start data cypher loop over input buffer
 	{
 #ifdef LIB_UTILS_CRYPTO_AES_LOG
 		std::printf("Encrypting block at %u ...\n", i);
@@ -405,7 +405,7 @@ void Encrypt_ECB(tAES_CYPHER mode, unsigned char* data, int len, const unsigned 
 	}
 }
 
-void Encrypt_CBC(tAES_CYPHER mode, unsigned char* data, int len, const unsigned char* key, const unsigned char* iv)
+void Encrypt_CBC(tAES_CYPHER mode, unsigned char* data, std::size_t len, const unsigned char* key, const unsigned char* iv)
 {
 	unsigned char w[4 * 4 * 15] = { 0 };//round key
 	unsigned char s[4 * 4] = { 0 };//state
@@ -415,7 +415,7 @@ void Encrypt_CBC(tAES_CYPHER mode, unsigned char* data, int len, const unsigned 
 
 	memcpy(v, iv, sizeof(v));
 
-	for (int i = 0; i < len; i += 4 * g_NB[mode])//start data cypher loop over input buffer
+	for (std::size_t i = 0; i < len; i += 4 * g_NB[mode])//start data cypher loop over input buffer
 	{
 		for (int j = 0; j < 4 * g_NB[mode]; j++)//init state from user buffer (plaintext)
 		{
@@ -522,14 +522,14 @@ void InvMixColumns(tAES_CYPHER mode, unsigned char* state)
 	}
 }
 
-void Decrypt_ECB(tAES_CYPHER mode, unsigned char* data, int len, const unsigned char* key)
+void Decrypt_ECB(tAES_CYPHER mode, unsigned char* data, std::size_t len, const unsigned char* key)
 {
 	unsigned char w[4 * 4 * 15] = { 0 };//round key
 	unsigned char s[4 * 4] = { 0 };//state
 
 	KeyExpansion(mode, key, w);
 
-	for (int i = 0; i < len; i += 4 * g_NB[mode])//start data cypher loop over input buffer
+	for (std::size_t i = 0; i < len; i += 4 * g_NB[mode])//start data cypher loop over input buffer
 	{
 #ifdef LIB_UTILS_CRYPTO_AES_LOG
 		std::printf("Decrypting block at %u ...\n", i);
@@ -594,7 +594,7 @@ void Decrypt_ECB(tAES_CYPHER mode, unsigned char* data, int len, const unsigned 
 	}
 }
 
-void Decrypt_CBC(tAES_CYPHER mode, unsigned char* data, int len, const unsigned char* key, const unsigned char* iv)
+void Decrypt_CBC(tAES_CYPHER mode, unsigned char* data, std::size_t len, const unsigned char* key, const unsigned char* iv)
 {
 	unsigned char w[4 * 4 * 15] = { 0 };//round key
 	unsigned char s[4 * 4] = { 0 };//state
@@ -604,7 +604,7 @@ void Decrypt_CBC(tAES_CYPHER mode, unsigned char* data, int len, const unsigned 
 
 	memcpy(v, iv, sizeof(v));
 
-	for (int i = 0; i < len; i += 4 * g_NB[mode])//start data cypher loop over input buffer
+	for (std::size_t i = 0; i < len; i += 4 * g_NB[mode])//start data cypher loop over input buffer
 	{
 		for (int j = 0; j < 4 * g_NB[mode]; j++)//init state from user buffer (cyphertext)
 		{
