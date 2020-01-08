@@ -9,6 +9,8 @@ namespace utils
 
 void UnitTest_PacketBNTBX2()
 {
+	std::cout << "\n""utils::packet::tPacketBNTBX2\n";
+
 	typedef utils::packet::tPacket<utils::packet_BNTBX::tFormatBNTBX2, utils::packet::tPayloadCommon> tPacketBNTBX2;
 
 	{

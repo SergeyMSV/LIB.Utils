@@ -10,6 +10,8 @@ namespace utils
 
 void UnitTest_PacketStar()
 {
+	std::cout << "\n""utils::packet::tPacketStar\n";
+
 	typedef utils::packet::tPacket<utils::packet_Star::tFormatStar, utils::packet::tPayloadCommon> tPacketStar;
 
 	{
