@@ -5,8 +5,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 void UnitTest_PacketStar()
 {
@@ -61,5 +59,4 @@ void UnitTest_PacketStar()
 	}
 }
 
-	}
 }

@@ -1,14 +1,11 @@
 namespace utils
 {
-	namespace unit_test
-	{
-		void UnitTest_Charset();
-	}
+	void UnitTest_Charset();
 }
 
 int main()
 {
-	utils::unit_test::UnitTest_Charset();
+	utils::UnitTest_Charset();
 
 	return 0;
 }

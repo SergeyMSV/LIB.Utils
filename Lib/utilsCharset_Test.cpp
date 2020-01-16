@@ -8,8 +8,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 void UnitTest_Charset()
 {
@@ -29,5 +27,4 @@ void UnitTest_Charset()
 	std::cout << std::endl;
 }
 
-	}
 }
