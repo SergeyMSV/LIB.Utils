@@ -11,8 +11,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 std::vector<int> ToVector32(const char* data, std::size_t dataSize)
 {
@@ -104,5 +102,4 @@ void UnitTest_CryptoRSA32()
 	std::cout<<std::endl;
 }
 
-	}
 }

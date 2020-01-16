@@ -4,8 +4,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 void UnitTest_Test()
 {
@@ -25,5 +23,4 @@ void UnitTest_Test()
 	std::cout << std::endl;
 }
 
-	}
 }

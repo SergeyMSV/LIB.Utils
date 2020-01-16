@@ -17,8 +17,6 @@ protected:
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 void UnitTest_tLog()
 {
@@ -46,5 +44,4 @@ void UnitTest_tLog()
 	std::cout << std::endl;
 }
 
-	}
 }

@@ -10,8 +10,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 void UnitTest_Key()
 {
@@ -181,5 +179,4 @@ void UnitTest_Key()
 	std::cout << std::endl;
 }
 
-	}
 }

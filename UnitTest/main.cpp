@@ -1,24 +1,23 @@
 namespace utils
 {
-	namespace unit_test
-	{
-		void UnitTest_Base();
-		void UnitTest_CRC();
-		void UnitTest_CryptoAES();
-		void UnitTest_CryptoRSA32();
-		void UnitTest_Key();
-		void UnitTest_PacketBNTBX2();
-		void UnitTest_PacketNMEA();
-		void UnitTest_PacketStar();
-		void UnitTest_PacketStar2();
-		void UnitTest_Test();
-		void UnitTest_Trap();
-	}
+	void UnitTest_Base();
+	void UnitTest_CRC();
+	void UnitTest_CryptoAES();
+	void UnitTest_CryptoRSA32();
+	void UnitTest_Key();
+	void UnitTest_PacketBNTBX2();
+	void UnitTest_PacketNMEA();
+	void UnitTest_PacketStar();
+	void UnitTest_PacketStar2();
+	void UnitTest_PatternCommmand();
+	void UnitTest_PatternState();
+	void UnitTest_Test();
+	void UnitTest_Trap();
 }
 
 int main()
 {
-	using namespace utils::unit_test;
+	using namespace utils;
 
 	UnitTest_Base();
 	UnitTest_CRC();

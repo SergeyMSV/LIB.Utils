@@ -8,8 +8,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 void UnitTest_CRC()
 {
@@ -200,5 +198,4 @@ void UnitTest_CRC()
 	std::cout << std::endl;
 }
 
-	}
 }

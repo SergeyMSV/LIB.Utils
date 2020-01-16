@@ -13,8 +13,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 void UnitTest_PatternState()
 {
@@ -101,5 +99,4 @@ void UnitTest_PatternState()
 	std::cout << std::endl;
 }
 
-	}
 }

@@ -1,14 +1,11 @@
 namespace utils
 {
-	namespace unit_test
-	{
-		void UnitTest_CryptoAES();
-	}
+	void UnitTest_CryptoAES();
 }
 
 int main()
 {
-	utils::unit_test::UnitTest_CryptoAES();
+	utils::UnitTest_CryptoAES();
 
 	return 0;
 }

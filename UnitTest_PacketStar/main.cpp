@@ -1,14 +1,11 @@
 namespace utils
 {
-	namespace unit_test
-	{
-		void UnitTest_PacketStar();
-	}
+	void UnitTest_PacketStar();
 }
 
 int main()
 {
-	utils::unit_test::UnitTest_PacketStar();
+	utils::UnitTest_PacketStar();
 
 	return 0;
 }

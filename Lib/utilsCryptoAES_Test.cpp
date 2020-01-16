@@ -96,9 +96,6 @@ void aes_cypher_256_test()
 	}
 }
 
-	namespace unit_test
-	{
-
 template<class TKey>
 void UnitTest_ECB(const std::string& testName, const TKey& key, const tVectorUInt8& dataRaw, const tVectorUInt8& dataEnc)
 {
@@ -352,5 +349,4 @@ void UnitTest_CryptoAES()
 	std::cout<<std::endl;
 }
 
-	}
 }
