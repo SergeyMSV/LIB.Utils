@@ -11,8 +11,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 void UnitTest_PatternCommmand()
 {
@@ -113,5 +111,4 @@ void UnitTest_PatternCommmand()
 	std::cout << std::endl;
 }
 
-	}
 }

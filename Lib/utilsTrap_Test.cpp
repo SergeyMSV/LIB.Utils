@@ -5,8 +5,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 const char UnitTest_Trap_Msg[] = "\xd\xa""CLOSED\xd\xa";
 const char UnitTest_Trap_Msg_R[] = "\xa\xd""DESOLC\xa\xd";
@@ -113,5 +111,4 @@ void UnitTest_Trap()
 	std::cout << std::endl;
 }
 
-	}
 }

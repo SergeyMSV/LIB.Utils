@@ -10,8 +10,6 @@
 
 namespace utils
 {
-	namespace unit_test
-	{
 
 void UnitTest_Base()
 {
@@ -535,5 +533,4 @@ void UnitTest_Base()
 	std::cout << std::endl;
 }
 
-	}
 }
