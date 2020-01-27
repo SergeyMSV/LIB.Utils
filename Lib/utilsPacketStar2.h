@@ -3,7 +3,7 @@
 //
 //[STX='*' 1-Byte][PayloadSize 2-Bytes LittleEndian][Payload up to 1024-Bytes][CRC16 CCITT 2-Bytes (PayloadSize and Payload, except STX) LittleEndian]
 //
-// Standard ISO/IEC 114882, C++98
+// Standard ISO/IEC 114882, C++14
 //
 // |   version  |    release    | Description
 // |------------|---------------|---------------------------------
