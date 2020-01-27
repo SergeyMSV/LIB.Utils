@@ -1,8 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacketNMEA.h
 //
-//
-// Standard ISO/IEC 114882, C++17
+// Standard ISO/IEC 114882, C++14
 //
 // |   version  |    release    | Description
 // |------------|---------------|---------------------------------
@@ -93,7 +92,7 @@ protected:
 		dst.push_back(CTX);
 
 		char StrCRC[5];
-		sprintf(StrCRC, "%02X", CRC);
+		std::sprintf(StrCRC, "%02X", CRC);
 
 		dst.push_back(StrCRC[0]);
 		dst.push_back(StrCRC[1]);

@@ -142,6 +142,9 @@
     <ClCompile Include="..\Lib\utilsCryptoRSA32_Test.cpp" />
     <ClCompile Include="..\Lib\utilsKey_Test.cpp" />
     <ClCompile Include="..\Lib\utilsPacketBNTBX2_Test.cpp" />
+    <ClCompile Include="..\Lib\utilsPacketNMEAPayload_Test.cpp" />
+    <ClCompile Include="..\Lib\utilsPacketNMEAType.cpp" />
+    <ClCompile Include="..\Lib\utilsPacketNMEAType_Test.cpp" />
     <ClCompile Include="..\Lib\utilsPacketNMEA_Test.cpp" />
     <ClCompile Include="..\Lib\utilsPacketStar2_Test.cpp" />
     <ClCompile Include="..\Lib\utilsPacketStar_Test.cpp" />
@@ -163,6 +166,8 @@
     <ClInclude Include="..\Lib\utilsPacket.h" />
     <ClInclude Include="..\Lib\utilsPacketBNTBX2.h" />
     <ClInclude Include="..\Lib\utilsPacketNMEA.h" />
+    <ClInclude Include="..\Lib\utilsPacketNMEAPayload.h" />
+    <ClInclude Include="..\Lib\utilsPacketNMEAType.h" />
     <ClInclude Include="..\Lib\utilsPacketStar.h" />
     <ClInclude Include="..\Lib\utilsPacketStar2.h" />
     <ClInclude Include="..\Lib\utilsPatternCommand.h" />

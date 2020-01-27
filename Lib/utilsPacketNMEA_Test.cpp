@@ -3,8 +3,6 @@
 #include "utilsBase.h"
 #include "utilsTest.h"
 
-#include <string.h>
-
 #include <iostream>
 #include <iomanip>
 
@@ -83,7 +81,7 @@ void UnitTest_PacketNMEA()
 
 	dsfsdf.push_back('e');
 
-	std::cout << "\n""utils::packet::tPacketNMEA\n";
+	std::cout << "\n""utils::packet::packet_NMEA\n";
 
 	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadCommon> tPacketNMEA;
 
