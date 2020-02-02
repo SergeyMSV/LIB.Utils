@@ -46,7 +46,7 @@ void UnitTest_PacketNMEAType()
 
 		std::cout << Val.ToString() << '\n';
 	}
-	
+
 	typedef tTime<6> tTime6;
 	UnitTest_PacketNMEAPayload_Test<tTime6>();
 	UnitTest_PacketNMEAPayload_Test<tTime6>("192758");
@@ -89,27 +89,36 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAPayload_Test<tLongitude12>("03732.411956", "E");
 	UnitTest_PacketNMEAPayload_Test<tLongitude12>(231.4567834);
 
-	UnitTest_PacketNMEAPayload_Test<tFloat<2>>();
-	UnitTest_PacketNMEAPayload_Test<tFloat<2>>(0);
-	UnitTest_PacketNMEAPayload_Test<tFloat<2>>("4.56");
-	UnitTest_PacketNMEAPayload_Test<tFloat<2>>(2.34);
+	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>();
+	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>(23);
+	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>("34.5688");
+	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>(52.3434);
 
-	UnitTest_PacketNMEAPayload_Test<tFloat<4>>();
-	UnitTest_PacketNMEAPayload_Test<tFloat<4>>(0);
-	UnitTest_PacketNMEAPayload_Test<tFloat<4>>("4.56");
-	UnitTest_PacketNMEAPayload_Test<tFloat<4>>(2.34);
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 2>>();
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 2>>(0);
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 2>>("4.56");
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 2>>(2.34);
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 2>>("1234.56");
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 2>>(3.3418);
 
-	UnitTest_PacketNMEAPayload_Test<tUInt>();
-	UnitTest_PacketNMEAPayload_Test<tUInt>(0);
-	UnitTest_PacketNMEAPayload_Test<tUInt>("4356");
-	UnitTest_PacketNMEAPayload_Test<tUInt>(2734);
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 4>>();
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 4>>(0);
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 4>>("4.5736");
+	UnitTest_PacketNMEAPayload_Test<tFloat<0, 4>>(2.34);
 
-	UnitTest_PacketNMEAPayload_Test<tUIntFixedSize<4>>();
-	UnitTest_PacketNMEAPayload_Test<tUIntFixedSize<4>>(0);
-	UnitTest_PacketNMEAPayload_Test<tUIntFixedSize<4>>("4356");
-	UnitTest_PacketNMEAPayload_Test<tUIntFixedSize<4>>(2734);
 
- 	std::cout << std::endl;
+
+	UnitTest_PacketNMEAPayload_Test<tUInt<4>>();
+	UnitTest_PacketNMEAPayload_Test<tUInt<4>>(0);
+	UnitTest_PacketNMEAPayload_Test<tUInt<4>>("4356");
+	UnitTest_PacketNMEAPayload_Test<tUInt<4>>(2734);
+
+	UnitTest_PacketNMEAPayload_Test<tUInt<0>>();
+	UnitTest_PacketNMEAPayload_Test<tUInt<0>>(0);
+	UnitTest_PacketNMEAPayload_Test<tUInt<0>>("43586");
+	UnitTest_PacketNMEAPayload_Test<tUInt<0>>(27384);
+
+	std::cout << std::endl;
 }
 
 }
