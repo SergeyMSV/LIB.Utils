@@ -263,8 +263,44 @@ struct tLongitude
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeFract>
+template <std::size_t SizeInt, std::size_t SizeFract>
 struct tFloat
+{
+	double Value = 0;
+	bool Absent = true;
+
+private:
+	static const std::size_t Size = SizeInt + SizeFract + 1;
+
+public:
+	tFloat() = default;
+	explicit tFloat(double val) :Value(val), Absent(false) {}
+	tFloat(const std::string& val)
+	{
+		if (val.size() == Size)
+		{
+			Absent = false;
+
+			Value = std::strtod(val.c_str(), 0);
+		}
+	}
+
+	std::string ToString() const
+	{
+		if (Absent) return "";
+
+		const char StrFormat[] = { '%','0', static_cast<char>(0x30 + SizeInt + SizeFract) , '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
+
+		char Str[Size + 1]{};
+
+		std::sprintf(Str, StrFormat, Value);
+
+		return Str;
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t SizeFract>
+struct tFloat<0, SizeFract>
 {
 	double Value = 0;
 	bool Absent = true;
@@ -322,7 +358,41 @@ struct tPositioning
 	std::string ToString() const;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t Size>
 struct tUInt
+{
+	tUInt32 Value = 0;
+	bool Absent = true;
+
+public:
+	tUInt() = default;
+	explicit tUInt(tUInt32 val) :Value(val), Absent(false) {}
+	tUInt(const std::string& val)
+	{
+		if (val.size() == Size)
+		{
+			Absent = false;
+
+			Value = std::strtol(val.c_str(), 0, 10);
+		}
+	}
+
+	std::string ToString() const
+	{
+		if (Absent) return "";
+
+		const char StrFormat[] = { '%', '0', static_cast<char>(0x30 + Size), 'd', 0 };
+
+		char Str[Size + 1]{};
+
+		std::sprintf(Str, StrFormat, Value);
+
+		return Str;
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <>
+struct tUInt<0>
 {
 	tUInt32 Value = 0;
 	bool Absent = true;
@@ -347,39 +417,6 @@ public:
 		char Str[20]{};
 
 		std::sprintf(Str, "%d", Value);
-
-		return Str;
-	}
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t Size>
-struct tUIntFixedSize
-{
-	tUInt32 Value = 0;
-	bool Absent = true;
-
-public:
-	tUIntFixedSize() = default;
-	explicit tUIntFixedSize(tUInt32 val) :Value(val), Absent(false) {}
-	tUIntFixedSize(const std::string& val)
-	{
-		if (val.size() == Size)
-		{
-			Absent = false;
-
-			Value = std::strtol(val.c_str(), 0, 10);
-		}
-	}
-
-	std::string ToString() const
-	{
-		if (Absent) return "";
-
-		const char StrFormat[] = { '%', '0', static_cast<char>(0x30 + Size), 'd', 0 };
-
-		char Str[Size + 1]{};
-
-		std::sprintf(Str, StrFormat, Value);
 
 		return Str;
 	}
