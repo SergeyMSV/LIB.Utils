@@ -337,39 +337,6 @@ public:
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <> struct tFloat<0, 0>;//Fractional part is just of max length (6 chars), therefore this specialisation makes no sense.
-//{
-//	double Value = 0;
-//	bool Absent = true;
-//
-//private:
-//	static const std::size_t SizeMax = 13;
-//
-//public:
-//	tFloat() = default;
-//	explicit tFloat(double val) :Value(val), Absent(false) {}
-//	tFloat(const std::string& val)
-//	{
-//		if (val.size() > 0 && val.size() < SizeMax)
-//		{
-//			Absent = false;
-//
-//			Value = std::strtod(val.c_str(), 0);
-//		}
-//	}
-//
-//	std::string ToString() const
-//	{
-//		if (Absent) return "";
-//
-//		const char StrFormat[] = { '%', 'f', 0 };
-//
-//		char Str[SizeMax + 1]{};
-//
-//		std::sprintf(Str, StrFormat, Value);
-//
-//		return Str;
-//	}
-//};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeInt> struct tFloat<SizeInt, 0>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
