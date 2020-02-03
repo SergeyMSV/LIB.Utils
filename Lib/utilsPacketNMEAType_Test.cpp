@@ -106,16 +106,15 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAPayload_Test<tFloat<0, 4>>("4.5736");
 	UnitTest_PacketNMEAPayload_Test<tFloat<0, 4>>(2.34);
 
-	//UnitTest_PacketNMEAPayload_Test<tFloat<0, 0>>();//doesn't exist
-	//UnitTest_PacketNMEAPayload_Test<tFloat<0, 0>>(0);//doesn't exist
-	//UnitTest_PacketNMEAPayload_Test<tFloat<0, 0>>("4.5736");//doesn't exist
-	//UnitTest_PacketNMEAPayload_Test<tFloat<0, 0>>(2.34);//doesn't exist
+	//UnitTest_PacketNMEAPayload_Test<tFloat<0, 0>>();//fract is just of max length (6 chars)
+	//UnitTest_PacketNMEAPayload_Test<tFloat<0, 0>>(0);
+	//UnitTest_PacketNMEAPayload_Test<tFloat<0, 0>>("4.5736");
+	//UnitTest_PacketNMEAPayload_Test<tFloat<0, 0>>(72.34);
 
-	UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>();
-	UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>(0);
-	UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>("4.5736");
-	UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>(2.34);
-
+	//UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>();//doesn't exist
+	//UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>(0);//doesn't exist
+	//UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>("4.5736");//doesn't exist
+	//UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>(2.34);//doesn't exist
 
 	UnitTest_PacketNMEAPayload_Test<tUInt<4>>();
 	UnitTest_PacketNMEAPayload_Test<tUInt<4>>(0);
