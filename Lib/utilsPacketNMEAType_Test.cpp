@@ -50,6 +50,7 @@ void UnitTest_PacketNMEAType()
 	typedef tTime<6> tTime6;
 	UnitTest_PacketNMEAPayload_Test<tTime6>();
 	UnitTest_PacketNMEAPayload_Test<tTime6>("192758");
+	UnitTest_PacketNMEAPayload_Test<tTime6>("000000");
 	{
 		tTime6 Val(17, 4, 19);
 
@@ -59,6 +60,7 @@ void UnitTest_PacketNMEAType()
 	typedef tTime<10> tTime10;
 	UnitTest_PacketNMEAPayload_Test<tTime10>();
 	UnitTest_PacketNMEAPayload_Test<tTime10>("192758.345");
+	UnitTest_PacketNMEAPayload_Test<tTime10>("000000.000");
 	{
 		tTime10 Val(17, 4, 19.524);
 
