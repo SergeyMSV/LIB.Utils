@@ -44,7 +44,7 @@ void UnitTest_PacketNMEAPayloadRMC()
 	}
 
 	{
-		std::string Raw("$GPRMC,082653.100,A,2446.4768,N,12100.0344,E,0.00,128.42,270705,,,A*67*56\xd\xa");
+		std::string Raw("$GPRMC,082653.100,A,2446.4768,N,12100.0344,E,0.00,128.42,270705,,,A*67\xd\xa");
 		tVectorUInt8 DataVector(Raw.begin(), Raw.end());
 
 		tPacketNMEA Packet;
