@@ -34,8 +34,8 @@ struct tPayloadRMC
 	typedef Type::tTime<TimeSize> time_type;
 	typedef Type::tLatitude<LatitudeSize> latitude_type;
 	typedef Type::tLongitude<LongitudeSize> longitude_type;
-	typedef Type::tFloat<2> speed_type;
-	typedef Type::tFloat<2> course_type;
+	typedef Type::tFloat<0, 2> speed_type;
+	typedef Type::tFloat<0, 2> course_type;
 	typedef Type::tPositioning positioning_type;
 
 	gnss_type GNSS;

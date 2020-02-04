@@ -13,12 +13,15 @@
 #include "utilsBase.h"
 
 #include <cmath>
-#include <cstdio>
+#include <cstdio>//DEPRECATED
 #include <cstdlib>
 #include <cstring>
 
 #include <string>
 #include <vector>
+
+#include <iomanip>
+#include <sstream>
 
 namespace utils
 {
@@ -72,7 +75,7 @@ struct tDate
 	std::string ToString() const;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t Size>
+template <int Size>
 struct tTime
 {
 	tUInt8 Hour = 0;
@@ -80,12 +83,12 @@ struct tTime
 	double Second = 0;
 	bool Absent = true;
 
+	static_assert(Size >= 6, "tTime: Size");//C++11
+
 	tTime() = default;
 	tTime(tUInt8 hour, tUInt8 minute, double second) :Hour(hour), Minute(minute), Second(second), Absent(false) {}
 	explicit tTime(const std::string& val)
 	{
-		static_assert(Size == 6 || Size == 10, "tTime: Size");//C++11
-
 		if (val.size() == Size)
 		{
 			Absent = false;
@@ -108,20 +111,31 @@ struct tTime
 
 	std::string ToString() const
 	{
-		if (Absent) return "";
-
-		char Str[Size + 1]{};
-
-		if (Hour < 24 && Minute < 60 && Second < 60)
+		if (!Absent && Hour < 24 && Minute < 60 && Second < 60)
 		{
-			switch (Size)
+			std::stringstream Stream;
+
+			Stream << std::setfill('0');
+			Stream << std::setw(2) << static_cast<int>(Hour);
+			Stream << std::setw(2) << static_cast<int>(Minute);
+
+			int SizeFract = Size - 7;//sizeof(hhmmss.)=7
+
+			if (SizeFract > 0)
 			{
-			case 6: std::sprintf(Str, "%02d%02d%02d", Hour, Minute, static_cast<tUInt8>(Second)); break;
-			case 10: std::sprintf(Str, "%02d%02d%06.3f", Hour, Minute, Second); break;
+				Stream.setf(std::ios::fixed);
+
+				Stream << std::setw(2 + SizeFract + 1) << std::setprecision(SizeFract) << Second;
 			}
+			else
+			{
+				Stream << std::setw(2) << static_cast<int>(Second);
+			}
+
+			return Stream.str();
 		}
 
-		return Str;
+		return "";
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
