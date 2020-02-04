@@ -78,12 +78,12 @@ struct tDate
 template <int Size>
 struct tTime
 {
+	static_assert(Size >= 6, "tTime: Size");//C++11
+
 	tUInt8 Hour = 0;
 	tUInt8 Minute = 0;
 	double Second = 0;
 	bool Absent = true;
-
-	static_assert(Size >= 6, "tTime: Size");//C++11
 
 	tTime() = default;
 	tTime(tUInt8 hour, tUInt8 minute, double second) :Hour(hour), Minute(minute), Second(second), Absent(false) {}
@@ -142,6 +142,8 @@ struct tTime
 template <std::size_t Size>
 struct tLatitude
 {
+	static_assert(Size == 9 || Size == 11, "tLatitude: Size");//C++11
+
 	double Value = 0;
 	bool Absent = true;
 
@@ -149,8 +151,6 @@ struct tLatitude
 	explicit tLatitude(double val) :Value(val), Absent(false) {}
 	tLatitude(const std::string& val, const std::string& valSign)
 	{
-		static_assert(Size == 9 || Size == 11, "tLatitude: Size");//C++11
-
 		if (val.size() == Size && valSign.size() == 1)
 		{
 			Absent = false;
@@ -211,6 +211,8 @@ struct tLatitude
 template <std::size_t Size>
 struct tLongitude
 {
+	static_assert(Size == 10 || Size == 12, "tLongitude: Size");//C++11
+
 	double Value = 0;
 	bool Absent = true;
 
@@ -218,8 +220,6 @@ struct tLongitude
 	explicit tLongitude(double val) :Value(val), Absent(false) { }
 	tLongitude(const std::string& val, const std::string& valSign)
 	{
-		static_assert(Size == 10 || Size == 12, "tLongitude: Size");//C++11
-
 		if (val.size() == Size && valSign.size() == 1)
 		{
 			Absent = false;
