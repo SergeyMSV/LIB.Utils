@@ -32,11 +32,13 @@ struct tPayloadGGA
 	typedef Type::tTime<TimeSize> time_type;
 	typedef Type::tLatitude<LatitudeSize> latitude_type;
 	typedef Type::tLongitude<LongitudeSize> longitude_type;
+	typedef Type::tFloat<5, 2> STRANGE_type;
 
 	gnss_type GNSS;
 	time_type Time;
 	latitude_type Latitude;
 	longitude_type Longitude;
+	STRANGE_type StrangeValue;
 
 	tPayloadGGA() = default;
 	explicit tPayloadGGA(const tPayloadCommon::value_type& val)
@@ -47,6 +49,7 @@ struct tPayloadGGA
 			Time = time_type(val[1]);
 			Latitude = latitude_type(val[2], val[3]);
 			Longitude = longitude_type(val[4], val[5]);
+			StrangeValue = STRANGE_type(val[9]);
 		}
 	}
 
@@ -63,7 +66,7 @@ struct tPayloadGGA
 		Data.push_back("");
 		Data.push_back("");
 		Data.push_back("");
-		Data.push_back("");
+		Data.push_back(StrangeValue.ToString());
 		Data.push_back("");
 		Data.push_back("");
 		Data.push_back("");
