@@ -109,35 +109,74 @@ struct tTime
 		}
 	}
 
+	template <int Size>
+	friend std::ostream& operator<< (std::ostream& out, const tTime& value);
+
 	std::string ToString() const
 	{
-		if (!Absent && Hour < 24 && Minute < 60 && Second < 60)
-		{
-			std::stringstream Stream;
+		std::stringstream Stream;
 
-			Stream << std::setfill('0');
-			Stream << std::setw(2) << static_cast<int>(Hour);
-			Stream << std::setw(2) << static_cast<int>(Minute);
+		Stream << *this;
 
-			int SizeFract = Size - 7;//sizeof(hhmmss.)=7
-
-			if (SizeFract > 0)
-			{
-				Stream.setf(std::ios::fixed);
-
-				Stream << std::setw(2 + SizeFract + 1) << std::setprecision(SizeFract) << Second;
-			}
-			else
-			{
-				Stream << std::setw(2) << static_cast<int>(Second);
-			}
-
-			return Stream.str();
-		}
-
-		return "";
+		return Stream.str();
 	}
+
+
+	//std::string ToString() const
+	//{
+	//	if (!Absent && Hour < 24 && Minute < 60 && Second < 60)
+	//	{
+	//		std::stringstream Stream;
+
+	//		Stream << std::setfill('0');
+	//		Stream << std::setw(2) << static_cast<int>(Hour);
+	//		Stream << std::setw(2) << static_cast<int>(Minute);
+
+	//		int SizeFract = Size - 7;//sizeof(hhmmss.)=7
+
+	//		if (SizeFract > 0)
+	//		{
+	//			Stream.setf(std::ios::fixed);
+
+	//			Stream << std::setw(2 + SizeFract + 1) << std::setprecision(SizeFract) << Second;
+	//		}
+	//		else
+	//		{
+	//			Stream << std::setw(2) << static_cast<int>(Second);
+	//		}
+
+	//		return Stream.str();
+	//	}
+
+	//	return "";
+	//}
 };
+
+template <int Size>
+std::ostream& operator<< (std::ostream& out, const tTime<Size>& value)
+{
+	if (!value.Absent && value.Hour < 24 && value.Minute < 60 && value.Second < 60)
+	{
+		out << std::setfill('0');
+		out << std::setw(2) << static_cast<int>(value.Hour);
+		out << std::setw(2) << static_cast<int>(value.Minute);
+
+		int SizeFract = Size - 7;//sizeof(hhmmss.)=7
+
+		if (SizeFract > 0)
+		{
+			out.setf(std::ios::fixed);
+			out << std::setw(2 + SizeFract + 1) << std::setprecision(SizeFract) << value.Second;
+			out.unsetf(std::ios::fixed);
+		}
+		else
+		{
+			out << std::setw(2) << static_cast<int>(value.Second);
+		}
+	}
+
+	return out;
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Size>
 struct tLatitude
@@ -303,7 +342,7 @@ public:
 	{
 		if (Absent) return "";
 
-		const char StrFormat[] = { '%','0', static_cast<char>(0x30 + SizeInt + SizeFract) , '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
+		const char StrFormat[] = { '%','0', static_cast<char>(0x30 + SizeInt + SizeFract + 1) , '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
 
 		char Str[Size + 1]{};
 

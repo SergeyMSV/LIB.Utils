@@ -64,6 +64,7 @@ void UnitTest_PacketNMEAType()
 	{
 		tTime10 Val(17, 4, 19.524);
 
+		std::cout << Val << '\n';
 		std::cout << Val.ToString() << '\n';
 	}
 
@@ -95,6 +96,7 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>(23);
 	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>("34.5688");
 	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>(52.3434);
+	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>(2.34);
 
 	UnitTest_PacketNMEAPayload_Test<tFloat<0, 2>>();
 	UnitTest_PacketNMEAPayload_Test<tFloat<0, 2>>(0);
