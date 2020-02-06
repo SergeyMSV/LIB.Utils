@@ -524,6 +524,26 @@ public:
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+struct tSatellite
+{
+	tUInt8 ID = 0;
+	tUInt8 Elevation = 0;
+	tUInt16 Azimuth = 0;
+	tUInt8 SNR = 0;
+	bool Absent = true;
+
+	tSatellite() = default;//C++11
+	tSatellite(tUInt8 id, tUInt8 elevation, tUInt16 azimuth, tUInt8 snr);
+	explicit tSatellite(const std::string& valID, const std::string& valElevation, const std::string& valAzimuth, const std::string& valSNR);
+
+	std::string ToStringID() const;
+	std::string ToStringElevation() const;
+	std::string ToStringAzimuth() const;
+	std::string ToStringSNR() const;
+
+	std::string ToString() const;
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
 		}
 	}
 }
