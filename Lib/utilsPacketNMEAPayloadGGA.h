@@ -24,7 +24,11 @@ template
 	std::size_t FieldQty,
 	int TimeSize,
 	int LatitudeSize,
-	int LongitudeSize
+	int LongitudeSize,
+	int AltitudeIntSize,
+	int AltitudeFactSize,
+	int GeoidalSeparationIntSize,
+	int GeoidalSeparationFactSize
 >
 struct tPayloadGGA
 {
@@ -32,13 +36,15 @@ struct tPayloadGGA
 	typedef Type::tTime<TimeSize> time_type;
 	typedef Type::tLatitude<LatitudeSize> latitude_type;
 	typedef Type::tLongitude<LongitudeSize> longitude_type;
-	typedef Type::tFloat<5, 2> STRANGE_type;
+	typedef Type::tFloatUnit<AltitudeIntSize, AltitudeFactSize> altitude_type;
+	typedef Type::tFloatUnit<GeoidalSeparationIntSize, GeoidalSeparationFactSize> geoidal_separation_type;
 
 	gnss_type GNSS;
 	time_type Time;
 	latitude_type Latitude;
 	longitude_type Longitude;
-	STRANGE_type StrangeValue;
+	altitude_type Altitude;
+	geoidal_separation_type GeoidalSeparation;
 
 	tPayloadGGA() = default;
 	explicit tPayloadGGA(const tPayloadCommon::value_type& val)
@@ -49,7 +55,8 @@ struct tPayloadGGA
 			Time = time_type(val[1]);
 			Latitude = latitude_type(val[2], val[3]);
 			Longitude = longitude_type(val[4], val[5]);
-			StrangeValue = STRANGE_type(val[9]);
+			Altitude = altitude_type(val[9],val[10]);
+			GeoidalSeparation = geoidal_separation_type(val[11], val[12]);
 		}
 	}
 
@@ -66,10 +73,10 @@ struct tPayloadGGA
 		Data.push_back("");
 		Data.push_back("");
 		Data.push_back("");
-		Data.push_back(StrangeValue.ToString());
-		Data.push_back("");
-		Data.push_back("");
-		Data.push_back("");
+		Data.push_back(Altitude.ToStringValue());
+		Data.push_back(Altitude.ToStringUnit());
+		Data.push_back(GeoidalSeparation.ToStringValue());
+		Data.push_back(GeoidalSeparation.ToStringUnit());
 		Data.push_back("");
 		Data.push_back("");
 

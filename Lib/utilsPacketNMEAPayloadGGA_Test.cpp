@@ -27,7 +27,7 @@ void UnitTest_PacketNMEAPayloadGGA()
 
 		utils::packet_NMEA::tPayloadCommon::value_type PacketData = Packet.GetPayload();
 
-		typedef tPayloadGGA<15, 10, 9, 10> tMsgGGA;
+		typedef tPayloadGGA<15, 10, 9, 10, 5, 2, 3, 2> tMsgGGA;
 
 		tMsgGGA Val(PacketData);
 
@@ -53,7 +53,7 @@ void UnitTest_PacketNMEAPayloadGGA()
 
 		utils::packet_NMEA::tPayloadCommon::value_type PacketData = Packet.GetPayload();
 
-		typedef tPayloadGGA<15, 6, 9, 10> tMsgGGA;
+		typedef tPayloadGGA<15, 6, 9, 10, 5, 2, 3, 2> tMsgGGA;
 
 		tMsgGGA Val(PacketData);
 
