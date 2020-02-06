@@ -22,9 +22,9 @@ namespace utils
 template
 <
 	std::size_t FieldQty,
-	int TimeSize,
-	int LatitudeSize,
-	int LongitudeSize,
+	int TimeSizeFract,
+	int LatitudeSizeFract,
+	int LongitudeSizeFract,
 	int AltitudeIntSize,
 	int AltitudeFactSize,
 	int GeoidalSeparationIntSize,
@@ -33,9 +33,9 @@ template
 struct tPayloadGGA
 {
 	typedef Type::tGNSS gnss_type;
-	typedef Type::tTime<TimeSize> time_type;
-	typedef Type::tLatitude<LatitudeSize> latitude_type;
-	typedef Type::tLongitude<LongitudeSize> longitude_type;
+	typedef Type::tTime<TimeSizeFract> time_type;
+	typedef Type::tLatitude<LatitudeSizeFract> latitude_type;
+	typedef Type::tLongitude<LongitudeSizeFract> longitude_type;
 	typedef Type::tFloatUnit<AltitudeIntSize, AltitudeFactSize> altitude_type;
 	typedef Type::tFloatUnit<GeoidalSeparationIntSize, GeoidalSeparationFactSize> geoidal_separation_type;
 
