@@ -27,7 +27,7 @@ void UnitTest_PacketNMEAPayloadRMC()
 
 		utils::packet_NMEA::tPayloadCommon::value_type PacketData = Packet.GetPayload();
 
-		typedef tPayloadRMC<13, 10, 9, 10> tMsgRMC;
+		typedef tPayloadRMC<13, 3, 4, 4> tMsgRMC;
 
 		tMsgRMC Val(PacketData);
 
@@ -53,7 +53,7 @@ void UnitTest_PacketNMEAPayloadRMC()
 
 		utils::packet_NMEA::tPayloadCommon::value_type PacketData = Packet.GetPayload();
 
-		typedef tPayloadRMC<13, 10, 9, 10> tMsgRMC;
+		typedef tPayloadRMC<13, 3, 4, 4> tMsgRMC;
 
 		tMsgRMC Val(PacketData);
 
@@ -79,7 +79,7 @@ void UnitTest_PacketNMEAPayloadRMC()
 
 		utils::packet_NMEA::tPayloadCommon::value_type PacketData = Packet.GetPayload();
 
-		typedef tPayloadRMC<13, 10, 11, 12> tMsgRMC;
+		typedef tPayloadRMC<13, 3, 6, 6> tMsgRMC;
 
 		tMsgRMC Val(PacketData);
 
