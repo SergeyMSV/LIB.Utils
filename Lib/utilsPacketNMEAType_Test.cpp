@@ -47,50 +47,64 @@ void UnitTest_PacketNMEAType()
 		std::cout << Val.ToString() << '\n';
 	}
 
-	typedef tTime<6> tTime6;
-	UnitTest_PacketNMEAPayload_Test<tTime6>();
-	UnitTest_PacketNMEAPayload_Test<tTime6>("192758");
-	UnitTest_PacketNMEAPayload_Test<tTime6>("000000");
+	typedef tTime<0> tTime0;
+	UnitTest_PacketNMEAPayload_Test<tTime0>();
+	UnitTest_PacketNMEAPayload_Test<tTime0>("192758");
+	UnitTest_PacketNMEAPayload_Test<tTime0>("000000");
 	{
-		tTime6 Val(17, 4, 19);
+		tTime0 Val(17, 4, 19);
 
 		std::cout << Val.ToString() << '\n';
 	}
 
-	typedef tTime<10> tTime10;
-	UnitTest_PacketNMEAPayload_Test<tTime10>();
-	UnitTest_PacketNMEAPayload_Test<tTime10>("192758.345");
-	UnitTest_PacketNMEAPayload_Test<tTime10>("000000.000");
+	typedef tTime<3> tTime3;
+	UnitTest_PacketNMEAPayload_Test<tTime3>();
+	UnitTest_PacketNMEAPayload_Test<tTime3>("192758.345");
+	UnitTest_PacketNMEAPayload_Test<tTime3>("000000.000");
 	{
-		tTime10 Val(17, 4, 19.524);
+		tTime3 Val(17, 4, 19.524);
 
 		std::cout << Val << '\n';
 		std::cout << Val.ToString() << '\n';
 	}
 
-	typedef tLatitude<9> tLatitude9;
-	UnitTest_PacketNMEAPayload_Test<tLatitude9>();
-	UnitTest_PacketNMEAPayload_Test<tLatitude9>(0);
-	UnitTest_PacketNMEAPayload_Test<tLatitude9>("5539.5649", "S");
-	UnitTest_PacketNMEAPayload_Test<tLatitude9>(31.45678);
+	typedef tLatitude<2> tLatitude2;
+	UnitTest_PacketNMEAPayload_Test<tLatitude2>();
+	UnitTest_PacketNMEAPayload_Test<tLatitude2>(0);
+	UnitTest_PacketNMEAPayload_Test<tLatitude2>("5539.56", "S");
+	UnitTest_PacketNMEAPayload_Test<tLatitude2>(31.45);
+	UnitTest_PacketNMEAPayload_Test<tLatitude2>(34);
 
-	typedef tLatitude<11> tLatitude11;
-	UnitTest_PacketNMEAPayload_Test<tLatitude11>();
-	UnitTest_PacketNMEAPayload_Test<tLatitude11>(0);
-	UnitTest_PacketNMEAPayload_Test<tLatitude11>("5539.564975", "N");
-	UnitTest_PacketNMEAPayload_Test<tLatitude11>(31.4567834);
+	typedef tLatitude<4> tLatitude4;
+	UnitTest_PacketNMEAPayload_Test<tLatitude4>();
+	UnitTest_PacketNMEAPayload_Test<tLatitude4>(0);
+	UnitTest_PacketNMEAPayload_Test<tLatitude4>("5539.5649", "S");
+	UnitTest_PacketNMEAPayload_Test<tLatitude4>(31.45678);
 
-	typedef tLongitude<10> tLongitude10;
-	UnitTest_PacketNMEAPayload_Test<tLongitude10>();
-	UnitTest_PacketNMEAPayload_Test<tLongitude10>(0);
-	UnitTest_PacketNMEAPayload_Test<tLongitude10>("03732.4119", "W");
-	UnitTest_PacketNMEAPayload_Test<tLongitude10>(31.45678);
+	typedef tLatitude<6> tLatitude6;
+	UnitTest_PacketNMEAPayload_Test<tLatitude6>();
+	UnitTest_PacketNMEAPayload_Test<tLatitude6>(0);
+	UnitTest_PacketNMEAPayload_Test<tLatitude6>("5539.564975", "N");
+	UnitTest_PacketNMEAPayload_Test<tLatitude6>(31.4567834);
 
-	typedef tLongitude<12> tLongitude12;
-	UnitTest_PacketNMEAPayload_Test<tLongitude12>();
-	UnitTest_PacketNMEAPayload_Test<tLongitude12>(0);
-	UnitTest_PacketNMEAPayload_Test<tLongitude12>("03732.411956", "E");
-	UnitTest_PacketNMEAPayload_Test<tLongitude12>(231.4567834);
+	typedef tLongitude<2> tLongitude2;
+	UnitTest_PacketNMEAPayload_Test<tLongitude2>();
+	UnitTest_PacketNMEAPayload_Test<tLongitude2>(0);
+	UnitTest_PacketNMEAPayload_Test<tLongitude2>("03732.41", "W");
+	UnitTest_PacketNMEAPayload_Test<tLongitude2>(31.45);
+	UnitTest_PacketNMEAPayload_Test<tLongitude2>(31);
+
+	typedef tLongitude<4> tLongitude4;
+	UnitTest_PacketNMEAPayload_Test<tLongitude4>();
+	UnitTest_PacketNMEAPayload_Test<tLongitude4>(0);
+	UnitTest_PacketNMEAPayload_Test<tLongitude4>("03732.4119", "W");
+	UnitTest_PacketNMEAPayload_Test<tLongitude4>(31.45678);
+
+	typedef tLongitude<6> tLongitude6;
+	UnitTest_PacketNMEAPayload_Test<tLongitude6>();
+	UnitTest_PacketNMEAPayload_Test<tLongitude6>(0);
+	UnitTest_PacketNMEAPayload_Test<tLongitude6>("03732.411956", "E");
+	UnitTest_PacketNMEAPayload_Test<tLongitude6>(231.4567834);
 
 	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>();
 	UnitTest_PacketNMEAPayload_Test<tFloat<2, 4>>(23);

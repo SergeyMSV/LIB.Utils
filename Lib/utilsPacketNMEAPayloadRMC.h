@@ -22,18 +22,18 @@ namespace utils
 template
 <
 	std::size_t FieldQty,
-	int TimeSize,
-	int LatitudeSize,
-	int LongitudeSize
+	int TimeSizeFract,
+	int LatitudeSizeFract,
+	int LongitudeSizeFract
 >
 struct tPayloadRMC
 {
 	typedef Type::tGNSS gnss_type;
 	typedef Type::tValid valid_type;
 	typedef Type::tDate date_type;
-	typedef Type::tTime<TimeSize> time_type;
-	typedef Type::tLatitude<LatitudeSize> latitude_type;
-	typedef Type::tLongitude<LongitudeSize> longitude_type;
+	typedef Type::tTime<TimeSizeFract> time_type;
+	typedef Type::tLatitude<LatitudeSizeFract> latitude_type;
+	typedef Type::tLongitude<LongitudeSizeFract> longitude_type;
 	typedef Type::tFloat<0, 2> speed_type;
 	typedef Type::tFloat<0, 2> course_type;
 	typedef Type::tPositioning positioning_type;

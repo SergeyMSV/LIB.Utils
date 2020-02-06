@@ -75,11 +75,13 @@ struct tDate
 	std::string ToString() const;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <int Size>
-struct tTime
+template <int SizeFract>
+class tTime
 {
-	static_assert(Size >= 6, "tTime: Size");//C++11
+	static_assert(SizeFract >= 0, "tTime: SizeFract");//C++11
+	static const std::size_t Size = SizeFract == 0 ? 6 : 7 + SizeFract;//sizeof(hhmmss.)=7
 
+public:
 	tUInt8 Hour = 0;
 	tUInt8 Minute = 0;
 	double Second = 0;
@@ -109,7 +111,7 @@ struct tTime
 		}
 	}
 
-	template <int Size>
+	template <int SizeFract>
 	friend std::ostream& operator<< (std::ostream& out, const tTime& value);
 
 	std::string ToString() const
@@ -120,7 +122,6 @@ struct tTime
 
 		return Stream.str();
 	}
-
 
 	//std::string ToString() const
 	//{
@@ -152,8 +153,8 @@ struct tTime
 	//}
 };
 
-template <int Size>
-std::ostream& operator<< (std::ostream& out, const tTime<Size>& value)
+template <int SizeFract>
+std::ostream& operator<< (std::ostream& out, const tTime<SizeFract>& value)
 {
 	if (!value.Absent && value.Hour < 24 && value.Minute < 60 && value.Second < 60)
 	{
@@ -161,12 +162,10 @@ std::ostream& operator<< (std::ostream& out, const tTime<Size>& value)
 		out << std::setw(2) << static_cast<int>(value.Hour);
 		out << std::setw(2) << static_cast<int>(value.Minute);
 
-		int SizeFract = Size - 7;//sizeof(hhmmss.)=7
-
 		if (SizeFract > 0)
 		{
 			out.setf(std::ios::fixed);
-			out << std::setw(2 + SizeFract + 1) << std::setprecision(SizeFract) << value.Second;
+			out << std::setw(3 + SizeFract) << std::setprecision(SizeFract) << value.Second;
 			out.unsetf(std::ios::fixed);
 		}
 		else
@@ -178,11 +177,12 @@ std::ostream& operator<< (std::ostream& out, const tTime<Size>& value)
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t Size>
-struct tLatitude
+template <std::size_t SizeFract>
+class tLatitude
 {
-	static_assert(Size == 9 || Size == 11, "tLatitude: Size");//C++11
+	static const std::size_t Size = 5 + SizeFract;//sizeof(ddmm.)=5
 
+public:
 	double Value = 0;
 	bool Absent = true;
 
@@ -224,11 +224,9 @@ struct tLatitude
 
 		if (Deg < 100)
 		{
-			switch (Size)
-			{
-			case 9: std::sprintf(Str, "%02d%07.4f", Deg, Min); break;
-			case 11: std::sprintf(Str, "%02d%09.6f", Deg, Min); break;
-			}
+			const char StrFormat[] = { '%','0', '2', 'd' , '%', '0', static_cast<char>(0x30 + Size - 2), '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
+
+			std::sprintf(Str, StrFormat, Deg, Min);
 		}
 
 		return Str;
@@ -247,11 +245,12 @@ struct tLatitude
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t Size>
-struct tLongitude
+template <std::size_t SizeFract>
+class tLongitude
 {
-	static_assert(Size == 10 || Size == 12, "tLongitude: Size");//C++11
+	static const std::size_t Size = 6 + SizeFract;//sizeof(dddmm.)=6
 
+public:
 	double Value = 0;
 	bool Absent = true;
 
@@ -293,11 +292,9 @@ struct tLongitude
 
 		if (Deg < 1000)
 		{
-			switch (Size)
-			{
-			case 10: std::sprintf(Str, "%03d%07.4f", Deg, Min); break;
-			case 12: std::sprintf(Str, "%03d%09.6f", Deg, Min); break;
-			}
+			const char StrFormat[] = { '%','0', '3', 'd' , '%', '0', static_cast<char>(0x30 + Size - 3), '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
+
+			std::sprintf(Str, StrFormat, Deg, Min);
 		}
 
 		return Str;
@@ -341,7 +338,7 @@ public:
 	{
 		if (Absent) return "";
 
-		const char StrFormat[] = { '%','0', static_cast<char>(0x30 + SizeInt + SizeFract + 1) , '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
+		const char StrFormat[] = { '%', '0', static_cast<char>(0x30 + SizeInt + SizeFract + 1), '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
 
 		char Str[Size + 1]{};
 
