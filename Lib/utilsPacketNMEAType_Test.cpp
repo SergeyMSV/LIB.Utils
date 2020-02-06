@@ -144,6 +144,23 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAPayload_Test<tUInt<0>>("43586");
 	UnitTest_PacketNMEAPayload_Test<tUInt<0>>(27384);
 
+	{
+		tSatellite Val;
+		std::cout << Val.ToString() << '\n';
+	}
+	{
+		tSatellite Val(12, 34, 56, 78);
+		std::cout << Val.ToString() << '\n';
+	}
+	{
+		tSatellite Val("23", "38", "230", "44");
+		std::cout << Val.ToString() << '\n';
+	}
+
+	//23,38,230,44
+
+	//char* Data = "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa";
+
 	std::cout << std::endl;
 }
 
