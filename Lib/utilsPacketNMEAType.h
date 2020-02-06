@@ -13,7 +13,7 @@
 #include "utilsBase.h"
 
 #include <cmath>
-#include <cstdio>//DEPRECATED
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
@@ -317,15 +317,14 @@ struct tLongitude
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeInt, std::size_t SizeFract>
-struct tFloat
+class tFloat
 {
-	double Value = 0;
-	bool Absent = true;
-
-private:
 	static const std::size_t Size = SizeInt + SizeFract + 1;
 
 public:
+	double Value = 0;
+	bool Absent = true;
+
 	tFloat() = default;
 	explicit tFloat(double val) :Value(val), Absent(false) {}
 	tFloat(const std::string& val)
@@ -353,16 +352,15 @@ public:
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeFract>
-struct tFloat<0, SizeFract>
+class tFloat<0, SizeFract>
 {
-	double Value = 0;
-	bool Absent = true;
-
-private:
 	static const std::size_t SizeInt = 6;
 	static const std::size_t SizeMax = SizeInt + SizeFract + 1;
 
 public:
+	double Value = 0;
+	bool Absent = true;
+
 	tFloat() = default;
 	explicit tFloat(double val) :Value(val), Absent(false) {}
 	tFloat(const std::string& val)
@@ -389,9 +387,59 @@ public:
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <> struct tFloat<0, 0>;//Fractional part is just of max length (6 chars), therefore this specialisation makes no sense.
+template <> class tFloat<0, 0>;//Fractional part is just of max length (6 chars), therefore this specialisation makes no sense.
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeInt> struct tFloat<SizeInt, 0>;
+template <std::size_t SizeInt> class tFloat<SizeInt, 0>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t SizeInt, std::size_t SizeFract>
+class tFloatUnit
+{
+	typedef tFloat<SizeInt, SizeFract> value_type;
+
+	static const std::size_t SizeValue = SizeInt + SizeFract + 1;
+
+public:
+	value_type Value;
+	char Unit = 0;
+	bool Absent = true;
+
+	tFloatUnit() = default;
+	tFloatUnit(double val, char unit) :Value(val), Unit(Unit), Absent(false) {}
+	tFloatUnit(const std::string& val, const std::string& valSign)
+	{
+		if (val.size() == SizeValue && valSign.size() == 1)
+		{
+			Absent = false;
+
+			Value = value_type(val);
+
+			Unit = valSign[0];
+		}
+	}
+
+	std::string ToStringValue() const
+	{
+		if (Absent) return "";
+
+		return Value.ToString();
+	}
+
+	std::string ToStringUnit() const
+	{
+		if (Absent) return "";
+
+		char Str[2]{};
+
+		Str[0] = Unit;
+
+		return Str;
+	}
+
+	std::string ToString() const
+	{
+		return ToStringValue() + ',' + ToStringUnit();
+	}
+};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPositioning
 {
