@@ -75,8 +75,6 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload<tPayloadRMC<13, 3, 6, 6>>("$GNRMC,090210.000,A,5539.564975,N,03732.411956,E,0.03,274.40,120517,,,A*71\xd\xa");
 
 
-
-
 	std::cout << std::endl;
 }
 

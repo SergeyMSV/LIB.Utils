@@ -460,22 +460,22 @@ struct tPositioning
 	std::string ToString() const;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t Size>
+template <typename TValue, std::size_t Size>
 struct tUInt
 {
-	tUInt32 Value = 0;
+	TValue Value = static_cast<TValue>(0);
 	bool Absent = true;
 
 public:
 	tUInt() = default;
-	explicit tUInt(tUInt32 val) :Value(val), Absent(false) {}
+	explicit tUInt(TValue val) :Value(val), Absent(false) {}
 	tUInt(const std::string& val)
 	{
 		if (val.size() == Size)
 		{
 			Absent = false;
 
-			Value = std::strtol(val.c_str(), 0, 10);
+			Value = static_cast<TValue>(std::strtoul(val.c_str(), 0, 10));
 		}
 	}
 
@@ -493,22 +493,22 @@ public:
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <>
-struct tUInt<0>
+template <typename TValue>
+struct tUInt<TValue, 0>
 {
-	tUInt32 Value = 0;
+	TValue Value = static_cast<TValue>(0);
 	bool Absent = true;
 
 public:
 	tUInt() = default;
-	explicit tUInt(tUInt32 val) :Value(val), Absent(false) {}
+	explicit tUInt(TValue val) :Value(val), Absent(false) {}
 	tUInt(const std::string& val)
 	{
 		if (val.size() > 0)
 		{
 			Absent = false;
 
-			Value = std::strtol(val.c_str(), 0, 10);
+			Value = static_cast<TValue>(std::strtoul(val.c_str(), 0, 10));
 		}
 	}
 
@@ -526,11 +526,15 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tSatellite
 {
-	tUInt8 ID = 0;
-	tUInt8 Elevation = 0;
-	tUInt16 Azimuth = 0;
-	tUInt8 SNR = 0;
-	bool Absent = true;
+	typedef tUInt<tUInt8, 2> id_type;
+	typedef tUInt<tUInt8, 2> elevation_type;
+	typedef tUInt<tUInt16, 3> azimuth_type;
+	typedef tUInt<tUInt8, 2> snr_type;
+
+	id_type ID;
+	elevation_type Elevation;
+	azimuth_type Azimuth;
+	snr_type SNR;
 
 	tSatellite() = default;//C++11
 	tSatellite(tUInt8 id, tUInt8 elevation, tUInt16 azimuth, tUInt8 snr);
