@@ -87,8 +87,8 @@ struct tPayloadGGA
 struct tPayloadGSV
 {
 	typedef Type::tGNSS gnss_type;
-	typedef Type::tUInt<1> counter_type;
-	typedef Type::tUInt<2> satellite_counter_type;
+	typedef Type::tUInt<tUInt8, 1> counter_type;
+	typedef Type::tUInt<tUInt8, 2> satellite_counter_type;
 	typedef Type::tSatellite satellite_type;
 	typedef std::vector<satellite_type> satellite_collection_type;
 

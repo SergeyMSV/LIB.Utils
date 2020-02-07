@@ -126,66 +126,37 @@ std::string tPositioning::ToString() const
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tSatellite::tSatellite(tUInt8 id, tUInt8 elevation, tUInt16 azimuth, tUInt8 snr)
-	:ID(id), Elevation(elevation), Azimuth(azimuth), SNR(snr), Absent(false)
+	:ID(id), Elevation(elevation), Azimuth(azimuth), SNR(snr)
 {
 
 }
 
 tSatellite::tSatellite(const std::string& valID, const std::string& valElevation, const std::string& valAzimuth, const std::string& valSNR)
 {
-	if (valID.size() || valElevation.size() || valAzimuth.size() || valSNR.size())
-	{
-		Absent = false;
-
-		ID = static_cast<tUInt8>(std::strtoul(valID.c_str(), 0, 10));
-		Elevation = static_cast<tUInt8>(std::strtoul(valElevation.c_str(), 0, 10));
-		Azimuth = static_cast<tUInt16>(std::strtoul(valAzimuth.c_str(), 0, 10));
-		SNR = static_cast<tUInt8>(std::strtoul(valSNR.c_str(), 0, 10));
-	}
+	ID = id_type(valID);
+	Elevation = elevation_type(valElevation);
+	Azimuth = azimuth_type(valAzimuth);
+	SNR = snr_type(valSNR);
 }
 
 std::string tSatellite::ToStringID() const
 {
-	if (Absent) return "";
-
-	char Str[10]{};
-
-	std::sprintf(Str, "%02d", ID);
-
-	return Str;
+	return ID.ToString();
 }
 
 std::string tSatellite::ToStringElevation() const
 {
-	if (Absent) return "";
-
-	char Str[10]{};
-
-	std::sprintf(Str, "%02d", Elevation);
-
-	return Str;
+	return Elevation.ToString();
 }
 
 std::string tSatellite::ToStringAzimuth() const
 {
-	if (Absent) return "";
-
-	char Str[10]{};
-
-	std::sprintf(Str, "%03d", Azimuth);
-
-	return Str;
+	return Azimuth.ToString();
 }
 
 std::string tSatellite::ToStringSNR() const
 {
-	if (Absent) return "";
-
-	char Str[10]{};
-
-	std::sprintf(Str, "%02d", SNR);
-
-	return Str;
+	return SNR.ToString();
 }
 
 std::string tSatellite::ToString() const

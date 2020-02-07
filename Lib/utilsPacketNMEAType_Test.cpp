@@ -141,15 +141,15 @@ void UnitTest_PacketNMEAType()
 	//UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>("4.5736");//doesn't exist
 	//UnitTest_PacketNMEAPayload_Test<tFloat<2, 0>>(2.34);//doesn't exist
 
-	UnitTest_PacketNMEAPayload_Test<tUInt<4>>();
-	UnitTest_PacketNMEAPayload_Test<tUInt<4>>(0);
-	UnitTest_PacketNMEAPayload_Test<tUInt<4>>("4356");
-	UnitTest_PacketNMEAPayload_Test<tUInt<4>>(2734);
+	UnitTest_PacketNMEAPayload_Test<tUInt<int, 4>>();
+	UnitTest_PacketNMEAPayload_Test<tUInt<int, 4>>(0);
+	UnitTest_PacketNMEAPayload_Test<tUInt<int, 4>>("4356");
+	UnitTest_PacketNMEAPayload_Test<tUInt<int, 4>>(2734);
 
-	UnitTest_PacketNMEAPayload_Test<tUInt<0>>();
-	UnitTest_PacketNMEAPayload_Test<tUInt<0>>(0);
-	UnitTest_PacketNMEAPayload_Test<tUInt<0>>("43586");
-	UnitTest_PacketNMEAPayload_Test<tUInt<0>>(27384);
+	UnitTest_PacketNMEAPayload_Test<tUInt<int, 0>>();
+	UnitTest_PacketNMEAPayload_Test<tUInt<int, 0>>(0);
+	UnitTest_PacketNMEAPayload_Test<tUInt<int, 0>>("43586");
+	UnitTest_PacketNMEAPayload_Test<tUInt<int, 0>>(27384);
 
 	UnitTest_PacketNMEAPayload_Test<tSatellite>();
 	UnitTest_PacketNMEAPayload_Test<tSatellite>(12, 34, 56, 78);
