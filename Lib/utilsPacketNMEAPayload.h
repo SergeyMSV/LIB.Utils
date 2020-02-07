@@ -32,6 +32,8 @@ template
 >
 struct tPayloadGGA
 {
+	const char* PayloadID = "GGA";
+
 	typedef Type::tGNSS gnss_type;
 	typedef Type::tTime<TimeSizeFract> time_type;
 	typedef Type::tLatitude<LatitudeSizeFract> latitude_type;
@@ -49,7 +51,7 @@ struct tPayloadGGA
 	tPayloadGGA() = default;
 	explicit tPayloadGGA(const tPayloadCommon::value_type& val)
 	{
-		if (val.size() == FieldQty && val[0].size() > 3 && !std::strcmp(&val[0][2],"GGA"))
+		if (val.size() == FieldQty && val[0].size() > 3 && !std::strcmp(&val[0][2], PayloadID))
 		{
 			GNSS = gnss_type(val[0]);
 			Time = time_type(val[1]);
@@ -64,7 +66,7 @@ struct tPayloadGGA
 	{
 		tPayloadCommon::value_type Data;
 
-		Data.push_back(GNSS.ToString() + "GGA");
+		Data.push_back(GNSS.ToString() + PayloadID);
 		Data.push_back(Time.ToString());
 		Data.push_back(Latitude.ToStringValue());
 		Data.push_back(Latitude.ToStringHemisphere());
@@ -86,6 +88,8 @@ struct tPayloadGGA
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadGSV
 {
+	const char* PayloadID = "GSV";
+
 	typedef Type::tGNSS gnss_type;
 	typedef Type::tUInt<tUInt8, 1> counter_type;
 	typedef Type::tUInt<tUInt8, 2> satellite_counter_type;
@@ -101,7 +105,7 @@ struct tPayloadGSV
 	tPayloadGSV() = default;
 	explicit tPayloadGSV(const tPayloadCommon::value_type& val)
 	{
-		if (val.size() > 3 && val[0].size() > 3 && !std::strcmp(&val[0][2], "GSV"))
+		if (val.size() > 3 && val[0].size() > 3 && !std::strcmp(&val[0][2], PayloadID))
 		{
 			GNSS = gnss_type(val[0]);
 			MsgQty = counter_type(val[1]);
@@ -122,7 +126,7 @@ struct tPayloadGSV
 	{
 		tPayloadCommon::value_type Data;
 
-		Data.push_back(GNSS.ToString() + "GSV");
+		Data.push_back(GNSS.ToString() + PayloadID);
 		Data.push_back(MsgQty.ToString());
 		Data.push_back(MsgNum.ToString());
 		Data.push_back(SatelliteQty.ToString());
@@ -145,6 +149,8 @@ template
 >
 struct tPayloadRMC
 {
+	const char* PayloadID = "RMC";
+
 	typedef Type::tGNSS gnss_type;
 	typedef Type::tValid valid_type;
 	typedef Type::tDate date_type;
@@ -168,7 +174,7 @@ struct tPayloadRMC
 	tPayloadRMC() = default;
 	explicit tPayloadRMC(const tPayloadCommon::value_type& val)
 	{
-		if (val.size() == FieldQty && val[0].size() > 3 && !std::strcmp(&val[0][2], "RMC"))
+		if (val.size() == FieldQty && val[0].size() > 3 && !std::strcmp(&val[0][2], PayloadID))
 		{
 			GNSS = gnss_type(val[0]);
 			Time = time_type(val[1]);
@@ -186,7 +192,7 @@ struct tPayloadRMC
 	{
 		tPayloadCommon::value_type Data;
 
-		Data.push_back(GNSS.ToString() + "RMC");
+		Data.push_back(GNSS.ToString() + PayloadID);
 		Data.push_back(Time.ToString());
 		Data.push_back(Valid.ToString());
 		Data.push_back(Latitude.ToStringValue());
