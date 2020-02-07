@@ -132,9 +132,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Lib\utilsPacketNMEAPayloadGGA_Test.cpp" />
-    <ClCompile Include="..\Lib\utilsPacketNMEAPayloadGSV_Test.cpp" />
-    <ClCompile Include="..\Lib\utilsPacketNMEAPayloadRMC_Test.cpp" />
     <ClCompile Include="..\Lib\utilsPacketNMEAPayload_Test.cpp" />
     <ClCompile Include="..\Lib\utilsPacketNMEAType.cpp" />
     <ClCompile Include="..\Lib\utilsTest.cpp" />
@@ -143,9 +140,7 @@
   <ItemGroup>
     <ClInclude Include="..\Lib\utilsBase.h" />
     <ClInclude Include="..\Lib\utilsPacketNMEA.h" />
-    <ClInclude Include="..\Lib\utilsPacketNMEAPayloadGGA.h" />
-    <ClInclude Include="..\Lib\utilsPacketNMEAPayloadGSV.h" />
-    <ClInclude Include="..\Lib\utilsPacketNMEAPayloadRMC.h" />
+    <ClInclude Include="..\Lib\utilsPacketNMEAPayload.h" />
     <ClInclude Include="..\Lib\utilsPacketNMEAType.h" />
     <ClInclude Include="..\Lib\utilsTest.h" />
     <ClInclude Include="devConfig.h" />

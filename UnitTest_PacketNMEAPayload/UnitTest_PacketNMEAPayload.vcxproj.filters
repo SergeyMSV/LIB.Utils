@@ -17,15 +17,6 @@
     <ClCompile Include="..\Lib\utilsPacketNMEAPayload_Test.cpp">
       <Filter>Lib</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketNMEAPayloadRMC_Test.cpp">
-      <Filter>Lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketNMEAPayloadGGA_Test.cpp">
-      <Filter>Lib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketNMEAPayloadGSV_Test.cpp">
-      <Filter>Lib</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
@@ -42,13 +33,7 @@
     <ClInclude Include="..\Lib\utilsPacketNMEAType.h">
       <Filter>Lib</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacketNMEAPayloadRMC.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacketNMEAPayloadGGA.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacketNMEAPayloadGSV.h">
+    <ClInclude Include="..\Lib\utilsPacketNMEAPayload.h">
       <Filter>Lib</Filter>
     </ClInclude>
   </ItemGroup>

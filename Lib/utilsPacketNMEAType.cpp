@@ -133,7 +133,7 @@ tSatellite::tSatellite(tUInt8 id, tUInt8 elevation, tUInt16 azimuth, tUInt8 snr)
 
 tSatellite::tSatellite(const std::string& valID, const std::string& valElevation, const std::string& valAzimuth, const std::string& valSNR)
 {
-	if (valID.size() == 2 && valElevation.size()==2&& valAzimuth.size() == 3&& valSNR.size()==2)
+	if (valID.size() || valElevation.size() || valAzimuth.size() || valSNR.size())
 	{
 		Absent = false;
 
