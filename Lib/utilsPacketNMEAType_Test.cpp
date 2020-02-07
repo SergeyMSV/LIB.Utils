@@ -31,6 +31,13 @@ void UnitTest_PacketNMEAPayload_Test(TArg arg1, TArg arg2)
 	std::cout << Val.ToString() << '\n';
 }
 
+template <class T, class TArg>
+void UnitTest_PacketNMEAPayload_Test(TArg arg1, TArg arg2, TArg arg3, TArg arg4)
+{
+	T Val(arg1, arg2, arg3, arg4);
+	std::cout << Val.ToString() << '\n';
+}
+
 void UnitTest_PacketNMEAType()
 {
 	std::cout << "\n""utils::packet_NMEA::Payload\n";
@@ -144,22 +151,10 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAPayload_Test<tUInt<0>>("43586");
 	UnitTest_PacketNMEAPayload_Test<tUInt<0>>(27384);
 
-	{
-		tSatellite Val;
-		std::cout << Val.ToString() << '\n';
-	}
-	{
-		tSatellite Val(12, 34, 56, 78);
-		std::cout << Val.ToString() << '\n';
-	}
-	{
-		tSatellite Val("23", "38", "230", "44");
-		std::cout << Val.ToString() << '\n';
-	}
+	UnitTest_PacketNMEAPayload_Test<tSatellite>();
+	UnitTest_PacketNMEAPayload_Test<tSatellite>(12, 34, 56, 78);
+	UnitTest_PacketNMEAPayload_Test<tSatellite>("23", "38", "230", "44");
 
-	//23,38,230,44
-
-	//char* Data = "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa";
 
 	std::cout << std::endl;
 }
