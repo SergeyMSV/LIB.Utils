@@ -141,6 +141,8 @@
     <ClInclude Include="..\Lib\utilsBase.h" />
     <ClInclude Include="..\Lib\utilsPacketNMEA.h" />
     <ClInclude Include="..\Lib\utilsPacketNMEAPayload.h" />
+    <ClInclude Include="..\Lib\utilsPacketNMEAPayloadPMTK.h" />
+    <ClInclude Include="..\Lib\utilsPacketNMEAPayloadPTWS.h" />
     <ClInclude Include="..\Lib\utilsPacketNMEAType.h" />
     <ClInclude Include="..\Lib\utilsTest.h" />
     <ClInclude Include="devConfig.h" />
