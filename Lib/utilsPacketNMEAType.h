@@ -30,16 +30,16 @@ namespace utils
 		namespace Type
 		{
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+enum class tGNSS_State : tUInt8//It's like bitfield
+{
+	UNKNOWN = 0,
+	GPS = 1,    //0000'0001
+	GLONASS,    //0000'0010
+	GPS_GLONASS,//0000'0011
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tGNSS
 {
-	enum class tGNSS_State : tUInt8//It's like bitfield
-	{
-		UNKNOWN = 0,
-		GPS = 1,    //0000'0001
-		GLONASS,    //0000'0010
-		GPS_GLONASS,//0000'0011
-	};
-
 	tGNSS_State Value = tGNSS_State::UNKNOWN;
 
 	tGNSS() = default;
