@@ -107,14 +107,14 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload(tPayloadPMTK705("AXN_3.84_3333_15071800", "0000","","1.0"));
 	UnitTest_PacketNMEAPayload(tPayloadPMTK705("AXN_3.84_3333_15071800", "0000", "la-la", "1.0"));
 
-	/*UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_GET());
+	UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_GET());
 	UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_VAL());
 	UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_VAL("M33-asdfasdf.fff.df"));
 
 	UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL());
 	UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL(12, 1575.000002));
 	UnitTest_PacketNMEAPayload<tPayloadPTWS_JAM_SIGNAL_VAL, std::string>("$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa");
-	*/
+
 
 	std::cout << std::endl;
 }
