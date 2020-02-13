@@ -93,6 +93,11 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload<tPayloadPMTK010, std::string>("$PMTK010,001*2E\xd\xa");
 	UnitTest_PacketNMEAPayload<tPayloadPMTK011, std::string>("$PMTK011,MTKGPS*08\xd\xa");
 
+	UnitTest_PacketNMEAPayload(tPayloadPMTK101ResetHot());
+	UnitTest_PacketNMEAPayload(tPayloadPMTK102ResetWarm());
+	UnitTest_PacketNMEAPayload(tPayloadPMTK103ResetCold());
+	UnitTest_PacketNMEAPayload(tPayloadPMTK104ResetFull());
+	
 	UnitTest_PacketNMEAPayload(tPayloadPMTK314());
 	UnitTest_PacketNMEAPayload(tPayloadPMTK314(1, 2, 3, 4, 5, 6, 18));
 
