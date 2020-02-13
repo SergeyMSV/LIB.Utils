@@ -37,10 +37,9 @@ struct tPayloadPTWS_JAM_SIGNAL_VAL
 	tPayloadPTWS_JAM_SIGNAL_VAL() = default;
 	explicit tPayloadPTWS_JAM_SIGNAL_VAL(tUInt8 index, double frequency)
 		:Index(index), Frequency(frequency)
-	{ }
+	{}
 	explicit tPayloadPTWS_JAM_SIGNAL_VAL(const tPayloadCommon::value_type& val)
 	{
-
 		if (Try(val))
 		{
 			Index = index_type(val[5]);
@@ -85,10 +84,10 @@ struct tPayloadPTWS_VERSION_GET
 	tPayloadPTWS_VERSION_GET() = default;
 	explicit tPayloadPTWS_VERSION_GET(const tPayloadCommon::value_type& val)
 	{
-		if (Try(val))
-		{
+		//if (Try(val))
+		//{
 
-		}
+		//}
 	}
 
 	static bool Try(const tPayloadCommon::value_type& val)
@@ -124,8 +123,7 @@ struct tPayloadPTWS_VERSION_VAL
 	tPayloadPTWS_VERSION_VAL() = default;
 	explicit tPayloadPTWS_VERSION_VAL(version_type version)
 		:Version(version)
-	{
-	}
+	{}
 	explicit tPayloadPTWS_VERSION_VAL(const tPayloadCommon::value_type& val)
 	{
 		if (Try(val))

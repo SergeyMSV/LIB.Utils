@@ -139,6 +139,60 @@ struct tPayloadPMTK011
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+namespace hidden
+{
+
+enum class tPayloadPMTK10xResetState : tUInt8
+{
+	Hot = 1,
+	Warm,
+	Cold,
+	Full
+};
+
+template <tPayloadPMTK10xResetState State>
+struct tPayloadPMTK10xReset
+{
+	tPayloadPMTK10xReset() = default;
+	explicit tPayloadPMTK10xReset(const tPayloadCommon::value_type& val) {}
+
+	static const char* GetID()
+	{
+		switch (State)
+		{
+		case tPayloadPMTK10xResetState::Hot: return "PMTK101";
+		case tPayloadPMTK10xResetState::Warm: return "PMTK102";
+		case tPayloadPMTK10xResetState::Cold: return "PMTK103";
+		case tPayloadPMTK10xResetState::Full: return "PMTK104";
+		}
+
+		assert(false);
+
+		return "";
+	}
+
+	static bool Try(const tPayloadCommon::value_type& val)
+	{
+		return val.size() == 1 && !std::strcmp(val[0].c_str(), GetID());
+	}
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data;
+
+		Data.push_back(GetID());
+
+		return Data;
+	}
+};
+
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+typedef hidden::tPayloadPMTK10xReset<hidden::tPayloadPMTK10xResetState::Hot> tPayloadPMTK101ResetHot;
+typedef hidden::tPayloadPMTK10xReset<hidden::tPayloadPMTK10xResetState::Warm> tPayloadPMTK102ResetWarm;
+typedef hidden::tPayloadPMTK10xReset<hidden::tPayloadPMTK10xResetState::Cold> tPayloadPMTK103ResetCold;
+typedef hidden::tPayloadPMTK10xReset<hidden::tPayloadPMTK10xResetState::Full> tPayloadPMTK104ResetFull;
+///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadPMTK314
 {
 	typedef Type::tUInt<tUInt8, 0> status_type;
