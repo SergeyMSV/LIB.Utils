@@ -80,7 +80,8 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload<tPayloadRMC<13, 3, 4, 4>>("$GNRMC,221325.000,V,,,,,0.00,0.00,241016,,,N*56\xd\xa");
 	UnitTest_PacketNMEAPayload<tPayloadRMC<13, 3, 4, 4>>("$GPRMC,082653.100,A,2446.4768,N,12100.0344,E,0.00,128.42,270705,,,A*67\xd\xa");
 
-	UnitTest_PacketNMEAPayload<tPayloadPMTK001, std::string>("$PMTK001,604,3*32\xd\xa");
+	UnitTest_PacketNMEAPayload<tPayloadPMTK001<604>, std::string>("$PMTK001,604,3*32\xd\xa");
+	UnitTest_PacketNMEAPayload<tPayloadPMTK001<355>, std::string>("$PMTK001,355,3,1,1,0,0*33\xd\xa");
 	UnitTest_PacketNMEAPayload<tPayloadPMTK010, std::string>("$PMTK010,001*2E\xd\xa");
 	UnitTest_PacketNMEAPayload<tPayloadPMTK011, std::string>("$PMTK011,MTKGPS*08\xd\xa");
 

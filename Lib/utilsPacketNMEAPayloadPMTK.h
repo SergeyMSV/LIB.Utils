@@ -19,6 +19,9 @@ namespace utils
 	namespace packet_NMEA
 	{
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+namespace hidden
+{
+
 struct tPayloadPMTK001
 {
 	enum class tStatus : tUInt8
@@ -49,7 +52,7 @@ struct tPayloadPMTK001
 
 	static bool Try(const tPayloadCommon::value_type& val)
 	{
-		return val.size() == 3 && !std::strcmp(val[0].c_str(), GetID());
+		return val.size() >= 3 && !std::strcmp(val[0].c_str(), GetID());
 	}
 
 	tPayloadCommon::value_type GetPayload() const
@@ -59,6 +62,59 @@ struct tPayloadPMTK001
 		Data.push_back(GetID());
 		Data.push_back(CMD.ToString());
 		Data.push_back(Status.ToString());
+
+		return Data;
+	}
+};
+
+}
+
+template <int CmdID>
+struct tPayloadPMTK001 : public hidden::tPayloadPMTK001
+{
+	explicit tPayloadPMTK001(const tPayloadCommon::value_type& val)
+		:hidden::tPayloadPMTK001(val)
+	{ }
+
+	static bool Try(const tPayloadCommon::value_type& val)
+	{
+		return val.size() == 3 && hidden::tPayloadPMTK001::Try(val);
+	}
+};
+
+template <>
+struct tPayloadPMTK001<355> : public hidden::tPayloadPMTK001
+{
+	typedef Type::tUInt<tUInt8, 0> status_type;
+
+	status_type GPS;
+	status_type GLONASS;
+	status_type BEIDOU;
+
+	explicit tPayloadPMTK001(const tPayloadCommon::value_type& val)
+		:hidden::tPayloadPMTK001(val)
+	{
+		if (Try(val))
+		{
+			GPS = status_type(val[3]);
+			GLONASS = status_type(val[4]);
+			BEIDOU = status_type(val[5]);
+		}
+	}
+
+	static bool Try(const tPayloadCommon::value_type& val)
+	{
+		return val.size() == 7 && hidden::tPayloadPMTK001::Try(val);
+	}
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data = hidden::tPayloadPMTK001::GetPayload();
+
+		Data.push_back(GPS.ToString());
+		Data.push_back(GLONASS.ToString());
+		Data.push_back(BEIDOU.ToString());
+		Data.push_back("0");
 
 		return Data;
 	}
