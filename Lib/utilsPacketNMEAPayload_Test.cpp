@@ -57,6 +57,8 @@ void UnitTest_PacketNMEAPayload()
 {
 	std::cout << "\n""utils::packet_NMEA::Payload\n";
 
+	using namespace std::string_literals;
+
 	using namespace utils::packet_NMEA;
 
 	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadCommon> tPacketNMEA;
@@ -69,21 +71,18 @@ void UnitTest_PacketNMEAPayload()
 		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n';//C++14
 	}
 
-	UnitTest_PacketNMEAPayload<tPayloadGGA<15, 3, 4, 4, 5, 2, 3, 2>, std::string>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa");
-	UnitTest_PacketNMEAPayload<tPayloadGGA<15, 0, 4, 4, 5, 2, 3, 2>, std::string>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa");
+	UnitTest_PacketNMEAPayload<tPayloadGGA<15, 3, 4, 4, 5, 2, 3, 2>>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s);//C++14
+	UnitTest_PacketNMEAPayload<tPayloadGGA<15, 0, 4, 4, 5, 2, 3, 2>>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
 
-	UnitTest_PacketNMEAPayload<tPayloadGGA<15, 3, 4, 4, 5, 2, 3, 2>>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa");
-	UnitTest_PacketNMEAPayload<tPayloadGGA<15, 0, 4, 4, 5, 2, 3, 2>>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa");
+	UnitTest_PacketNMEAPayload<tPayloadGSV>("$GLGSV,3,3,09,86,03,164,*52\xd\xa"s);
 
-	UnitTest_PacketNMEAPayload<tPayloadGSV>("$GLGSV,3,3,09,86,03,164,*52\xd\xa");
+	UnitTest_PacketNMEAPayload<tPayloadRMC<13, 3, 4, 4>>("$GNRMC,221325.000,V,,,,,0.00,0.00,241016,,,N*56\xd\xa"s);
+	UnitTest_PacketNMEAPayload<tPayloadRMC<13, 3, 4, 4>>("$GPRMC,082653.100,A,2446.4768,N,12100.0344,E,0.00,128.42,270705,,,A*67\xd\xa"s);
 
-	UnitTest_PacketNMEAPayload<tPayloadRMC<13, 3, 4, 4>>("$GNRMC,221325.000,V,,,,,0.00,0.00,241016,,,N*56\xd\xa");
-	UnitTest_PacketNMEAPayload<tPayloadRMC<13, 3, 4, 4>>("$GPRMC,082653.100,A,2446.4768,N,12100.0344,E,0.00,128.42,270705,,,A*67\xd\xa");
-
-	UnitTest_PacketNMEAPayload<tPayloadPMTK001<604>, std::string>("$PMTK001,604,3*32\xd\xa");
-	UnitTest_PacketNMEAPayload<tPayloadPMTK001<355>, std::string>("$PMTK001,355,3,1,1,0,0*33\xd\xa");
-	UnitTest_PacketNMEAPayload<tPayloadPMTK010, std::string>("$PMTK010,001*2E\xd\xa");
-	UnitTest_PacketNMEAPayload<tPayloadPMTK011, std::string>("$PMTK011,MTKGPS*08\xd\xa");
+	UnitTest_PacketNMEAPayload<tPayloadPMTK001<604>>("$PMTK001,604,3*32\xd\xa"s);
+	UnitTest_PacketNMEAPayload<tPayloadPMTK001<355>>("$PMTK001,355,3,1,1,0,0*33\xd\xa"s);
+	UnitTest_PacketNMEAPayload<tPayloadPMTK010>("$PMTK010,001*2E\xd\xa"s);
+	UnitTest_PacketNMEAPayload<tPayloadPMTK011>("$PMTK011,MTKGPS*08\xd\xa"s);
 
 	UnitTest_PacketNMEAPayload(tPayloadPMTK101ResetHot());
 	UnitTest_PacketNMEAPayload(tPayloadPMTK102ResetWarm());
@@ -110,7 +109,7 @@ void UnitTest_PacketNMEAPayload()
 
 	UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL());
 	UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL(12, 1575.000002));
-	UnitTest_PacketNMEAPayload<tPayloadPTWS_JAM_SIGNAL_VAL, std::string>("$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa");
+	UnitTest_PacketNMEAPayload<tPayloadPTWS_JAM_SIGNAL_VAL>("$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa"s);
 
 	std::cout << std::endl;
 }
