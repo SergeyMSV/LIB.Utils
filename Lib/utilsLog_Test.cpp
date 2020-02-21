@@ -5,6 +5,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <thread>
 
 class tLogger : public utils::tLog
 {
