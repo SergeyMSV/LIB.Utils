@@ -111,8 +111,8 @@ public:
 		}
 	}
 
-	template <int SizeFract>
-	friend std::ostream& operator<< (std::ostream& out, const tTime& value);
+	template <int SizeFract1>
+	friend std::ostream& operator<< (std::ostream& out, const tTime<SizeFract1>& value);
 
 	std::string ToString() const
 	{
