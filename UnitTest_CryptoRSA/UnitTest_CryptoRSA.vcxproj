@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\LIB.Utils;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -88,7 +88,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\LIB.Utils;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -103,7 +103,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\LIB.Utils;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -119,7 +119,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\LIB.Utils;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,16 +128,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Lib\utilsBase_Test.cpp" />
-    <ClCompile Include="..\Lib\utilsCryptoRSA32.cpp" />
-    <ClCompile Include="..\Lib\utilsCryptoRSA32_Test.cpp" />
-    <ClCompile Include="..\Lib\utilsTest.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsBase_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsCryptoRSA32.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsCryptoRSA32_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Lib\utilsBase.h" />
-    <ClInclude Include="..\Lib\utilsCryptoRSA32.h" />
-    <ClInclude Include="..\Lib\utilsTest.h" />
+    <ClInclude Include="..\LIB.Utils\utilsBase.h" />
+    <ClInclude Include="..\LIB.Utils\utilsCryptoRSA32.h" />
+    <ClInclude Include="..\LIB.Utils\utilsTest.h" />
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
   </ItemGroup>

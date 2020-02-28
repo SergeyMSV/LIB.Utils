@@ -76,7 +76,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\LIB.Utils;</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
@@ -89,7 +89,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\LIB.Utils;</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
@@ -104,7 +104,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\LIB.Utils;</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
@@ -121,7 +121,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\LIB.Utils;</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
@@ -131,16 +131,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Lib\utilsCryptoAES.cpp" />
-    <ClCompile Include="..\Lib\utilsCryptoAES_Test.cpp" />
-    <ClCompile Include="..\Lib\utilsTest.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsCryptoAES.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsCryptoAES_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Lib\utilsBase.h" />
-    <ClInclude Include="..\Lib\utilsCryptoAES.h" />
-    <ClInclude Include="..\Lib\utilsKey.h" />
-    <ClInclude Include="..\Lib\utilsTest.h" />
+    <ClInclude Include="..\LIB.Utils\utilsBase.h" />
+    <ClInclude Include="..\LIB.Utils\utilsCryptoAES.h" />
+    <ClInclude Include="..\LIB.Utils\utilsKey.h" />
+    <ClInclude Include="..\LIB.Utils\utilsTest.h" />
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
   </ItemGroup>

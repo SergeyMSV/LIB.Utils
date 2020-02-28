@@ -1,127 +1,127 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Lib">
+    <Filter Include="LIB.Utils">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="..\Lib\utilsBase_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsBase_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketBNTBX2_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsPacketBNTBX2_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketStar_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsPacketStar_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketStar2_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsPacketStar2_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsTest.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsTest_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsTest_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketNMEA_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsPacketNMEA_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsKey_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsKey_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsCRC_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsCRC_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsCryptoAES.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsCryptoAES.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsCryptoAES_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsCryptoAES_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsCryptoRSA32.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsCryptoRSA32.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsCryptoRSA32_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsCryptoRSA32_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsTrap_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsTrap_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPatternCommand_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsPatternCommand_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPatternState_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsPatternState_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketNMEAType.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsPacketNMEAType.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketNMEAType_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsPacketNMEAType_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib\utilsPacketNMEAPayload_Test.cpp">
-      <Filter>Lib</Filter>
+    <ClCompile Include="..\LIB.Utils\utilsPacketNMEAPayload_Test.cpp">
+      <Filter>LIB.Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
-    <ClInclude Include="..\Lib\utilsBase.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsBase.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsCRC.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsCRC.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacket.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsPacket.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacketBNTBX2.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsPacketBNTBX2.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacketStar.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsPacketStar.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacketStar2.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsPacketStar2.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsTest.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsTest.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsBaseBool.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsBaseBool.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsCharset-TBD.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsCharset-TBD.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacketNMEA.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsPacketNMEA.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsKey.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsKey.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsCryptoAES.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsCryptoAES.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsCryptoRSA32.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsCryptoRSA32.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsTrap.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsTrap.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPatternCommand.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsPatternCommand.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPatternState.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsPatternState.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacketNMEAType.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsPacketNMEAType.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib\utilsPacketNMEAPayload.h">
-      <Filter>Lib</Filter>
+    <ClInclude Include="..\LIB.Utils\utilsPacketNMEAPayload.h">
+      <Filter>LIB.Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
