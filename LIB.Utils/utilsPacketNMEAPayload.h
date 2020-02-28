@@ -115,7 +115,7 @@ struct tPayloadGSV
 			MsgNum = counter_type(val[2]);
 			SatelliteQty = satellite_counter_type(val[3]);
 
-			int SatQty = (val.size() - 3) / 4;
+			int SatQty = static_cast<int>((val.size() - 3) / 4);
 
 			for (int i = 1; i <= SatQty; ++i)
 			{
