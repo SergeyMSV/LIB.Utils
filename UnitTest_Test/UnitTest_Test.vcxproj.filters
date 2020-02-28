@@ -5,25 +5,25 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="LIB.Utils">
+    <Filter Include="Lib.Utils">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsTest.cpp">
-      <Filter>LIB.Utils</Filter>
+    <ClCompile Include="..\Lib.Utils\utilsTest.cpp">
+      <Filter>Lib.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\LIB.Utils\utilsTest_Test.cpp">
-      <Filter>LIB.Utils</Filter>
+    <ClCompile Include="..\Lib.Utils\utilsTest_Test.cpp">
+      <Filter>Lib.Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
-    <ClInclude Include="..\LIB.Utils\utilsTest.h">
-      <Filter>LIB.Utils</Filter>
+    <ClInclude Include="..\Lib.Utils\utilsTest.h">
+      <Filter>Lib.Utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
