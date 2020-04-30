@@ -101,8 +101,12 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload(tPayloadPMTK103ResetCold());
 	UnitTest_PacketNMEAPayload(tPayloadPMTK104ResetFull());
 	
-	UnitTest_PacketNMEAPayload(tPayloadPMTK314());
-	UnitTest_PacketNMEAPayload(tPayloadPMTK314(1, 2, 3, 4, 5, 6, 18));
+	UnitTest_PacketNMEAPayload(tPayloadPMTK314R2());
+	UnitTest_PacketNMEAPayload(tPayloadPMTK314R2(1, 2, 3, 4, 5, 6, 18));
+
+	UnitTest_PacketNMEAPayload(tPayloadPMTK314R3());
+	UnitTest_PacketNMEAPayload(tPayloadPMTK314R3(1, 2, 3, 4, 5, 6, 18));
+	UnitTest_PacketNMEAPayload(tPayloadPMTK314R3(1, 2, 3, 4, 5, 6, 7, 8, 18, 19, 20, 21));
 
 	UnitTest_PacketNMEAPayload(tPayloadPMTK353());
 	UnitTest_PacketNMEAPayload(tPayloadPMTK353(false, false));
