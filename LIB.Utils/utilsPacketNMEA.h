@@ -87,15 +87,20 @@ protected:
 
 		payload.Append(dst);
 
-		unsigned char CRC = utils::crc::CRC08_NMEA<tVectorUInt8::const_iterator>(dst.cbegin() + 1, dst.cend());
+		std::size_t PayloadSize = payload.GetSize();
 
-		dst.push_back(CTX);
+		if (dst.size() > PayloadSize)
+		{
+			unsigned char CRC = utils::crc::CRC08_NMEA<tVectorUInt8::const_iterator>(dst.cend() - PayloadSize, dst.cend());
 
-		char StrCRC[5];
-		std::sprintf(StrCRC, "%02X", CRC);
+			dst.push_back(CTX);
 
-		dst.push_back(StrCRC[0]);
-		dst.push_back(StrCRC[1]);
+			char StrCRC[5];
+			std::sprintf(StrCRC, "%02X", CRC);
+
+			dst.push_back(StrCRC[0]);
+			dst.push_back(StrCRC[1]);
+		}
 
 		dst.push_back(0x0D);
 		dst.push_back(0x0A);
