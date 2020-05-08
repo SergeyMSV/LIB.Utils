@@ -10,6 +10,7 @@
 // |      1     |   2015 07 17  |
 // |     ...    |               | 
 // |     16     |   2019 08 20  |
+// |     17     |   2020 05 08  |
 // |            |               | 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -27,12 +28,9 @@ struct tFormatStar
 {
 	typedef unsigned short tFieldDataSize;
 
-	enum { STX = '*' };
+	enum : unsigned char { STX = '*' };//C++11
 
 protected:
-	template <class tMsg>
-	void SetPayloadIDs(const tMsg& msg) { }
-
 	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
 	{
 		std::size_t Size = std::distance(cbegin, cend);
@@ -55,7 +53,7 @@ protected:
 		return tVectorUInt8();
 	}
 
-	static bool TryParse(const tVectorUInt8& packetVector, tFormatStar& format, TPayload& payload)
+	static bool TryParse(const tVectorUInt8& packetVector, TPayload& payload)
 	{
 		if (packetVector.size() >= GetSize(0) && packetVector[0] == STX)
 		{
@@ -84,15 +82,20 @@ protected:
 
 	void Append(tVectorUInt8& dst, const TPayload& payload) const
 	{
+		dst.reserve(GetSize(payload.size()));
+
 		dst.push_back(STX);
 
-		tVectorUInt8::const_iterator CRCBegin = dst.end() - 1;
+		utils::Append(dst, static_cast<unsigned short>(payload.size()));
 
-		utils::Append(dst, static_cast<unsigned short>(payload.GetSize()));
+		for (auto i : payload)
+		{
+			dst.push_back(i);
+		}
 
-		payload.Append(dst);
+		std::size_t DataSize = sizeof(tFieldDataSize) + payload.size();
 
-		unsigned short CRC = utils::crc::CRC16_CCITT<tVectorUInt8::const_iterator>(CRCBegin + 1, dst.end());
+		auto CRC = utils::crc::CRC16_CCITT(dst.end() - DataSize, dst.end());
 
 		utils::Append(dst, CRC);
 	}

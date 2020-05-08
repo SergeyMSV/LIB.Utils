@@ -1,7 +1,7 @@
 #include "utilsPacketStar.h"
-//#include "utilsTest.h"
-#include <iostream>//Replace with utilsTest.h
+#include "utilsTest.h"
 
+#include <iostream>
 
 namespace utils
 {
@@ -10,12 +10,10 @@ void UnitTest_PacketStar()
 {
 	std::cout << "\n""utils::packet::tPacketStar\n";
 
-	typedef utils::packet::tPacket<utils::packet_Star::tFormatStar, utils::packet::tPayloadCommon> tPacketStar;
+	typedef utils::packet::tPacket<utils::packet_Star::tFormatStar, tVectorUInt8> tPacketStar;
 
 	{
 		tPacketStar Packet;
-
-		//Packet.
 
 		tVectorUInt8 PacketVector = Packet.ToVector();
 	}
@@ -25,10 +23,16 @@ void UnitTest_PacketStar()
 
 		tPacketStar Packet;
 
-		if (tPacketStar::TryParse(Data, Packet))
+		bool Result = false;
+
+		if (tPacketStar::Find(Data, Packet))
 		{
-			std::cout << "tPacketStar::TryParse() OK\n";
+			Data = Packet.ToVector();
+
+			Result = tPacketStar::Find(Data, Packet);
 		}
+
+		utils::test::RESULT("Test 1", Result);
 	}
 
 	{
@@ -38,10 +42,16 @@ void UnitTest_PacketStar()
 
 		tPacketStar Packet;
 
+		bool Result = false;
+
 		if (tPacketStar::Find(Data, Packet))
 		{
-			std::cout << "tPacketStar::Find() OK\n";
+			Data = Packet.ToVector();
+
+			Result = tPacketStar::Find(Data, Packet);
 		}
+
+		utils::test::RESULT("Test 2", Result);
 	}
 
 	{
@@ -52,10 +62,16 @@ void UnitTest_PacketStar()
 
 		tPacketStar Packet;
 
+		bool Result = false;
+
 		if (tPacketStar::Find(Data, Packet))
 		{
-			std::cout << "tPacketStar::Find() OK\n";
+			Data = Packet.ToVector();
+
+			Result = tPacketStar::Find(Data, Packet);
 		}
+
+		utils::test::RESULT("Test 3", Result);
 	}
 }
 

@@ -31,7 +31,7 @@ void UnitTest_PacketNMEA_Find(const std::string& testName, const std::string& ra
 }
 
 template<typename T>
-void UnitTest_PacketNMEA_Parse(const std::string& testName, const std::string& raw, const std::vector<std::string>& data)
+void UnitTest_PacketNMEA_Parse(const std::string& testName, const std::string& raw, const typename T::payload_value_type& data)
 {
 	tVectorUInt8 DataVector(raw.begin(), raw.end());
 
@@ -39,7 +39,7 @@ void UnitTest_PacketNMEA_Parse(const std::string& testName, const std::string& r
 
 	bool Result = T::Find(DataVector, Packet);
 
-	std::vector<std::string> PacketData = Packet.GetPayload();
+	typename T::payload_value_type PacketData = Packet.GetPayload();
 
 	if (PacketData.size() == data.size())
 	{
@@ -62,7 +62,7 @@ void UnitTest_PacketNMEA_Parse(const std::string& testName, const std::string& r
 }
 
 template<typename T>
-void UnitTest_PacketNMEA_Make(const std::string& testName, const std::vector<std::string>& data)
+void UnitTest_PacketNMEA_Make(const std::string& testName, const typename T::payload_value_type& data)
 {
 	T Packet;
 
@@ -77,10 +77,6 @@ void UnitTest_PacketNMEA_Make(const std::string& testName, const std::vector<std
 
 void UnitTest_PacketNMEA()
 {
-	utils::packet::tPayloadCommon::value_type dsfsdf;
-
-	dsfsdf.push_back('e');
-
 	std::cout << "\n""utils::packet::packet_NMEA\n";
 
 	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadCommon> tPacketNMEA;
@@ -96,6 +92,21 @@ void UnitTest_PacketNMEA()
 
 	UnitTest_PacketNMEA_Make<tPacketNMEA>("Parse CRC: Make MYRMC 2",
 		{ "MYRMC", "PartA", "PartB", "PartC" });
+
+
+	std::cout << "\n""utils::packet_NMEA::tPayloadString\n";
+
+	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadString> tPacketNMEA2;
+
+
+	UnitTest_PacketNMEA_Make<tPacketNMEA2>("Parse CRC: Make MYRMC Empty", "MYRMC");
+
+	UnitTest_PacketNMEA_Make<tPacketNMEA2>("Parse CRC: Make MYRMC 1", "MYRMC,Test_1");
+
+	UnitTest_PacketNMEA_Make<tPacketNMEA2>("Parse CRC: Make MYRMC 2", "MYRMC,Test_1,Test_2");
+
+	UnitTest_PacketNMEA_Make<tPacketNMEA2>("Parse CRC: Make MYRMC 2", "MYRMC,Test_1,Test_2,Test_3");
+
 
 	std::cout << "\n""tPacketNMEABin\n";
 
@@ -117,7 +128,6 @@ void UnitTest_PacketNMEA()
 
 	UnitTest_PacketNMEA_Make<tPacketNMEABin>("Parse CRC: Make MYRMC 3 encapsulation packet",
 		{ "MYRMC", "PartA", "PartB", "PartC" });
-
 
 	std::cout << std::endl;
 }
