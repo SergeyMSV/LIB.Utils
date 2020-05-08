@@ -61,7 +61,7 @@ protected:
 		return tVectorUInt8();
 	}
 
-	static bool TryParse(const tVectorUInt8& packetVector, tFormatStar2& format, TPayload& payload)
+	static bool TryParse(const tVectorUInt8& packetVector, /*tFormatStar2& format,*/ TPayload& payload)
 	{
 		if (packetVector.size() >= GetSize(0) && packetVector[0] == tFormatStar2::STX)
 		{
