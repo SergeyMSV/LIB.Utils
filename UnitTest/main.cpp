@@ -26,12 +26,12 @@ int main()
 	UnitTest_CryptoAES();
 	UnitTest_CryptoRSA32();
 	UnitTest_Key();
-	UnitTest_PacketBNTBX2();
+	//UnitTest_PacketBNTBX2();
 	UnitTest_PacketNMEA();
 	UnitTest_PacketNMEAPayload();
 	UnitTest_PacketNMEAType();
 	UnitTest_PacketStar();
-	UnitTest_PacketStar2();
+	//UnitTest_PacketStar2();
 	UnitTest_PatternCommmand();
 	UnitTest_PatternState();
 	//UnitTest_Test();

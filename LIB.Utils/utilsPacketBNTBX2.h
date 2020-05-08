@@ -89,7 +89,7 @@ protected:
 		return tVectorUInt8();
 	}
 
-	static bool TryParse(const tVectorUInt8& packetVector, tFormatBNTBX2& format, TPayload& payload)
+	static bool TryParse(const tVectorUInt8& packetVector, /*tFormatBNTBX2& format, */TPayload& payload)
 	{
 		if (packetVector.size() >= GetSize(0) && packetVector[0] == STX)
 		{

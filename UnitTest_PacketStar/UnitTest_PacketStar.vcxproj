@@ -129,6 +129,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Lib.Utils\utilsPacketStar_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +137,7 @@
     <ClInclude Include="..\Lib.Utils\utilsCRC.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacket.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketStar.h" />
+    <ClInclude Include="..\LIB.Utils\utilsTest.h" />
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
   </ItemGroup>

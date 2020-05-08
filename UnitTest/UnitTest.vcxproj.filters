@@ -11,13 +11,7 @@
     <ClCompile Include="..\Lib.Utils\utilsBase_Test.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\Lib.Utils\utilsPacketBNTBX2_Test.cpp">
-      <Filter>Lib.Utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\Lib.Utils\utilsPacketStar_Test.cpp">
-      <Filter>Lib.Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Lib.Utils\utilsPacketStar2_Test.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\Lib.Utils\utilsTest.cpp">
@@ -78,13 +72,7 @@
     <ClInclude Include="..\Lib.Utils\utilsPacket.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
-    <ClInclude Include="..\Lib.Utils\utilsPacketBNTBX2.h">
-      <Filter>Lib.Utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\Lib.Utils\utilsPacketStar.h">
-      <Filter>Lib.Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Lib.Utils\utilsPacketStar2.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\Lib.Utils\utilsTest.h">

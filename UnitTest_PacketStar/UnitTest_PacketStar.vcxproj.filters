@@ -11,6 +11,9 @@
     <ClCompile Include="..\Lib.Utils\utilsPacketStar_Test.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
@@ -27,5 +30,8 @@
       <Filter>Lib.Utils</Filter>
     </ClInclude>
     <ClInclude Include="libConfig.h" />
+    <ClInclude Include="..\LIB.Utils\utilsTest.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
