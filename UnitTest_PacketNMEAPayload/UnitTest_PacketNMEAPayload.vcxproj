@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Lib.Utils\utilsBase.h" />
+    <ClInclude Include="..\LIB.Utils\utilsPacket.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketNMEA.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketNMEAPayload.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketNMEAPayloadPMTK.h" />
