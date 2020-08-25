@@ -38,12 +38,12 @@ protected:
 
 		if (Size >= GetSize(0) && *cbegin == STX)
 		{
-			tVectorUInt8::const_iterator Begin = cbegin + 1;
-			tVectorUInt8::const_iterator End = std::find(Begin, cend, CTX);
+			const tVectorUInt8::const_iterator Begin = cbegin + 1;
+			const tVectorUInt8::const_iterator End = std::find(Begin, cend, CTX);
 
 			if (End != cend)
 			{
-				std::size_t DataSize = std::distance(Begin, End);
+				const std::size_t DataSize = std::distance(Begin, End);
 
 				if (Size >= GetSize(DataSize) && VerifyCRC(Begin, DataSize))
 				{
@@ -59,12 +59,12 @@ protected:
 	{
 		if (packetVector.size() >= GetSize(0) && packetVector[0] == STX)
 		{
-			tVectorUInt8::const_iterator Begin = packetVector.cbegin() + 1;
-			tVectorUInt8::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
+			const tVectorUInt8::const_iterator Begin = packetVector.cbegin() + 1;
+			const tVectorUInt8::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
 
 			if (End != packetVector.cend())
 			{
-				std::size_t DataSize = std::distance(Begin, End);
+				const std::size_t DataSize = std::distance(Begin, End);
 
 				if (packetVector.size() == GetSize(DataSize) && VerifyCRC(Begin, DataSize))
 				{
@@ -91,11 +91,11 @@ protected:
 			dst.push_back(i);
 		}
 
-		unsigned char CRC = utils::crc::CRC08_NMEA(payload.begin(), payload.end());
+		const std::uint8_t CRC = utils::crc::CRC08_NMEA(payload.begin(), payload.end());
 
 		dst.push_back(CTX);
 
-		char StrCRC[10]{};
+		char StrCRC[10]{};//[TBD] get rig if it
 		std::sprintf(StrCRC, "%02X\xd\xa", CRC);
 
 		dst.insert(dst.end(), StrCRC, StrCRC + 4);
@@ -104,11 +104,11 @@ protected:
 private:
 	static bool VerifyCRC(tVectorUInt8::const_iterator begin, std::size_t crcDataSize)
 	{
-		auto CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
+		const auto CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
 
-		tVectorUInt8::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
+		const tVectorUInt8::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
 
-		auto CRCReceived = utils::Read<unsigned char>(CRCBegin, CRCBegin + 2, utils::tRadix_16);
+		const auto CRCReceived = utils::Read<unsigned char>(CRCBegin, CRCBegin + 2, utils::tRadix_16);
 
 		return CRC == CRCReceived;
 	}
