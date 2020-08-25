@@ -30,14 +30,14 @@ template <unsigned int size>
 struct tKey1
 {
 	enum { Size = size };//Items Qty
-	tUInt32 Value[size];
+	std::uint32_t Value[size];
 
 	//tArray1() in union it's deleted by default
 	//{
 	//	std::memset(Value, 0, Size);
 	//}
 
-	tUInt32& operator [] (std::size_t i)
+	std::uint32_t& operator [] (std::size_t i)
 	{
 		assert(i < Size);
 
@@ -74,14 +74,14 @@ union tKey256
 
 	struct
 	{
-		tUInt32 A;
-		tUInt32 B;
-		tUInt32 C;
-		tUInt32 D;
-		tUInt32 E;
-		tUInt32 F;
-		tUInt32 G;
-		tUInt32 H;
+		std::uint32_t A;
+		std::uint32_t B;
+		std::uint32_t C;
+		std::uint32_t D;
+		std::uint32_t E;
+		std::uint32_t F;
+		std::uint32_t G;
+		std::uint32_t H;
 	}Field;
 
 	tKeyValue Value;
@@ -95,12 +95,12 @@ union tKey192
 
 	struct
 	{
-		tUInt32 A;
-		tUInt32 B;
-		tUInt32 C;
-		tUInt32 D;
-		tUInt32 E;
-		tUInt32 F;
+		std::uint32_t A;
+		std::uint32_t B;
+		std::uint32_t C;
+		std::uint32_t D;
+		std::uint32_t E;
+		std::uint32_t F;
 	}Field;
 
 	tKeyValue Value;
@@ -114,10 +114,10 @@ union tKey128
 
 	struct
 	{
-		tUInt32 A;
-		tUInt32 B;
-		tUInt32 C;
-		tUInt32 D;
+		std::uint32_t A;
+		std::uint32_t B;
+		std::uint32_t C;
+		std::uint32_t D;
 	}Field;
 
 	tKeyValue Value;
@@ -131,9 +131,9 @@ union tKey96
 
 	struct
 	{
-		tUInt32 A;
-		tUInt32 B;
-		tUInt32 C;
+		std::uint32_t A;
+		std::uint32_t B;
+		std::uint32_t C;
 	}Field;
 
 	tKeyValue Value;
@@ -147,8 +147,8 @@ union tKey64
 
 	struct
 	{
-		tUInt32 A;
-		tUInt32 B;
+		std::uint32_t A;
+		std::uint32_t B;
 	}Field;
 
 	tKeyValue Value;
@@ -162,7 +162,7 @@ union tKey32
 
 	struct
 	{
-		tUInt32 A;
+		std::uint32_t A;
 	}Field;
 
 	tKeyValue Value;
@@ -191,7 +191,7 @@ typename std::enable_if<T::type_key, std::string>::type ToString(const T& value)
 
 	for (int i = Size; i > 0; --i)
 	{
-		char Str[20];
+		char Str[20]{};//[TBD] get rid of it
 
 		std::sprintf(Str, "%08X", value.Value.Value[i - 1]);
 

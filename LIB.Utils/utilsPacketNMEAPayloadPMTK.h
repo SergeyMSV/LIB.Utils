@@ -24,7 +24,7 @@ namespace hidden
 
 struct tPayloadPMTK001
 {
-	enum class tStatus : tUInt8
+	enum class tStatus : std::uint8_t
 	{
 		InvalidCommand = 0,//0 = Invalid command / packet
 		UnsupportedCommand,//1 = Unsupported command / packet type
@@ -32,7 +32,7 @@ struct tPayloadPMTK001
 		Succeeded,//3 = Valid command / packet, and action succeeded
 	};
 
-	typedef Type::tUInt<tUInt16, 3> command_type;
+	typedef Type::tUInt<std::uint16_t, 3> command_type;
 	typedef Type::tUInt<tStatus, 1> status_type;
 
 	command_type CMD;
@@ -85,7 +85,7 @@ struct tPayloadPMTK001 : public hidden::tPayloadPMTK001
 template <>
 struct tPayloadPMTK001<355> : public hidden::tPayloadPMTK001
 {
-	typedef Type::tUInt<tUInt8, 0> status_type;
+	typedef Type::tUInt<std::uint8_t, 0> status_type;
 
 	status_type GPS;
 	status_type GLONASS;
@@ -122,7 +122,7 @@ struct tPayloadPMTK001<355> : public hidden::tPayloadPMTK001
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadPMTK010
 {
-	enum class tStatus : tUInt8
+	enum class tStatus : std::uint8_t
 	{
 		UNKNOWN = 0,
 		STARTUP,
@@ -198,7 +198,7 @@ struct tPayloadPMTK011
 namespace hidden
 {
 
-enum class tPayloadPMTK10xResetState : tUInt8
+enum class tPayloadPMTK10xResetState : std::uint8_t
 {
 	Hot = 1,
 	Warm,
@@ -251,7 +251,7 @@ typedef hidden::tPayloadPMTK10xReset<hidden::tPayloadPMTK10xResetState::Full> tP
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadPMTK314R2
 {
-	typedef Type::tUInt<tUInt8, 0> status_type;
+	typedef Type::tUInt<std::uint8_t, 0> status_type;
 
 	status_type GLL;
 	status_type RMC;
@@ -262,7 +262,7 @@ struct tPayloadPMTK314R2
 	status_type ZDA;
 
 	tPayloadPMTK314R2() = default;
-	tPayloadPMTK314R2(tUInt8 gll, tUInt8 rmc, tUInt8 vtg, tUInt8 gga, tUInt8 gsa, tUInt8 gsv, tUInt8 zda)
+	tPayloadPMTK314R2(std::uint8_t gll, std::uint8_t rmc, std::uint8_t vtg, std::uint8_t gga, std::uint8_t gsa, std::uint8_t gsv, std::uint8_t zda)
 		:GLL(gll), RMC(rmc), VTG(vtg), GGA(gga), GSA(gsa), GSV(gsv), ZDA(zda)
 	{ }
 	explicit tPayloadPMTK314R2(const tPayloadCommon::value_type& val)
@@ -317,7 +317,7 @@ struct tPayloadPMTK314R2
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadPMTK314R3
 {
-	typedef Type::tUInt<tUInt8, 0> status_type;
+	typedef Type::tUInt<std::uint8_t, 0> status_type;
 
 	status_type GLL;
 	status_type RMC;
@@ -333,10 +333,10 @@ struct tPayloadPMTK314R3
 	status_type GBS;
 
 	tPayloadPMTK314R3() = default;
-	tPayloadPMTK314R3(tUInt8 gll, tUInt8 rmc, tUInt8 vtg, tUInt8 gga, tUInt8 gsa, tUInt8 gsv, tUInt8 grs, tUInt8 gst, tUInt8 zda, tUInt8 mchn, tUInt8 dtm, tUInt8 gbs)
+	tPayloadPMTK314R3(std::uint8_t gll, std::uint8_t rmc, std::uint8_t vtg, std::uint8_t gga, std::uint8_t gsa, std::uint8_t gsv, std::uint8_t grs, std::uint8_t gst, std::uint8_t zda, std::uint8_t mchn, std::uint8_t dtm, std::uint8_t gbs)
 		:GLL(gll), RMC(rmc), VTG(vtg), GGA(gga), GSA(gsa), GSV(gsv), GRS(grs), GST(gst), ZDA(zda), MCHN(mchn), DTM(dtm), GBS(gbs)
 	{ }
-	tPayloadPMTK314R3(tUInt8 gll, tUInt8 rmc, tUInt8 vtg, tUInt8 gga, tUInt8 gsa, tUInt8 gsv, tUInt8 zda)
+	tPayloadPMTK314R3(std::uint8_t gll, std::uint8_t rmc, std::uint8_t vtg, std::uint8_t gga, std::uint8_t gsa, std::uint8_t gsv, std::uint8_t zda)
 		:tPayloadPMTK314R3(gll, rmc, vtg, gga, gsa, gsv, 0, 0, zda, 0, 0, 0)
 	{ }	
 	explicit tPayloadPMTK314R3(const tPayloadCommon::value_type& val)
@@ -398,7 +398,7 @@ struct tPayloadPMTK314R3
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadPMTK353
 {
-	typedef Type::tUInt<tUInt8, 0> status_type;
+	typedef Type::tUInt<std::uint8_t, 0> status_type;
 
 	status_type GPS;
 	status_type GLONASS;
@@ -436,7 +436,7 @@ struct tPayloadPMTK353
 
 	Type::tGNSS_State GetState()
 	{
-		tUInt8 State = 0;
+		std::uint8_t State = 0;
 
 		if (GPS.Value) State |= 1;
 		if (GLONASS.Value) State |= (1 << 1);

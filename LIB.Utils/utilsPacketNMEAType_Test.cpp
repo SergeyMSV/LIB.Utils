@@ -46,7 +46,7 @@ void UnitTest_PacketNMEAType()
 
 	UnitTest_PacketNMEAPayload_Test<tDate>();
 	UnitTest_PacketNMEAPayload_Test<tDate>("120517");
-	//std::tuple<tUInt8, tUInt8, tUInt8> Args = std::make_tuple( 17, 4, 19 );
+	//std::tuple<std::uint8_t, std::uint8_t, std::uint8_t> Args = std::make_tuple( 17, 4, 19 );
 	//UnitTest_PacketNMEAPayload_Test<tDate>(Args);
 	{
 		tDate Val(17, 4, 19);

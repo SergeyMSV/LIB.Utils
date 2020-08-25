@@ -56,7 +56,7 @@ std::string ToString(std::vector<int>& data)
 {
 	std::string Vector32;
 
-	for (int i = 0; i < data.size(); ++i)
+	for (std::size_t i = 0; i < data.size(); ++i)
 	{
 		Vector32.push_back(data[i] & 0xFF);
 		Vector32.push_back((data[i] >> 8) & 0xFF);
