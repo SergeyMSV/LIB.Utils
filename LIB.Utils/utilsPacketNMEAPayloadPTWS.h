@@ -28,14 +28,14 @@ struct tPayloadPTWS_JAM_SIGNAL_VAL
 	static inline const char* PayloadMsgVAL1 = "INDEX";
 	static inline const char* PayloadMsgVAL2 = "FREQ";
 
-	typedef Type::tUInt<tUInt8, 0> index_type;
+	typedef Type::tUInt<std::uint8_t, 0> index_type;
 	typedef Type::tFloat<0, 6> frequency_type;
 
 	index_type Index;
 	frequency_type Frequency;
 
 	tPayloadPTWS_JAM_SIGNAL_VAL() = default;
-	explicit tPayloadPTWS_JAM_SIGNAL_VAL(tUInt8 index, double frequency)
+	explicit tPayloadPTWS_JAM_SIGNAL_VAL(std::uint8_t index, double frequency)
 		:Index(index), Frequency(frequency)
 	{}
 	explicit tPayloadPTWS_JAM_SIGNAL_VAL(const tPayloadCommon::value_type& val)

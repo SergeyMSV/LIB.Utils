@@ -39,10 +39,10 @@ protected:
 		{
 			tFieldDataSize DataSize = 0;
 
-			tVectorUInt8::const_iterator Begin = cbegin + 1;
-			tVectorUInt8::const_iterator End = Begin + sizeof(tFieldDataSize);
+			const tVectorUInt8::const_iterator Begin = cbegin + 1;
+			const tVectorUInt8::const_iterator End = Begin + sizeof(tFieldDataSize);
 
-			std::copy(Begin, End, reinterpret_cast<tUInt8*>(&DataSize));
+			std::copy(Begin, End, reinterpret_cast<std::uint8_t*>(&DataSize));
 
 			if (Size >= GetSize(DataSize) && VerifyCRC(Begin, sizeof(tFieldDataSize) + DataSize))
 			{
@@ -62,7 +62,7 @@ protected:
 			tVectorUInt8::const_iterator Begin = packetVector.cbegin() + 1;
 			tVectorUInt8::const_iterator End = Begin + sizeof(tFieldDataSize);
 
-			std::copy(Begin, End, reinterpret_cast<tUInt8*>(&DataSize));
+			std::copy(Begin, End, reinterpret_cast<std::uint8_t*>(&DataSize));
 
 			if (packetVector.size() == GetSize(DataSize) && VerifyCRC(Begin, sizeof(tFieldDataSize) + DataSize))
 			{
@@ -93,9 +93,9 @@ protected:
 			dst.push_back(i);
 		}
 
-		std::size_t DataSize = sizeof(tFieldDataSize) + payload.size();
+		const std::size_t DataSize = sizeof(tFieldDataSize) + payload.size();
 
-		auto CRC = utils::crc::CRC16_CCITT(dst.end() - DataSize, dst.end());
+		const std::uint16_t CRC = utils::crc::CRC16_CCITT(dst.end() - DataSize, dst.end());
 
 		utils::Append(dst, CRC);
 	}
@@ -103,11 +103,11 @@ protected:
 private:
 	static bool VerifyCRC(tVectorUInt8::const_iterator begin, std::size_t crcDataSize)
 	{
-		auto CRC = utils::crc::CRC16_CCITT(begin, begin + crcDataSize);
+		const std::uint16_t CRC = utils::crc::CRC16_CCITT(begin, begin + crcDataSize);
 
-		tVectorUInt8::const_iterator CRCBegin = begin + crcDataSize;
+		const tVectorUInt8::const_iterator CRCBegin = begin + crcDataSize;
 
-		auto CRCReceived = utils::Read<unsigned short>(CRCBegin, CRCBegin + sizeof(CRC));
+		const std::uint16_t CRCReceived = utils::Read<std::uint16_t>(CRCBegin, CRCBegin + sizeof(CRC));
 
 		return CRC == CRCReceived;
 	}
