@@ -18,6 +18,8 @@
 #include "utilsCRC.h"
 #include "utilsPacket.h"
 
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -26,10 +28,10 @@ namespace utils
 	namespace packet_NMEA
 	{
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <class TPayload, unsigned char stx = '$'>
+template <class TPayload, std::uint8_t stx = '$'>
 struct tFormat
 {
-	enum : unsigned char { STX = stx, CTX = '*' };
+	enum : std::uint8_t { STX = stx, CTX = '*' };
 
 protected:
 	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
@@ -95,20 +97,24 @@ protected:
 
 		dst.push_back(CTX);
 
-		char StrCRC[10]{};//[TBD] get rig if it
-		std::sprintf(StrCRC, "%02X\xd\xa", CRC);
+		std::stringstream SStream;
 
-		dst.insert(dst.end(), StrCRC, StrCRC + 4);
+		SStream << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << static_cast<unsigned int>(CRC);
+		SStream << "\xd\xa";
+
+		const std::string EndStr = SStream.str();
+
+		dst.insert(dst.end(), EndStr.cbegin(), EndStr.cend());
 	}
 
 private:
 	static bool VerifyCRC(tVectorUInt8::const_iterator begin, std::size_t crcDataSize)
 	{
-		const auto CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
+		const std::uint8_t CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
 
 		const tVectorUInt8::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
 
-		const auto CRCReceived = utils::Read<unsigned char>(CRCBegin, CRCBegin + 2, utils::tRadix_16);
+		const std::uint8_t CRCReceived = utils::Read<std::uint8_t>(CRCBegin, CRCBegin + 2, utils::tRadix_16);
 
 		return CRC == CRCReceived;
 	}

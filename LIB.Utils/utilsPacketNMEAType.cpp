@@ -83,14 +83,17 @@ std::string tDate::ToString() const
 {
 	if (m_Empty) return "";
 
-	char Str[10]{};
-
+	std::stringstream SStream;
+	
 	if (Year < 100 && Month < 13 && Day < 32)
 	{
-		std::sprintf(Str, "%02d%02d%02d", Day, Month, Year);
+		SStream << std::setfill('0');
+		SStream << std::setw(2) << static_cast<unsigned int>(Day);
+		SStream << std::setw(2) << static_cast<unsigned int>(Month);
+		SStream << std::setw(2) << static_cast<unsigned int>(Year);
 	}
 
-	return Str;
+	return SStream.str();
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tPositioning::tPositioning(const std::string& val)
