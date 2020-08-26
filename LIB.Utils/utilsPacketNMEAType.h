@@ -13,15 +13,13 @@
 #include "utilsBase.h"
 
 #include <cmath>
-#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 
-#include <string>
-#include <vector>
-
 #include <iomanip>
 #include <sstream>
+#include <string>
+#include <vector>
 
 namespace utils
 {
@@ -211,21 +209,23 @@ public:
 	{
 		if (m_Empty) return "";
 
-		double ValueAbs = std::abs(Value);
+		const double ValueAbs = std::abs(Value);
 
-		std::uint8_t Deg = static_cast<std::uint8_t>(ValueAbs);
-		double Min = (ValueAbs - Deg) * 60;
+		const std::int8_t Deg = static_cast<std::int8_t>(ValueAbs);
+		const double Min = (ValueAbs - Deg) * 60;
 
-		char Str[Size + 1]{};
+		std::stringstream SStream;
 
 		if (Deg < 100)
 		{
-			const char StrFormat[] = { '%','0', '2', 'd' , '%', '0', static_cast<char>(0x30 + Size - 2), '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
-
-			std::sprintf(Str, StrFormat, Deg, Min);
+			SStream << std::setfill('0');
+			SStream << std::setw(2) << static_cast<int>(Deg);
+			SStream.setf(std::ios::fixed);
+			SStream << std::setw(3 + SizeFract) << std::setprecision(SizeFract) << Min;
+			SStream.unsetf(std::ios::fixed);
 		}
 
-		return Str;
+		return SStream.str();
 	}
 
 	std::string ToStringHemisphere() const
@@ -280,19 +280,21 @@ public:
 
 		const double ValueAbs = std::abs(Value);
 
-		const std::uint16_t Deg = static_cast<std::uint16_t>(ValueAbs);
-		double Min = (ValueAbs - Deg) * 60;
+		const std::int16_t Deg = static_cast<std::int16_t>(ValueAbs);
+		const double Min = (ValueAbs - Deg) * 60;
 
-		char Str[Size + 1]{};
+		std::stringstream SStream;
 
 		if (Deg < 1000)
 		{
-			const char StrFormat[] = { '%','0', '3', 'd' , '%', '0', static_cast<char>(0x30 + Size - 3), '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
-
-			std::sprintf(Str, StrFormat, Deg, Min);
+			SStream << std::setfill('0');
+			SStream << std::setw(3) << static_cast<int>(Deg);
+			SStream.setf(std::ios::fixed);
+			SStream << std::setw(3 + SizeFract) << std::setprecision(SizeFract) << Min;
+			SStream.unsetf(std::ios::fixed);
 		}
 
-		return Str;
+		return SStream.str();
 	}
 
 	std::string ToStringHemisphere() const
@@ -333,13 +335,14 @@ public:
 	{
 		if (m_Empty) return "";
 
-		const char StrFormat[] = { '%', '0', static_cast<char>(0x30 + SizeInt + SizeFract + 1), '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
+		std::stringstream SStream;
 
-		char Str[Size + 1]{};
+		SStream << std::setfill('0');
+		SStream.setf(std::ios::fixed);
+		SStream << std::setw(SizeInt + SizeFract + 1) << std::setprecision(SizeFract) << Value;
+		SStream.unsetf(std::ios::fixed);
 
-		std::sprintf(Str, StrFormat, Value);
-
-		return Str;
+		return SStream.str();
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -368,13 +371,13 @@ public:
 	{
 		if (m_Empty) return "";
 
-		const char StrFormat[] = { '%', '.', static_cast<char>(0x30 + SizeFract), 'f', 0 };
+		std::stringstream SStream;
 
-		char Str[SizeMax + 1]{};
+		SStream.setf(std::ios::fixed);
+		SStream << std::setw(SizeFract + 1) << std::setprecision(SizeFract) << Value;
+		SStream.unsetf(std::ios::fixed);
 
-		std::sprintf(Str, StrFormat, Value);
-
-		return Str;
+		return SStream.str();
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -475,13 +478,12 @@ public:
 	{
 		if (m_Empty) return "";
 
-		const char StrFormat[] = { '%', '0', static_cast<char>(0x30 + Size), 'd', 0 };
+		std::stringstream SStream;
 
-		char Str[Size + 1]{};
+		SStream << std::setfill('0');
+		SStream << std::setw(Size) << static_cast<unsigned int>(Value);
 
-		std::sprintf(Str, StrFormat, Value);
-
-		return Str;
+		return SStream.str();
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -507,11 +509,11 @@ public:
 	{
 		if (m_Empty) return "";
 
-		char Str[20]{};
+		std::stringstream SStream;
 
-		std::sprintf(Str, "%d", Value);
+		SStream << Value;
 
-		return Str;
+		return SStream.str();
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
