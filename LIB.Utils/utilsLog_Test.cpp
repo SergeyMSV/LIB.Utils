@@ -16,7 +16,12 @@ public:
 	}
 
 protected:
-	virtual void WriteLog(const std::string& msg) override final
+	const char* GetSign() const override final
+	{
+		return "SIGN";
+	}
+
+	void WriteLog(const std::string& msg) override final
 	{
 		std::cout << msg;
 	}
