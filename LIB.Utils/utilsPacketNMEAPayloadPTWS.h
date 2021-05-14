@@ -21,13 +21,6 @@ namespace utils
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadPTWS_JAM_SIGNAL_VAL
 {
-	static inline const char* PayloadID = "PTWS";//C++17
-	static inline const char* PayloadMsgID = "JAM";
-	static inline const char* PayloadMsgID2 = "SIGNAL";
-	static inline const char* PayloadMsgCMD = "VAL";
-	static inline const char* PayloadMsgVAL1 = "INDEX";
-	static inline const char* PayloadMsgVAL2 = "FREQ";
-
 	typedef Type::tUInt<std::uint8_t, 0> index_type;
 	typedef Type::tFloat<0, 6> frequency_type;
 
@@ -50,25 +43,25 @@ struct tPayloadPTWS_JAM_SIGNAL_VAL
 	static bool Try(const tPayloadCommon::value_type& val)
 	{
 		return val.size() == 8 &&
-			!std::strcmp(val[0].c_str(), PayloadID) &&
-			!std::strcmp(val[1].c_str(), PayloadMsgID) &&
-			!std::strcmp(val[2].c_str(), PayloadMsgID2) &&
-			!std::strcmp(val[3].c_str(), PayloadMsgCMD) &&
-			!std::strcmp(val[4].c_str(), PayloadMsgVAL1) &&
-			!std::strcmp(val[6].c_str(), PayloadMsgVAL2);
+			!std::strcmp(val[0].c_str(), "PTWS") &&
+			!std::strcmp(val[1].c_str(), "JAM") &&
+			!std::strcmp(val[2].c_str(), "SIGNAL") &&
+			!std::strcmp(val[3].c_str(), "VAL") &&
+			!std::strcmp(val[4].c_str(), "INDEX") &&
+			!std::strcmp(val[6].c_str(), "FREQ");
 	}
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
 
-		Data.push_back(PayloadID);
-		Data.push_back(PayloadMsgID);
-		Data.push_back(PayloadMsgID2);
-		Data.push_back(PayloadMsgCMD);
-		Data.push_back(PayloadMsgVAL1);
+		Data.push_back("PTWS");
+		Data.push_back("JAM");
+		Data.push_back("SIGNAL");
+		Data.push_back("VAL");
+		Data.push_back("INDEX");
 		Data.push_back(Index.ToString());
-		Data.push_back(PayloadMsgVAL2);
+		Data.push_back("FREQ");
 		Data.push_back(Frequency.ToString());
 
 		return Data;
@@ -77,10 +70,6 @@ struct tPayloadPTWS_JAM_SIGNAL_VAL
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadPTWS_VERSION_GET
 {
-	static inline const char* PayloadID = "PTWS";
-	static inline const char* PayloadMsgID = "VERSION";
-	static inline const char* PayloadMsgCMD = "GET";
-
 	tPayloadPTWS_VERSION_GET() = default;
 	explicit tPayloadPTWS_VERSION_GET(const tPayloadCommon::value_type& val)
 	{
@@ -93,18 +82,18 @@ struct tPayloadPTWS_VERSION_GET
 	static bool Try(const tPayloadCommon::value_type& val)
 	{
 		return val.size() == 3 &&
-			!std::strcmp(val[0].c_str(), PayloadID) &&
-			!std::strcmp(val[1].c_str(), PayloadMsgID) &&
-			!std::strcmp(val[2].c_str(), PayloadMsgCMD);
+			!std::strcmp(val[0].c_str(), "PTWS") &&
+			!std::strcmp(val[1].c_str(), "VERSION") &&
+			!std::strcmp(val[2].c_str(), "GET");
 	}
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
 
-		Data.push_back(PayloadID);
-		Data.push_back(PayloadMsgID);
-		Data.push_back(PayloadMsgCMD);
+		Data.push_back("PTWS");
+		Data.push_back("VERSION");
+		Data.push_back("GET");
 
 		return Data;
 	}
@@ -112,10 +101,6 @@ struct tPayloadPTWS_VERSION_GET
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadPTWS_VERSION_VAL
 {
-	static inline const char* PayloadID = "PTWS";
-	static inline const char* PayloadMsgID = "VERSION";
-	static inline const char* PayloadMsgCMD = "VAL";
-
 	typedef std::string version_type;
 
 	version_type Version;
@@ -135,18 +120,18 @@ struct tPayloadPTWS_VERSION_VAL
 	static bool Try(const tPayloadCommon::value_type& val)
 	{
 		return val.size() == 4 &&
-			!std::strcmp(val[0].c_str(), PayloadID) &&
-			!std::strcmp(val[1].c_str(), PayloadMsgID) &&
-			!std::strcmp(val[2].c_str(), PayloadMsgCMD);
+			!std::strcmp(val[0].c_str(), "PTWS") &&
+			!std::strcmp(val[1].c_str(), "VERSION") &&
+			!std::strcmp(val[2].c_str(), "VAL");
 	}
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
 
-		Data.push_back(PayloadID);
-		Data.push_back(PayloadMsgID);
-		Data.push_back(PayloadMsgCMD);
+		Data.push_back("PTWS");
+		Data.push_back("VERSION");
+		Data.push_back("VAL");
 		Data.push_back(Version);
 
 		return Data;

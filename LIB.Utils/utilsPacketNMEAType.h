@@ -511,7 +511,7 @@ public:
 
 		std::stringstream SStream;
 
-		SStream << Value;
+		SStream << static_cast<unsigned int>(Value);
 
 		return SStream.str();
 	}
