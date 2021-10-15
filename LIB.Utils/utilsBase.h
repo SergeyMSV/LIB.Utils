@@ -74,10 +74,10 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(cons
 	return Read<T, const char*>(Begin, Begin + dataSize);
 }
 
-enum tRadix
+enum class tRadix : unsigned char
 {
-	tRadix_10 = 10,
-	tRadix_16 = 16,
+	dec = 10,
+	hex = 16,
 };
 
 template<typename T, typename Iterator, int N = 20>
@@ -92,8 +92,8 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(Iter
 		char Byte = static_cast<char>(*first);
 
 		if ((Byte >= '0' && Byte <= '9') ||
-			(radix == tRadix_10 && Byte == '-' && StrIndex == 0) ||
-			(radix == tRadix_16 && ((Byte >= 'A' && Byte <= 'F') || (Byte >= 'a' && Byte <= 'f'))))
+			(radix == tRadix::dec && Byte == '-' && StrIndex == 0) ||
+			(radix == tRadix::hex && ((Byte >= 'A' && Byte <= 'F') || (Byte >= 'a' && Byte <= 'f'))))
 		{
 			Str[StrIndex++] = Byte;
 		}
@@ -105,12 +105,12 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(Iter
 
 	Str[StrIndex] = 0;
 
-	if (Str[0] == '-' && radix == tRadix_10)
+	if (Str[0] == '-' && radix == tRadix::dec)
 	{
-		return static_cast<T>(strtol(Str, 0, radix));
+		return static_cast<T>(strtol(Str, 0, static_cast<int>(radix)));
 	}
 
-	return static_cast<T>(strtoul(Str, 0, radix));
+	return static_cast<T>(strtoul(Str, 0, static_cast<int>(radix)));
 }
 
 template<typename T>

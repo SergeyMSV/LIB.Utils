@@ -232,198 +232,198 @@ void UnitTest_Base()
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//Read<char>, Radix=tRadix_10
+	//Read<char>, Radix=tRadix::dec
 	{
 		std::string Str = " -123ko4_dsfg";
 
-		auto A = Read<char>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<char>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<char>, Radix=tRadix_10", A == -123);
+		utils::test::RESULT("Read<char>, Radix=tRadix::dec", A == -123);
 	}
 
-	//Read<short>, Radix=tRadix_10
+	//Read<short>, Radix=tRadix::dec
 	{
 		std::string Str = " -12345ko4_dsfg";
 
-		auto A = Read<short>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<short>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<short>, Radix=tRadix_10", A == -12345);
+		utils::test::RESULT("Read<short>, Radix=tRadix::dec", A == -12345);
 	}
 
-	//Read<int>, Radix=tRadix_10
+	//Read<int>, Radix=tRadix::dec
 	{
 		std::string Str = " -1234567ko4_dsfg";
 
-		auto A = Read<int>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<int>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<int>, Radix=tRadix_10", A == -1234567);
+		utils::test::RESULT("Read<int>, Radix=tRadix::dec", A == -1234567);
 	}
 
 #ifdef DEBUG_SHOW_DOES_NOT_WORK
-	//Read<int64_t>, Radix=tRadix_10
+	//Read<int64_t>, Radix=tRadix::dec
 	{
 		std::string Str = " -123456789123456789ko4_dsfg";
 
-		auto A = Read<int64_t>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<int64_t>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<int64_t>, Radix=tRadix_10", A == -123456789123456789);
+		utils::test::RESULT("Read<int64_t>, Radix=tRadix::dec", A == -123456789123456789);
 	}
 
-	//Read<unsigned char>, Radix=tRadix_10, 1
+	//Read<unsigned char>, Radix=tRadix::dec, 1
 	{
 		std::string Str = " -123ko4_dsfg";
 
-		auto A = Read<unsigned char>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<unsigned char>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<unsigned char>, Radix=tRadix_10, 1", A == 123);
+		utils::test::RESULT("Read<unsigned char>, Radix=tRadix::dec, 1", A == 123);
 	}
 #endif//DEBUG_SHOW_DOES_NOT_WORK
 
-	//Read<unsigned char>, Radix=tRadix_10, 2
+	//Read<unsigned char>, Radix=tRadix::dec, 2
 	{
 		std::string Str = " 123ko4_dsfg";
 
-		auto A = Read<unsigned char>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<unsigned char>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<unsigned char>, Radix=tRadix_10, 2", A == 123);
+		utils::test::RESULT("Read<unsigned char>, Radix=tRadix::dec, 2", A == 123);
 	}
 
 #ifdef DEBUG_SHOW_DOES_NOT_WORK
-	//Read<unsigned short>, Radix=tRadix_10, 1
+	//Read<unsigned short>, Radix=tRadix::dec, 1
 	{
 		std::string Str = " -12345ko4_dsfg";
 
-		auto A = Read<unsigned short>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<unsigned short>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<unsigned short>, Radix=tRadix_10, 1", A == 12345);
+		utils::test::RESULT("Read<unsigned short>, Radix=tRadix::dec, 1", A == 12345);
 	}
 #endif//DEBUG_SHOW_DOES_NOT_WORK
 
-	//Read<unsigned short>, Radix=tRadix_10, 2
+	//Read<unsigned short>, Radix=tRadix::dec, 2
 	{
 		std::string Str = " 12345ko4_dsfg";
 
-		auto A = Read<unsigned short>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<unsigned short>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<unsigned short>, Radix=tRadix_10, 2", A == 12345);
+		utils::test::RESULT("Read<unsigned short>, Radix=tRadix::dec, 2", A == 12345);
 	}
 
 #ifdef DEBUG_SHOW_DOES_NOT_WORK
-	//Read<unsigned int>, Radix=tRadix_10, 1
+	//Read<unsigned int>, Radix=tRadix::dec, 1
 	{
 		std::string Str = " -1234567ko4_dsfg";
 
-		auto A = Read<unsigned int>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<unsigned int>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<unsigned int>, Radix=tRadix_10, 1", A == 1234567);
+		utils::test::RESULT("Read<unsigned int>, Radix=tRadix::dec, 1", A == 1234567);
 	}
 #endif//DEBUG_SHOW_DOES_NOT_WORK
 
-	//Read<unsigned int>, Radix=tRadix_10, 2
+	//Read<unsigned int>, Radix=tRadix::dec, 2
 	{
 		std::string Str = " 1234567ko4_dsfg";
 
-		auto A = Read<unsigned int>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<unsigned int>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<unsigned int>, Radix=tRadix_10, 2", A == 1234567);
+		utils::test::RESULT("Read<unsigned int>, Radix=tRadix::dec, 2", A == 1234567);
 	}
 
 #ifdef DEBUG_SHOW_DOES_NOT_WORK
-	//Read<uint64_t>, Radix=tRadix_10, 1
+	//Read<uint64_t>, Radix=tRadix::dec, 1
 	{
 		std::string Str = " -123456789123456789ko4_dsfg";
 
-		auto A = Read<uint64_t>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<uint64_t>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<uint64_t>, Radix=tRadix_10, 1", A == 123456789123456789);
+		utils::test::RESULT("Read<uint64_t>, Radix=tRadix::dec, 1", A == 123456789123456789);
 	}
 
-	//Read<uint64_t>, Radix=tRadix_10, 2
+	//Read<uint64_t>, Radix=tRadix::dec, 2
 	{
 		std::string Str = " 123456789123456789ko4_dsfg";
 
-		auto A = Read<uint64_t>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<uint64_t>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<uint64_t>, Radix=tRadix_10, 2", A == 123456789123456789);
+		utils::test::RESULT("Read<uint64_t>, Radix=tRadix::dec, 2", A == 123456789123456789);
 	}
 #endif//DEBUG_SHOW_DOES_NOT_WORK
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//Read<int>, Radix=tRadix_10, data size is bigger than possible
+	//Read<int>, Radix=tRadix::dec, data size is bigger than possible
 	{
 		std::string Str = " 1234567891234345234523234556789ko4_dsfg";
 
-		auto A = Read<int>(Str.begin(), Str.end(), tRadix_10);
+		auto A = Read<int>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<int>, Radix=tRadix_10, data size is bigger than possible", A == 0xFFFFFFFF);
+		utils::test::RESULT("Read<int>, Radix=tRadix::dec, data size is bigger than possible", A == 0xFFFFFFFF);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//Read<unsigned char>, Radix=tRadix_16
+	//Read<unsigned char>, Radix=tRadix::hex
 	{
 		std::string Str = " -FEjghk";
 
-		auto A = Read<unsigned char>(Str.begin(), Str.end(), tRadix_16);
+		auto A = Read<unsigned char>(Str.begin(), Str.end(), tRadix::hex);
 
-		utils::test::RESULT("Read<unsigned char>, Radix=tRadix_16", A == 0xFE);
+		utils::test::RESULT("Read<unsigned char>, Radix=tRadix::hex", A == 0xFE);
 	}
 
-	//Read<unsigned short>, Radix=tRadix_16
+	//Read<unsigned short>, Radix=tRadix::hex
 	{
 		std::string Str = " -FEAC-3465l;j";
 
-		auto A = Read<unsigned short>(Str.begin(), Str.end(), tRadix_16);
+		auto A = Read<unsigned short>(Str.begin(), Str.end(), tRadix::hex);
 
-		utils::test::RESULT("Read<unsigned short>, Radix=tRadix_16", A == 0xFEAC);
+		utils::test::RESULT("Read<unsigned short>, Radix=tRadix::hex", A == 0xFEAC);
 	}
 
-	//Read<unsigned int>, Radix=tRadix_16
+	//Read<unsigned int>, Radix=tRadix::hex
 	{
 		std::string Str = " -FD345678jkl;";
 
-		auto A = Read<unsigned int>(Str.begin(), Str.end(), tRadix_16);
+		auto A = Read<unsigned int>(Str.begin(), Str.end(), tRadix::hex);
 
-		utils::test::RESULT("Read<unsigned int>, Radix=tRadix_16", A == 0xFD345678);
+		utils::test::RESULT("Read<unsigned int>, Radix=tRadix::hex", A == 0xFD345678);
 	}
 
 #ifdef DEBUG_SHOW_DOES_NOT_WORK
-	//Read<uint64_t>, Radix=tRadix_16
+	//Read<uint64_t>, Radix=tRadix::hex
 	{
 		std::string Str = " -FB123456AE098765_dsfg";
 
-		auto A = Read<uint64_t>(Str.begin(), Str.end(), tRadix_16);
+		auto A = Read<uint64_t>(Str.begin(), Str.end(), tRadix::hex);
 
-		utils::test::RESULT("Read<uint64_t>, Radix=tRadix_16", A == 0xFB123456AE098765);
+		utils::test::RESULT("Read<uint64_t>, Radix=tRadix::hex", A == 0xFB123456AE098765);
 	}
 #endif//DEBUG_SHOW_DOES_NOT_WORK
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//Read<unsigned int>, Radix=tRadix_16 - Read(const char* data, tRadix radix)
+	//Read<unsigned int>, Radix=tRadix::hex - Read(const char* data, tRadix radix)
 	{
 		std::string Str = " -FD345678jkl;";
 
-		auto A = Read<unsigned int>(Str.c_str(), tRadix_16);
+		auto A = Read<unsigned int>(Str.c_str(), tRadix::hex);
 
 		utils::test::RESULT("Read(const char* data, tRadix radix)", A == 0xFD345678);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//ReadInt, Radix=tRadix_10
+	//ReadInt, Radix=tRadix::dec
 	//{
 	//	std::string Str = " -1234567ko4_dsfg";
 
-	//	auto A = ReadInt((char*)Str.c_str(), tRadix_10);
+	//	auto A = ReadInt((char*)Str.c_str(), tRadix::dec);
 
-	//	utils::test::RESULT("ReadInt, Radix=tRadix_10", A == -1234567);
+	//	utils::test::RESULT("ReadInt, Radix=tRadix::dec", A == -1234567);
 	//}
 	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//ReadInt, Radix=tRadix_16
+	//ReadInt, Radix=tRadix::hex
 	//{
 	//	std::string Str = " 1234F567ko4_dsfg";
 
-	//	auto A = ReadInt((char*)Str.c_str(), tRadix_16);
+	//	auto A = ReadInt((char*)Str.c_str(), tRadix::hex);
 
-	//	utils::test::RESULT("ReadInt, Radix=tRadix_16", A == 0x1234F567);
+	//	utils::test::RESULT("ReadInt, Radix=tRadix::hex", A == 0x1234F567);
 	//}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
