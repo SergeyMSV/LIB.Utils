@@ -114,7 +114,7 @@ private:
 
 		const tVectorUInt8::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
 
-		const std::uint8_t CRCReceived = utils::Read<std::uint8_t>(CRCBegin, CRCBegin + 2, utils::tRadix_16);
+		const std::uint8_t CRCReceived = utils::Read<std::uint8_t>(CRCBegin, CRCBegin + 2, utils::tRadix::hex);
 
 		return CRC == CRCReceived;
 	}
