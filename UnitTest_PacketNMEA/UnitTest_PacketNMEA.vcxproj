@@ -141,6 +141,7 @@
     <ClInclude Include="..\Lib.Utils\utilsCRC.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacket.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketNMEA.h" />
+    <ClInclude Include="..\LIB.Utils\utilsPacket_Test.h" />
     <ClInclude Include="..\Lib.Utils\utilsTest.h" />
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
