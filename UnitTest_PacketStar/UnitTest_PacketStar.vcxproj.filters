@@ -33,5 +33,8 @@
     <ClInclude Include="..\LIB.Utils\utilsTest.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsPacket_Test.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
