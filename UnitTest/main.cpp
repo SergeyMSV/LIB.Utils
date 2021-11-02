@@ -5,6 +5,7 @@ namespace utils
 	void UnitTest_CryptoAES();
 	void UnitTest_CryptoRSA32();
 	void UnitTest_Key();
+	void UnitTest_tLog();
 	void UnitTest_PacketBNTBX2();
 	void UnitTest_PacketNMEA();
 	void UnitTest_PacketNMEAPayload();
@@ -36,6 +37,8 @@ int main()
 	UnitTest_PatternState();
 	//UnitTest_Test();
 	UnitTest_Trap();
+
+	UnitTest_tLog();
 
 	return 0;
 }
