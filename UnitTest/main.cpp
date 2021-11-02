@@ -14,6 +14,7 @@ namespace utils
 	void UnitTest_PacketStar2();
 	void UnitTest_PatternCommmand();
 	void UnitTest_PatternState();
+	void UnitTest_SerialPort();
 	void UnitTest_Test();
 	void UnitTest_Trap();
 }
@@ -35,6 +36,7 @@ int main()
 	//UnitTest_PacketStar2();
 	UnitTest_PatternCommmand();
 	UnitTest_PatternState();
+	UnitTest_SerialPort();
 	//UnitTest_Test();
 	UnitTest_Trap();
 
