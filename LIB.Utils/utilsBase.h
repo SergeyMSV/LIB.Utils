@@ -5,8 +5,7 @@
 //
 // |   version  |    release    | Description
 // |------------|---------------|---------------------------------
-// |     ...    |   2014 09 24  |
-// |      1     |   2019 08 18  |
+// |            |   2014 09 24  |
 // |            |               | 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -51,7 +50,7 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(Iter
 {
 	T Data = 0;
 
-	auto Size = std::distance(first, last);
+	const auto Size = std::distance(first, last);
 
 	if (Size > 0 && Size <= static_cast<std::size_t>(sizeof(T)))
 	{
@@ -86,7 +85,7 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(Iter
 {
 	char Str[N];//[#] and +/- and 0x00
 
-	unsigned int StrIndex = 0;
+	std::size_t StrIndex = 0;
 
 	for (; first != last && StrIndex < sizeof(Str) - 1; ++first)
 	{
@@ -117,7 +116,7 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(Iter
 template<typename T>
 typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(const char* data, tRadix radix)
 {
-	std::size_t DataSize = strlen(data);
+	const std::size_t DataSize = strlen(data);
 
 	return Read<T, const char*>(data, data + DataSize, radix);
 }
@@ -135,7 +134,7 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Reverse(T
 namespace type
 {
 
-template <unsigned int size>
+template <std::size_t size>
 struct tArray1
 {
 	enum { Size = size };
@@ -164,7 +163,7 @@ struct tArray1
 	}
 };
 
-template <unsigned int size>
+template <std::size_t size>
 struct tArray2 : public tArray1<size>
 {
 	tArray2()
