@@ -16,10 +16,10 @@ namespace utils
 	namespace packet_CameraVC0706
 	{
 
-constexpr std::size_t ContainerCmdSize = 4;//STX, SerialNumber, Command, PayloadSize
-constexpr std::size_t ContainerRetSize = 5;//STX, SerialNumber, Command, Status, PayloadSize
-constexpr std::size_t ContainerCmdHeaderSize = ContainerCmdSize - 1;//SerialNumber, Command, PayloadSize
-constexpr std::size_t ContainerRetHeaderSize = ContainerRetSize - 1;//SerialNumber, Command, Status, PayloadSize
+constexpr std::size_t ContainerCmdSize = 4;//STX, SerialNumber, Command(MsgId), PayloadSize
+constexpr std::size_t ContainerRetSize = 5;//STX, SerialNumber, Command(MsgId), Status, PayloadSize
+constexpr std::size_t ContainerCmdHeaderSize = ContainerCmdSize - 1;//SerialNumber, Command(MsgId), PayloadSize
+constexpr std::size_t ContainerRetHeaderSize = ContainerRetSize - 1;//SerialNumber, Command(MsgId), Status, PayloadSize
 constexpr std::size_t ContainerPayloadSizeMax = 16;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 enum class tMsgId : std::uint8_t
@@ -60,6 +60,44 @@ enum class tMsgId : std::uint8_t
 	SetBitmap          = 0x71,
 	BatchWrite         = 0x80,
 };
+
+constexpr tMsgId MsgIdSupported[] =
+{
+	tMsgId::GetVersion,
+	tMsgId::SetSerialNumber,
+	tMsgId::SetPort,
+	tMsgId::SystemReset,
+	tMsgId::ReadDataReg,
+	tMsgId::WriteDataReg,
+	tMsgId::ReadFBuf,
+	tMsgId::WriteFBuf,
+	tMsgId::GetFBufLength,
+	tMsgId::SetFBufLength,
+	tMsgId::FBufCtrl,
+	tMsgId::CommMotionCtrl,
+	tMsgId::CommMotionStatus,
+	tMsgId::CommMotionDetected,
+	tMsgId::MirrorCtrl,
+	tMsgId::MirrorStatus,
+	tMsgId::ColourCtrl,
+	tMsgId::ColourStatus,
+	tMsgId::PowerSaveCtrl,
+	tMsgId::PowerSaveStatus,
+	tMsgId::AeCtrl,
+	tMsgId::AeStatus,
+	tMsgId::MotionCtrl,
+	tMsgId::MotionStatus,
+	tMsgId::TvOutCtrl,
+	tMsgId::OsdAddChar,
+	tMsgId::DownsizeCtrl,
+	tMsgId::DownsizeStatus,
+	tMsgId::GetFlashSize,
+	tMsgId::EraseFlashSector,
+	tMsgId::EraseFlashAll,
+	tMsgId::ReadLogo,
+	tMsgId::SetBitmap,
+	tMsgId::BatchWrite
+};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 enum class tMsgStatus : std::uint8_t
 {
@@ -78,7 +116,12 @@ enum class tMsgStatus : std::uint8_t
 template <class TPayload, std::uint8_t stx, std::uint8_t containerSize>
 struct tFormat 
 {
-	enum : std::uint8_t { STX = stx, containerSizePosition = containerSize - 1, };
+	enum : std::uint8_t
+	{
+		STX = stx,
+		containerMsgIdPosition = 2,
+		containerSizePosition = containerSize - 1,
+	};
 
 protected:
 	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
@@ -89,7 +132,7 @@ protected:
 		{
 			const std::uint8_t DataSize = *(cbegin + containerSizePosition);
 
-			if (DataSize <= ContainerPayloadSizeMax && Size >= GetSize(DataSize))
+			if (DataSize <= ContainerPayloadSizeMax && Size >= GetSize(DataSize) && CheckMsgId(static_cast<tMsgId>(*(cbegin + containerMsgIdPosition))))
 			{
 				return tVectorUInt8(cbegin, cbegin + GetSize(DataSize));
 			}
@@ -127,6 +170,18 @@ protected:
 		{
 			dst.push_back(i);
 		}
+	}
+
+private:
+	static bool CheckMsgId(tMsgId msgId)
+	{
+		for (auto i : MsgIdSupported)
+		{
+			if (i == msgId)
+				return true;
+		}
+
+		return false;
 	}
 };
 
