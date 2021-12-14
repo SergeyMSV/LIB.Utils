@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacketCameraVC0706.h
 // 2017-02-01
-// Standard ISO/IEC 114882, C++17
+// Standard ISO/IEC 114882, C++20
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -230,17 +230,8 @@ struct tDataCmd
 		return Payload[index - 3];//ContainerCmdHeaderSize
 	}
 
-	bool operator == (const tDataCmd& val) const
-	{
-		return
-			SerialNumber == val.SerialNumber &&
-			MsgId == val.MsgId &&
-			Payload == val.Payload;
-	}
-	bool operator != (const tDataCmd& val) const
-	{
-		return !(*this == val);
-	}
+	bool operator == (const tDataCmd& val) const = default;
+	bool operator != (const tDataCmd& val) const = default;
 };
 
 struct tDataRet
@@ -289,18 +280,8 @@ struct tDataRet
 		return Payload[index - 4];//ContainerRetHeaderSize
 	}
 
-	bool operator == (const tDataRet& val) const
-	{
-		return
-			SerialNumber == val.SerialNumber &&
-			MsgId == val.MsgId &&
-			MsgStatus == val.MsgStatus &&
-			Payload == val.Payload;
-	}
-	bool operator != (const tDataRet& val) const
-	{
-		return !(*this == val);
-	}
+	bool operator == (const tDataRet& val) const = default;
+	bool operator != (const tDataRet& val) const = default;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
