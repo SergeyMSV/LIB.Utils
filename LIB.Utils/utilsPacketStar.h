@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacketStar.h
 // 2015-07-17
-// Standard ISO/IEC 114882, C++14
+// Standard ISO/IEC 114882, C++20
 //
 //Payload: tVectorUInt8
 //[STX='*' 1-Byte][PayloadSize 2-Bytes LittleEndian][Payload up to 1024-Bytes][CRC16 CCITT 2-Bytes (PayloadSize and Payload, except STX) LittleEndian]
@@ -147,16 +147,8 @@ struct tDataCmd
 		return Payload[index - 1];
 	}
 
-	bool operator == (const tDataCmd& val) const
-	{
-		return
-			MsgId == val.MsgId &&
-			Payload == val.Payload;
-	}
-	bool operator != (const tDataCmd& val) const
-	{
-		return !(*this == val);
-	}
+	bool operator == (const tDataCmd& val) const = default;
+	bool operator != (const tDataCmd& val) const = default;
 };
 
 struct tPayloadCmd : public packet::tPayload<tDataCmd>
