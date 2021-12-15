@@ -141,5 +141,8 @@
     <ClInclude Include="..\LIB.Utils\utilsChrono.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsPacketCameraVC0706.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
