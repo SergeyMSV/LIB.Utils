@@ -8,6 +8,7 @@ namespace utils
 	void UnitTest_Key();
 	void UnitTest_tLog();
 	void UnitTest_PacketBNTBX2();
+	void UnitTest_PacketCameraVC0706();
 	void UnitTest_PacketNMEA();
 	void UnitTest_PacketNMEAPayload();
 	void UnitTest_PacketNMEAType();
@@ -30,6 +31,7 @@ int main()
 	UnitTest_CryptoRSA32();
 	UnitTest_Key();
 	//UnitTest_PacketBNTBX2();
+	UnitTest_PacketCameraVC0706();
 	UnitTest_PacketNMEA();
 	UnitTest_PacketNMEAPayload();
 	UnitTest_PacketNMEAType();
