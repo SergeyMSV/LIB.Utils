@@ -153,6 +153,7 @@
     <ClCompile Include="..\Lib.Utils\utilsPacketNMEAType.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPacketNMEAType_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPacketNMEA_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsPacketStar.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPacketStar_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPatternCommand_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPatternState_Test.cpp" />
