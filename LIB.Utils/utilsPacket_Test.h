@@ -40,17 +40,28 @@ void UnitTest_Packet_Find(const std::string& testName, const std::string& raw, c
 }
 
 template<typename T>
-void UnitTest_Packet_Parse(const std::string& testName, const tVectorUInt8& raw, const typename T::payload_value_type& data)
+void UnitTest_Packet_Parse(const std::string& testName, const tVectorUInt8& raw, const T& packet)
 {
+	class tPacketAccess : public T
+	{
+	public:
+		const payload_value_type& GetPayloadValue() const
+		{
+			return T::GetPayloadValue();
+		}
+	};
+
+	typename T::payload_value_type checkPacketData = static_cast<tPacketAccess>(packet).GetPayloadValue();
+
 	tVectorUInt8 DataVector = raw;
 
 	T Packet;
 
 	bool Result = T::Find(DataVector, Packet);
 
-	typename T::payload_value_type PacketData = Packet.GetPayload();
+	typename T::payload_value_type PacketData = static_cast<tPacketAccess>(Packet).GetPayloadValue();
 
-	if (PacketData.size() != data.size() || PacketData != data)
+	if (PacketData.size() != checkPacketData.size() || PacketData != checkPacketData)
 	{
 		Result = false;
 	}
@@ -59,19 +70,17 @@ void UnitTest_Packet_Parse(const std::string& testName, const tVectorUInt8& raw,
 }
 
 template<typename T>
-void UnitTest_Packet_Parse(const std::string& testName, const std::string& raw, const typename T::payload_value_type& data)
+void UnitTest_Packet_Parse(const std::string& testName, const std::string& raw, const T& packet)
 {
-	UnitTest_Packet_Parse<T>(testName, tVectorUInt8(raw.begin(), raw.end()), data);
+	UnitTest_Packet_Parse<T>(testName, tVectorUInt8(raw.begin(), raw.end()), packet);
 }
 
 template<typename T>
-void UnitTest_Packet_Make(const std::string& testName, const typename T::payload_value_type& data)
+void UnitTest_Packet_Make(const std::string& testName, const T& packet)
 {
-	T Packet(data);
+	const tVectorUInt8 DataVector = packet.ToVector();
 
-	const tVectorUInt8 DataVector = Packet.ToVector();
-
-	UnitTest_Packet_Parse<T>(testName, DataVector, data);
+	UnitTest_Packet_Parse<T>(testName, DataVector, packet);
 }
 
 }
