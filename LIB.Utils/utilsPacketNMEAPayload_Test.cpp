@@ -17,13 +17,22 @@ void UnitTest_PacketNMEAPayload(const TArg& msg)
 {
 	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadCommon> tPacketNMEA;
 
+	class tPacketAccess : public tPacketNMEA
+	{
+	public:
+		const payload_value_type& GetPayloadValue() const
+		{
+			return tPacketNMEA::GetPayloadValue();
+		}
+	};
+
 	tVectorUInt8 DataVector(msg.cbegin(), msg.cend());//C++14
 
 	tPacketNMEA Packet;
 
 	bool Result = tPacketNMEA::Find(DataVector, Packet);
 
-	utils::packet_NMEA::tPayloadCommon::value_type PacketData = Packet.GetPayload();
+	utils::packet_NMEA::tPayloadCommon::value_type PacketData = static_cast<tPacketAccess>(Packet).GetPayloadValue();
 
 	TPayload Val(PacketData);
 
