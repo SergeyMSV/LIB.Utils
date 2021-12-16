@@ -5,6 +5,11 @@ namespace utils
 	namespace packet_CameraVC0706
 	{
 
+tMsgId tPacketCmd::GetMsgId() const
+{
+	return GetPayloadValue().MsgId;
+}
+
 tPacketCmd tPacketCmd::MakeGetVersion(std::uint8_t sn)
 {
 	tPayloadCmd::value_type Cmd;
