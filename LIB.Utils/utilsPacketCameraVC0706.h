@@ -361,6 +361,8 @@ class tPacketCmd : public packet::tPacket<tFormatCmd, tPayloadCmd>
 public:
 	tPacketCmd() = default;
 
+	tMsgId GetMsgId() const;
+
 	static tPacketCmd MakeGetVersion(std::uint8_t sn);
 	static tPacketCmd MakeSetSerialNumber(std::uint8_t sn, std::uint8_t value);
 	static tPacketCmd MakeSetPort(std::uint8_t sn, tUARTBaudrate baudrate);
