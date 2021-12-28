@@ -16,6 +16,8 @@ namespace utils
 	namespace packet_CameraVC0706
 	{
 
+constexpr char Version[][15] = {"VC0703 1.00", "VC0706 1.00" };
+
 constexpr std::size_t ContainerCmdSize = 4;//STX, SerialNumber, Command(MsgId), PayloadSize
 constexpr std::size_t ContainerRetSize = 5;//STX, SerialNumber, Command(MsgId), Status, PayloadSize
 constexpr std::size_t ContainerCmdHeaderSize = ContainerCmdSize - 1;//SerialNumber, Command(MsgId), PayloadSize
@@ -428,6 +430,8 @@ private:
 	static tMsgStatus Check(const tPacketRet::payload_value_type& payloadValue, tMsgId msgId);
 	static tMsgStatus Check(const tPacketRet::payload_value_type& payloadValue, tMsgId msgId, std::size_t dataSize);
 };
+
+bool CheckVersion(const std::string& value);
 
 std::string ToString(tPort value);
 std::string ToString(tUARTBaudrate value);

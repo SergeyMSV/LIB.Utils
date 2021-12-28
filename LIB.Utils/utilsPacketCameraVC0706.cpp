@@ -439,6 +439,16 @@ tMsgStatus tPacketRet::Check(const tPacketRet::payload_value_type& payloadValue,
 	return tMsgStatus::None;
 }
 
+bool CheckVersion(const std::string& value)
+{
+	for (auto& i : Version)
+	{
+		if ((i <=> value) == 0)
+			return true;
+	}
+	return false;
+}
+
 std::string ToString(tPort value)
 {
 	switch (value)
