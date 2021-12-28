@@ -429,5 +429,10 @@ private:
 	static tMsgStatus Check(const tPacketRet::payload_value_type& payloadValue, tMsgId msgId, std::size_t dataSize);
 };
 
+std::string ToString(tPort value);
+std::string ToString(tUARTBaudrate value);
+std::string ToString(tUARTHSBaudrate value);
+std::string ToString(tResolution value);
+
 	}
 }
