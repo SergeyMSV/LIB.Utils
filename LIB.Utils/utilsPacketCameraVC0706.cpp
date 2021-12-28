@@ -66,7 +66,7 @@ constexpr tSetPortUARTHS_BR SetPortUARTHS_BR[] = {
 { 0x00, 0x01, 0x03, 0x53 } //921600
 };
 
-tPacketCmd tPacketCmd::MakeSetPortUART(std::uint8_t sn, tUARTBaudrate baudrate)
+tPacketCmd tPacketCmd::MakeSetPort(std::uint8_t sn, tUARTBaudrate baudrate)
 {
 	assert(static_cast<std::size_t>(baudrate) < (sizeof(SetPortUART_BR) / sizeof(tSetPortUART_BR)));
 
@@ -80,7 +80,7 @@ tPacketCmd tPacketCmd::MakeSetPortUART(std::uint8_t sn, tUARTBaudrate baudrate)
 	return tPacketCmd(Cmd);
 }
 
-tPacketCmd tPacketCmd::MakeSetPortUARTHS(std::uint8_t sn, tUARTHSBaudrate baudrate)
+tPacketCmd tPacketCmd::MakeSetPort(std::uint8_t sn, tUARTHSBaudrate baudrate)
 {
 	assert(static_cast<std::size_t>(baudrate) < (sizeof(SetPortUARTHS_BR) / sizeof(tSetPortUARTHS_BR)));
 
@@ -107,8 +107,8 @@ tPacketCmd tPacketCmd::MakeSystemReset(std::uint8_t sn)
 constexpr tDataReg DataReg_Port{ 0x0007, 1 };
 constexpr tDataReg DataReg_PortUART_BR{ 0x0008, 2 };
 constexpr tDataReg DataReg_PortUARTHS_BR{ 0x000A, 4 };
-constexpr tDataReg DataReg_VideoResolution{ 0x0019, 1 };
-constexpr tDataReg DataReg_VideoCompression{ 0x001A, 1 };
+constexpr tDataReg DataReg_Resolution{ 0x0019, 1 };
+constexpr tDataReg DataReg_Compression{ 0x001A, 1 };
 
 tPacketCmd tPacketCmd::MakeReadDataReg(tMemoryDataReg memory, std::uint8_t sn, tDataReg reg)
 {
@@ -137,14 +137,14 @@ tPacketCmd tPacketCmd::MakeReadDataReg_PortUARTHS(tMemoryDataReg memory, std::ui
 	return MakeReadDataReg(memory, sn, DataReg_PortUARTHS_BR);
 }
 
-tPacketCmd tPacketCmd::MakeReadDataReg_VideoResolution(tMemoryDataReg memory, std::uint8_t sn)
+tPacketCmd tPacketCmd::MakeReadDataReg_Resolution(tMemoryDataReg memory, std::uint8_t sn)
 {
-	return MakeReadDataReg(memory, sn, DataReg_VideoResolution);
+	return MakeReadDataReg(memory, sn, DataReg_Resolution);
 }
 
-tPacketCmd tPacketCmd::MakeReadDataReg_VideoCompression(tMemoryDataReg memory, std::uint8_t sn)
+tPacketCmd tPacketCmd::MakeReadDataReg_Compression(tMemoryDataReg memory, std::uint8_t sn)
 {
-	return MakeReadDataReg(memory, sn, DataReg_VideoCompression);
+	return MakeReadDataReg(memory, sn, DataReg_Compression);
 }
 
 tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tDataReg reg, const tVectorUInt8& data)
@@ -162,26 +162,26 @@ tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, 
 	return tPacketCmd(Cmd);
 }
 
-tPacketCmd tPacketCmd::MakeWriteDataReg_Port(tMemoryDataReg memory, std::uint8_t sn, tPort port)
+tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tPort port)
 {
 	return MakeWriteDataReg(memory, sn, DataReg_Port, { static_cast<std::uint8_t>(port) });
 }
 
-tPacketCmd tPacketCmd::MakeWriteDataReg_PortUART(tMemoryDataReg memory, std::uint8_t sn, tUARTBaudrate baudrate)
+tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tUARTBaudrate baudrate)
 {
 	assert(static_cast<std::size_t>(baudrate) < (sizeof(SetPortUART_BR) / sizeof(tSetPortUART_BR)));
 
 	return MakeWriteDataReg(memory, sn, DataReg_PortUART_BR, utils::ToVector(SetPortUART_BR[static_cast<std::size_t>(baudrate)]));
 }
 
-tPacketCmd tPacketCmd::MakeWriteDataReg_PortUARTHS(tMemoryDataReg memory, std::uint8_t sn, tUARTHSBaudrate baudrate)
+tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tUARTHSBaudrate baudrate)
 {
 	return MakeWriteDataReg(memory, sn, DataReg_PortUARTHS_BR, utils::ToVector(SetPortUARTHS_BR[static_cast<std::size_t>(baudrate)]));
 }
 
-tPacketCmd tPacketCmd::MakeWriteDataReg_VideoResolution(tMemoryDataReg memory, std::uint8_t sn, tVideoResolution resolution)
+tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tResolution resolution)
 {
-	return MakeWriteDataReg(memory, sn, DataReg_VideoResolution, {static_cast<std::uint8_t>(resolution)});
+	return MakeWriteDataReg(memory, sn, DataReg_Resolution, {static_cast<std::uint8_t>(resolution)});
 }
 
 enum class tFBufType : std::uint8_t
@@ -284,7 +284,6 @@ tPacketCmd tPacketCmd::MakeFBufCtrlResumeFrame(std::uint8_t sn)
 	return tPacketCmd(Cmd);
 }
 
-
 tMsgId tPacketRet::GetMsgId() const
 {
 	return GetPayloadValue().MsgId;
@@ -295,7 +294,7 @@ tMsgStatus tPacketRet::GetMsgStatus() const
 	return GetPayloadValue().MsgStatus;
 }
 
-tMsgStatus tPacketRet::ParseGetVersion(const tPacketRet& packet, std::string& version)
+tMsgStatus tPacketRet::Parse(const tPacketRet& packet, std::string& version)
 {
 	const tPacketRet::payload_value_type& PayloadValue = packet.GetPayloadValue();
 
@@ -308,11 +307,11 @@ tMsgStatus tPacketRet::ParseGetVersion(const tPacketRet& packet, std::string& ve
 	return tMsgStatus::None;
 }
 
-tMsgStatus tPacketRet::ParseReadDataReg_Port(const tPacketRet& packet, tPort& port)
+tMsgStatus tPacketRet::Parse(const tPacketRet& packet, tPort& port)
 {
 	const tPacketRet::payload_value_type& PayloadValue = packet.GetPayloadValue();
 
-	tMsgStatus Status = Check(PayloadValue, tMsgId::ReadDataReg, 1);
+	tMsgStatus Status = Check(PayloadValue, tMsgId::ReadDataReg, sizeof(port));
 	if (Status != tMsgStatus::None)
 		return Status;
 
@@ -321,11 +320,11 @@ tMsgStatus tPacketRet::ParseReadDataReg_Port(const tPacketRet& packet, tPort& po
 	return tMsgStatus::None;
 }
 
-tMsgStatus tPacketRet::ParseReadDataReg_PortUART(const tPacketRet& packet, tUARTBaudrate& baudrate)
+tMsgStatus tPacketRet::Parse(const tPacketRet& packet, tUARTBaudrate& baudrate)
 {
 	const tPacketRet::payload_value_type& PayloadValue = packet.GetPayloadValue();
 
-	tMsgStatus Status = Check(PayloadValue, tMsgId::ReadDataReg, 2);
+	tMsgStatus Status = Check(PayloadValue, tMsgId::ReadDataReg, sizeof(tSetPortUART_BR));
 	if (Status != tMsgStatus::None)
 		return Status;
 
@@ -347,11 +346,11 @@ tMsgStatus tPacketRet::ParseReadDataReg_PortUART(const tPacketRet& packet, tUART
 	return tMsgStatus::None;
 }
 
-tMsgStatus tPacketRet::ParseReadDataReg_PortUARTHS(const tPacketRet& packet, tUARTHSBaudrate& baudrate)
+tMsgStatus tPacketRet::Parse(const tPacketRet& packet, tUARTHSBaudrate& baudrate)
 {
 	const tPacketRet::payload_value_type& PayloadValue = packet.GetPayloadValue();
 
-	tMsgStatus Status = Check(PayloadValue, tMsgId::ReadDataReg, 4);
+	tMsgStatus Status = Check(PayloadValue, tMsgId::ReadDataReg, sizeof(tSetPortUARTHS_BR));
 	if (Status != tMsgStatus::None)
 		return Status;
 
@@ -375,18 +374,39 @@ tMsgStatus tPacketRet::ParseReadDataReg_PortUARTHS(const tPacketRet& packet, tUA
 	return tMsgStatus::None;
 }
 
-tMsgStatus tPacketRet::ParseReadDataReg_VideoResolution(const tPacketRet& packet, tVideoResolution& resolution)
+tMsgStatus tPacketRet::Parse(const tPacketRet& packet, tResolution& resolution)
 {
 	const tPacketRet::payload_value_type& PayloadValue = packet.GetPayloadValue();
 
-	tMsgStatus Status = Check(PayloadValue, tMsgId::ReadDataReg, 1);
+	tMsgStatus Status = Check(PayloadValue, tMsgId::ReadDataReg, sizeof(resolution));
 	if (Status != tMsgStatus::None)
 		return Status;
 
-	resolution = static_cast<tVideoResolution>(PayloadValue.Payload[0]);
+	resolution = static_cast<tResolution>(PayloadValue.Payload[0]);
 
 	return tMsgStatus::None;
 }
+
+tMsgStatus tPacketRet::Parse(const tPacketRet& packet, tFBufLen& value)
+{
+	const tPacketRet::payload_value_type& PayloadValue = packet.GetPayloadValue();
+
+	tMsgStatus Status = Check(PayloadValue, tMsgId::GetFBufLength, sizeof(value));
+	if (Status != tMsgStatus::None)
+		return Status;
+
+	value.Field.HH = PayloadValue.Payload[3];
+	value.Field.HL = PayloadValue.Payload[2];
+	value.Field.LH = PayloadValue.Payload[1];
+	value.Field.LL = PayloadValue.Payload[0];
+
+	return tMsgStatus::None;
+}
+
+//tMsgStatus tPacketRet::Parse(const tPacketRet& packet, tFBufLen1& value)
+//{
+//	return tMsgStatus::None;
+//}
 
 tMsgStatus tPacketRet::Check(const tPacketRet::payload_value_type& payloadValue, tMsgId msgId)
 {
