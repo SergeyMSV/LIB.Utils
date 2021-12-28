@@ -487,5 +487,16 @@ std::string ToString(tResolution value)
 	return {};
 }
 
+tResolution ToResolution(const std::string& value)
+{
+	if (value == "160x120")
+		return tResolution::VR160x120;
+
+	if (value == "320x240")
+		return tResolution::VR320x240;
+
+	return tResolution::VR640x480;
+}
+
 	}
 }
