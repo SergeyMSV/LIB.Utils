@@ -439,5 +439,53 @@ tMsgStatus tPacketRet::Check(const tPacketRet::payload_value_type& payloadValue,
 	return tMsgStatus::None;
 }
 
+std::string ToString(tPort value)
+{
+	switch (value)
+	{
+	case tPort::UART: return "UART";
+	case tPort::UARTHS: return "UARTHS";
+	//case tPort::SPI: return "SPI";
+	}
+	return {};
+}
+
+std::string ToString(tUARTBaudrate value)
+{
+	switch (value)
+	{
+	case tUARTBaudrate::BR9600: return "9600";
+	case tUARTBaudrate::BR19200: return "19200";
+	case tUARTBaudrate::BR38400: return "38400";
+	case tUARTBaudrate::BR57600: return "57600";
+	case tUARTBaudrate::BR115200: return "115200";
+	}
+	return {};
+}
+
+std::string ToString(tUARTHSBaudrate value)
+{
+	switch (value)
+	{
+	case tUARTHSBaudrate::BR38400: return "38400";
+	case tUARTHSBaudrate::BR57600: return "57600";
+	case tUARTHSBaudrate::BR115200: return "115200";
+	case tUARTHSBaudrate::BR460800: return "460800";
+	case tUARTHSBaudrate::BR921600: return "921600";
+	}
+	return {};
+}
+
+std::string ToString(tResolution value)
+{
+	switch (value)
+	{
+	case tResolution::VR160x120: return "160x120";
+	case tResolution::VR320x240: return "320x240";
+	case tResolution::VR640x480: return "640x480";
+	}
+	return {};
+}
+
 	}
 }
