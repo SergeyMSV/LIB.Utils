@@ -82,7 +82,7 @@ void UnitTest_PacketCameraVC0706()
 		tPacketCmd::MakeSetPort(0x21, tUARTBaudrate::BR115200));
 
 	UnitTest_Packet_Parse<tPacketCmd>("tPacketCmd Parse: MakeSetPortUARTHS",
-		tVectorUInt8{ 0x56, 0x21, 0x24, 0x05, 0x02, 0x00, 0x01, 0x03, 0x53 },
+		tVectorUInt8{ 0x56, 0x21, 0x24, 0x05, 0x02, 0x03, 0x53, 0x00, 0x01 },
 		tPacketCmd::MakeSetPort(0x21, tUARTHSBaudrate::BR921600));
 
 	//... ReadDataReg
@@ -124,7 +124,7 @@ void UnitTest_PacketCameraVC0706()
 		tPacketCmd::MakeWriteDataReg(tMemoryDataReg::I2C_EEPROM, 0x21, tUARTBaudrate::BR115200));
 
 	UnitTest_Packet_Parse("tPacketCmd Parse: MakeWriteDataReg_PortUARTHS",
-		tVectorUInt8{ 0x56, 0x21, 0x31, 0x08, 0x04, 0x04, 0x00, 0x0A, 0x00, 0x01, 0x03, 0x53 },
+		tVectorUInt8{ 0x56, 0x21, 0x31, 0x08, 0x04, 0x04, 0x00, 0x0A, 0x03, 0x53, 0x00, 0x01 },
 		tPacketCmd::MakeWriteDataReg(tMemoryDataReg::I2C_EEPROM, 0x21, tUARTHSBaudrate::BR921600));
 
 	UnitTest_Packet_Parse("tPacketCmd Parse: MakeWriteDataReg_Resolution",
