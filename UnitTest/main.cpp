@@ -1,6 +1,7 @@
 namespace utils
 {
 	void UnitTest_Base();
+	void UnitTest_Chrono();
 	void UnitTest_CRC();
 	void UnitTest_CryptoAES();
 	void UnitTest_CryptoRSA32();
@@ -24,6 +25,7 @@ int main()
 	using namespace utils;
 
 	UnitTest_Base();
+	UnitTest_Chrono();
 	UnitTest_CRC();
 	UnitTest_CryptoAES();
 	UnitTest_CryptoRSA32();

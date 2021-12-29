@@ -45,6 +45,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketNMEAPayload"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_SerialPort", "UnitTest_SerialPort\UnitTest_SerialPort.vcxproj", "{552288CD-8EEF-4251-B306-692D28236449}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Chrono", "UnitTest_Chrono\UnitTest_Chrono.vcxproj", "{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -221,6 +223,14 @@ Global
 		{552288CD-8EEF-4251-B306-692D28236449}.Release|x64.Build.0 = Release|x64
 		{552288CD-8EEF-4251-B306-692D28236449}.Release|x86.ActiveCfg = Release|Win32
 		{552288CD-8EEF-4251-B306-692D28236449}.Release|x86.Build.0 = Release|Win32
+		{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}.Debug|x64.ActiveCfg = Debug|x64
+		{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}.Debug|x64.Build.0 = Debug|x64
+		{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}.Debug|x86.ActiveCfg = Debug|Win32
+		{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}.Debug|x86.Build.0 = Debug|Win32
+		{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}.Release|x64.ActiveCfg = Release|x64
+		{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}.Release|x64.Build.0 = Release|x64
+		{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}.Release|x86.ActiveCfg = Release|Win32
+		{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
