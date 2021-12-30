@@ -124,6 +124,10 @@ void UnitTest_PacketCameraVC0706()
 		tPacketCmd::MakeWriteDataReg(tMemoryDataReg::I2C_EEPROM, 0x21, tUARTBaudrate::BR115200));
 
 	UnitTest_Packet_Parse("tPacketCmd Parse: MakeWriteDataReg_PortUARTHS",
+		tVectorUInt8{ 0x56, 0x21, 0x31, 0x08, 0x04, 0x04, 0x00, 0x0A, 0x02, 0x98, 0x00, 0x0E },
+		tPacketCmd::MakeWriteDataReg(tMemoryDataReg::I2C_EEPROM, 0x21, tUARTHSBaudrate::BR115200));
+
+	UnitTest_Packet_Parse("tPacketCmd Parse: MakeWriteDataReg_PortUARTHS",
 		tVectorUInt8{ 0x56, 0x21, 0x31, 0x08, 0x04, 0x04, 0x00, 0x0A, 0x03, 0x53, 0x00, 0x01 },
 		tPacketCmd::MakeWriteDataReg(tMemoryDataReg::I2C_EEPROM, 0x21, tUARTHSBaudrate::BR921600));
 
@@ -135,7 +139,7 @@ void UnitTest_PacketCameraVC0706()
 
 	UnitTest_Packet_Parse("tPacketCmd Parse: MakeReadFBufCurrent",
 		tVectorUInt8{ 0x56, 0x00, 0x32, 0x0C, 0x00, 0x0A, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x10, 0x00 },
-		tPacketCmd::MakeReadFBufCurrent(0x00, 0x0100, 0x0200, 0x1000));//0x1000 = 40.96ms
+		tPacketCmd::MakeReadFBufCurrent(tPort::UART, 0x00, 0x0100, 0x0200, 0x1000));//0x1000 = 40.96ms
 
 	UnitTest_Packet_Parse("tPacketCmd Parse: MakeGetFBufLenCurrent",
 		tVectorUInt8{ 0x56, 0x00, 0x34, 0x01, 0x00 },
@@ -160,7 +164,7 @@ void UnitTest_PacketCameraVC0706()
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	UnitTest_Packet_Make("tPacketCmd Make MakeSetSerialNumber", tPacketCmd::MakeSetSerialNumber(0x31, 0x32));
-	UnitTest_Packet_Make("tPacketCmd Make MakeReadFBufCurrent", tPacketCmd::MakeReadFBufCurrent(0x00, 0x0100, 0x0200, 0x1000));
+	UnitTest_Packet_Make("tPacketCmd Make MakeReadFBufCurrent", tPacketCmd::MakeReadFBufCurrent(tPort::UART, 0x00, 0x0100, 0x0200, 0x1000));
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
