@@ -525,5 +525,18 @@ tResolution ToResolution(const std::string& value)
 	return tResolution::VR640x480;
 }
 
+tUARTHSBaudrate ToUARTHSBaudrate(std::uint32_t value)
+{
+	switch (value)
+	{
+	case 38400: return tUARTHSBaudrate::BR38400;
+	case 57600: return tUARTHSBaudrate::BR57600;
+	case 115200: return tUARTHSBaudrate::BR115200;
+	case 460800: return tUARTHSBaudrate::BR460800;
+	case 921600: return tUARTHSBaudrate::BR921600;
+	}
+	return tUARTHSBaudrate::BR_ERR;
+}
+
 	}
 }
