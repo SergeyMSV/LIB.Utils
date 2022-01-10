@@ -198,7 +198,7 @@ enum class tFBufType : std::uint8_t
 enum class tFBufTransferMode : std::uint8_t
 {
 	MCU,
-	DMA,
+	DMA,//Unstable. It's possible to read some pictures through UARTHS and then the camera freezes and doesn't answer through both ports.
 };
 
 #pragma pack(push, 1)
@@ -225,19 +225,7 @@ tPacketCmd tPacketCmd::MakeReadFBufCurrent(tPort portDst, std::uint8_t sn, std::
 
 	tFBufControlModeRead ControlModeRead;
 	ControlModeRead.Value = 0;
-	switch (portDst)
-	{
-	case tPort::UART:
-	{
-		ControlModeRead.Field.TRANSFER_MODE = static_cast<std::uint8_t>(tFBufTransferMode::MCU);
-		break;
-	}
-	case tPort::UARTHS:
-	{
-		ControlModeRead.Field.TRANSFER_MODE = static_cast<std::uint8_t>(tFBufTransferMode::DMA);
-		break;
-	}
-	}
+	ControlModeRead.Field.TRANSFER_MODE = static_cast<std::uint8_t>(tFBufTransferMode::MCU);
 	ControlModeRead.Field.PortDst = static_cast<std::uint8_t>(portDst);
 	ControlModeRead.Field.NONAME = 1;
 	Cmd.Payload.push_back(ControlModeRead.Value);
