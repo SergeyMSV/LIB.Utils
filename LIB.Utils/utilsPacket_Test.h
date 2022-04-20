@@ -42,16 +42,7 @@ void UnitTest_Packet_Find(const std::string& testName, const std::string& raw, c
 template<typename T>
 void UnitTest_Packet_Parse(const std::string& testName, const tVectorUInt8& raw, const T& packet)
 {
-	class tPacketAccess : public T
-	{
-	public:
-		const payload_value_type& GetPayloadValue() const
-		{
-			return T::GetPayloadValue();
-		}
-	};
-
-	typename T::payload_value_type checkPacketData = static_cast<tPacketAccess>(packet).GetPayloadValue();
+	typename T::payload_value_type checkPacketData = packet.GetPayloadValue();
 
 	tVectorUInt8 DataVector = raw;
 
@@ -59,7 +50,7 @@ void UnitTest_Packet_Parse(const std::string& testName, const tVectorUInt8& raw,
 
 	bool Result = T::Find(DataVector, Packet);
 
-	typename T::payload_value_type PacketData = static_cast<tPacketAccess>(Packet).GetPayloadValue();
+	typename T::payload_value_type PacketData = Packet.GetPayloadValue();
 
 	if (PacketData.size() != checkPacketData.size() || PacketData != checkPacketData)
 	{
