@@ -1,12 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsBase.h
-//
+// 2014-09-24
 // Standard ISO/IEC 114882, C++17
-//
-// |   version  |    release    | Description
-// |------------|---------------|---------------------------------
-// |            |   2014 09 24  |
-// |            |               | 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -74,7 +69,7 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Read(cons
 	return Read<T, const char*>(Begin, Begin + dataSize);
 }
 
-enum class tRadix : unsigned char
+enum class tRadix : std::uint8_t
 {
 	dec = 10,
 	hex = 16,
@@ -188,9 +183,6 @@ public:
 protected:
 	~tEmptyAble() {}
 };
-
-//char FromBCD(char dataBCD); [TBD]
-//char ToBCD(char dataBCD); [TBD]
 
 enum class tDevStatus : std::uint8_t
 {
