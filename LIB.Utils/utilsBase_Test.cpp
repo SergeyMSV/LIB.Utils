@@ -232,6 +232,14 @@ void UnitTest_Base()
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
+	//Read - assert
+	//{
+	//	std::string Str = " -FEjghk";
+
+	//	auto A = Read<unsigned char>(Str.begin(), Str.end(), tRadix::oct);
+	//}
+
+	//////////////////////////////////////////////////////////////////////////////////////////////////
 	//Read<char>, Radix=tRadix::dec
 	{
 		std::string Str = " -123ko4_dsfg";
@@ -355,7 +363,7 @@ void UnitTest_Base()
 
 		auto A = Read<int>(Str.begin(), Str.end(), tRadix::dec);
 
-		utils::test::RESULT("Read<int>, Radix=tRadix::dec, data size is bigger than possible", A == 0xFFFFFFFF);
+		utils::test::RESULT("Read<int>, Radix=tRadix::dec, data size is bigger than possible", A == 0x7FFFFFFF);
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////////
