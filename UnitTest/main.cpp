@@ -13,6 +13,7 @@ namespace utils
 	void UnitTest_PacketNMEAPayload();
 	void UnitTest_PacketNMEAType();
 	void UnitTest_PacketStar();
+	void UnitTest_Path();
 	void UnitTest_PatternCommmand();
 	void UnitTest_PatternState();
 	void UnitTest_SerialPort();
@@ -36,6 +37,7 @@ int main()
 	UnitTest_PacketNMEAPayload();
 	UnitTest_PacketNMEAType();
 	UnitTest_PacketStar();
+	UnitTest_Path();
 	UnitTest_PatternCommmand();
 	UnitTest_PatternState();
 	UnitTest_SerialPort();
