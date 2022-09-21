@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Lib.Utils">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Lib.Utils\7z2201">
+      <UniqueIdentifier>{fad28095-2199-4a1f-ab3a-ccc76f52d1b4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lib.Utils\7z2201\C">
+      <UniqueIdentifier>{2e2a4fd3-b9a1-43c2-a002-e7290eaf6ea6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsPath.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\utilsArch_7z2201_simple.cpp">
+      <Filter>Lib.Utils\7z2201</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\7zAlloc.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\7zArcIn.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\7zBuf.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\7zCrc.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\7zCrcOpt.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\7zDec.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\7zFile.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\7zStream.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\Bcj2.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\Bra.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\Bra86.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\BraIA64.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\CpuArch.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\Delta.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\Lzma2Dec.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\LzmaDec.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\Ppmd7.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\C\Ppmd7Dec.c">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\7z2201\utilsArch_7z2201_simple_Test.cpp">
+      <Filter>Lib.Utils\7z2201</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="devConfig.h" />
+    <ClInclude Include="libConfig.h" />
+    <ClInclude Include="..\LIB.Utils\utilsPath.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsTest.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\utilsArch_7z2201_simple.h">
+      <Filter>Lib.Utils\7z2201</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\7z.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\7zAlloc.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\7zBuf.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\7zCrc.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\7zFile.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\7zTypes.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\7zVersion.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\Bcj2.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\Bra.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\Compiler.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\CpuArch.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\Delta.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\Lzma2Dec.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\LzmaDec.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\Ppmd.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\Ppmd7.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\7z2201\C\Precomp.h">
+      <Filter>Lib.Utils\7z2201\C</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
