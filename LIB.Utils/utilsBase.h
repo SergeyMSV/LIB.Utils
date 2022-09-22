@@ -336,4 +336,13 @@ struct tVersion // 1.0.234
 	}
 };
 
+static std::string GetStringEnding(const std::string& pattern, const std::string& str)
+{
+	size_t Pos = str.find(pattern);
+	if (Pos == std::string::npos)
+		return {};
+
+	return str.substr(Pos + pattern.size());
+};
+
 }
