@@ -45,6 +45,7 @@ void CorrPaths(T& pathsRaw)
 };
 
 std::string GetPathConfig(const std::string& fileName);
+std::string GetPathConfigExc(const std::string& path);
 std::string GetPath(const std::string& path);
 
 }

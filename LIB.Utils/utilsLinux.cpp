@@ -9,6 +9,7 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 //#define LIB_UTILS_LINUX_LOG
@@ -261,6 +262,14 @@ std::string GetPathConfig(const std::string& fileName)
 
 	return {};
 }
+
+std::string GetPathConfigExc(const std::string& path)
+{
+	std::string Str = GetPathConfig(path);
+	if (Str.empty())
+		throw std::runtime_error("File not found: " + path);
+	return Str;
+};
 
 std::string GetPath(const std::string& path)
 {
