@@ -166,6 +166,7 @@ const std::vector<std::string> g_PathConfig =
 	{"/etc"},
 	{"~/"},
 	{"/etc/default"},
+	{"/usr/local/etc"},
 #if defined(_WIN32)
 	{".."}, // $(ProjectDir)
 #endif
