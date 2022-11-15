@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\Lib.Utils\utilsBase_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsChrono.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsChrono_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsCRC_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsCryptoAES.cpp" />
