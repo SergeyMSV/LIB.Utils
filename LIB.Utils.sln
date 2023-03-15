@@ -49,6 +49,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketCameraVC0706
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Path", "UnitTest_Path\UnitTest_Path.vcxproj", "{03F980A2-4424-48B5-AC80-5D58E51E0E97}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Linux", "UnitTest_Linux\UnitTest_Linux.vcxproj", "{493E18F9-D691-49AD-81EF-E97F3DF1807A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -241,6 +243,14 @@ Global
 		{03F980A2-4424-48B5-AC80-5D58E51E0E97}.Release|x64.Build.0 = Release|x64
 		{03F980A2-4424-48B5-AC80-5D58E51E0E97}.Release|x86.ActiveCfg = Release|Win32
 		{03F980A2-4424-48B5-AC80-5D58E51E0E97}.Release|x86.Build.0 = Release|Win32
+		{493E18F9-D691-49AD-81EF-E97F3DF1807A}.Debug|x64.ActiveCfg = Debug|x64
+		{493E18F9-D691-49AD-81EF-E97F3DF1807A}.Debug|x64.Build.0 = Debug|x64
+		{493E18F9-D691-49AD-81EF-E97F3DF1807A}.Debug|x86.ActiveCfg = Debug|Win32
+		{493E18F9-D691-49AD-81EF-E97F3DF1807A}.Debug|x86.Build.0 = Debug|Win32
+		{493E18F9-D691-49AD-81EF-E97F3DF1807A}.Release|x64.ActiveCfg = Release|x64
+		{493E18F9-D691-49AD-81EF-E97F3DF1807A}.Release|x64.Build.0 = Release|x64
+		{493E18F9-D691-49AD-81EF-E97F3DF1807A}.Release|x86.ActiveCfg = Release|Win32
+		{493E18F9-D691-49AD-81EF-E97F3DF1807A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

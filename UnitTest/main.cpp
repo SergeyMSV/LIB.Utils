@@ -6,6 +6,7 @@ namespace utils
 	void UnitTest_CryptoAES();
 	void UnitTest_CryptoRSA32();
 	void UnitTest_Key();
+	void UnitTest_Linux();
 	void UnitTest_tLog();
 	void UnitTest_PacketBNTBX2();
 	void UnitTest_PacketCameraVC0706();
@@ -31,6 +32,7 @@ int main()
 	UnitTest_CryptoAES();
 	UnitTest_CryptoRSA32();
 	UnitTest_Key();
+	UnitTest_Linux();
 	//UnitTest_PacketBNTBX2();
 	UnitTest_PacketCameraVC0706();
 	UnitTest_PacketNMEA();
