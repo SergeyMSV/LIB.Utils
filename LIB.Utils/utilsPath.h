@@ -7,9 +7,7 @@
 
 #include <ctime>
 
-#include <deque>
 #include <string>
-#include <vector>
 
 namespace utils
 {
@@ -20,8 +18,5 @@ tm GetDateTime(const std::string& a_value);
 
 std::string GetAppName(const std::string& path);
 std::string GetAppNameMain(const std::string& path);
-
-std::deque<std::string> GetFilesLatest(const std::string& path, const std::string& prefix, size_t qtyFilesLatest);
-void RemoveFilesOutdated(const std::string& path, const std::string& prefix, size_t qtyFilesLatest);
 
 }
