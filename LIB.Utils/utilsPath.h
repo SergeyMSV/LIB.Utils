@@ -18,6 +18,9 @@ std::string GetDateTime(tm a_DateTime);
 std::string GetDateTime();
 tm GetDateTime(const std::string& a_value);
 
+std::string GetAppName(const std::string& path);
+std::string GetAppNameMain(const std::string& path);
+
 std::deque<std::string> GetFilesLatest(const std::string& path, const std::string& prefix, size_t qtyFilesLatest);
 void RemoveFilesOutdated(const std::string& path, const std::string& prefix, size_t qtyFilesLatest);
 

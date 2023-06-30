@@ -37,6 +37,25 @@ tm GetDateTime(const std::string& a_value)
 	return DateTime;
 }
 
+std::string GetAppName(const std::string& path)
+{
+	const std::filesystem::path Path{ path };
+	std::filesystem::path PathFileName = Path.filename();
+	if (PathFileName.has_extension())
+		PathFileName.replace_extension();
+	return PathFileName.string();
+}
+
+std::string GetAppNameMain(const std::string& path)
+{
+	std::string MainPart = GetAppName(path);
+	// Main part of application name: mfrc522_xxx
+	std::size_t Pos = MainPart.find_last_of('_');
+	if (Pos != std::string::npos)
+		MainPart = MainPart.substr(0, Pos);
+	return MainPart;
+}
+
 std::deque<std::string> GetFilesLatest(const std::string& path, const std::string& prefix, size_t qtyFilesLatest)
 {
 	std::deque<std::string> List;
