@@ -1,6 +1,7 @@
 #include "utilsBase.h"
 #include "utilsLinux.h"
 #include "utilsPath.h"
+#include "utilsString.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -169,7 +170,7 @@ Mem:          492116       33240      129108        1184      329768      445984
 Swap:              0           0           0";
 	}
 
-	std::string CmdValue = GetStringEnding("cat", cmd);
+	std::string CmdValue = utils::string::GetStringEnding("cat", cmd);
 	if (!CmdValue.empty())
 	{
 		std::filesystem::path Path = path::GetPathNormal(CmdValue);

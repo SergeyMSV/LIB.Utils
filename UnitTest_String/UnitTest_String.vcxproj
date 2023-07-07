@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{8A2CEEF1-8CEA-434B-A859-E072C7ED2D2E}</ProjectGuid>
+    <ProjectGuid>{DCDE9D27-EF74-4DDC-A8EC-AA961F8A99A9}</ProjectGuid>
     <RootNamespace>CPPDEMOProtocol1</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -28,13 +28,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -47,7 +47,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -76,13 +76,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib.Utils;$(LIB_BOOST);</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>.;..\Lib.Utils;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(LIB_BOOST);</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -91,13 +90,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib.Utils;$(LIB_BOOST);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\Lib.Utils;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
-      <AdditionalLibraryDirectories>$(LIB_BOOST);</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -108,7 +106,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib.Utils;$(LIB_BOOST);</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\Lib.Utils;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -116,7 +114,6 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(LIB_BOOST);</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -127,78 +124,25 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>.;..\Lib.Utils;$(LIB_BOOST);</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>.;..\Lib.Utils;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(LIB_BOOST);</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Lib.Utils\utilsBase_Test.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsChrono.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsChrono_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsCRC_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsCryptoAES.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsCryptoAES_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsCryptoRSA32.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsCryptoRSA32_Test.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsFile.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsFile_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsKey_Test.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsLinux.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsLinux_Test.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsLog.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsLog_Test.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsPacketCameraVC0706.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsPacketCameraVC0706_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsPacketNMEAPayload_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsPacketNMEAType.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsPacketNMEAType_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsPacketNMEA_Test.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsPacketStar.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsPacketStar_Test.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsPath.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsPath_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsPatternCommand_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsPatternState_Test.cpp" />
-    <ClCompile Include="..\LIB.Utils\utilsSerialPort_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsString.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsString_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsTest.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsTest_Test.cpp" />
-    <ClCompile Include="..\Lib.Utils\utilsTrap_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Lib.Utils\utilsBase.h" />
-    <ClInclude Include="..\Lib.Utils\utilsBaseBool.h" />
-    <ClInclude Include="..\Lib.Utils\utilsCharset-TBD.h" />
-    <ClInclude Include="..\LIB.Utils\utilsChrono.h" />
-    <ClInclude Include="..\Lib.Utils\utilsCRC.h" />
-    <ClInclude Include="..\Lib.Utils\utilsCryptoAES.h" />
-    <ClInclude Include="..\Lib.Utils\utilsCryptoRSA32.h" />
-    <ClInclude Include="..\LIB.Utils\utilsFile.h" />
-    <ClInclude Include="..\Lib.Utils\utilsKey.h" />
-    <ClInclude Include="..\LIB.Utils\utilsLinux.h" />
-    <ClInclude Include="..\LIB.Utils\utilsLog.h" />
-    <ClInclude Include="..\Lib.Utils\utilsPacket.h" />
-    <ClInclude Include="..\LIB.Utils\utilsPacketCameraVC0706.h" />
-    <ClInclude Include="..\Lib.Utils\utilsPacketNMEA.h" />
-    <ClInclude Include="..\Lib.Utils\utilsPacketNMEAPayload.h" />
-    <ClInclude Include="..\Lib.Utils\utilsPacketNMEAType.h" />
-    <ClInclude Include="..\Lib.Utils\utilsPacketStar.h" />
-    <ClInclude Include="..\LIB.Utils\utilsPath.h" />
-    <ClInclude Include="..\Lib.Utils\utilsPatternCommand.h" />
-    <ClInclude Include="..\Lib.Utils\utilsPatternState.h" />
-    <ClInclude Include="..\LIB.Utils\utilsSerialPort.h" />
     <ClInclude Include="..\LIB.Utils\utilsString.h" />
-    <ClInclude Include="..\Lib.Utils\utilsTest.h" />
-    <ClInclude Include="..\Lib.Utils\utilsTrap.h" />
+    <ClInclude Include="..\LIB.Utils\utilsTest.h" />
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
   </ItemGroup>

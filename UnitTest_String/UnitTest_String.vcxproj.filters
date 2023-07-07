@@ -11,16 +11,10 @@
     <ClCompile Include="..\LIB.Utils\utilsTest.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\LIB.Utils\utilsLinux.cpp">
-      <Filter>Lib.Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\LIB.Utils\utilsLinux_Test.cpp">
-      <Filter>Lib.Utils</Filter>
-    </ClCompile>
-    <ClCompile Include="..\LIB.Utils\utilsPath.cpp">
-      <Filter>Lib.Utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\LIB.Utils\utilsString.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsString_Test.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -28,15 +22,6 @@
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
     <ClInclude Include="..\LIB.Utils\utilsTest.h">
-      <Filter>Lib.Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LIB.Utils\utilsLinux.h">
-      <Filter>Lib.Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LIB.Utils\utilsBase.h">
-      <Filter>Lib.Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="..\LIB.Utils\utilsPath.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\LIB.Utils\utilsString.h">

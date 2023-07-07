@@ -1,5 +1,6 @@
 #include "utilsBase.h"
 #include "utilsLinux.h"
+#include "utilsString.h"
 #include "utilsTest.h"
 #include <ctime>
 #include <iostream>
@@ -41,6 +42,64 @@ void UnitTest_Linux()
 		auto Res = linux::GetUptime();
 		utils::test::RESULT("uptime", Res == 2789.21);
 	}
+
+	std::cout << "\n""utils::linux::GetPathConfig\n";
+
+	{
+		auto ResRaw = linux::GetPathConfig("test1");
+		auto Res = utils::string::GetStringEnding("test_root_fs", ResRaw);
+		utils::test::RESULT(".conf", Res == "/etc/default/test1.conf");
+	}
+
+	{
+		auto ResRaw = linux::GetPathConfig("test2");
+		auto Res = utils::string::GetStringEnding("test_root_fs", ResRaw);
+		utils::test::RESULT(".conf.json", Res == "/etc/default/test2.conf.json");
+	}
+
+	{
+		auto ResRaw = linux::GetPathConfig("test3");
+		auto Res = utils::string::GetStringEnding("test_root_fs", ResRaw);
+		utils::test::RESULT("~/.test3rc", Res == "/root/.test3rc");
+	}
+
+	{
+		auto ResRaw = linux::GetPathConfig("test4");
+		auto Res = utils::string::GetStringEnding("test_root_fs", ResRaw);
+		utils::test::RESULT("/etc/test4rc", Res == "/etc/test4rc");
+	}
+
+	{
+		auto ResRaw = linux::GetPathConfig("test5");
+		auto Res = utils::string::GetStringEnding("test_root_fs", ResRaw);
+		utils::test::RESULT("/etc/test5", Res == "/etc/test5");
+	}
+
+	{
+		auto ResRaw = linux::GetPathConfig("test6");
+		auto Res = utils::string::GetStringEnding("test_root_fs", ResRaw);
+		utils::test::RESULT("~/.test6", Res == "/root/.test6");
+	}
+
+	{
+		auto ResRaw = linux::GetPathConfig("test7win");
+		auto Res = utils::string::GetStringEnding("test_root_fs", ResRaw);
+		utils::test::RESULT("test7win", Res == "/../test7win.conf.json");
+	}
+
+	std::cout << "\n""utils::path::GetPath\n";
+
+	{
+		auto ResRaw = linux::GetPath("~/.test3rc");
+		auto Res = utils::string::GetStringEnding("test_root_fs", ResRaw);
+		utils::test::RESULT(".test3rc", Res == "/root/.test3rc");
+	}
+
+	{
+		auto ResRaw = linux::GetPath("/etc/default/test1.conf");
+		auto Res = utils::string::GetStringEnding("test_root_fs", ResRaw);
+		utils::test::RESULT("test1.conf", Res == "/etc/default/test1.conf");
+	}	
 
 	std::cout << std::endl;
 }
