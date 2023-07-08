@@ -95,6 +95,12 @@
     <ClCompile Include="..\LIB.Utils\utilsLinux_Test.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsFile_Test.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsFile.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
@@ -163,6 +169,9 @@
       <Filter>Lib.Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\LIB.Utils\utilsLinux.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsFile.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
   </ItemGroup>
