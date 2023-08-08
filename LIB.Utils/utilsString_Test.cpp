@@ -13,6 +13,27 @@ void UnitTest_String()
 	std::cout << "\n""utils::string\n";
 
 	{
+		char Nom[] = "preved medved";
+		utils::string::tStringTruncated<25> NomTrunc(Nom);
+		for (int i = 0; i < 15; ++i)
+			std::cout << NomTrunc.GetNext() << '\n';
+	}
+
+	{
+		char Nom[] = "123456789012345678901234567890";
+		utils::string::tStringTruncated<25> NomTrunc(Nom);
+		for (int i = 0; i < 15; ++i)
+			std::cout << NomTrunc.GetNext() << '\n';
+	}
+
+	{
+		char Nom[] = "12345678901234567890123";
+		utils::string::tStringTruncated<25> NomTrunc(Nom);
+		for (int i = 0; i < 15; ++i)
+			std::cout << NomTrunc.GetNext() << '\n';
+	}
+
+	{
 		std::string A = "/tmpram/somefolder/cam_2023-07-07_21-00.jpg";
 		std::optional<std::string> Res = utils::string::Replace(A, "cam_", "pic_");
 		utils::test::RESULT("Replace 1", Res.has_value() && *Res == "/tmpram/somefolder/pic_2023-07-07_21-00.jpg");
