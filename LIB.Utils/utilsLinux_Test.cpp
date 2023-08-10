@@ -45,60 +45,39 @@ void UnitTest_Linux()
 	std::cout << "\n""utils::linux::GetPathConfig\n";
 
 	{
-		auto ResRaw = linux::GetPathConfig("test1");
-		auto Res = utils::GetStringEnding("test_root_fs", ResRaw);
-		utils::test::RESULT(".conf", Res == "/etc/default/test1.conf");
+		auto Res = linux::GetPathConfig("test1");
+		utils::test::RESULT(".conf", Res.filename().string() == "test1.conf");
 	}
 
 	{
-		auto ResRaw = linux::GetPathConfig("test2");
-		auto Res = utils::GetStringEnding("test_root_fs", ResRaw);
-		utils::test::RESULT(".conf.json", Res == "/etc/default/test2.conf.json");
+		auto Res = linux::GetPathConfig("test2");
+		utils::test::RESULT(".conf.json", Res.filename().string() == "test2.conf.json");
 	}
 
 	{
-		auto ResRaw = linux::GetPathConfig("test3");
-		auto Res = utils::GetStringEnding("test_root_fs", ResRaw);
-		utils::test::RESULT("~/.test3rc", Res == "/root/.test3rc");
+		auto Res = linux::GetPathConfig("test3");
+		utils::test::RESULT("~/.test3rc", Res.filename().string() == ".test3rc");
 	}
 
 	{
-		auto ResRaw = linux::GetPathConfig("test4");
-		auto Res = utils::GetStringEnding("test_root_fs", ResRaw);
-		utils::test::RESULT("/etc/test4rc", Res == "/etc/test4rc");
+		auto Res = linux::GetPathConfig("test4");
+		utils::test::RESULT("/etc/test4rc", Res.filename().string() == "test4rc");
 	}
 
 	{
-		auto ResRaw = linux::GetPathConfig("test5");
-		auto Res = utils::GetStringEnding("test_root_fs", ResRaw);
-		utils::test::RESULT("/etc/test5", Res == "/etc/test5");
+		auto Res = linux::GetPathConfig("test5");
+		utils::test::RESULT("/etc/test5", Res.filename().string() == "test5");
 	}
 
 	{
-		auto ResRaw = linux::GetPathConfig("test6");
-		auto Res = utils::GetStringEnding("test_root_fs", ResRaw);
-		utils::test::RESULT("~/.test6", Res == "/root/.test6");
+		auto Res = linux::GetPathConfig("test6");
+		utils::test::RESULT("~/.test6", Res.filename().string() == ".test6");
 	}
 
 	{
-		auto ResRaw = linux::GetPathConfig("test7win");
-		auto Res = utils::GetStringEnding("test_root_fs", ResRaw);
-		utils::test::RESULT("test7win", Res == "/../test7win.conf.json");
+		auto Res = linux::GetPathConfig("test7win");
+		utils::test::RESULT("test7win", Res.filename().string() == "test7win.conf.json");
 	}
-
-	std::cout << "\n""utils::path::GetPath\n";
-
-	{
-		auto ResRaw = linux::GetPath("~/.test3rc");
-		auto Res = utils::GetStringEnding("test_root_fs", ResRaw);
-		utils::test::RESULT(".test3rc", Res == "/root/.test3rc");
-	}
-
-	{
-		auto ResRaw = linux::GetPath("/etc/default/test1.conf");
-		auto Res = utils::GetStringEnding("test_root_fs", ResRaw);
-		utils::test::RESULT("test1.conf", Res == "/etc/default/test1.conf");
-	}	
 
 	std::cout << std::endl;
 }

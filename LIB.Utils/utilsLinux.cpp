@@ -6,6 +6,7 @@
 #include <cstdio>
 
 #include <deque>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <sstream>
@@ -13,10 +14,6 @@
 #include <string>
 
 //#define LIB_UTILS_LINUX_LOG
-
-#if defined(_WIN32)
-#include <filesystem>
-#endif
 
 #if defined(LIB_UTILS_LINUX_LOG)
 #include <iostream>
@@ -58,18 +55,41 @@ std::string CmdLine(const std::string& cmd)
 #endif
 }
 
-std::string GetPathReal(const std::string& path)
+std::filesystem::path GetPathW(const std::filesystem::path& pathRaw)
 {
-	std::string PathReal = CmdLine("realpath " + path);
-	if (PathReal.size() > 0 && PathReal[0] == '/')
-		return PathReal;
-	return {};
+	if (pathRaw.empty())
+		return {};
+	std::error_code ErrCode;//In order to avoid exceptions
+	std::filesystem::path Path;
+#if defined(_WIN32)
+	Path = "test_root_fs";
+#endif
+	//path("foo") / ""      // the result is "foo/" (appends)
+	//path("foo") / "/bar"; // the result is "/bar" (replaces)
+	if (pathRaw.string()[0] == '/')
+	{
+		Path += pathRaw.lexically_normal();
+	}
+#if defined(_WIN32)
+	else if (pathRaw.string()[0] == '~')
+	{
+		std::string PathRawStr = pathRaw.string();
+		PathRawStr.replace(0, 1, "root");
+		Path /= PathRawStr;
+	}
+#endif
+	else
+	{
+		Path /= pathRaw.lexically_normal();
+	}
+
+	return std::filesystem::canonical(Path, ErrCode);
 }
 
 double GetUptime()
 {
-	std::string FileName = GetPath("/proc/uptime");
-	std::fstream File(FileName, std::ios::in);
+	std::filesystem::path Path = GetPathW("/proc/uptime");
+	std::fstream File(Path, std::ios::in);
 	if (!File.good())
 		return {};
 
@@ -107,8 +127,8 @@ std::string GetUptimeString()
 
 tCpuInfo GetCpuInfo()
 {
-	std::string FileName = GetPath("/proc/cpuinfo");
-	std::fstream File(FileName, std::ios::in);
+	std::filesystem::path Path = GetPathW("/proc/cpuinfo");
+	std::fstream File(Path, std::ios::in);
 	if (!File.good())
 		return {};
 
@@ -173,89 +193,66 @@ const std::vector<std::string> g_PathConfig =
 #endif
 };
 
-static bool TestFile(const std::string& fileName)
+static bool TestPathFile(std::filesystem::path path, const std::string& filename, std::filesystem::path& pathFull)
 {
+	path.append(filename);
 #if defined(LIB_UTILS_LINUX_LOG)
-	std::cout << "TestFile: " << fileName << '\n';
+	std::cout << "TestFile: " << path.string() << '\n';
 #endif
-	std::fstream File = std::fstream(fileName, std::ios::in);
+	std::fstream File = std::fstream(path, std::ios::in);
 	if (!File.good())
 		return false;
-
 	File.close();
+	pathFull = path;
 	return true;
 }
 
-static std::string TestPath(const std::string& path, std::string fileName, bool currPath, bool testDir)
+static std::filesystem::path TestPath(const std::filesystem::path& path, std::string filename, bool currPath, bool testDir)
 {
-	std::string FilePath;
+	std::filesystem::path PathFull;
 
-	if (!currPath)
-	{
-		FilePath = path + fileName;
-		if (TestFile(FilePath))
-			return FilePath;
-	}
+	// It can find itself. This statement in order to avoid that situation.
+	if (!currPath && TestPathFile(path, filename, PathFull))
+		return PathFull;
 
-	FilePath = path + "." + fileName; // hidden file
-	if (TestFile(FilePath))
-		return FilePath;
-
-	FilePath = path + fileName + "rc";
-	if (TestFile(FilePath))
-		return FilePath;
-
-	FilePath = path + "." + fileName + "rc"; // hidden file
-	if (TestFile(FilePath))
-		return FilePath;
-
-	FilePath = path + fileName + ".conf";
-	if (TestFile(FilePath))
-		return FilePath;
-
-	FilePath = path + fileName + ".conf.json";
-	if (TestFile(FilePath))
-		return FilePath;
+	if (TestPathFile(path, "." + filename, PathFull)) // hidden file
+		return PathFull;
+	if (TestPathFile(path, filename + "rc", PathFull))
+		return PathFull;
+	if(TestPathFile(path, "." + filename + "rc", PathFull)) // hidden file
+		return PathFull;
+	if(TestPathFile(path, filename + ".conf", PathFull))
+		return PathFull;
+	if (TestPathFile(path,filename + ".conf.json", PathFull))
+		return PathFull;
 
 	if (!testDir)
 		return {};
-
-	FilePath = path + fileName + "/";
-	FilePath = TestPath(FilePath, fileName, false, false);
-	if (!FilePath.empty())
-		return FilePath;
-
-	return {};
+	std::filesystem::path PathDir = path;
+	PathDir.append(filename);
+	return TestPath(PathDir, filename, false, false);
 }
 
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CorrPath(const std::string& pathRaw)
+std::filesystem::path GetPathConfig(const std::string& filename)
 {
-	std::string Path = pathRaw;
-	std::replace(Path.begin(), Path.end(), '\\', '/');
-	Path.erase(std::unique(Path.begin(), Path.end(), [](char a, char b) { return a == '/' && b == '/'; }), Path.end());
-	return Path;
-}
-
-std::string GetPathConfig(const std::string& fileName)
-{
-	if (fileName.empty())
+	if (filename.empty())
 		return {};
 
-	for (auto& i : PathConfig::g_PathConfig)
+	for (const auto& i : PathConfig::g_PathConfig)
 	{
-		bool CurrPath = CorrPath(i) == ".";
-
+		bool CurrPath = i == ".";
 #if defined(_WIN32)
 		if (!CurrPath)
-			CurrPath = CorrPath(i) == ".."; // $(ProjectDir)
+			CurrPath = i == ".."; // $(ProjectDir)
 #endif
-
-		std::string PathBase = GetPathReal(i) +'/';
-		std::string Path = PathConfig::TestPath(PathBase, fileName, CurrPath, true);
+		std::filesystem::path PathItem = GetPathW(i);
+		if (PathItem.empty())
+			continue;
+		std::filesystem::path Path = PathConfig::TestPath(PathItem, filename, CurrPath, true);
 		if (!Path.empty())
 			return Path;
 	}
@@ -263,18 +260,13 @@ std::string GetPathConfig(const std::string& fileName)
 	return {};
 }
 
-std::string GetPathConfigExc(const std::string& path)
+std::filesystem::path GetPathConfigExc(const std::string& filename)
 {
-	std::string Str = GetPathConfig(path);
+	std::filesystem::path Str = GetPathConfig(filename);
 	if (Str.empty())
-		throw std::runtime_error("File not found: " + path);
+		throw std::runtime_error("File not found: " + filename);
 	return Str;
 };
-
-std::string GetPath(const std::string& path)
-{
-	return GetPathReal(path);
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // Functions for tests
@@ -292,7 +284,7 @@ Swap:              0           0           0";
 	std::string CmdValue = GetStringEnding("cat", cmd);
 	if (!CmdValue.empty())
 	{
-		std::string Path = GetPath(CmdValue);
+		std::filesystem::path Path = GetPathW(CmdValue);
 		if (Path.empty())
 			return {};
 
@@ -312,46 +304,6 @@ Swap:              0           0           0";
 		File.close();
 
 		return Data;
-	}
-
-	CmdValue = GetStringEnding("realpath", cmd);
-	if (!CmdValue.empty())
-	{
-		auto CorrPathReal = [](const std::string& pathRaw)->std::string
-		{
-			std::string Path = CorrPath(pathRaw);
-			if (Path.back() == '/')
-				Path.pop_back();
-			return Path;
-		};
-
-		std::string PathCurr = std::filesystem::current_path().string();
-		std::string PathMain = GetStringEnding(":", PathCurr);
-		PathMain = CorrPath(PathMain);
-		PathMain += "/test_root_fs/";
-
-		CmdValue.erase(CmdValue.begin(), std::find_if(CmdValue.begin(), CmdValue.end(), [](char ch) { return !std::isspace(ch); }));
-		if (CmdValue.empty())
-			return "realpath: missing operand\nTry 'realpath --help' for more information.";
-
-		if (CmdValue.size() > 0)
-		{
-			if (CmdValue[0] == '/')
-				return CorrPathReal(PathMain + CmdValue);
-
-			if (CmdValue[0] == '~')
-			{
-				CmdValue.erase(CmdValue.begin(), std::find_if(CmdValue.begin(), CmdValue.end(), [](char ch) { return ch != '~'; }));
-				return CorrPathReal(PathMain + "root" + CmdValue);
-			}
-
-			if (CmdValue == "." || CmdValue == "./")
-				return CorrPathReal(PathMain);
-
-			if (CmdValue.find("..") == 0)
-				return CorrPathReal(PathMain + CmdValue);
-		}
-		return "It seems to be a BUG";
 	}
 
 	return {};
