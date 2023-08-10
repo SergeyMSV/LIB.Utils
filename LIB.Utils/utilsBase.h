@@ -341,8 +341,10 @@ static std::string GetStringEnding(const std::string& pattern, const std::string
 	size_t Pos = str.find(pattern);
 	if (Pos == std::string::npos)
 		return {};
-
-	return str.substr(Pos + pattern.size());
+	std::string Str = str.substr(Pos + pattern.size());
+	std::string_view StrView = Str;
+	StrView.remove_prefix(std::min(StrView.find_first_not_of(" "), StrView.size()));
+	return StrView.data();
 };
 
 }

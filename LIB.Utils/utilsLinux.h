@@ -5,6 +5,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <filesystem>
 #include <string>
 
 namespace utils
@@ -35,18 +36,8 @@ struct tCpuInfo
 
 tCpuInfo GetCpuInfo();
 
-std::string CorrPath(const std::string& pathRaw);
-
-template <class T>
-void CorrPaths(T& pathsRaw)
-{
-	for (auto& i : pathsRaw)
-		i = CorrPath(i);
-};
-
-std::string GetPathConfig(const std::string& fileName);
-std::string GetPathConfigExc(const std::string& path);
-std::string GetPath(const std::string& path);
+std::filesystem::path GetPathConfig(const std::string& filename);
+std::filesystem::path GetPathConfigExc(const std::string& filename);
 
 }
 
