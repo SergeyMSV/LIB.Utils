@@ -5,7 +5,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <filesystem>
 #include <string>
 
 namespace utils
@@ -35,9 +34,6 @@ struct tCpuInfo
 };
 
 tCpuInfo GetCpuInfo();
-
-std::filesystem::path GetPathConfig(const std::string& filename);
-std::filesystem::path GetPathConfigExc(const std::string& filename);
 
 }
 
