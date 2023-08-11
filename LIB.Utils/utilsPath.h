@@ -23,6 +23,8 @@ namespace path
 std::string GetAppName(const std::filesystem::path& path);
 std::string GetAppNameMain(const std::filesystem::path& path);
 
+std::filesystem::path GetPathNormal(const std::filesystem::path& pathRaw);
+
 std::filesystem::path GetPathConfig(const std::string& filename);
 std::filesystem::path GetPathConfigExc(const std::string& filename);
 

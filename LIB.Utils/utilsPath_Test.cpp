@@ -47,6 +47,18 @@ void UnitTest_Path()
 		utils::test::RESULT("GetAppName ext.", Res == "appname");
 	}
 
+	std::cout << "\n""utils::linux::GetPathNormal\n";
+
+	{
+		auto Res = path::GetPathNormal("~/temp/test_n1");
+		utils::test::RESULT("/root/temp/test_n1", !Res.empty());
+	}
+
+	{
+		auto Res = path::GetPathNormal("/tmpram");
+		utils::test::RESULT("/tmpram", !Res.empty());
+	}
+
 	std::cout << "\n""utils::linux::GetPathConfig\n";
 
 	{
