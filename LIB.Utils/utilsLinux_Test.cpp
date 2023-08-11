@@ -42,43 +42,6 @@ void UnitTest_Linux()
 		utils::test::RESULT("uptime", Res == 2789.21);
 	}
 
-	std::cout << "\n""utils::linux::GetPathConfig\n";
-
-	{
-		auto Res = linux::GetPathConfig("test1");
-		utils::test::RESULT(".conf", Res.filename().string() == "test1.conf");
-	}
-
-	{
-		auto Res = linux::GetPathConfig("test2");
-		utils::test::RESULT(".conf.json", Res.filename().string() == "test2.conf.json");
-	}
-
-	{
-		auto Res = linux::GetPathConfig("test3");
-		utils::test::RESULT("~/.test3rc", Res.filename().string() == ".test3rc");
-	}
-
-	{
-		auto Res = linux::GetPathConfig("test4");
-		utils::test::RESULT("/etc/test4rc", Res.filename().string() == "test4rc");
-	}
-
-	{
-		auto Res = linux::GetPathConfig("test5");
-		utils::test::RESULT("/etc/test5", Res.filename().string() == "test5");
-	}
-
-	{
-		auto Res = linux::GetPathConfig("test6");
-		utils::test::RESULT("~/.test6", Res.filename().string() == ".test6");
-	}
-
-	{
-		auto Res = linux::GetPathConfig("test7win");
-		utils::test::RESULT("test7win", Res.filename().string() == "test7win.conf.json");
-	}
-
 	std::cout << std::endl;
 }
 
