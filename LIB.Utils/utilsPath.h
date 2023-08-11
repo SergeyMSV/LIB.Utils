@@ -20,8 +20,8 @@ tm GetDateTime(const std::string& a_value);
 namespace path
 {
 
-std::string GetAppName(const std::string& path);
-std::string GetAppNameMain(const std::string& path);
+std::string GetAppName(const std::filesystem::path& path);
+std::string GetAppNameMain(const std::filesystem::path& path);
 
 std::filesystem::path GetPathConfig(const std::string& filename);
 std::filesystem::path GetPathConfigExc(const std::string& filename);

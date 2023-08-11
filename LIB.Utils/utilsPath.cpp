@@ -33,20 +33,19 @@ tm GetDateTime(const std::string& a_value)
 namespace path
 {
 
-std::string GetAppName(const std::string& path)
+std::string GetAppName(const std::filesystem::path& path)
 {
-	const std::filesystem::path Path{ path };
-	std::filesystem::path PathFileName = Path.filename();
+	std::filesystem::path PathFileName = path.filename();
 	if (PathFileName.has_extension())
 		PathFileName.replace_extension();
 	return PathFileName.string();
 }
 
-std::string GetAppNameMain(const std::string& path)
+std::string GetAppNameMain(const std::filesystem::path& path)
 {
 	std::string MainPart = GetAppName(path);
 	// Main part of application name: mfrc522_xxx
-	std::size_t Pos = MainPart.find_last_of('_');
+	std::size_t Pos = MainPart.find_first_of('_');
 	if (Pos != std::string::npos)
 		MainPart = MainPart.substr(0, Pos);
 	return MainPart;
