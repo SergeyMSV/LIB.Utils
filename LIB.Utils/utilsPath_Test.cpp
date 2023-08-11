@@ -25,6 +25,28 @@ void UnitTest_Path()
 		utils::test::RESULT("DateTime Parse", memcmp(DateTime1, &DateTime2, sizeof(tm)));
 	}
 
+	std::cout << "\n""utils::linux::GetAppName\n";
+
+	{
+		auto Res = path::GetAppName("/qwert/appname_asd");
+		utils::test::RESULT("GetAppName", Res == "appname_asd");
+	}
+
+	{
+		auto Res = path::GetAppName("/qwert/appname_asd.exe");
+		utils::test::RESULT("GetAppName ext.", Res == "appname_asd");
+	}
+
+	{
+		auto Res = path::GetAppNameMain("/qwert/appname_asd");
+		utils::test::RESULT("GetAppName", Res == "appname");
+	}
+
+	{
+		auto Res = path::GetAppNameMain("/qwert/appname_asd.exe");
+		utils::test::RESULT("GetAppName ext.", Res == "appname");
+	}
+
 	std::cout << "\n""utils::linux::GetPathConfig\n";
 
 	{
