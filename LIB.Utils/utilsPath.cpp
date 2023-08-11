@@ -51,7 +51,7 @@ std::string GetAppNameMain(const std::filesystem::path& path)
 	return MainPart;
 }
 
-std::filesystem::path GetPathW(const std::filesystem::path& pathRaw)
+std::filesystem::path GetPathNormal(const std::filesystem::path& pathRaw)
 {
 	if (pathRaw.empty())
 		return {};
@@ -71,7 +71,7 @@ std::filesystem::path GetPathW(const std::filesystem::path& pathRaw)
 	{
 		std::string PathRawStr = pathRaw.string();
 		PathRawStr.replace(0, 1, "root");
-		Path /= PathRawStr;
+		Path /= std::filesystem::path(PathRawStr).lexically_normal();
 	}
 #endif
 	else
@@ -79,7 +79,7 @@ std::filesystem::path GetPathW(const std::filesystem::path& pathRaw)
 		Path /= pathRaw.lexically_normal();
 	}
 
-	return std::filesystem::canonical(Path, ErrCode);
+	return std::filesystem::weakly_canonical(Path, ErrCode); // it doesn't check if the file exists
 }
 
 static std::filesystem::path TestPath(const std::filesystem::path& path, std::string filename, bool currPath, bool testDir)
@@ -144,7 +144,7 @@ std::filesystem::path GetPathConfig(const std::string& filename)
 		if (!CurrPath)
 			CurrPath = i == ".."; // $(ProjectDir)
 #endif
-		std::filesystem::path PathItem = GetPathW(i);
+		std::filesystem::path PathItem = GetPathNormal(i);
 		if (PathItem.empty())
 			continue;
 		std::filesystem::path Path = TestPath(PathItem, filename, CurrPath, true);
