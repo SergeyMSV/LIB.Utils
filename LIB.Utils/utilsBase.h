@@ -160,49 +160,6 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Reverse(T
 	return value;
 }
 
-namespace type
-{
-
-template <std::size_t size>
-struct tArray1
-{
-	enum { Size = size };
-	std::uint8_t Value[size];
-
-	//tArray1() in union it's deleted by default
-	//{
-	//	std::memset(Value, 0, Size);
-	//}
-
-	std::uint8_t& operator [] (std::size_t i)
-	{
-		assert(i < Size);
-
-		return Value[i];
-	}
-
-	bool operator == (const tArray1& value)
-	{
-		return std::memcmp(Value, value.Value, Size) == 0;
-	}
-
-	bool operator != (const tArray1& value)
-	{
-		return std::memcmp(Value, value.Value, Size) != 0;
-	}
-};
-
-template <std::size_t size>
-struct tArray2 : public tArray1<size>
-{
-	tArray2()
-	{
-		std::memset(this->Value, 0, this->Size);
-	}
-};
-
-}
-
 class tEmptyAble
 {
 protected:
