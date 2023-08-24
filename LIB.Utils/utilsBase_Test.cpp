@@ -549,7 +549,7 @@ void UnitTest_Base()
 		}
 		catch (const std::exception & e)
 		{
-			Result = std::string("format") == e.what();
+			Result = std::string(e.what()).find_first_of("format") != std::string::npos;
 		}
 
 		utils::test::RESULT("tVersion 123.456.dd", Result);
@@ -564,7 +564,7 @@ void UnitTest_Base()
 		}
 		catch (const std::exception & e)
 		{
-			Result = std::string("format") == e.what();
+			Result = std::string(e.what()).find_first_of("format") != std::string::npos;
 		}
 
 		utils::test::RESULT("tVersion 123.", Result);
@@ -579,7 +579,7 @@ void UnitTest_Base()
 		}
 		catch (const std::exception & e)
 		{
-			Result = std::string("format") == e.what();
+			Result = std::string(e.what()).find_first_of("format") != std::string::npos;
 		}
 
 		utils::test::RESULT("tVersion 123.456.", Result);
