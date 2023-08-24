@@ -1,3 +1,4 @@
+#include "utilsBase.h"
 #include "utilsPath.h"
 
 #include <array>
@@ -159,7 +160,7 @@ std::filesystem::path GetPathConfigExc(const std::string& filename)
 {
 	std::filesystem::path Str = GetPathConfig(filename);
 	if (Str.empty())
-		throw std::runtime_error("File not found: " + filename);
+		THROW_RUNTIME_ERROR("File not found: " + filename);
 	return Str;
 }
 
