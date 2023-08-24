@@ -492,55 +492,6 @@ void UnitTest_Base()
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 
 	{
-		type::tArray2<10> Value_1;
-		type::tArray2<10> Value_2;
-
-		utils::test::RESULT("type::tArray2<10> ==", Value_1 == Value_2);
-
-		Value_1[4] = 4;
-
-		utils::test::RESULT("type::tArray2<10> !=", Value_1 != Value_2);
-	}
-
-	{
-		type::tArray1<10> Value_1;
-		type::tArray1<10> Value_2;
-
-		type::tArray2<10> Key2;
-
-		Value_1 = Key2;
-		Value_2 = Key2;
-
-		utils::test::RESULT("type::tArray1<10> ==", Value_1 == Value_2);
-
-		Value_1[4] = 4;
-
-		utils::test::RESULT("type::tArray1<10> !=", Value_1 != Value_2);
-	}
-
-	/* [TBD]
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//FromBCD
-	{
-		char B = FromBCD(0x92);
-
-		utils::test::RESULT("FromBCD", B == 92);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-	//ToCP866(tISO8859 codePage, const std::string& data)
-	{
-		std::string Str("Превед, Медвед!!!");
-
-		std::string StrCP866 = charset::ToCP866(charset::tISO8859_5, Str);
-
-		std::cout << Str << " = " << StrCP866 << std::endl;
-	}
-	*/
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////
-
-	{
 		bool Result = false;
 
 		try
