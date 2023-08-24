@@ -1,6 +1,8 @@
 #include "utilsBase.h"
 #include "utilsPath.h"
 
+#include <cstdlib>
+
 #include <array>
 #include <filesystem>
 #include <iomanip>
@@ -67,14 +69,17 @@ std::filesystem::path GetPathNormal(const std::filesystem::path& pathRaw)
 	{
 		Path += pathRaw.lexically_normal();
 	}
-#if defined(_WIN32)
 	else if (pathRaw.string()[0] == '~')
 	{
+#if defined(_WIN32)
+		std::string Home = "root";
+#else
+		std::string Home = std::getenv("HOME");
+#endif
 		std::string PathRawStr = pathRaw.string();
-		PathRawStr.replace(0, 1, "root");
+		PathRawStr.replace(0, 1, Home);
 		Path /= std::filesystem::path(PathRawStr).lexically_normal();
 	}
-#endif
 	else
 	{
 		Path /= pathRaw.lexically_normal();
