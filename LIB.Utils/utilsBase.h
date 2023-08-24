@@ -12,9 +12,26 @@
 #include <cstring>
 
 #include <algorithm>
+#include <filesystem>
 #include <stdexcept>
 #include <string>
 #include <vector>
+
+namespace utils
+{
+
+inline std::string GetLogMessage(const std::string& msg, const std::string& filename, int line)
+{
+	const std::filesystem::path Path(filename);
+	return msg + " " + Path.filename().string() + ":" + std::to_string(line);
+}
+
+}
+
+#define THROW_INVALID_ARGUMENT(msg) throw std::invalid_argument{ utils::GetLogMessage(msg, __FILE__, __LINE__) }
+#define THROW_RUNTIME_ERROR(msg) throw std::runtime_error{ utils::GetLogMessage(msg, __FILE__, __LINE__) }
+
+///////////////////////////////////////////////////////////////////////////////
 
 namespace utils
 {
@@ -259,7 +276,7 @@ struct tVersion // 1.0.234
 	explicit tVersion(const std::string& strVersion)
 	{
 		if (!TryParse(strVersion, *this))
-			throw std::runtime_error("format");
+			THROW_RUNTIME_ERROR("format");
 	}
 
 	bool operator==(const tVersion& val) const
@@ -302,7 +319,7 @@ struct tVersion // 1.0.234
 	{
 		version = tVersion{};
 
-		auto IsNotVersionSymbol = [](char ch)->bool {return !isdigit(ch) && ch != '.'; };
+		auto IsNotVersionSymbol = [](char ch)->bool { return !isdigit(ch) && ch != '.'; };
 
 		std::string Value = strVersion;
 		Value.erase(std::remove_if(Value.begin(), Value.end(), IsNotVersionSymbol), Value.end());
