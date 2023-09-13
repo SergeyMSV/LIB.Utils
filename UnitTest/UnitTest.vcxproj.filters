@@ -77,9 +77,6 @@
     <ClCompile Include="..\LIB.Utils\utilsPacketCameraVC0706_Test.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
-    <ClCompile Include="..\LIB.Utils\utilsPacketStar.cpp">
-      <Filter>Lib.Utils</Filter>
-    </ClCompile>
     <ClCompile Include="..\LIB.Utils\utilsChrono.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>

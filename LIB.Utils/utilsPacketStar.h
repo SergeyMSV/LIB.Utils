@@ -1,13 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// utilsPacketStar.h
+// utilsPacketStar
 // 2015-07-17
 // Standard ISO/IEC 114882, C++20
-//
-//Payload: tVectorUInt8
-//[STX='*' 1-Byte][PayloadSize 2-Bytes LittleEndian][Payload up to 1024-Bytes][CRC16 CCITT 2-Bytes (PayloadSize and Payload, except STX) LittleEndian]
-// 
-//Payload: tPayload<tDataCmd>
-//[STX='*' 1-Byte][PayloadSize 2-Bytes LittleEndian][MsgId 1-Byte][Payload up to 1023-Bytes][CRC16 CCITT 2-Bytes (PayloadSize and Payload, except STX) LittleEndian]
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -16,8 +10,8 @@
 
 namespace utils
 {
-	namespace packet_Star
-	{
+namespace packet_Star
+{
 
 template <class TPayload>
 struct tFormatStar
@@ -29,7 +23,7 @@ struct tFormatStar
 protected:
 	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
 	{
-		const size_t Size = std::distance(cbegin, cend);
+		const std::size_t Size = std::distance(cbegin, cend);
 
 		if (Size >= GetSize(0) && *cbegin == STX)
 		{
@@ -109,18 +103,30 @@ private:
 	}
 };
 
-//[MsgId 1-Byte][Payload up to 1023-Bytes]
-struct tDataCmd
+namespace example
+{
+// Payload: tVectorUInt8
+// [STX='*' 1-Byte][PayloadSize 2-Bytes LittleEndian][Payload, its size can be up to 1024-Bytes][CRC16 CCITT 2-Bytes (PayloadSize and Payload, except STX) LittleEndian]
+
+// Payload: tPayload<tDataCmd>
+// [STX='*' 1-Byte][PayloadSize 2-Bytes LittleEndian][MsgId 1-Byte][Payload, its size can be up to 1023-Bytes][CRC16 CCITT 2-Bytes (PayloadSize and Payload, except STX) LittleEndian]
+
+
+// [Payload, its size can be up to 1024-Bytes]
+using tPacketSimple = packet::tPacket<tFormatStar, tVectorUInt8>;
+
+// [MsgId 1-Byte][Payload, its size can be up to 1023-Bytes]
+struct tPayloadMsgData
 {
 	std::uint8_t MsgId = 0;
 	tVectorUInt8 Payload;
 
-	tDataCmd() = default;
-	tDataCmd(std::uint8_t msgId, const tVectorUInt8& payload)
+	tPayloadMsgData() = default;
+	tPayloadMsgData(std::uint8_t msgId, const tVectorUInt8& payload)
 		:MsgId(msgId), Payload(payload)
 	{}
 
-	tDataCmd(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadMsgData(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
 	{
 		const std::size_t DataSize = std::distance(cbegin, cend);
 		if (DataSize < 1)
@@ -147,32 +153,37 @@ struct tDataCmd
 		return Payload[index - 1];
 	}
 
-	bool operator == (const tDataCmd& val) const = default;
-	bool operator != (const tDataCmd& val) const = default;
+	bool operator == (const tPayloadMsgData& val) const = default;
+	bool operator != (const tPayloadMsgData& val) const = default;
 };
 
-struct tPayloadCmd : public packet::tPayload<tDataCmd>
+struct tPayloadMsg : public packet::tPayload<tPayloadMsgData>
 {
-	tPayloadCmd() = default;
-	tPayloadCmd(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadMsg() = default;
+	tPayloadMsg(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
 		:tPayload(cbegin, cend)
 	{}
 };
 
-using tPacketStar = packet::tPacket<packet_Star::tFormatStar, tVectorUInt8>;
-
-class tPacketStarCmd : public packet::tPacket<packet_Star::tFormatStar, tPayloadCmd>
+class tPacketMsg : public packet::tPacket<tFormatStar, tPayloadMsg>
 {
-	explicit tPacketStarCmd(const payload_value_type& payloadValue)
+	explicit tPacketMsg(const payload_value_type& payloadValue)
 		:tPacket(payloadValue)
 	{}
 
 public:
-	tPacketStarCmd() = default;
+	tPacketMsg() = default;
 
-	static tPacketStarCmd MakeSomeMessage_01(const tVectorUInt8& msgData);
+	static tPacketMsg MakeSomeMessage_01(const tVectorUInt8& msgData)
+	{
+		tPayloadMsg::value_type Pld;
+		Pld.MsgId = 0x01;
+		Pld.Payload = msgData;
+		return tPacketMsg(Pld);
+	}
 	// ... Make-functions for other packets
 };
 
-	}
+}
+}
 }
