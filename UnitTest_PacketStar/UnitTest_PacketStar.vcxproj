@@ -131,7 +131,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\LIB.Utils\utilsPacketStar.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPacketStar_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsTest.cpp" />
     <ClCompile Include="main.cpp" />
