@@ -251,7 +251,8 @@ public:
 private:
 	static tPacketTWRCmd Make(tMsgId id, tEndpoint ep, const tVectorUInt8& msgData)
 	{
-		tPayloadTWR::value_type Pld;
+		tPayloadTWRData Pld;
+		//tPayloadTWR::value_type Pld; // GCC: "'struct utils::packet_TWR::tPayloadTWR utils::packet_TWR::tPayloadTWR::tPayloadTWR' is inaccessible within this context"
 		Pld.MsgId = id;
 		Pld.Endpoint = ep;
 		Pld.Payload = msgData;
@@ -297,7 +298,8 @@ public:
 private:
 	static tPacketTWRRsp Make(tMsgId id, tMsgStatus status, tEndpoint ep, const tVectorUInt8& msgData)
 	{
-		tPayloadTWR::value_type Pld;
+		tPayloadTWRData Pld;
+		//tPayloadTWR::value_type Pld; // GCC: "'struct utils::packet_TWR::tPayloadTWR utils::packet_TWR::tPayloadTWR::tPayloadTWR' is inaccessible within this context"
 		Pld.MsgId = id;
 		Pld.MsgStatus = status;
 		Pld.Endpoint = ep;
