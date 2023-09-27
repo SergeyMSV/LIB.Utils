@@ -161,6 +161,7 @@
     <ClCompile Include="..\Lib.Utils\utilsPacketNMEAType_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPacketNMEA_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPacketStar_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsPacketTWR_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPath.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPath_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPatternCommand_Test.cpp" />
@@ -189,6 +190,7 @@
     <ClInclude Include="..\Lib.Utils\utilsPacketNMEAPayload.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketNMEAType.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketStar.h" />
+    <ClInclude Include="..\LIB.Utils\utilsPacketTWR.h" />
     <ClInclude Include="..\LIB.Utils\utilsPath.h" />
     <ClInclude Include="..\Lib.Utils\utilsPatternCommand.h" />
     <ClInclude Include="..\Lib.Utils\utilsPatternState.h" />
