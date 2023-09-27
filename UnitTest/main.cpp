@@ -15,6 +15,7 @@ namespace utils
 	void UnitTest_PacketNMEAPayload();
 	void UnitTest_PacketNMEAType();
 	void UnitTest_PacketStar();
+	void UnitTest_PacketTWR();
 	void UnitTest_Path();
 	void UnitTest_PatternCommmand();
 	void UnitTest_PatternState();
@@ -41,6 +42,7 @@ int main()
 	UnitTest_PacketNMEAPayload();
 	UnitTest_PacketNMEAType();
 	UnitTest_PacketStar();
+	UnitTest_PacketTWR();
 	UnitTest_Path();
 	UnitTest_PatternCommmand();
 	UnitTest_PatternState();

@@ -176,7 +176,8 @@ public:
 
 	static tPacketMsg MakeSomeMessage_01(const tVectorUInt8& msgData)
 	{
-		tPayloadMsg::value_type Pld;
+		tPayloadMsgData Pld;
+		//tPayloadTWR::value_type Pld; // GCC: "'struct utils::packet_TWR::tPayloadTWR utils::packet_TWR::tPayloadTWR::tPayloadTWR' is inaccessible within this context"
 		Pld.MsgId = 0x01;
 		Pld.Payload = msgData;
 		return tPacketMsg(Pld);
