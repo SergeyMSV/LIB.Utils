@@ -111,6 +111,11 @@ void RESULT(const char* msg, bool result)
 
 	std::cout << std::endl;
 }
+
+void RESULT(const std::string& msg, bool result)
+{
+	RESULT(msg.c_str(), result);
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void WARNING(const char* msg, bool show)
 {
@@ -135,6 +140,11 @@ void WARNING(const char* msg, bool show)
 
 		std::cout << std::endl;
 	}
+}
+
+void WARNING(const std::string& msg, bool show)
+{
+	WARNING(msg.c_str(), show);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 	}
