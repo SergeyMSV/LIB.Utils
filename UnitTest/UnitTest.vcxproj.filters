@@ -125,6 +125,12 @@
     <ClCompile Include="..\LIB.Utils\utilsException.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsMIFARE.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsMIFARE_Test.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
@@ -214,6 +220,9 @@
       <Filter>Lib.Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\LIB.Utils\utilsVersion.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsMIFARE.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
   </ItemGroup>

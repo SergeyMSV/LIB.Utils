@@ -157,6 +157,8 @@
     <ClCompile Include="..\LIB.Utils\utilsLinux_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsLog.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsLog_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsMIFARE.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsMIFARE_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPacketCameraVC0706.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPacketCameraVC0706_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPacketMQTT.cpp" />
@@ -194,6 +196,7 @@
     <ClInclude Include="..\Lib.Utils\utilsKey.h" />
     <ClInclude Include="..\LIB.Utils\utilsLinux.h" />
     <ClInclude Include="..\LIB.Utils\utilsLog.h" />
+    <ClInclude Include="..\LIB.Utils\utilsMIFARE.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacket.h" />
     <ClInclude Include="..\LIB.Utils\utilsPacketCameraVC0706.h" />
     <ClInclude Include="..\LIB.Utils\utilsPacketMQTT.h" />
