@@ -10,6 +10,7 @@ namespace utils
 	void UnitTest_Key();
 	void UnitTest_Linux();
 	void UnitTest_tLog();
+	void UnitTest_MIFARE();
 	//void UnitTest_PacketBNTBX2();
 	void UnitTest_PacketCameraVC0706();
 	void UnitTest_PacketNMEA();
@@ -38,6 +39,7 @@ int main()
 	UnitTest_File();
 	UnitTest_Key();
 	UnitTest_Linux();
+	UnitTest_MIFARE();
 	//UnitTest_PacketBNTBX2();
 	UnitTest_PacketCameraVC0706();
 	UnitTest_PacketNMEA();
