@@ -121,7 +121,7 @@ public:
 	explicit tKey(std::uint64_t value);
 	tKey(std::vector<std::uint8_t>::const_iterator itBegin, std::vector<std::uint8_t>::const_iterator itEnd);
 
-	static std::size_t size() { return KeySize; }
+	static constexpr std::size_t size() { return KeySize; }
 
 	std::uint64_t Get() const { return m_Value; }
 
@@ -203,11 +203,11 @@ public:
 		m_Sectors.push_back(sector);
 	}
 
-	static tCardType GetType() { return CardType; }
+	static constexpr tCardType GetType() { return CardType; }
 	std::optional<tNUID> GetNUID() const { return m_Sector0.GetNUID(); }
 	std::optional<tUID> GetUID() const { return m_Sector0.GetUID(); }
 
-	static std::size_t GetSectorQty() { return SectorQty; }
+	static constexpr std::size_t GetSectorQty() { return SectorQty; }
 	tSector GetSector(std::size_t index) const
 	{
 		if (!full())
@@ -295,7 +295,7 @@ public:
 	void push_back_block(tBlock block);
 	bool good() const { return m_Payload.size() == SectorSize; }
 
-	static tCardType GetType() { return tCardType::MIFARE_UL; }
+	static constexpr tCardType GetType() { return tCardType::MIFARE_UL; }
 	std::optional<tUID> GetUID() const;
 
 	tLock GetLock() const;
