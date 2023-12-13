@@ -179,6 +179,11 @@ tKey::tKey(std::vector<std::uint8_t>::const_iterator itBegin, std::vector<std::u
 	std::copy_n(itBegin, std::min(KeySize, sizeof(m_Value)), (char*)&m_Value);
 }
 
+void tKey::CopyTo(std::uint8_t(&key)[KeySize]) const
+{
+	std::copy_n((std::uint8_t*)&m_Value, std::min(KeySize, sizeof(m_Value)), key);
+}
+
 void tKey::Increment()
 {
 	if (++m_Value > ValueMAX)

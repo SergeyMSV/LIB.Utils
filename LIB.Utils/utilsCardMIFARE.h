@@ -125,6 +125,8 @@ public:
 
 	std::uint64_t Get() const { return m_Value; }
 
+	void CopyTo(std::uint8_t(&key)[KeySize]) const;
+
 	void Increment();
 	void Decrement();
 
