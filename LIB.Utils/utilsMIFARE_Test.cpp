@@ -301,6 +301,14 @@ void UnitTest_CardMIFARE_Classic()
 	}
 
 	{
+		tKey Key(0x0000123456789ABC);
+		std::uint8_t KeyArrayAcute[6] = { 0xBC, 0x9A, 0x78,0x56, 0x34,  0x12 };
+		std::uint8_t KeyArray[6];
+		Key.CopyTo(KeyArray);
+		test::RESULT("tKey CopyTo", std::equal(std::begin(KeyArray), std::end(KeyArray), std::begin(KeyArrayAcute), std::end(KeyArrayAcute)));
+	}
+
+	{
 		tCard1K Card;
 
 		std::vector<std::uint8_t> Data = {
