@@ -6,7 +6,6 @@
 #pragma once
 
 #include <array>
-#include <cassert>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -150,6 +149,7 @@ public:
 	explicit tSector(tKeyID keyID) :m_KeyID(keyID) {}
 	tSector(tKeyID keyID, const tKey& key) :m_KeyID(keyID), m_Key(key) {}
 	tSector(tKeyID keyID, const tKey& key, const std::vector<std::uint8_t>& sector);
+	tSector(const tSector& val) = default;
 
 	tKey GetKey() const { return m_Key; }
 
@@ -176,6 +176,7 @@ public:
 	explicit tSector0(tKeyID keyID) :tSector(keyID) {}
 	tSector0(tKeyID keyID, const tKey& key) :tSector(keyID, key) {}
 	tSector0(tKeyID keyID, const tKey& key, const std::vector<std::uint8_t>& sector) :tSector(keyID, key, sector) {}
+	tSector0(const tSector& val) :tSector(val) {}
 
 	std::optional<tNUID> GetNUID() const;
 	std::optional<tUID> GetUID() const;
@@ -186,39 +187,29 @@ public:
 template <tCardType CardType, std::size_t SectorQty>
 class tCardClassic
 {
-	tSector0 m_Sector0;
-	std::vector<tSector> m_Sectors;
+	std::array<tSector, SectorQty> m_Sectors;
 
 public:
 	tCardClassic() = default;
 
-	bool empty() const { return !m_Sector0.good() && m_Sectors.empty(); }
-	bool full() const { return m_Sector0.good() && m_Sectors.size() >= SectorQty - 1; }
-	void push(const tSector0& sector) // [TBD] std::move
+	bool good() const { return static_cast<tSector0>(m_Sectors[0]).good(); }
+
+	void insert(std::size_t index, const tSector& sector) // [TBD] std::move
 	{
-		m_Sector0 = sector;
-	}
-	void push(const tSector& sector) // [TBD] std::move
-	{
-		if (m_Sectors.size() >= SectorQty - 1)
+		if (index >= SectorQty)
 			return;
-		m_Sectors.push_back(sector);
+		m_Sectors[index] = sector; // [TBD] std::move
 	}
 
 	static constexpr tCardType GetType() { return CardType; }
-	std::optional<tNUID> GetNUID() const { return m_Sector0.GetNUID(); }
-	std::optional<tUID> GetUID() const { return m_Sector0.GetUID(); }
+	std::optional<tNUID> GetNUID() const { return static_cast<tSector0>(m_Sectors[0]).GetNUID(); }
+	std::optional<tUID> GetUID() const { return static_cast<tSector0>(m_Sectors[0]).GetUID(); }
 
 	static constexpr std::size_t GetSectorQty() { return SectorQty; }
 	tSector GetSector(std::size_t index) const
 	{
-		if (!full())
-			return {};
-		assert(index < SectorQty);
-		if (index == 0)
-			return m_Sector0;
 		if (index < SectorQty)
-			return m_Sectors[index - 1];
+			return m_Sectors[index];
 		return {};
 	}
 };
