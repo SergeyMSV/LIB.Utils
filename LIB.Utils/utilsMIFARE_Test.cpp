@@ -1,6 +1,8 @@
 #include "utilsMIFARE.h"
 #include "utilsTest.h"
 
+#include <cassert>
+
 #include <algorithm>
 #include <iostream>
 
@@ -318,11 +320,11 @@ void UnitTest_CardMIFARE_Classic()
 			0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x07, 0x80, 0x69, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
 		};
 
-		Card.push(tSector0(tKeyID::A, tKey(), Data));
-		for (std::uint8_t i = 0; i < 16; ++i)
+		Card.insert(0, tSector0(tKeyID::A, tKey(), Data));
+		for (std::uint8_t i = 0; i < 115; ++i) // 15 is enough actually
 		{
 			Data[17] = i;
-			Card.push(tSector(tKeyID::A, tKey(), Data));
+			Card.insert(i + 1, tSector(tKeyID::A, tKey(), Data));
 		}
 		std::cout << "\n" << Card.ToJSON() << '\n';
 		std::cout <<"\nCard1K\n\n" << Card.ToString() << '\n';
