@@ -190,9 +190,10 @@ public:
 	std::string ToJSON() const;
 	std::string ToString() const;
 
+	virtual std::vector<std::uint8_t> GetPayload() const;
+
 private:
 	tKey GetKey(int pos) const;
-	virtual std::vector<std::uint8_t> GetPayload() const;
 	virtual std::optional<tBlock> GetBlockSystem() const { return {}; }
 	std::optional<tBlock> GetBlockTrailer() const { return GetBlock(m_Blocks.size() - 1); }
 };
@@ -210,8 +211,9 @@ public:
 
 	std::string ToString() const;
 
-private:
 	std::vector<std::uint8_t> GetPayload() const override;
+
+private:
 	std::optional<tBlock> GetBlockSystem() const override { return GetBlock(0); }
 };
 
@@ -232,7 +234,103 @@ public:
 	tSector16(tKeyID keyID, tStatus status) :tSector(16, keyID, status) {}
 	tSector16(const tSector& val) :tSector(val) {}
 };
+///////////////////////////////////////////////////////////////////////////////////////////////////
+namespace mad
+{
 
+union tInfoByte
+{
+	struct
+	{
+		std::uint8_t CPS : 6; // Pointer to CPS (Card Publisher Sector); 0x10 shall not be used, 0x28...0x3F shall not be used
+		std::uint8_t RFU : 2;
+	}Field;
+	std::uint8_t Value{};
+
+};
+
+union tGPB // General Purpose Byte
+{
+	struct
+	{
+		std::uint8_t ADV : 2; // 01 -> MAD1 (Sectors 1...0x0F), 10 -> MAD2 (Sectors 1...0x27)
+		std::uint8_t RFU : 4; // Default value is 0xA
+		std::uint8_t MA : 1; // 0 -> Monoapplication card, 1 -> Multiapplication card
+		std::uint8_t DA : 1; // 0 -> Sector 0 doesn't contain MAD, 1 -> MAD available
+	}Field;
+	std::uint8_t Value{}; // Default value is 0x69
+};
+
+enum class tFCCode : std::uint8_t// Function Cluster Code
+{
+	CardAdministration, // For administration codes
+	MiscApp_1, // miscellaneous applications
+	MiscApp_7 = 0x07,
+	Airlines,
+	FerryTrafic,
+	RailwayServices,
+	Transport = 0x12,
+	CityTraffic = 0x18,
+	BusServices = 0x20,
+	CompanyServices = 0x38,
+	CityCardServices = 0x40,
+	AccessControlSecurity_1 = 0x47,
+	AccessControlSecurity_2,
+	AccessControlSecurity_3 = 0x51,
+	AccessControlSecurity_4,
+	AccessControlSecurity_5,
+	AccessControlSecurity_6,
+	AdministrationServices = 0x80,
+	ElectronicPurse = 0x88,
+	Metering = 0x97,
+	Telephone,
+	FleetManagement = 0xC9,
+	InfoServices = 0xD8,
+	Computer = 0xE8,
+	Mail=0xF0,
+	MiscApp_8 = 0xF8,
+	MiscApp_9 = 0xF9,
+	MiscApp_10 = 0xFA,
+	MiscApp_11 = 0xFB,
+	MiscApp_12 = 0xFC,
+	MiscApp_13 = 0xFD,
+	MiscApp_14 = 0xFE,
+	MiscApp_15 = 0xFF
+};
+
+enum class tAppCode : std::uint8_t // Application Code
+{
+	CardAdministration_SectorFree,			// hexsector is free
+	CardAdministration_SectorDefect,		// hexsector is defect, e.g. access keys are destroyed or unknown
+	CardAdministration_SectorReserved,		// hexsector is reserved
+	CardAdministration_SectorAddDir,		// hexsector contains additional directory info (useful only for future cards)
+	CardAdministration_SectorCPS,			// hexsector contains card holder information in ASCII format
+	CardAdministration_SectorNotApplicable,	// hexsector not applicable (above memory size)
+	MiscApp_7_Email = 0x51,	// My Application
+	MiscApp_7_CloudDrive = 0x52,	// My Application
+};
+
+struct tAID // Application identifier
+{
+	tAppCode AppCode{};
+	tFCCode FCCode{};
+};
+
+class tMAD
+{
+	tInfoByte m_InfoByte;
+	tGPB m_GPB;
+	std::array<tAID, 15> m_AIDs;
+
+	tMAD() = default;
+
+public:
+	static std::optional<tMAD> GetMAD(const tSector0& sector);
+
+	//std::size_t GetCardPublisherSectorIdx() const;
+};
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template <tCardType CardType, std::size_t SectorQty>
 class tCardClassic
 {
@@ -275,6 +373,11 @@ public:
 		if (Sector.has_value())
 			SetSector(sectorIdx, *Sector);
 		return Sector;
+	}
+
+	std::optional<mad::tMAD> GetMAD() const
+	{
+		return mad::tMAD::GetMAD(m_Sectors[0]);
 	}
 
 protected:
