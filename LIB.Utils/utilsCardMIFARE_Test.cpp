@@ -13,6 +13,7 @@ using namespace card_MIFARE;
 
 void UnitTest_CardMIFARE_Classic_Access(bool resultInDetail);
 void UnitTest_CardMIFARE_Classic_Key();
+void UnitTest_CardMIFARE_Classic_MAD();
 void UnitTest_CardMIFARE_Classic_Sector(bool resultInDetail);
 
 void UnitTest_CardMIFARE_Classic()
@@ -29,6 +30,7 @@ void UnitTest_CardMIFARE_Classic()
 
 	UnitTest_CardMIFARE_Classic_Access(false); // [#] Result in detail
 	UnitTest_CardMIFARE_Classic_Key();
+	UnitTest_CardMIFARE_Classic_MAD();
 	UnitTest_CardMIFARE_Classic_Sector(false); // [#] Result in detail
 
 	std::cout << "\n""UnitTest_CardMIFARE_Classic\n";
@@ -404,6 +406,60 @@ void UnitTest_CardMIFARE_Classic_Key()
 		std::uint8_t KeyArray[6];
 		Key.CopyTo(KeyArray);
 		test::RESULT("tKey CopyTo", std::equal(std::begin(KeyArray), std::end(KeyArray), std::begin(KeyArrayAcute), std::end(KeyArrayAcute)));
+	}
+	std::cout << "\n";
+}
+
+namespace card_MIFARE
+{
+namespace mad
+{
+std::uint8_t CRC8_MIFARE(const std::uint8_t* data, std::size_t dataSize);
+}
+}
+
+void UnitTest_CardMIFARE_Classic_MAD()
+{
+	std::cout << "\n""UnitTest_CardMIFARE_Classic_MAD\n";
+
+	{
+		const std::uint8_t Data[] = {
+			      0x01, 0x01, 0x08, 0x01, 0x08, 0x01, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00,
+			0x03, 0x10, 0x03, 0x10, 0x02, 0x10, 0x02, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x30
+		};
+		std::uint8_t CRC = mad::CRC8_MIFARE(Data, sizeof(Data));
+		test::RESULT("MAD CRC", CRC == 0x89);
+	}
+
+	{
+		tBlock Block0 = { 0xd0, 0xf9, 0xaa, 0x1b, 0x98, 0x08, 0x04, 0x00, 0x62, 0x63, 0x64, 0x65, 0x66, 0x67, 0x68, 0x69 };
+		tBlock Block1 = { 0x89, 0x01, 0x01, 0x08, 0x01, 0x08, 0x01, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x04, 0x00 };
+		tBlock Block2 = { 0x03, 0x10, 0x03, 0x10, 0x02, 0x10, 0x02, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x11, 0x30 };
+		tBlock Block3 = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x07, 0x80,
+			0xE9, // 11101001 DA=1 => MAD available, MA=1 => Multiapplication Card, ADV=01 => MAD1
+			0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
+		tSector0 Sector0(tKeyID::A, tStatus::OK);
+		Sector0.SetBlock(0, Block0);
+		Sector0.SetBlock(1, Block1);
+		Sector0.SetBlock(2, Block2);
+		Sector0.SetBlock(3, Block3);
+
+		tCardClassic1K Card;
+		Card.SetID({ 0x01,0x02, 0x03, 0x04, 0x05 });
+		Card.SetSector(0, Sector0);
+		for (std::uint8_t i = 1; i < 15; ++i)
+		{
+			Card.SetSector(i, tSector4(tKeyID::A, tStatus::OK));
+		}
+
+		std::optional<mad::tMAD> MAD = Card.GetMAD();
+
+		bool Result = MAD.has_value();
+			//Block0 == Sector.GetBlock(0) &&
+			//Block1 == Sector.GetBlock(1) &&
+			//Block2 == Sector.GetBlock(2) &&
+			//Block3 == Sector.GetBlock(3);
+		test::RESULT("tSector 1 SetBlock", Result);
 	}
 	std::cout << "\n";
 }
