@@ -329,14 +329,6 @@ std::string tSector::ToString() const
 	return SStr.str();
 }
 
-tKey tSector::GetKey(int pos) const
-{
-	if (!good())
-		return {};
-	auto Begin = m_Blocks[m_Blocks.size() - 1].begin() + pos;
-	return tKey(Begin, Begin + tKey::size());
-}
-
 std::vector<std::uint8_t> tSector::GetPayload() const
 {
 	if (!good())
@@ -345,6 +337,14 @@ std::vector<std::uint8_t> tSector::GetPayload() const
 	for (std::size_t i = 0; i < m_Blocks.size() - 1; ++i) // Block_3_Trailer is not a part of the payload
 		Payload.insert(Payload.end(), m_Blocks[i].begin(), m_Blocks[i].end());
 	return Payload;
+}
+
+tKey tSector::GetKey(int pos) const
+{
+	if (!good())
+		return {};
+	auto Begin = m_Blocks[m_Blocks.size() - 1].begin() + pos;
+	return tKey(Begin, Begin + tKey::size());
 }
 
 std::optional<tNUID> tSector0::GetNUID() const
@@ -392,7 +392,55 @@ std::vector<std::uint8_t> tSector0::GetPayload() const
 		Payload.insert(Payload.end(), m_Blocks[i].begin(), m_Blocks[i].end());
 	return Payload;
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////
+namespace mad
+{
+std::uint8_t CRC8_MIFARE(const std::uint8_t* data, std::size_t dataSize)
+{
+	std::uint8_t Crc = 0xC7; // The documentation says the preset is 0xE3 but the bits have to be mirrored:	0xe3 = 1110 0011 <=> 1100 0111 = 0xc7
+	constexpr std::uint8_t Poly = 0x1d; // x^8 + x^4 + x^3 + x^2 + 1 => 0x11d
+	for (int i = 0; i < dataSize; ++i)
+	{
+		Crc ^= data[i];
+		for (int i = 0; i < 8; ++i)
+		{
+			int Overrun = Crc & 0x80;
+			Crc <<= 1;
+			if (Overrun)
+				Crc ^= Poly;
+		}
+	}
+	return Crc;
+}
 
+std::optional<tMAD> tMAD::GetMAD(const tSector0& sector)
+{
+	std::vector<std::uint8_t> Payload = sector.GetPayload();
+	if (Payload.size() != 32)
+		return{};
+	std::optional<tBlock> BlockTrailer = sector.GetBlock(3);
+	if (!BlockTrailer.has_value())
+		return {};
+	tGPB GPB{};
+	GPB.Value = BlockTrailer.value()[9];
+	if (!GPB.Field.DA)
+		return {};
+	std::uint8_t CRC = CRC8_MIFARE(Payload.data() + 1, Payload.size() - 1);
+	if (CRC != Payload[0])
+		return {};
+	tMAD MAD;
+	MAD.m_InfoByte.Value = Payload[1];
+	for (std::size_t i = 0, pldIdx = 2; i < MAD.m_AIDs.size() && pldIdx < Payload.size(); ++i)
+	{
+		MAD.m_AIDs[i].AppCode = static_cast<tAppCode>(Payload[pldIdx++]);
+		MAD.m_AIDs[i].FCCode = static_cast<tFCCode>(Payload[pldIdx++]);
+	}
+	MAD.m_GPB = GPB;
+	return MAD;
+}
+
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template <class T>
 std::string CardToJSON(const T& card)
 {
