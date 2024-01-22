@@ -14,6 +14,9 @@
     <ClCompile Include="..\LIB.Utils\utilsPortSerial_Test.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsPortSerial.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
@@ -22,6 +25,9 @@
       <Filter>Lib.Utils</Filter>
     </ClInclude>
     <ClInclude Include="..\LIB.Utils\utilsPortSerial.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsCRC.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
   </ItemGroup>
