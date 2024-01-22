@@ -1,5 +1,4 @@
-#include "utilsLog.h"
-#include "utilsSerialPort.h"
+#include "utilsPortSerial.h"
 #include "utilsTest.h"
 #include <chrono>
 #include <ctime>
@@ -41,9 +40,9 @@ protected:
 namespace utils
 {
 
-void UnitTest_SerialPort()
+void UnitTest_PortSerial()
 {
-	std::cout << "\n""utils::serial_port::tSerialPort" << std::endl;
+	std::cout << "\n""utils::port_serial::tPortSerial" << std::endl;
 
 	using namespace std::chrono_literals;
 
