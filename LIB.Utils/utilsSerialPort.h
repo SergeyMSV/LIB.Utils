@@ -1,3 +1,7 @@
+#pragma once
+
+#include <libConfig.h>
+
 #include <mutex>
 #include <queue>
 #include <vector>
@@ -6,7 +10,7 @@
 
 namespace utils
 {
-	namespace serial_port
+	namespace port_serial
 	{
 using tCharSize = boost::asio::serial_port_base::character_size;
 using tStopBits = boost::asio::serial_port_base::stop_bits::type;
@@ -14,24 +18,24 @@ using tParity = boost::asio::serial_port_base::parity::type;
 using tFlowControl = boost::asio::serial_port_base::flow_control::type;
 
 template<int DataSizeRecv = 1024>
-class tSerialPort
+class tPortSerialAsync
 {
     boost::asio::serial_port m_Port;
 
 	std::uint8_t m_Data[DataSizeRecv];
 
-	mutable std::mutex m_Mtx;//[TBD] maybe scoped_mutex
+	mutable std::mutex m_Mtx;
 	std::queue<std::vector<std::uint8_t>> m_DataSent;
 
 public:
-	tSerialPort(boost::asio::io_context& io, const std::string& id, std::uint32_t portBR, tCharSize charSize, tStopBits stopBits, tParity parity, tFlowControl flowControl)
+	tPortSerialAsync(boost::asio::io_context& io, const std::string& id, std::uint32_t baudRate, tCharSize charSize, tStopBits stopBits, tParity parity, tFlowControl flowControl)
         : m_Port(io)
     {
         m_Port.open(id);
 
         if (m_Port.is_open())
         {
-            m_Port.set_option(boost::asio::serial_port_base::baud_rate(portBR));
+            m_Port.set_option(boost::asio::serial_port_base::baud_rate(baudRate));
             m_Port.set_option(boost::asio::serial_port_base::character_size(charSize));
             m_Port.set_option(boost::asio::serial_port_base::stop_bits(stopBits));
             m_Port.set_option(boost::asio::serial_port_base::parity(parity));
@@ -41,23 +45,45 @@ public:
         Receive();
     }
 
-	tSerialPort(boost::asio::io_context& io, const std::string& id, std::uint32_t portBR)
-		:tSerialPort(io, id, portBR, tCharSize(8), tStopBits::one, tParity::none, tFlowControl::none)
+	tPortSerialAsync(boost::asio::io_context& io, const std::string& id, std::uint32_t baudRate)
+		:tPortSerialAsync(io, id, baudRate, tCharSize(8), tStopBits::one, tParity::none, tFlowControl::none)
 	{
+	}
+
+	std::uint32_t GetBaudRate() const
+	{
+		if (!m_Port.is_open())
+			return 0;
+		boost::asio::serial_port_base::baud_rate Br{};
+		boost::system::error_code Ec{};
+		m_Port.get_option(Br, Ec);
+		if (Ec)
+			return 0;
+		return Br.value();
+	}
+
+	void SetBaudRate(std::uint32_t val)
+	{
+		if (!m_Port.is_open())
+			return;
+		m_Port.set_option(boost::asio::serial_port_base::baud_rate(val));
 	}
 
 	bool Send(const std::vector<std::uint8_t>& data)
 	{
+		if (data.empty())
+			return false;
+
+		// [TBD] Something shall limit incoming data for sending here.
+
 		std::lock_guard<std::mutex> Lock(m_Mtx);
 
-		bool DataSentEmpty = m_DataSent.empty();//[TBD]it shall limit incoming data for sending
+		bool StartSending = m_DataSent.empty();
 
 		m_DataSent.push(data);
 
-		if (DataSentEmpty)
-		{
+		if (StartSending)
 			Send();
-		}
 
 		return true;
 	}
@@ -73,9 +99,6 @@ private:
 					std::vector<std::uint8_t> Data(m_Data, m_Data + bytes_recvd);
 					OnReceived(Data);
                 }
-                //else
-                //{
-                //}
 
 				Receive();
             });
@@ -94,44 +117,9 @@ protected:
 				m_DataSent.pop();
 
 				if (!m_DataSent.empty())
-				{
 					Send();
-				}
 			});
 	}
-
-//    void do_receive()
-//    {
-//        socket_.async_receive_from(
-//            boost::asio::buffer(data_, max_length), sender_endpoint_,
-//            [this](boost::system::error_code ec, std::size_t bytes_recvd)
-//            {
-//                if (!ec && bytes_recvd > 0)
-//                {
-//                    do_send(bytes_recvd);
-//                }
-//                else
-//                {
-//                    do_receive();
-//                }
-//            });
-//    }
-//
-//    void do_send(std::size_t length)
-//    {
-//        socket_.async_send_to(
-//            boost::asio::buffer(data_, length), sender_endpoint_,
-//            [this](boost::system::error_code /*ec*/, std::size_t /*bytes_sent*/)
-//            {
-//                do_receive();
-//            });
-//    }
-//
-//private:
-//    udp::socket socket_;
-//    udp::endpoint sender_endpoint_;
-//    enum { max_length = 1024 };
-//    char data_[max_length];
 };
 
 }
