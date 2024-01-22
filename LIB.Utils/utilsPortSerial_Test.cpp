@@ -5,29 +5,34 @@
 
 #include <iomanip>
 #include <iostream>
+#include <mutex>
 #include <thread>
 
-volatile bool g_DataReceived = false;
-const std::vector<uint8_t> g_Data(100, '4');
-
-const std::string g_COM = "COM1";
-
-class tBoard : public utils::serial_port::tSerialPort<>
+class tBoard : public utils::port::serial::tPortSerialAsync<>
 {
+	std::vector<std::uint8_t> m_DataReceived;
+	mutable std::mutex m_DataReceivedMtx;
+
 public:
-	explicit tBoard(boost::asio::io_context& io)
-		:tSerialPort(io, g_COM, 115200)
+	tBoard(boost::asio::io_context& io, const std::string& id)
+		:tPortSerialAsync(io, id, 115200)
 	{
 	}
-	virtual ~tBoard()
+
+	std::vector<std::uint8_t> GetReceived()
 	{
+		std::lock_guard<std::mutex> Lock(m_DataReceivedMtx);
+		if (m_DataReceived.empty())
+			return {};
+		std::vector<std::uint8_t> Data = std::move(m_DataReceived);
+		return Data;
 	}
 
 protected:
-	void OnReceived(std::vector<uint8_t>& data) override
+	void OnReceived(const std::vector<std::uint8_t>& data) override
 	{
-		if (g_Data == data)
-			g_DataReceived = true;
+		std::lock_guard<std::mutex> Lock(m_DataReceivedMtx);
+		m_DataReceived.insert(m_DataReceived.end(), data.begin(), data.end());
 	}
 };
 
@@ -36,27 +41,33 @@ namespace utils
 
 void UnitTest_PortSerial()
 {
-	std::cout << "\n""utils::port_serial::tPortSerial" << std::endl;
+	std::cout << "\n""utils::port::serial::tPortSerial" << std::endl;
 
 	using namespace std::chrono_literals;
 
-	boost::asio::io_context ioc;
+	{
+		const std::vector<std::uint8_t> Data(100, '4');
 
-	tBoard Port(ioc);
+		boost::asio::io_context ioc;
 
-	std::thread Thread_IO([&ioc]() { ioc.run(); });
+		const std::string PortID = "COM1";
 
-	Port.Send(g_Data);
+		tBoard Port(ioc, PortID);
 
-	std::this_thread::sleep_for(1s);
+		std::thread Thread_IO([&ioc]() { ioc.run(); });
 
-	test::RESULT("SerialPort: data received", g_DataReceived);
-	const std::string Warning = "SerialPort: check if loopback jumpers are connected to " + g_COM;
-	test::WARNING(Warning.c_str(), !g_DataReceived);
+		Port.Send(Data);
+		std::this_thread::sleep_for(1s);
 
-	ioc.stop();
+		const bool Result = Port.GetReceived() == Data;
 
-	Thread_IO.join();
+		test::RESULT("SerialPort: data received", Result);
+		test::WARNING("SerialPort: check if loopback jumpers are connected to " + PortID, !Result);
+
+		ioc.stop();
+
+		Thread_IO.join();
+	}
 
 	std::cout << std::endl;
 }
