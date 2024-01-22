@@ -158,6 +158,81 @@ protected:
 	}
 };
 
+class tPortOneWireSync
+{
+	class tPort : public tPortSerialAsync<64>
+	{
+		mutable std::mutex m_Mtx;
+		std::vector<std::uint8_t> m_DataRcv;
+
+	public:
+		tPort(boost::asio::io_context& io, const std::string& id, std::uint32_t baudRate, tCharSize charSize, tStopBits stopBits, tParity parity, tFlowControl flowControl);
+
+		bool IsReceived(std::size_t qty) const;
+		std::vector<std::uint8_t> GetReceived();
+		void ResetReceived();
+
+	protected:
+		void OnReceived(const std::vector<std::uint8_t>& data) override;
+	};
+
+	struct tGuardBR
+	{
+		tPort* m_pPort;
+		std::uint32_t m_BR = 0;
+
+		tGuardBR() = delete;
+		tGuardBR(tPort* port, std::uint32_t baudRate);
+		~tGuardBR();
+	};
+
+	tPort m_Port;
+
+public:
+	enum class tStatus
+	{
+		Success,
+		NoRsp,
+		PortDamaged,
+		ShortCircuit,
+		Presence,
+	};
+
+	enum class tSpeed // Supported baudrates: 56000, 57600, 76800, 115200, 128000, 230400, 256000
+	{
+		Slow, // 57600
+		Norm, // 115200
+		Fast, // 230400
+	};
+
+public:
+	tPortOneWireSync() = delete;
+	tPortOneWireSync(boost::asio::io_context& io, const std::string& id, tSpeed speed = tSpeed::Norm);
+
+	void Close() { m_Port.Close(); }
+	bool IsReady() const { return m_Port.IsReady(); }
+	boost::system::error_code GetError() const { return m_Port.GetError(); }
+
+	tStatus Reset();
+	std::vector<std::uint8_t> Transaction(std::vector<std::uint8_t> tx, std::size_t rxSize);
+
+protected:
+	void SendBit(bool tx);
+	std::vector<bool> ReceiveBits(std::size_t rxSize);
+
+private:
+	std::vector<std::uint8_t> OW_Transaction(const std::vector<std::uint8_t>& tx);
+
+	std::vector<std::uint8_t> GetReceived(std::size_t rxSize);
+
+protected:
+	static std::vector<std::uint8_t> ByteToBit(const std::vector<std::uint8_t>& data);
+	static std::vector<std::uint8_t> BitToByte(const std::vector<std::uint8_t>& data);
+	static std::uint8_t BitToByte(std::uint8_t val) { return val == 0xFF ? 1 : 0; }
+
+	static std::uint32_t ToBaudRate(tSpeed val);
+};
+
 }
 }
 }
