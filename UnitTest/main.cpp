@@ -19,7 +19,7 @@ namespace utils
 	void UnitTest_Path();
 	void UnitTest_PatternCommmand();
 	void UnitTest_PatternState();
-	void UnitTest_SerialPort();
+	void UnitTest_PortSerial();
 	void UnitTest_Test();
 	void UnitTest_Trap();
 }
@@ -46,7 +46,7 @@ int main()
 	UnitTest_Path();
 	UnitTest_PatternCommmand();
 	UnitTest_PatternState();
-	UnitTest_SerialPort();
+	UnitTest_PortSerial();
 	//UnitTest_Test();
 	UnitTest_Trap();
 
