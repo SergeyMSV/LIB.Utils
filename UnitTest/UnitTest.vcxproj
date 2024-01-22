@@ -166,6 +166,7 @@
     <ClCompile Include="..\LIB.Utils\utilsPath_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPatternCommand_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPatternState_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsPortSerial.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPortSerial_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsTest.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsTest_Test.cpp" />
