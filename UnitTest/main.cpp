@@ -5,6 +5,7 @@ namespace utils
 	void UnitTest_CRC();
 	void UnitTest_CryptoAES();
 	void UnitTest_CryptoRSA32();
+	void UnitTest_DALLAS();
 	void UnitTest_File();
 	void UnitTest_Key();
 	void UnitTest_Linux();
@@ -33,6 +34,7 @@ int main()
 	UnitTest_CRC();
 	UnitTest_CryptoAES();
 	UnitTest_CryptoRSA32();
+	UnitTest_DALLAS();
 	UnitTest_File();
 	UnitTest_Key();
 	UnitTest_Linux();

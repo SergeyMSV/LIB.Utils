@@ -1,0 +1,2 @@
+#define UTILS_TEST_BASIC
+//#define UTILS_TEST_BUTTON_COPY
