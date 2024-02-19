@@ -114,7 +114,12 @@ void tPortOneWireSync::SendBit(bool tx)
 {
 	const std::vector<std::uint8_t> DataSend(1, tx ? 0xFF : 0x00);
 	m_Port.Send(DataSend);
-	GetReceived(DataSend.size());
+	std::vector<std::uint8_t> Rx = GetReceived(DataSend.size());
+#ifdef LIB_UTILS_LOG
+	std::cout << '\n'
+		<< "SendBit     TX: " << utils::test::ToStringHEX(DataSend, true) << '\n'
+		<< " <>         RX: " << utils::test::ToStringHEX(Rx, true) << '\n';
+#endif // LIB_UTILS_LOG
 }
 
 std::vector<bool> tPortOneWireSync::ReceiveBits(std::size_t rxSize)
