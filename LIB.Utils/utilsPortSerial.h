@@ -50,6 +50,11 @@ public:
 	{
 	}
 
+	virtual ~tPortSerialAsync()
+	{
+		m_Port.close();
+	}
+
 	std::uint32_t GetBaudRate() const
 	{
 		if (!m_Port.is_open())
