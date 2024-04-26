@@ -142,7 +142,7 @@ std::vector<std::uint8_t> tPortOneWireSync::OW_Transaction(const std::vector<std
 std::vector<std::uint8_t> tPortOneWireSync::GetReceived(std::size_t rxSize)
 {
 	double BytesPerSecond = m_Port.GetBaudRate() / 10; // 10 -> [1 Start Bit] + [8 DataBits] + [1 StopBit]
-	std::uint32_t Bytes_in_10us = static_cast<std::uint32_t>(std::ceil(100000 / BytesPerSecond));
+	std::uint32_t Bytes_in_10us = static_cast<std::uint32_t>(std::ceil(100000 / BytesPerSecond)) + 100; // + 100us is a waiting for asynchronous reading operation
 
 	for (std::size_t i = 0; i < rxSize * Bytes_in_10us; ++i)
 	{
