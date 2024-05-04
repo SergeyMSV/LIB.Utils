@@ -1,7 +1,6 @@
 namespace utils
 {
 	void UnitTest_Base();
-	void UnitTest_CardMIFARE();
 	void UnitTest_Chrono();
 	void UnitTest_CRC();
 	void UnitTest_CryptoAES();
@@ -11,6 +10,7 @@ namespace utils
 	void UnitTest_Key();
 	void UnitTest_Linux();
 	void UnitTest_tLog();
+	void UnitTest_MIFARE();
 	//void UnitTest_PacketBNTBX2();
 	void UnitTest_PacketCameraVC0706();
 	void UnitTest_PacketMQTT();
@@ -33,7 +33,6 @@ int main()
 	using namespace utils;
 
 	UnitTest_Base();
-	UnitTest_CardMIFARE();
 	UnitTest_Chrono();
 	UnitTest_CRC();
 	UnitTest_CryptoAES();
@@ -42,6 +41,7 @@ int main()
 	UnitTest_File();
 	UnitTest_Key();
 	UnitTest_Linux();
+	UnitTest_MIFARE();
 	//UnitTest_PacketBNTBX2();
 	UnitTest_PacketCameraVC0706();
 	UnitTest_PacketMQTT();
