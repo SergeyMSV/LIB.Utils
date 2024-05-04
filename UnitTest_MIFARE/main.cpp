@@ -1,11 +1,11 @@
 namespace utils
 {
-	void UnitTest_CardMIFARE();
+	void UnitTest_MIFARE();
 }
 
 int main()
 {
-	utils::UnitTest_CardMIFARE();
+	utils::UnitTest_MIFARE();
 
 	return 0;
 }

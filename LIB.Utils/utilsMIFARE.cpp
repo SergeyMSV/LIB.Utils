@@ -5,7 +5,7 @@
 
 namespace utils
 {
-namespace card_MIFARE
+namespace MIFARE
 {
 
 template <class T>
