@@ -13,7 +13,7 @@
 
 namespace utils
 {
-namespace card_MIFARE
+namespace MIFARE
 {
 
 enum class tCardType : std::uint8_t

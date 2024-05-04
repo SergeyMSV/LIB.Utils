@@ -9,16 +9,16 @@
 namespace utils
 {
 
-using namespace card_MIFARE;
+using namespace MIFARE;
 
-void UnitTest_CardMIFARE_Classic_Access(bool resultInDetail);
-void UnitTest_CardMIFARE_Classic_Key();
-void UnitTest_CardMIFARE_Classic_MAD();
-void UnitTest_CardMIFARE_Classic_Sector(bool resultInDetail);
+void UnitTest_MIFARE_Classic_Access(bool resultInDetail);
+void UnitTest_MIFARE_Classic_Key();
+void UnitTest_MIFARE_Classic_MAD();
+void UnitTest_MIFARE_Classic_Sector(bool resultInDetail);
 
-void UnitTest_CardMIFARE_Classic()
+void UnitTest_MIFARE_Classic()
 {
-	std::cout << "\n""utils::card_MIFARE::classic\n";
+	std::cout << "\n""utils::MIFARE::classic\n";
 //Sector:  0
 // d0 f9 aa 1b  98 08 04 00  62 63 64 65  66 67 68 69    00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00
 // 00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00    00 00 00 00  00 00 ff 07  80 69 ff ff  ff ff ff ff
@@ -28,12 +28,12 @@ void UnitTest_CardMIFARE_Classic()
 // 
 //All keys are set to FFFF FFFF FFFFh at chip delivery and the bytes 6, 7 and 8 are set to FF0780h.
 
-	UnitTest_CardMIFARE_Classic_Access(false); // [#] Result in detail
-	UnitTest_CardMIFARE_Classic_Key();
-	UnitTest_CardMIFARE_Classic_MAD();
-	UnitTest_CardMIFARE_Classic_Sector(false); // [#] Result in detail
+	UnitTest_MIFARE_Classic_Access(false); // [#] Result in detail
+	UnitTest_MIFARE_Classic_Key();
+	UnitTest_MIFARE_Classic_MAD();
+	UnitTest_MIFARE_Classic_Sector(false); // [#] Result in detail
 
-	std::cout << "\n""UnitTest_CardMIFARE_Classic\n";
+	std::cout << "\n""UnitTest_MIFARE_Classic\n";
 
 	{
 		tCardClassicMini Card;
@@ -139,9 +139,9 @@ void UnitTest_CardMIFARE_Classic()
 	std::cout << std::endl;
 }
 
-void UnitTest_CardMIFARE_Classic_Access(bool resultInDetail)
+void UnitTest_MIFARE_Classic_Access(bool resultInDetail)
 {
-	std::cout << "\n""UnitTest_CardMIFARE_Classic_Access\n";
+	std::cout << "\n""UnitTest_MIFARE_Classic_Access\n";
 
 	bool ResultAll = true;
 
@@ -378,9 +378,9 @@ void UnitTest_CardMIFARE_Classic_Access(bool resultInDetail)
 	test::RESULT("Access All tests", ResultAll);
 }
 
-void UnitTest_CardMIFARE_Classic_Key()
+void UnitTest_MIFARE_Classic_Key()
 {
-	std::cout << "\n""UnitTest_CardMIFARE_Classic_Key\n";
+	std::cout << "\n""UnitTest_MIFARE_Classic_Key\n";
 
 	{
 		std::vector<std::uint8_t> Data = { 0xd0, 0xf9, 0xaa, 0x1b, 0x98, 0x45 };
@@ -410,7 +410,7 @@ void UnitTest_CardMIFARE_Classic_Key()
 	std::cout << "\n";
 }
 
-namespace card_MIFARE
+namespace MIFARE
 {
 namespace mad
 {
@@ -418,9 +418,9 @@ std::uint8_t CRC8_MIFARE(const std::uint8_t* data, std::size_t dataSize);
 }
 }
 
-void UnitTest_CardMIFARE_Classic_MAD()
+void UnitTest_MIFARE_Classic_MAD()
 {
-	std::cout << "\n""UnitTest_CardMIFARE_Classic_MAD\n";
+	std::cout << "\n""UnitTest_MIFARE_Classic_MAD\n";
 
 	{
 		const std::uint8_t Data[] = {
@@ -464,9 +464,9 @@ void UnitTest_CardMIFARE_Classic_MAD()
 	std::cout << "\n";
 }
 
-void UnitTest_CardMIFARE_Classic_Sector(bool resultInDetail)
+void UnitTest_MIFARE_Classic_Sector(bool resultInDetail)
 {
-	std::cout << "\n""UnitTest_CardMIFARE_Classic_Sector\n";
+	std::cout << "\n""UnitTest_MIFARE_Classic_Sector\n";
 
 	if (resultInDetail)
 		std::cout << "\n";
@@ -608,9 +608,9 @@ void UnitTest_CardMIFARE_Classic_Sector(bool resultInDetail)
 		std::cout << "\n";
 }
 
-void UnitTest_CardMIFARE_Ultralight()
+void UnitTest_MIFARE_Ultralight()
 {
-	std::cout << "\n""utils::card_MIFARE::ultralight\n";
+	std::cout << "\n""utils::MIFARE::ultralight\n";
 
 	// {"sak": "00", "uid" : "04d2ea998c0280", "payload" : "04d2eab4998c028097480203fffffeff32333435363738393a3b3c3d3e3f404115ac1e000b00000042434445464748494a4b4c4d4e4f50515253545556575859"}
 
@@ -626,7 +626,7 @@ void UnitTest_CardMIFARE_Ultralight()
 		Card.SetBlock(2, Data2);
 		Card.SetBlock(3, Data3);
 		std::cout << Card.ToJSON() << '\n';
-		card_MIFARE::tLock Lock = Card.GetLock();
+		MIFARE::tLock Lock = Card.GetLock();
 		std::size_t UserMemAvailSize = Card.GetUserMemoryUnlockedSize();
 		bool Result =
 			Lock.Value == 0x0302 &&
@@ -797,10 +797,10 @@ void UnitTest_CardMIFARE_Ultralight()
 	std::cout << std::endl;
 }
 
-void UnitTest_CardMIFARE()
+void UnitTest_MIFARE()
 {
-	UnitTest_CardMIFARE_Classic();
-	UnitTest_CardMIFARE_Ultralight();
+	UnitTest_MIFARE_Classic();
+	UnitTest_MIFARE_Ultralight();
 }
 
 }
