@@ -80,7 +80,7 @@ void UnitTest_PortSerial()
 
 	{ // 1-Wire Port DALLAS
 		boost::asio::io_context ioc;
-		const std::string PortID = "COM4";
+		const std::string PortID = "COM7";
 		tBoardOneWire Port(ioc, PortID, tBoardOneWire::tSpeed::Fast);
 		std::thread Thread_IO([&ioc]() { ioc.run(); });
 

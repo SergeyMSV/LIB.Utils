@@ -111,7 +111,7 @@ void UnitTest_DALLAS()
 #ifdef UTILS_TEST_BASIC
 	{ // 1-Wire Port DALLAS
 		boost::asio::io_context ioc;
-		const std::string PortID = "COM4";
+		const std::string PortID = "COM7";
 		tDALLAS Port(ioc, PortID, tDALLAS::tSpeed::Fast); // Fast
 		std::thread Thread_IO([&ioc]() { ioc.run(); });
 
