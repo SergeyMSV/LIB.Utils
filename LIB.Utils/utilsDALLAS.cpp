@@ -227,13 +227,7 @@ std::optional<tROM> tDALLAS::Search(tFamilyCode familyCode, int& lastDiscrepancy
 	if (!lastDeviceFlag)
 	{
 		if (Reset() != tBoardOneWire::tStatus::Success)
-		{
-			// reset the search
-			lastDiscrepancy = 0;
-			lastDeviceFlag = false;
-			lastFamilyDiscrepancy = 0;
 			return {};
-		}
 
 		Transaction({ Cmd_SearchROM }, 0);
 
@@ -247,54 +241,50 @@ std::optional<tROM> tDALLAS::Search(tFamilyCode familyCode, int& lastDiscrepancy
 			bool cmp_id_bit = RspBit[1];
 
 			if (id_bit && cmp_id_bit) // check for no devices on 1-wire
-			{
 				break;
+
+			// all devices coupled have 0 or 1
+			if (id_bit != cmp_id_bit)
+			{
+				search_direction = id_bit; // bit write value for search
 			}
 			else
 			{
-				// all devices coupled have 0 or 1
-				if (id_bit != cmp_id_bit)
-				{
-					search_direction = id_bit; // bit write value for search
-				}
+				// if this discrepancy if before the Last Discrepancy
+				// on a previous next then pick the same as last time
+				if (id_bit_number < lastDiscrepancy)
+					search_direction = (ROM.Value[rom_byte_number] & rom_byte_mask) > 0;
 				else
+					// if equal to last pick 1, if not then pick 0
+					search_direction = id_bit_number == lastDiscrepancy;
+
+				// if 0 was picked then record its position in LastZero
+				if (!search_direction)
 				{
-					// if this discrepancy if before the Last Discrepancy
-					// on a previous next then pick the same as last time
-					if (id_bit_number < lastDiscrepancy)
-						search_direction = (ROM.Value[rom_byte_number] & rom_byte_mask) > 0;
-					else
-						// if equal to last pick 1, if not then pick 0
-						search_direction = id_bit_number == lastDiscrepancy;
-
-					// if 0 was picked then record its position in LastZero
-					if (!search_direction)
-					{
-						last_zero = id_bit_number;
-						// check for Last discrepancy in family
-						if (last_zero < 9)
-							lastFamilyDiscrepancy = last_zero;
-					}
+					last_zero = id_bit_number;
+					// check for Last discrepancy in family
+					if (last_zero < 9)
+						lastFamilyDiscrepancy = last_zero;
 				}
+			}
 
-				// set or clear the bit in the ROM byte rom_byte_number with mask rom_byte_mask
-				if (search_direction)
-					ROM.Value[rom_byte_number] |= rom_byte_mask;
-				else
-					ROM.Value[rom_byte_number] &= ~rom_byte_mask;
+			// set or clear the bit in the ROM byte rom_byte_number with mask rom_byte_mask
+			if (search_direction)
+				ROM.Value[rom_byte_number] |= rom_byte_mask;
+			else
+				ROM.Value[rom_byte_number] &= ~rom_byte_mask;
 
-				SendBit(search_direction); // serial number search direction write bit
+			SendBit(search_direction); // serial number search direction write bit
 
-				// increment the byte counter id_bit_number and shift the mask rom_byte_mask
-				id_bit_number++;
-				rom_byte_mask <<= 1;
-				// if the mask is 0 then go to new SerialNum byte rom_byte_number and reset mask
-				if (rom_byte_mask == 0)
-				{
-					ROM_CRC = utils::crc::CRC08_DALLAS(ROM.Value[rom_byte_number], ROM_CRC);
-					rom_byte_number++;
-					rom_byte_mask = 1;
-				}
+			// increment the byte counter id_bit_number and shift the mask rom_byte_mask
+			id_bit_number++;
+			rom_byte_mask <<= 1;
+			// if the mask is 0 then go to new SerialNum byte rom_byte_number and reset mask
+			if (rom_byte_mask == 0)
+			{
+				ROM_CRC = utils::crc::CRC08_DALLAS(ROM.Value[rom_byte_number], ROM_CRC);
+				rom_byte_number++;
+				rom_byte_mask = 1;
 			}
 		} while (rom_byte_number < 8); // loop until through all ROM bytes 0-7
 		// if the search was successful then
@@ -310,14 +300,6 @@ std::optional<tROM> tDALLAS::Search(tFamilyCode familyCode, int& lastDiscrepancy
 	}
 	// if no device found then reset counters so next 'search' will be like a first
 	if (!search_result || !ROM.Value[0])
-	{
-		lastDiscrepancy = 0;
-		lastDeviceFlag = false;
-		lastFamilyDiscrepancy = 0;
-		search_result = false;
-	}
-
-	if (!search_result)
 		return {};
 
 	return ROM;

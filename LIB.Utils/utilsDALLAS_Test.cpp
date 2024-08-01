@@ -121,7 +121,7 @@ void UnitTest_DALLAS()
 				std::cout << '\n';
 				for (auto& i : Thermo)
 				{
-					std::cout << ToString(i.ROM) << "Temperature = " << ToDouble(i.Temperature) << '\n';
+					std::cout << ToString(i.ROM) << " Temperature = " << ToDouble(i.Temperature) << '\n';
 				}
 				test::RESULT("GetTemperature: (" + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms)", Result);
 			}
