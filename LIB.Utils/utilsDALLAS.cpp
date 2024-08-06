@@ -24,16 +24,39 @@ bool operator == (const tROM& a, const tROM& b)
 	return !memcmp(a.Value, b.Value, sizeof(a.Value));
 }
 
-double ToDouble(tTemperature val)
+double ParseTemperature(const std::vector<std::uint8_t>& scratchPad)
 {
-	double Temperature = val.Field.Degree;
-	Temperature += val.Field.Degree_05 * 0.5;
-	Temperature += val.Field.Degree_025 * 0.25;
-	Temperature += val.Field.Degree_0125 * 0.125;
-	Temperature += val.Field.Degree_00625 * 0.0625;
-	if (val.Field.Sign)
-		Temperature = -Temperature;
-	return Temperature;
+	if (scratchPad.size() != 9) // [TBD] check 9 bytes and CRC
+		return -999999; // [#]
+	std::uint8_t CRC = utils::crc::CRC08_DALLAS(scratchPad.data(), scratchPad.size() - 1);
+	if (scratchPad[scratchPad.size() - 1] != CRC)
+		return -999999; // [#]
+
+	enum class tResolution : std::uint8_t
+	{
+		_09_bit,
+		_10_bit,
+		_11_bit,
+		_12_bit,
+	};
+
+	tResolution Resol = static_cast<tResolution>((scratchPad[4] >> 5) & 0x03);
+
+	std::int16_t TempRaw = (std::int16_t)((scratchPad[1] << 8) | scratchPad[0]);
+	std::int16_t TempSign = (std::int16_t)(TempRaw >> 4);
+	double Temp = TempSign;
+
+	if(Resol == tResolution::_12_bit)
+		Temp += (TempRaw & 0x01) == 0 ? 0 : 0.0625;
+
+	if (Resol >= tResolution::_11_bit)
+		Temp += (TempRaw & 0x02) == 0 ? 0 : 0.125;
+
+	if (Resol >= tResolution::_10_bit)
+		Temp += (TempRaw & 0x04) == 0 ? 0 : 0.25;
+
+	Temp += (TempRaw & 0x08) == 0 ? 0 : 0.5;
+	return Temp;
 }
 
 static std::uint8_t GetROMCRC(const tROM& rom)
@@ -97,7 +120,7 @@ std::vector<tROM> tDALLAS::Search()
 	return Search(tFamilyCode::None);
 }
 
-std::vector<tThermal> tDALLAS::GetTemperature(const std::vector<tROM>& devices)
+std::vector<DsDS18B20> tDALLAS::GetDsDS18B20(const std::vector<tROM>& devices)
 {
 	std::vector<tROM> ThermoROMs;
 	for (auto& i : devices)
@@ -130,7 +153,7 @@ std::vector<tThermal> tDALLAS::GetTemperature(const std::vector<tROM>& devices)
 		std::this_thread::sleep_for(std::chrono::milliseconds(800)); // 800ms but 750ms enough
 	}
 
-	std::vector<tThermal> ThermalSens;
+	std::vector<DsDS18B20> ThermalSens;
 	for (auto& i : ThermoROMs)
 	{
 		if (Reset() != tStatus::Success)
@@ -141,14 +164,14 @@ std::vector<tThermal> tDALLAS::GetTemperature(const std::vector<tROM>& devices)
 		CmdMatchROM.insert(CmdMatchROM.end(), static_cast<std::uint8_t*>(i.Value), static_cast<std::uint8_t*>(i.Value) + sizeof(i.Value));
 		Transaction(CmdMatchROM, 0);
 		std::vector<std::uint8_t> Rsp = Transaction({ Cmd_ReadScratchpad }, 9); // Reads the entire scratchpad including the CRC byte (DS18B20 transmits up to 9 data bytes to master)
-		std::uint8_t CRC = utils::crc::CRC08_DALLAS(Rsp.data(), Rsp.size() - 1);
-		if (Rsp.size() != 9 || Rsp[Rsp.size() - 1] != CRC)
+		if (Rsp.size() != 9)
 			continue;
-		tThermal Thermal{};
+		std::uint8_t CRC = utils::crc::CRC08_DALLAS(Rsp.data(), Rsp.size() - 1);
+		if (Rsp[Rsp.size() - 1] != CRC)
+			continue;
+		DsDS18B20 Thermal{};
 		Thermal.ROM = i;
-		Thermal.Temperature.Value = Rsp[0];
-		Thermal.Temperature.Value |= Rsp[1] << 8;
-
+		Thermal.Temperature = ParseTemperature(Rsp);
 		ThermalSens.push_back(Thermal);
 	}
 

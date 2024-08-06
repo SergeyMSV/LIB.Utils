@@ -13,6 +13,10 @@
 
 namespace utils
 {
+	namespace DALLAS
+	{
+		double ParseTemperature(const std::vector<std::uint8_t>& scratchPad);
+	}
 
 using namespace DALLAS;
 
@@ -56,6 +60,52 @@ void UnitTest_DALLAS()
 		ID.Value[5] = 0xc8;
 		tROM ROM = MakeROM((tFamilyCode)0x28, ID);
 		test::RESULT("MakeROM", ROM.Field.CRC == 0x6e);
+	}
+
+	{
+		auto CheckTemperature = [](std::uint16_t raw, double res)->bool
+			{
+				std::vector<std::uint8_t> ScratchPad;
+				ScratchPad.push_back(raw & 0xFF);
+				ScratchPad.push_back((raw >> 8) & 0xFF);
+				ScratchPad.push_back(0);
+				ScratchPad.push_back(0);
+				//ScratchPad.push_back(0x1F); //  9 bit resolution
+				//ScratchPad.push_back(0x3F); // 10 bit resolution
+				//ScratchPad.push_back(0x5F); // 11 bit resolution
+				ScratchPad.push_back(0x7F); // 12 bit resolution
+				ScratchPad.push_back(0);
+				ScratchPad.push_back(0);
+				ScratchPad.push_back(0);
+				ScratchPad.push_back(utils::crc::CRC08_DALLAS(ScratchPad.data(), ScratchPad.size()));
+				double Temp = ParseTemperature(ScratchPad);
+				return Temp == res;
+			};
+		
+		CheckTemperature(0x07D0, 125);
+		CheckTemperature(0x0550, 85);
+		CheckTemperature(0x0191, 25.0625);
+		CheckTemperature(0x00A2, 10.125);
+		CheckTemperature(0x0008, 0.5);
+		CheckTemperature(0x0000, 0);
+		CheckTemperature(0xFFF8, -0.5);
+		CheckTemperature(0xFF5E, -10.125);
+		CheckTemperature(0xFE6F, -25.0625);
+		CheckTemperature(0xFC90, -55);
+
+		bool Res =
+			CheckTemperature(0x07D0, 125) &&
+			CheckTemperature(0x0550, 85) &&
+			CheckTemperature(0x0191, 25.0625) &&
+			CheckTemperature(0x00A2, 10.125) &&
+			CheckTemperature(0x0008, 0.5) &&
+			CheckTemperature(0x0000, 0) &&
+			CheckTemperature(0xFFF8, -0.5) &&
+			CheckTemperature(0xFF5E, -10.125) &&
+			CheckTemperature(0xFE6F, -25.0625) &&
+			CheckTemperature(0xFC90, -55);
+
+		test::RESULT("Temperature", Res);
 	}
 
 #ifdef UTILS_TEST_BASIC
@@ -117,11 +167,11 @@ void UnitTest_DALLAS()
 			for (int i = 0; i < 5; ++i)
 			{
 				tTimePoint TimeStart = tClock::now();
-				std::vector<tThermal> Thermo = Port.GetTemperature(Found);
+				std::vector<DsDS18B20> Thermo = Port.GetDsDS18B20(Found);
 				std::cout << '\n';
 				for (auto& i : Thermo)
 				{
-					std::cout << ToString(i.ROM) << " Temperature = " << ToDouble(i.Temperature) << '\n';
+					std::cout << ToString(i.ROM) << " Temperature = " << i.Temperature << '\n';
 				}
 				test::RESULT("GetTemperature: (" + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms)", Result);
 			}
