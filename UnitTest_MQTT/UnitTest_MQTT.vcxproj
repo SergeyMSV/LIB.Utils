@@ -127,7 +127,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\LIB.Utils\utilsPacketMQTT.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsPacketMQTT_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\LIB.Utils\utilsPacketMQTT.h" />
+    <ClInclude Include="..\LIB.Utils\utilsTest.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
