@@ -1,3 +1,5 @@
+#include <queue>
+
 #include <cstdint>
 
 namespace utils
@@ -106,6 +108,22 @@ struct tRemainingLength
 		std::uint8_t Value = 0;
 	};
 
+};
+
+class tPacket
+{
+};
+
+class tPacketParser
+{
+	std::queue<std::uint8_t> m_Queue;
+
+public:
+	tPacketParser() = default;
+
+	void push_back(std::vector<std::uint8_t>& data) {}
+
+	virtual tPacket OnReceived() = 0;
 };
 
 }
