@@ -138,23 +138,35 @@ public:
 	static tRemainingLengthToVectorExp ToVector(std::uint32_t value);
 };
 
-
-
 class tPacket
 {
 	tFixedHeader m_FixedHeader{};
 	//std::uint32_t m_RemainingLength = 0;
 	std::uint32_t m_DataSize = 0; // RemainingLength
 	std::vector<std::uint8_t> Data;
+
+protected:
+	tPacket(tFixedHeader fixedHeader)
+		:m_FixedHeader(fixedHeader)
+	{
+	}
+	virtual ~tPacket() {}
 };
-/*
+
+class tPacketCONNECT : public tPacket
+{
+public:
+	tPacketCONNECT() :tPacket(MakeCONNECT()) {}
+	//tPacket(tFixedHeader fixedHeader)
+};
+
 class tPacketPayload
 {
 
 public:
-	std::vector<std::uint8_t> ToVector();
+	//std::vector<std::uint8_t> ToVector();
 };
-*/
+
 //class tPacketParser
 //{
 //	std::queue<std::uint8_t> m_Queue;
