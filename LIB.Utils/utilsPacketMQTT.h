@@ -49,6 +49,15 @@ enum class tControlPacketType
 	Reserved_2		// Forbidden
 };
 
+enum class tError
+{
+	None,
+	LengthTooShort,
+	LengthTooLong,
+	LengthNotAll, // There are not all of the bytes of the Length in the array.
+	LengthOverflow,
+};
+
 // Where a flag bit is marked as “Reserved” in Table 2.2 - 243 Flag Bits, it is reserved for future use and MUST be set to the value listed in that table[MQTT - 2.2.2 - 1].If 244 invalid flags are received, the receiver MUST close the Network Connection[MQTT - 2.2.2 - 2].
 
 union tFixedHeader
@@ -61,7 +70,7 @@ union tFixedHeader
 	std::uint8_t Value = 0;
 };
 
-static tFixedHeader MakeFixedHeader(tControlPacketType type, std::uint8_t flags = 0)
+constexpr tFixedHeader MakeFixedHeader(tControlPacketType type, std::uint8_t flags = 0)
 {
 	tFixedHeader Header{};
 	Header.Field.ControlPacketType = static_cast<std::uint8_t>(type);
@@ -69,17 +78,17 @@ static tFixedHeader MakeFixedHeader(tControlPacketType type, std::uint8_t flags 
 	return Header;
 }
 
-static tFixedHeader MakeCONNECT()
+constexpr tFixedHeader MakeCONNECT()
 {
 	return MakeFixedHeader(tControlPacketType::CONNECT);
 }
 
-static tFixedHeader MakeCONNACK()
+constexpr tFixedHeader MakeCONNACK()
 {
 	return MakeFixedHeader(tControlPacketType::CONNACK);
 }
 
-static tFixedHeader MakePUBLISH(bool dup, std::uint8_t qos, bool retain)
+constexpr tFixedHeader MakePUBLISH(bool dup, std::uint8_t qos, bool retain)
 {
 	union
 	{
@@ -100,25 +109,18 @@ static tFixedHeader MakePUBLISH(bool dup, std::uint8_t qos, bool retain)
 	return MakeFixedHeader(tControlPacketType::PUBLISH, Flags.Value);
 }
 
-
-static tFixedHeader MakeSUBSCRIBE()
+constexpr tFixedHeader MakeSUBSCRIBE()
 {
 	return MakeFixedHeader(tControlPacketType::SUBSCRIBE, 0x02);
 }
 
-struct tRemainingLength
+using tRemainingLengthParseExp = std::expected<std::uint32_t, tError>;
+using tRemainingLengthToVectorExp = std::expected<std::vector<std::uint8_t>, tError>;
+
+class tRemainingLength
 {
-	static constexpr std::size_t SizeMax = 4;
+	static constexpr std::size_t m_SizeMax = 4;
 
-	enum class tError
-	{
-		None,
-		TooShort,
-		TooLong,
-		NotAll, // There are not all of the bytes of the Length in the array.
-	};
-
-	// 0xFF, 0xFF, 0xFF, 0x7F = 256 MB
 	union tLengthPart
 	{
 		struct
@@ -129,31 +131,41 @@ struct tRemainingLength
 		std::uint8_t Value = 0;
 	};
 
-	std::size_t Value = 0;
-
 	tRemainingLength() = delete;
-	explicit tRemainingLength(std::size_t value) : Value(value) {}
 
-	static std::expected<tRemainingLength, tError> Parse(const std::vector<std::uint8_t>& data);
+public:
+	static tRemainingLengthParseExp Parse(const std::vector<std::uint8_t>& data);
+	static tRemainingLengthToVectorExp ToVector(std::uint32_t value);
 };
 
-using tRemainingLengthExp = std::expected<tRemainingLength, tRemainingLength::tError>;
+
 
 class tPacket
 {
+	tFixedHeader m_FixedHeader{};
+	//std::uint32_t m_RemainingLength = 0;
+	std::uint32_t m_DataSize = 0; // RemainingLength
+	std::vector<std::uint8_t> Data;
 };
-
-class tPacketParser
+/*
+class tPacketPayload
 {
-	std::queue<std::uint8_t> m_Queue;
 
 public:
-	tPacketParser() = default;
-
-	void push_back(std::vector<std::uint8_t>& data) {}
-
-	virtual tPacket OnReceived() = 0;
+	std::vector<std::uint8_t> ToVector();
 };
+*/
+//class tPacketParser
+//{
+//	std::queue<std::uint8_t> m_Queue;
+//
+//public:
+//	tPacketParser() = default;
+//
+//	void push_back(std::vector<std::uint8_t>& data) {}
+//
+//	virtual tPacket OnReceived() = 0;
+//};
 
 }
 }

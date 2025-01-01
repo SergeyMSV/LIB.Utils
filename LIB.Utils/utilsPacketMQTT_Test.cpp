@@ -10,21 +10,29 @@ namespace utils
 {
 
 using namespace packet_MQTT;
-void UnitTest_PacketMQTT_RemainingLength(const std::string& cap, const std::vector<std::uint8_t>& data, std::size_t packetLength);
-void UnitTest_PacketMQTT_RemainingLengthWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tRemainingLength::tError error);
+void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength);
+void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tError error);
+void UnitTest_PacketMQTT_RemainingLengthToVector(const std::string& cap, std::uint32_t packetLength, const std::vector<std::uint8_t>& data);
+void UnitTest_PacketMQTT_RemainingLengthToVectorWrong(const std::string& cap, std::uint32_t packetLength, tError error);
 
 void UnitTest_PacketMQTT()
 {
-	UnitTest_PacketMQTT_RemainingLength("1 B", { 0x7F }, 127);
-	UnitTest_PacketMQTT_RemainingLength("2 B", { 0xFF, 0x7F }, 16383);
-	UnitTest_PacketMQTT_RemainingLength("3 B", { 0xFF, 0xFF, 0x7F }, 2097151);
-	UnitTest_PacketMQTT_RemainingLength("4 B", { 0xFF, 0xFF, 0xFF, 0x7F }, 268435455);
-	UnitTest_PacketMQTT_RemainingLengthWrong("Empty", { }, tRemainingLength::tError::TooShort);
-	UnitTest_PacketMQTT_RemainingLengthWrong("0xFF", { 0xFF }, tRemainingLength::tError::NotAll);
-	UnitTest_PacketMQTT_RemainingLengthWrong("0xFF, 0xFF", { 0xFF, 0xFF }, tRemainingLength::tError::NotAll);
-	UnitTest_PacketMQTT_RemainingLengthWrong("0xFF, 0xFF, 0xFF", { 0xFF, 0xFF, 0xFF }, tRemainingLength::tError::NotAll);
-	UnitTest_PacketMQTT_RemainingLengthWrong("0xFF, 0xFF, 0xFF, 0xFF", { 0xFF, 0xFF, 0xFF, 0xFF }, tRemainingLength::tError::TooLong);
-	UnitTest_PacketMQTT_RemainingLengthWrong("0xFF, 0xFF, 0xFF, 0xFF, 0x7F", { 0xFF, 0xFF, 0xFF, 0xFF, 0x7F }, tRemainingLength::tError::TooLong);
+	UnitTest_PacketMQTT_RemainingLengthParse("1 B", { 0x7F }, 127);
+	UnitTest_PacketMQTT_RemainingLengthParse("2 B", { 0xFF, 0x7F }, 16383);
+	UnitTest_PacketMQTT_RemainingLengthParse("3 B", { 0xFF, 0xFF, 0x7F }, 2097151);
+	UnitTest_PacketMQTT_RemainingLengthParse("4 B", { 0xFF, 0xFF, 0xFF, 0x7F }, 268435455);
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("Empty", { }, tError::LengthTooShort);
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF", { 0xFF }, tError::LengthNotAll);
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF", { 0xFF, 0xFF }, tError::LengthNotAll);
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF, 0xFF", { 0xFF, 0xFF, 0xFF }, tError::LengthNotAll);
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF, 0xFF, 0xFF", { 0xFF, 0xFF, 0xFF, 0xFF }, tError::LengthTooLong);
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF, 0xFF, 0xFF, 0x7F", { 0xFF, 0xFF, 0xFF, 0xFF, 0x7F }, tError::LengthTooLong);
+	UnitTest_PacketMQTT_RemainingLengthToVector("0", 0, { 0x00 });
+	UnitTest_PacketMQTT_RemainingLengthToVector("127", 127, { 127 });
+	UnitTest_PacketMQTT_RemainingLengthToVector("16383", 16383, { 0xFF, 0x7F });
+	UnitTest_PacketMQTT_RemainingLengthToVector("2097151", 2097151, { 0xFF, 0xFF, 0x7F });
+	UnitTest_PacketMQTT_RemainingLengthToVector("268435455 = 0x0FFFFFFF (MAX)", 268435455, { 0xFF, 0xFF, 0xFF, 0x7F });
+	UnitTest_PacketMQTT_RemainingLengthToVectorWrong("0x4FFFFFFF", 0x4FFFFFFF, tError::LengthOverflow);
 
 	//Test: The same
 	//{
@@ -42,17 +50,28 @@ void UnitTest_PacketMQTT()
 	tFixedHeader Fh = MakePUBLISH(false, 0xFF, false);
 }
 
-void UnitTest_PacketMQTT_RemainingLength(const std::string& cap, const std::vector<std::uint8_t>& data, std::size_t packetLength)
+void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength)
 {
-	tRemainingLengthExp Length = tRemainingLength::Parse(data);
-	utils::test::RESULT("RemainingLength " + cap, Length.has_value() && Length->Value == packetLength);
+	tRemainingLengthParseExp Length = tRemainingLength::Parse(data);
+	utils::test::RESULT("RemainingLength Parse " + cap, Length.has_value() && Length == packetLength);
 }
 
-void UnitTest_PacketMQTT_RemainingLengthWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tRemainingLength::tError error)
+void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tError error)
 {
-	tRemainingLengthExp Length = tRemainingLength::Parse(data);
-	utils::test::RESULT("RemainingLength WRONG " + cap, !Length.has_value() && Length.error() == error);
+	tRemainingLengthParseExp Length = tRemainingLength::Parse(data);
+	utils::test::RESULT("RemainingLength Parse WRONG " + cap, !Length.has_value() && Length.error() == error);
 }
 
+void UnitTest_PacketMQTT_RemainingLengthToVector(const std::string& cap, std::uint32_t packetLength, const std::vector<std::uint8_t>& data)
+{
+	tRemainingLengthToVectorExp Length = tRemainingLength::ToVector(packetLength);
+	utils::test::RESULT("RemainingLength ToVector " + cap, Length.has_value() && Length == data);
+}
+
+void UnitTest_PacketMQTT_RemainingLengthToVectorWrong(const std::string& cap, std::uint32_t packetLength, tError error)
+{
+	tRemainingLengthToVectorExp Length = tRemainingLength::ToVector(packetLength);
+	utils::test::RESULT("RemainingLength ToVector WRONG " + cap, !Length.has_value() && Length.error() == error);
+}
 
 }
