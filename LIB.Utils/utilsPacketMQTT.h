@@ -155,12 +155,12 @@ public:
 
 // The variable header for the CONNECT Packet consists of four fields in the following order: Protocol Name, Protocol Level, Connect Flags, and Keep Alive.
 
-#pragma pack(push, 1)
+//#pragma pack(push, 1)
 struct tVariableHeaderCONNECT
 {
-	const std::uint8_t ProtocolName[6] = { 0,4,'M','Q','T','T' }; // The string, its offset and length will not be changed by future versions of the MQTT specification.
+	static constexpr std::uint8_t ProtocolName[6] = { 0,4,'M','Q','T','T' }; // The string, its offset and length will not be changed by future versions of the MQTT specification.
 	// [#] MQTT 3.1.1
-	const std::uint8_t ProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
+	static constexpr std::uint8_t ProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
 
 	union tConnectFlags
 	{
@@ -182,15 +182,18 @@ struct tVariableHeaderCONNECT
 	// transmitting one Control Packet and the point it starts sending the next.
 	std::uint16_t KeepAlive = 0; // The maximum value is 18 hours 12 minutes and 15 seconds.
 	
-	//std::vector<std::uint8_t> ToVector()
-	//{
-	//	std::vector<std::uint8_t> Data;
-	//	Data.insert(Data.end(), std::begin(this), std::end(this));
-	//	//Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
-	//	return Data;
-	//}
+	std::vector<std::uint8_t> ToVector()
+	{
+		std::vector<std::uint8_t> Data;
+		Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
+		Data.push_back(ProtocolLevel);
+		Data.push_back(ConnectFlags.Value);
+		Data.push_back(static_cast<std::uint8_t>(KeepAlive << 8));
+		Data.push_back(static_cast<std::uint8_t>(KeepAlive));
+		return Data;
+	}
 };
-#pragma pack(pop)
+//#pragma pack(pop)
 
 struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more length-prefixed fields, whose presence is determined by the flags in the variable header.
 {
@@ -279,12 +282,13 @@ public:
 
 	std::vector<std::uint8_t> ToVector()
 	{
-		std::vector<std::uint8_t> Data;
-		auto VariableHeaderBegin = reinterpret_cast<std::uint8_t*>(&m_VariableHeader);
-		auto VariableHeaderEnd = VariableHeaderBegin + sizeof(m_VariableHeader);
-		Data.insert(Data.end(), VariableHeaderBegin, VariableHeaderEnd);
-		//Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
-		return Data;
+		return m_VariableHeader.ToVector();
+		//std::vector<std::uint8_t> Data;
+		//auto VariableHeaderBegin = reinterpret_cast<std::uint8_t*>(&m_VariableHeader);
+		//auto VariableHeaderEnd = VariableHeaderBegin + sizeof(m_VariableHeader);
+		//Data.insert(Data.end(), VariableHeaderBegin, VariableHeaderEnd);
+		////Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
+		//return Data;
 	}
 };
 
