@@ -155,11 +155,12 @@ public:
 
 // The variable header for the CONNECT Packet consists of four fields in the following order: Protocol Name, Protocol Level, Connect Flags, and Keep Alive.
 
+#pragma pack(push, 1)
 struct tVariableHeaderCONNECT
 {
-	static constexpr std::uint8_t ProtocolName[6] = { 0,4,'M','Q','T','T' }; // The string, its offset and length will not be changed by future versions of the MQTT specification.
+	const std::uint8_t ProtocolName[6] = { 0,4,'M','Q','T','T' }; // The string, its offset and length will not be changed by future versions of the MQTT specification.
 	// [#] MQTT 3.1.1
-	static constexpr std::uint8_t ProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
+	const std::uint8_t ProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
 
 	union tConnectFlags
 	{
@@ -181,9 +182,15 @@ struct tVariableHeaderCONNECT
 	// transmitting one Control Packet and the point it starts sending the next.
 	std::uint16_t KeepAlive = 0; // The maximum value is 18 hours 12 minutes and 15 seconds.
 	
-
-	//std::vector<std::uint8_t> ToVector();
+	//std::vector<std::uint8_t> ToVector()
+	//{
+	//	std::vector<std::uint8_t> Data;
+	//	Data.insert(Data.end(), std::begin(this), std::end(this));
+	//	//Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
+	//	return Data;
+	//}
 };
+#pragma pack(pop)
 
 struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more length-prefixed fields, whose presence is determined by the flags in the variable header.
 {
@@ -229,6 +236,10 @@ public:
 	tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
 		:tPacket(MakeCONNECT())
 	{
+		m_VariableHeader.ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
+		m_VariableHeader.ConnectFlags.Field.CleanSession = 1; // [TBD] TEST
+		m_VariableHeader.KeepAlive = 10; // [TBD] TEST
+
 		SetClientId(clientId);
 		SetWill(willTopic, willMessage);
 		SetUser(userName, password);
@@ -264,6 +275,16 @@ public:
 		m_Payload.UserName = name;
 		if (m_VariableHeader.ConnectFlags.Field.PasswordFlag)
 			m_Payload.Password = password;
+	}
+
+	std::vector<std::uint8_t> ToVector()
+	{
+		std::vector<std::uint8_t> Data;
+		auto VariableHeaderBegin = reinterpret_cast<std::uint8_t*>(&m_VariableHeader);
+		auto VariableHeaderEnd = VariableHeaderBegin + sizeof(m_VariableHeader);
+		Data.insert(Data.end(), VariableHeaderBegin, VariableHeaderEnd);
+		//Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
+		return Data;
 	}
 };
 

@@ -39,6 +39,8 @@ void UnitTest_PacketMQTT()
 
 	tPacketCONNECT Pack;
 	tPacketCONNECT Pack1("my_client_id", "my_will_topic", "my_will_message", "my_user_name", "my_password");
+	auto Pack1Vector = Pack1.ToVector();
+	std::cout << utils::test::ToStringHEX(Pack1Vector, true) << '\n';
 
 	//Test: The same
 	//{
