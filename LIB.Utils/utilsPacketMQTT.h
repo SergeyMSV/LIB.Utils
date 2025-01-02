@@ -56,6 +56,7 @@ enum class tError
 	LengthTooLong,
 	LengthNotAll, // There are not all of the bytes of the Length in the array.
 	LengthOverflow,
+	Format,
 };
 
 // Where a flag bit is marked as “Reserved” in Table 2.2 - 243 Flag Bits, it is reserved for future use and MUST be set to the value listed in that table[MQTT - 2.2.2 - 1].If 244 invalid flags are received, the receiver MUST close the Network Connection[MQTT - 2.2.2 - 2].
@@ -155,7 +156,7 @@ public:
 
 // The variable header for the CONNECT Packet consists of four fields in the following order: Protocol Name, Protocol Level, Connect Flags, and Keep Alive.
 
-//#pragma pack(push, 1)
+#pragma pack(push, 1)
 struct tVariableHeaderCONNECT
 {
 	static constexpr std::uint8_t ProtocolName[6] = { 0,4,'M','Q','T','T' }; // The string, its offset and length will not be changed by future versions of the MQTT specification.
@@ -182,7 +183,22 @@ struct tVariableHeaderCONNECT
 	// transmitting one Control Packet and the point it starts sending the next.
 	std::uint16_t KeepAlive = 0; // The maximum value is 18 hours 12 minutes and 15 seconds.
 	
-	std::vector<std::uint8_t> ToVector()
+	static constexpr std::size_t GetSize() { return sizeof(ProtocolName) + sizeof(ProtocolLevel) + sizeof(tVariableHeaderCONNECT); }
+
+	static std::expected<tVariableHeaderCONNECT, tError> Parse(const std::vector<std::uint8_t>& data)
+	{
+		if (data.size() != GetSize())
+			return std::unexpected(tError::Format);
+		tVariableHeaderCONNECT Val{};
+		// 
+		// compare ProtocolName and received one
+		// compare ProtocolLevel and received one
+		// 
+		//std::copVal.ProtocolName
+		return tVariableHeaderCONNECT(); // [TBD] ************************************************************
+	}
+
+	std::vector<std::uint8_t> ToVector() const
 	{
 		std::vector<std::uint8_t> Data;
 		Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
@@ -193,7 +209,7 @@ struct tVariableHeaderCONNECT
 		return Data;
 	}
 };
-//#pragma pack(pop)
+#pragma pack(pop)
 
 struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more length-prefixed fields, whose presence is determined by the flags in the variable header.
 {
@@ -280,7 +296,17 @@ public:
 			m_Payload.Password = password;
 	}
 
-	std::vector<std::uint8_t> ToVector()
+	static std::expected<tPacketCONNECT, tError> Parse(const std::vector<std::uint8_t>& data)
+	{
+		auto VarHeadExp = tVariableHeaderCONNECT::Parse(data);
+		if (!VarHeadExp.has_value())
+			return std::unexpected(VarHeadExp.error());
+		tPacketCONNECT Pack;
+		Pack.m_VariableHeader = *VarHeadExp;
+		return Pack;
+	}
+
+	std::vector<std::uint8_t> ToVector() const
 	{
 		return m_VariableHeader.ToVector();
 		//std::vector<std::uint8_t> Data;

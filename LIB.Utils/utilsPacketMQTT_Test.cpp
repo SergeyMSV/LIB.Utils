@@ -42,6 +42,9 @@ void UnitTest_PacketMQTT()
 	auto Pack1Vector = Pack1.ToVector();
 	std::cout << utils::test::ToStringHEX(Pack1Vector, true) << '\n';
 
+	auto Pack1_parsed = tPacketCONNECT::Parse(Pack1Vector);
+
+
 	//Test: The same
 	//{
 	//	tTrap<UnitTest_Trap_Msg, sizeof(UnitTest_Trap_Msg) - 1> Trap;
