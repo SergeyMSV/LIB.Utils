@@ -34,6 +34,12 @@ void UnitTest_PacketMQTT()
 	UnitTest_PacketMQTT_RemainingLengthToVector("268435455 = 0x0FFFFFFF (MAX)", 268435455, { 0xFF, 0xFF, 0xFF, 0x7F });
 	UnitTest_PacketMQTT_RemainingLengthToVectorWrong("0x4FFFFFFF", 0x4FFFFFFF, tError::LengthOverflow);
 
+	//packet_MQTT::
+	//tVariableHeaderConnect sdf(123);
+
+	tPacketCONNECT Pack;
+	tPacketCONNECT Pack1("my_client_id", "my_will_topic", "my_will_message", "my_user_name", "my_password");
+
 	//Test: The same
 	//{
 	//	tTrap<UnitTest_Trap_Msg, sizeof(UnitTest_Trap_Msg) - 1> Trap;

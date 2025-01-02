@@ -138,34 +138,6 @@ public:
 	static tRemainingLengthToVectorExp ToVector(std::uint32_t value);
 };
 
-class tPacket
-{
-	tFixedHeader m_FixedHeader{};
-	//std::uint32_t m_RemainingLength = 0;
-	std::uint32_t m_DataSize = 0; // RemainingLength
-	std::vector<std::uint8_t> Data;
-
-protected:
-	tPacket(tFixedHeader fixedHeader)
-		:m_FixedHeader(fixedHeader)
-	{
-	}
-	virtual ~tPacket() {}
-};
-
-class tPacketCONNECT : public tPacket
-{
-public:
-	tPacketCONNECT() :tPacket(MakeCONNECT()) {}
-	//tPacket(tFixedHeader fixedHeader)
-};
-
-class tPacketPayload
-{
-
-public:
-	//std::vector<std::uint8_t> ToVector();
-};
 
 //class tPacketParser
 //{
@@ -178,6 +150,122 @@ public:
 //
 //	virtual tPacket OnReceived() = 0;
 //};
+
+// **** CONNECT
+
+// The variable header for the CONNECT Packet consists of four fields in the following order: Protocol Name, Protocol Level, Connect Flags, and Keep Alive.
+
+struct tVariableHeaderCONNECT
+{
+	static constexpr std::uint8_t ProtocolName[6] = { 0,4,'M','Q','T','T' }; // The string, its offset and length will not be changed by future versions of the MQTT specification.
+	// [#] MQTT 3.1.1
+	static constexpr std::uint8_t ProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
+
+	union tConnectFlags
+	{
+		struct
+		{
+			std::uint8_t Reserved : 1; // The Server MUST validate that the reserved flag in the CONNECT Control Packet is set to zero and disconnect the Client if it is not zero [MQTT-3.1.2-3].
+			std::uint8_t CleanSession : 1;
+			std::uint8_t WillFlag : 1;
+			std::uint8_t WillQoS : 2; // [TBD] find out how it works
+			std::uint8_t WillRetain : 1;
+			std::uint8_t PasswordFlag : 1;
+			std::uint8_t UserNameFlag : 1;
+		}Field;
+		std::uint8_t Value = 0;
+	}ConnectFlags;
+
+	// The Keep Alive is a time interval measured in seconds.
+	// Expressed as a 16-bit word, it is the maximum time interval that is permitted to elapse between the point at which the Client finishes
+	// transmitting one Control Packet and the point it starts sending the next.
+	std::uint16_t KeepAlive = 0; // The maximum value is 18 hours 12 minutes and 15 seconds.
+	
+
+	//std::vector<std::uint8_t> ToVector();
+};
+
+struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more length-prefixed fields, whose presence is determined by the flags in the variable header.
+{
+	// The Client Identifier (ClientId) identifies the Client to the Server. 
+	// The Server MUST allow ClientIds which are between 1 and 23 UTF - 8 encoded bytes in length, and that contain only the characters "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
+	std::string ClientId;
+
+	// These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password
+	std::string WillTopic;
+	std::string WillMessage;
+
+	std::string UserName;
+	std::string Password;
+	
+	//std::vector<std::uint8_t> ToVector();
+};
+
+//------------------
+// Some types of MQTT Control Packets contain a variable header component. It resides between the fixed header and the payload.
+// 
+// 3.1 CONNECT – Client requests a connection to a Server, p.23
+template <class VH, class PL>
+class tPacket
+{
+	tFixedHeader m_FixedHeader{};
+
+protected:
+	VH m_VariableHeader; // [TBD] may be std::optional or std::variable
+	PL m_Payload; // [TBD] may be std::optional or std::variable
+
+protected:
+	tPacket(tFixedHeader fixedHeader)
+		:m_FixedHeader(fixedHeader)
+	{
+	}
+	virtual ~tPacket() {}
+};
+
+class tPacketCONNECT : public tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>
+{
+public:
+	tPacketCONNECT() :tPacket(MakeCONNECT()) {}
+	tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
+		:tPacket(MakeCONNECT())
+	{
+		SetClientId(clientId);
+		SetWill(willTopic, willMessage);
+		SetUser(userName, password);
+	}
+
+	void SetClientId(const std::string& value)
+	{
+		// The Server MAY allow ClientId’s that contain more than 23 encoded bytes.
+		// The Server MAY allow ClientId’s that contain characters not included in the list given above.
+		// 
+		// A Server MAY allow a Client to supply a ClientId that has a length of zero bytes,
+		// however if it does so the Server MUST treat this as a special case and assign a unique ClientId to that Client.
+		// It MUST then process the CONNECT packet as if the Client had provided that unique ClientId [MQTT - 3.1.3 - 6].
+		// 
+		// If the Client supplies a zero - byte ClientId, the Client MUST also set CleanSession to 1 [MQTT - 3.1.3 - 7].
+		m_Payload.ClientId = value;
+	}
+
+	void SetWill(const std::string& topic, const std::string& message)
+	{
+		m_VariableHeader.ConnectFlags.Field.WillFlag = !topic.empty() && !message.empty();
+		m_Payload.WillTopic = topic;
+		m_Payload.WillMessage = message;
+
+		if (!m_VariableHeader.ConnectFlags.Field.WillFlag)
+			m_VariableHeader.ConnectFlags.Field.WillQoS = 0; // If the Will Flag is set to 0, then the Will QoS MUST be set to 0 (0x00) [MQTT-3.1.2-13].
+	}
+
+	void SetUser(const std::string& name, const std::string& password)
+	{
+		m_VariableHeader.ConnectFlags.Field.UserNameFlag = !name.empty();
+		m_VariableHeader.ConnectFlags.Field.PasswordFlag = !name.empty() && !password.empty(); // [TBD] verify it (write here reference to the doc.)
+		m_Payload.UserName = name;
+		if (m_VariableHeader.ConnectFlags.Field.PasswordFlag)
+			m_Payload.Password = password;
+	}
+};
 
 }
 }
