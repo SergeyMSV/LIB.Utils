@@ -57,6 +57,8 @@ enum class tError
 	LengthNotAll, // There are not all of the bytes of the Length in the array.
 	LengthOverflow,
 	Format,
+	ProtocolName,
+	ProtocolLevel,
 };
 
 // Where a flag bit is marked as “Reserved” in Table 2.2 - 243 Flag Bits, it is reserved for future use and MUST be set to the value listed in that table[MQTT - 2.2.2 - 1].If 244 invalid flags are received, the receiver MUST close the Network Connection[MQTT - 2.2.2 - 2].
@@ -189,13 +191,24 @@ struct tVariableHeaderCONNECT
 	{
 		if (data.size() != GetSize())
 			return std::unexpected(tError::Format);
-		tVariableHeaderCONNECT Val{};
-		// 
-		// compare ProtocolName and received one
-		// compare ProtocolLevel and received one
-		// 
-		//std::copVal.ProtocolName
-		return tVariableHeaderCONNECT(); // [TBD] ************************************************************
+
+		auto DataBegin = data.begin();
+		auto DataEnd = DataBegin + sizeof(ProtocolName);
+		std::vector<std::uint8_t> ProtocolNameReceived(DataBegin, DataEnd);
+		if (ProtocolNameReceived != std::vector<std::uint8_t>(std::begin(ProtocolName), std::end(ProtocolName)))
+			return std::unexpected(tError::ProtocolName);
+
+		DataBegin = DataEnd;
+		std::uint8_t ReceivedProtocolLevel = *DataBegin;
+		if (ReceivedProtocolLevel != ProtocolLevel)
+			return std::unexpected(tError::ProtocolLevel);
+
+		tVariableHeaderCONNECT VHeader{};
+		VHeader.ConnectFlags.Value = *(++DataBegin);
+		VHeader.KeepAlive = *(++DataBegin) << 8;
+		VHeader.KeepAlive = *(++DataBegin);
+
+		return VHeader;
 	}
 
 	std::vector<std::uint8_t> ToVector() const
