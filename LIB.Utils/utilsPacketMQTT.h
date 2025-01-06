@@ -10,14 +10,25 @@
 //    or compatible part can be defined separately
 
 #include <expected> // C++ 23
-#include <queue>
+//#include <queue>
+#include <string>
+//#include <utility>
+#include <vector>
 
 #include <cstdint>
+
+//#include <iostream> // TEST
 
 namespace utils
 {
 namespace packet_MQTT
 {
+
+constexpr char DefaultProtocolName[] = "MQTT"; // The string, its offset and length will not be changed by future versions of the MQTT specification.
+// [#] MQTT 3.1.1
+constexpr std::uint8_t DefaultProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
+
+
 // ... you cannot use a string that would encode to more than 65535 bytes.
 // Unless stated otherwise all UTF-8 encoded strings can have any length in the range 0 to 65535 bytes.
 
@@ -159,11 +170,25 @@ public:
 // The variable header for the CONNECT Packet consists of four fields in the following order: Protocol Name, Protocol Level, Connect Flags, and Keep Alive.
 
 #pragma pack(push, 1)
+union tUInt16
+{
+	struct
+	{
+		std::uint16_t LSB : 8;
+		std::uint16_t MSB : 8;
+	}Field;
+	std::uint16_t Value = 0;
+
+	tUInt16() = default;
+	tUInt16(std::uint16_t value) :Value(value) {} // not explicit
+};
+#pragma pack(pop)
+
+//#pragma pack(push, 1)
 struct tVariableHeaderCONNECT
 {
-	static constexpr std::uint8_t ProtocolName[6] = { 0,4,'M','Q','T','T' }; // The string, its offset and length will not be changed by future versions of the MQTT specification.
-	// [#] MQTT 3.1.1
-	static constexpr std::uint8_t ProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
+	std::string ProtocolName; // The string, its offset and length will not be changed by future versions of the MQTT specification.
+	std::uint8_t ProtocolLevel; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
 
 	union tConnectFlags
 	{
@@ -183,46 +208,15 @@ struct tVariableHeaderCONNECT
 	// The Keep Alive is a time interval measured in seconds.
 	// Expressed as a 16-bit word, it is the maximum time interval that is permitted to elapse between the point at which the Client finishes
 	// transmitting one Control Packet and the point it starts sending the next.
-	std::uint16_t KeepAlive = 0; // The maximum value is 18 hours 12 minutes and 15 seconds.
+	tUInt16 KeepAlive = 0; // The maximum value is 18 hours 12 minutes and 15 seconds.
 	
-	static constexpr std::size_t GetSize() { return sizeof(ProtocolName) + sizeof(ProtocolLevel) + sizeof(tVariableHeaderCONNECT); }
+	tVariableHeaderCONNECT() :ProtocolName(DefaultProtocolName), ProtocolLevel(DefaultProtocolLevel) {}
 
-	static std::expected<tVariableHeaderCONNECT, tError> Parse(const std::vector<std::uint8_t>& data)
-	{
-		if (data.size() != GetSize())
-			return std::unexpected(tError::Format);
+	static std::expected<tVariableHeaderCONNECT, tError> Parse(const std::vector<std::uint8_t>& data);
 
-		auto DataBegin = data.begin();
-		auto DataEnd = DataBegin + sizeof(ProtocolName);
-		std::vector<std::uint8_t> ProtocolNameReceived(DataBegin, DataEnd);
-		if (ProtocolNameReceived != std::vector<std::uint8_t>(std::begin(ProtocolName), std::end(ProtocolName)))
-			return std::unexpected(tError::ProtocolName);
-
-		DataBegin = DataEnd;
-		std::uint8_t ReceivedProtocolLevel = *DataBegin;
-		if (ReceivedProtocolLevel != ProtocolLevel)
-			return std::unexpected(tError::ProtocolLevel);
-
-		tVariableHeaderCONNECT VHeader{};
-		VHeader.ConnectFlags.Value = *(++DataBegin);
-		VHeader.KeepAlive = *(++DataBegin) << 8;
-		VHeader.KeepAlive = *(++DataBegin);
-
-		return VHeader;
-	}
-
-	std::vector<std::uint8_t> ToVector() const
-	{
-		std::vector<std::uint8_t> Data;
-		Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
-		Data.push_back(ProtocolLevel);
-		Data.push_back(ConnectFlags.Value);
-		Data.push_back(static_cast<std::uint8_t>(KeepAlive << 8));
-		Data.push_back(static_cast<std::uint8_t>(KeepAlive));
-		return Data;
-	}
+	std::vector<std::uint8_t> ToVector() const;
 };
-#pragma pack(pop)
+//#pragma pack(pop)
 
 struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more length-prefixed fields, whose presence is determined by the flags in the variable header.
 {
@@ -270,7 +264,7 @@ public:
 	{
 		m_VariableHeader.ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
 		m_VariableHeader.ConnectFlags.Field.CleanSession = 1; // [TBD] TEST
-		m_VariableHeader.KeepAlive = 10; // [TBD] TEST
+		m_VariableHeader.KeepAlive.Value = 10; // [TBD] TEST
 
 		SetClientId(clientId);
 		SetWill(willTopic, willMessage);

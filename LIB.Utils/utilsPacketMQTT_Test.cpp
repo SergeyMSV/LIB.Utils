@@ -4,7 +4,7 @@
 //#include <cassert>
 
 //#include <algorithm>
-//#include <iostream>
+#include <iostream>
 
 namespace utils
 {
@@ -33,6 +33,12 @@ void UnitTest_PacketMQTT()
 	UnitTest_PacketMQTT_RemainingLengthToVector("2097151", 2097151, { 0xFF, 0xFF, 0x7F });
 	UnitTest_PacketMQTT_RemainingLengthToVector("268435455 = 0x0FFFFFFF (MAX)", 268435455, { 0xFF, 0xFF, 0xFF, 0x7F });
 	UnitTest_PacketMQTT_RemainingLengthToVectorWrong("0x4FFFFFFF", 0x4FFFFFFF, tError::LengthOverflow);
+
+	{
+		//tUInt16_BigEndian A = 0x1234;
+		//std::uint16_t sdf = A.GetValue();
+		//utils::test::RESULT("tUInt16_BigEndian ", A.GetValue() == 0x1234);
+	}
 
 	//packet_MQTT::
 	//tVariableHeaderConnect sdf(123);
