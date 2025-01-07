@@ -72,6 +72,7 @@ enum class tError
 	LengthTooLong,
 	LengthNotAll, // There are not all of the bytes of the Length in the array.
 	LengthOverflow,
+	PacketTooShort,
 	Format,
 	ProtocolName,
 	ProtocolLevel,
@@ -164,21 +165,44 @@ public:
 template <class VH, class PL>
 class tPacket
 {
+protected:
 	tFixedHeader m_FixedHeader{};
 
-protected:
 	std::optional<VH> m_VariableHeader;
 	std::optional<PL> m_Payload;
+
+//private:
+	//tPacket() = default;
 
 protected:
 	explicit tPacket(tFixedHeader fixedHeader)
 		:m_FixedHeader(fixedHeader)
 	{
 	}
+//public:
 	virtual ~tPacket() {}
 
 public:
+	//static std::expected<tPacket, tError> Parse(const std::vector<std::uint8_t>& data)
+	//{
+	//	if (data.empty())
+	//		return std::unexpected(tError::PacketTooShort);
+
+	//	m_FixedHeader.Value = data[0];
+
+	//	auto VarHeadExp = VH::Parse(data);
+	//	if (!VarHeadExp.has_value())
+	//		return std::unexpected(VarHeadExp.error());
+
+	//	std::vector<std::uint8_t> PayloadVect()
+
+	//	tPacket Pack;
+	//	Pack.m_VariableHeader = *VarHeadExp;
+	//	return Pack;
+	//}
+
 	std::optional<VH> GetVariableHeader() { return m_VariableHeader; }
+	std::optional<PL> GetPayload() { return m_Payload; }
 
 	std::vector<std::uint8_t> ToVector() const
 	{
@@ -187,7 +211,7 @@ public:
 			Data.append_range(m_VariableHeader->ToVector());
 		if (m_Payload.has_value())
 			Data.append_range(m_Payload->ToVector());
-		auto RemainingLength = tRemainingLength::ToVector(Data.size());
+		auto RemainingLength = tRemainingLength::ToVector(static_cast<std::uint32_t>(Data.size()));
 		if (!RemainingLength.has_value())
 			return {};
 		Data.insert_range(Data.begin(), *RemainingLength);
@@ -252,6 +276,8 @@ struct tVariableHeaderCONNECT
 
 	static std::expected<tVariableHeaderCONNECT, tError> Parse(const std::vector<std::uint8_t>& data);
 
+	std::size_t GetSize() { return 2 + ProtocolName.size() + 4; }
+
 	std::vector<std::uint8_t> ToVector() const;
 };
 
@@ -262,13 +288,15 @@ struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more
 	std::string ClientId;
 
 	// These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password
-	std::string WillTopic;
-	std::string WillMessage;
+	std::optional<std::string> WillTopic;
+	std::optional<std::string> WillMessage;
 
-	std::string UserName;
-	std::string Password;
+	std::optional<std::string> UserName;
+	std::optional<std::string> Password;
 
-	std::vector<std::uint8_t> ToVector() const { return {}; }
+	static std::expected<tPayloadCONNECT, tError> Parse(const std::vector<std::uint8_t>& data);
+
+	std::vector<std::uint8_t> ToVector() const;
 };
 
 class tPacketCONNECT : public tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>
@@ -295,8 +323,6 @@ public:
 	void SetUser(const std::string& name, const std::string& password);
 
 	static std::expected<tPacketCONNECT, tError> Parse(const std::vector<std::uint8_t>& data);
-
-	//std::vector<std::uint8_t> ToVector() const;
 };
 
 }
