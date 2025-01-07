@@ -10,6 +10,7 @@
 //    or compatible part can be defined separately
 
 #include <expected> // C++ 23
+#include <optional>
 //#include <queue>
 #include <string>
 //#include <utility>
@@ -24,9 +25,13 @@ namespace utils
 namespace packet_MQTT
 {
 
+// MQTT 3.1.1
 constexpr char DefaultProtocolName[] = "MQTT"; // The string, its offset and length will not be changed by future versions of the MQTT specification.
-// [#] MQTT 3.1.1
 constexpr std::uint8_t DefaultProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
+
+// MQTT 3.1
+//constexpr char DefaultProtocolName[] = "MQIsdp";
+//constexpr std::uint8_t DefaultProtocolLevel = 3;
 
 
 // ... you cannot use a string that would encode to more than 65535 bytes.
@@ -153,17 +158,45 @@ public:
 };
 
 
-//class tPacketParser
-//{
-//	std::queue<std::uint8_t> m_Queue;
-//
-//public:
-//	tPacketParser() = default;
-//
-//	void push_back(std::vector<std::uint8_t>& data) {}
-//
-//	virtual tPacket OnReceived() = 0;
-//};
+//------------------
+// Some types of MQTT Control Packets contain a variable header component. It resides between the fixed header and the payload.
+
+template <class VH, class PL>
+class tPacket
+{
+	tFixedHeader m_FixedHeader{};
+
+protected:
+	std::optional<VH> m_VariableHeader;
+	std::optional<PL> m_Payload;
+
+protected:
+	explicit tPacket(tFixedHeader fixedHeader)
+		:m_FixedHeader(fixedHeader)
+	{
+	}
+	virtual ~tPacket() {}
+
+public:
+	std::optional<VH> GetVariableHeader() { return m_VariableHeader; }
+
+	std::vector<std::uint8_t> ToVector() const
+	{
+		std::vector<std::uint8_t> Data;
+		if (m_VariableHeader.has_value())
+			Data.append_range(m_VariableHeader->ToVector());
+		if (m_Payload.has_value())
+			Data.append_range(m_Payload->ToVector());
+		auto RemainingLength = tRemainingLength::ToVector(Data.size());
+		if (!RemainingLength.has_value())
+			return {};
+		Data.insert_range(Data.begin(), *RemainingLength);
+		Data.insert(Data.begin(), m_FixedHeader.Value);
+		return Data;
+	}
+};
+
+
 
 // **** CONNECT
 
@@ -181,10 +214,15 @@ union tUInt16
 
 	tUInt16() = default;
 	tUInt16(std::uint16_t value) :Value(value) {} // not explicit
+
+	tUInt16& operator=(std::uint16_t value)
+	{
+		Value = value;
+		return *this;
+	}
 };
 #pragma pack(pop)
 
-//#pragma pack(push, 1)
 struct tVariableHeaderCONNECT
 {
 	std::string ProtocolName; // The string, its offset and length will not be changed by future versions of the MQTT specification.
@@ -216,7 +254,6 @@ struct tVariableHeaderCONNECT
 
 	std::vector<std::uint8_t> ToVector() const;
 };
-//#pragma pack(pop)
 
 struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more length-prefixed fields, whose presence is determined by the flags in the variable header.
 {
@@ -230,29 +267,8 @@ struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more
 
 	std::string UserName;
 	std::string Password;
-	
-	//std::vector<std::uint8_t> ToVector();
-};
 
-//------------------
-// Some types of MQTT Control Packets contain a variable header component. It resides between the fixed header and the payload.
-// 
-// 3.1 CONNECT – Client requests a connection to a Server, p.23
-template <class VH, class PL>
-class tPacket
-{
-	tFixedHeader m_FixedHeader{};
-
-protected:
-	VH m_VariableHeader; // [TBD] may be std::optional or std::variable
-	PL m_Payload; // [TBD] may be std::optional or std::variable
-
-protected:
-	tPacket(tFixedHeader fixedHeader)
-		:m_FixedHeader(fixedHeader)
-	{
-	}
-	virtual ~tPacket() {}
+	std::vector<std::uint8_t> ToVector() const { return {}; }
 };
 
 class tPacketCONNECT : public tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>
@@ -262,67 +278,25 @@ public:
 	tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
 		:tPacket(MakeCONNECT())
 	{
-		m_VariableHeader.ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
-		m_VariableHeader.ConnectFlags.Field.CleanSession = 1; // [TBD] TEST
-		m_VariableHeader.KeepAlive.Value = 10; // [TBD] TEST
+		m_VariableHeader = tVariableHeaderCONNECT{};
+		m_VariableHeader->ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
+		m_VariableHeader->ConnectFlags.Field.CleanSession = 1; // [TBD] TEST
+		m_VariableHeader-> KeepAlive.Value = 11; // [TBD] TEST
+
+		m_Payload = tPayloadCONNECT{};
 
 		SetClientId(clientId);
 		SetWill(willTopic, willMessage);
 		SetUser(userName, password);
 	}
 
-	void SetClientId(const std::string& value)
-	{
-		// The Server MAY allow ClientId’s that contain more than 23 encoded bytes.
-		// The Server MAY allow ClientId’s that contain characters not included in the list given above.
-		// 
-		// A Server MAY allow a Client to supply a ClientId that has a length of zero bytes,
-		// however if it does so the Server MUST treat this as a special case and assign a unique ClientId to that Client.
-		// It MUST then process the CONNECT packet as if the Client had provided that unique ClientId [MQTT - 3.1.3 - 6].
-		// 
-		// If the Client supplies a zero - byte ClientId, the Client MUST also set CleanSession to 1 [MQTT - 3.1.3 - 7].
-		m_Payload.ClientId = value;
-	}
+	void SetClientId(const std::string& value);
+	void SetWill(const std::string& topic, const std::string& message);
+	void SetUser(const std::string& name, const std::string& password);
 
-	void SetWill(const std::string& topic, const std::string& message)
-	{
-		m_VariableHeader.ConnectFlags.Field.WillFlag = !topic.empty() && !message.empty();
-		m_Payload.WillTopic = topic;
-		m_Payload.WillMessage = message;
+	static std::expected<tPacketCONNECT, tError> Parse(const std::vector<std::uint8_t>& data);
 
-		if (!m_VariableHeader.ConnectFlags.Field.WillFlag)
-			m_VariableHeader.ConnectFlags.Field.WillQoS = 0; // If the Will Flag is set to 0, then the Will QoS MUST be set to 0 (0x00) [MQTT-3.1.2-13].
-	}
-
-	void SetUser(const std::string& name, const std::string& password)
-	{
-		m_VariableHeader.ConnectFlags.Field.UserNameFlag = !name.empty();
-		m_VariableHeader.ConnectFlags.Field.PasswordFlag = !name.empty() && !password.empty(); // [TBD] verify it (write here reference to the doc.)
-		m_Payload.UserName = name;
-		if (m_VariableHeader.ConnectFlags.Field.PasswordFlag)
-			m_Payload.Password = password;
-	}
-
-	static std::expected<tPacketCONNECT, tError> Parse(const std::vector<std::uint8_t>& data)
-	{
-		auto VarHeadExp = tVariableHeaderCONNECT::Parse(data);
-		if (!VarHeadExp.has_value())
-			return std::unexpected(VarHeadExp.error());
-		tPacketCONNECT Pack;
-		Pack.m_VariableHeader = *VarHeadExp;
-		return Pack;
-	}
-
-	std::vector<std::uint8_t> ToVector() const
-	{
-		return m_VariableHeader.ToVector();
-		//std::vector<std::uint8_t> Data;
-		//auto VariableHeaderBegin = reinterpret_cast<std::uint8_t*>(&m_VariableHeader);
-		//auto VariableHeaderEnd = VariableHeaderBegin + sizeof(m_VariableHeader);
-		//Data.insert(Data.end(), VariableHeaderBegin, VariableHeaderEnd);
-		////Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
-		//return Data;
-	}
+	//std::vector<std::uint8_t> ToVector() const;
 };
 
 }

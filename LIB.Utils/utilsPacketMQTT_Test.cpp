@@ -35,10 +35,17 @@ void UnitTest_PacketMQTT()
 	UnitTest_PacketMQTT_RemainingLengthToVectorWrong("0x4FFFFFFF", 0x4FFFFFFF, tError::LengthOverflow);
 
 	{
-		//tUInt16_BigEndian A = 0x1234;
-		//std::uint16_t sdf = A.GetValue();
-		//utils::test::RESULT("tUInt16_BigEndian ", A.GetValue() == 0x1234);
+		auto Pack = tPacketCONNECT::Parse(std::vector<std::uint8_t>{ 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0xce, 0x00, 0x0a });
+		utils::test::RESULT("Pack CONNECT Parse MQTT", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQTT");
 	}
+
+	{
+		auto Pack = tPacketCONNECT::Parse(std::vector<std::uint8_t>{ 0x00, 0x06, 0x4d, 0x51, 0x49, 0x73, 0x64, 0x70, 0x03, 0xce, 0x00, 0x0a });
+		utils::test::RESULT("Pack CONNECT Parse MQIsdp", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQIsdp");
+	}
+
+	//tString sds;
+	//sds.
 
 	//packet_MQTT::
 	//tVariableHeaderConnect sdf(123);

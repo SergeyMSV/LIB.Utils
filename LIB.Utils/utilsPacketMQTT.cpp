@@ -99,5 +99,59 @@ std::vector<std::uint8_t> tVariableHeaderCONNECT::ToVector() const
 	return Data;
 }
 
+void tPacketCONNECT::SetClientId(const std::string& value)
+{
+	// The Server MAY allow ClientId’s that contain more than 23 encoded bytes.
+	// The Server MAY allow ClientId’s that contain characters not included in the list given above.
+	// 
+	// A Server MAY allow a Client to supply a ClientId that has a length of zero bytes,
+	// however if it does so the Server MUST treat this as a special case and assign a unique ClientId to that Client.
+	// It MUST then process the CONNECT packet as if the Client had provided that unique ClientId [MQTT - 3.1.3 - 6].
+	// 
+	// If the Client supplies a zero - byte ClientId, the Client MUST also set CleanSession to 1 [MQTT - 3.1.3 - 7].
+	m_Payload->ClientId = value;
+}
+
+void tPacketCONNECT::SetWill(const std::string& topic, const std::string& message)
+{
+/*	m_VariableHeader.ConnectFlags.Field.WillFlag = !topic.empty() && !message.empty();
+	m_Payload.WillTopic = topic;
+	m_Payload.WillMessage = message;
+
+	if (!m_VariableHeader.ConnectFlags.Field.WillFlag)
+		m_VariableHeader.ConnectFlags.Field.WillQoS = 0; // If the Will Flag is set to 0, then the Will QoS MUST be set to 0 (0x00) [MQTT-3.1.2-13].*/
+}
+
+void tPacketCONNECT::SetUser(const std::string& name, const std::string& password)
+{
+/*	m_VariableHeader.ConnectFlags.Field.UserNameFlag = !name.empty();
+	m_VariableHeader.ConnectFlags.Field.PasswordFlag = !name.empty() && !password.empty(); // [TBD] verify it (write here reference to the doc.)
+	m_Payload.UserName = name;
+	if (m_VariableHeader.ConnectFlags.Field.PasswordFlag)
+		m_Payload.Password = password;*/
+}
+
+std::expected<tPacketCONNECT, tError> tPacketCONNECT::Parse(const std::vector<std::uint8_t>& data)
+{
+	auto VarHeadExp = tVariableHeaderCONNECT::Parse(data);
+	if (!VarHeadExp.has_value())
+		return std::unexpected(VarHeadExp.error());
+	tPacketCONNECT Pack;
+	Pack.m_VariableHeader = *VarHeadExp;
+	return Pack;
+}
+
+//std::vector<std::uint8_t> tPacketCONNECT::ToVector() const
+//{
+//	std::vector<std::uint8_t> Data = m_VariableHeader.ToVector();
+//	return m_VariableHeader.ToVector();
+//	//std::vector<std::uint8_t> Data;
+//	//auto VariableHeaderBegin = reinterpret_cast<std::uint8_t*>(&m_VariableHeader);
+//	//auto VariableHeaderEnd = VariableHeaderBegin + sizeof(m_VariableHeader);
+//	//Data.insert(Data.end(), VariableHeaderBegin, VariableHeaderEnd);
+//	////Data.insert(Data.end(), std::begin(ProtocolName), std::end(ProtocolName));
+//	//return Data;
+//}
+
 }
 }
