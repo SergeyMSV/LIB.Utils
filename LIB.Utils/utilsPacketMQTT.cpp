@@ -15,21 +15,26 @@ std::vector<std::uint8_t> MQTTStringToVector(const std::string& value)
 	return Data;
 }
 
-tRemainingLengthParseExp tRemainingLength::Parse(const std::vector<std::uint8_t>& data)
+tRemainingLengthParseExp tRemainingLength::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
-	if (data.empty())
+	if (offset >= data.size())
 		return std::unexpected(tError::LengthTooShort);
+
+	auto DataBegin = data.begin() + offset;
 
 	std::uint32_t Length = 0;
 	tLengthPart Part{};
-	for (int i = 0; i < data.size() && i < m_SizeMax; ++i)
+	for (std::size_t i = 0; DataBegin != data.end() && i < m_SizeMax; ++i)
 	{
-		Part.Value = data[i];
+		Part.Value = *DataBegin++;
 
 		Length |= (std::size_t)Part.Field.Num << (i * 7);
 
 		if (!Part.Field.Continuation)
+		{
+			offset += i + 1;
 			return Length;
+		}
 	}
 
 	return std::unexpected(data.size() < m_SizeMax ? tError::LengthNotAll : tError::LengthTooLong);
@@ -59,24 +64,25 @@ tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t value)
 	return Data;
 }
 
-std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(const std::vector<std::uint8_t>& data)
+std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
 	constexpr std::size_t ProtocolNameLengthSize = 2; // sizeof(std::uint16_t)
-	if (data.size() < ProtocolNameLengthSize)
-		return std::unexpected(tError::Format);
+	const std::size_t DataSize = data.size() - offset;
+	if (DataSize < ProtocolNameLengthSize)
+		return std::unexpected(tError::VariableHeaderTooShort);
 
 	tUInt16 ProtocolNameLength;
-	ProtocolNameLength.Field.MSB = data[0];
-	ProtocolNameLength.Field.LSB = data[1];
+	ProtocolNameLength.Field.MSB = data[offset++];
+	ProtocolNameLength.Field.LSB = data[offset++];
 
 	constexpr std::size_t RestSize = ProtocolNameLengthSize + sizeof(ProtocolLevel) + sizeof(ConnectFlags) + sizeof(KeepAlive);
 	const std::size_t VHeaderSize = ProtocolNameLength.Value + RestSize;
-	if (data.size() != VHeaderSize)
-		return std::unexpected(tError::Format);
+	if (DataSize < VHeaderSize)
+		return std::unexpected(tError::VariableHeaderTooShort);
 
 	tVariableHeaderCONNECT VHeader{};
 
-	auto DataBegin = data.begin() + ProtocolNameLengthSize;
+	auto DataBegin = data.begin() + offset;
 	auto DataEnd = DataBegin + ProtocolNameLength.Value;
 	VHeader.ProtocolName = std::string(DataBegin, DataEnd);
 
@@ -86,6 +92,9 @@ std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(cons
 	VHeader.ConnectFlags.Value = *(++DataBegin);
 	VHeader.KeepAlive.Field.MSB = *(++DataBegin);
 	VHeader.KeepAlive.Field.LSB = *(++DataBegin);
+
+	offset += VHeaderSize - ProtocolNameLengthSize;
+
 	return VHeader;
 }
 
@@ -99,10 +108,30 @@ std::vector<std::uint8_t> tVariableHeaderCONNECT::ToVector() const
 	return Data;
 }
 
-std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(const std::vector<std::uint8_t>& data)
+std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(tVariableHeaderCONNECT::tConnectFlags flags, const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
+	if (data.size() - offset < 2) // ClientId field of its size
+		return std::unexpected(tError::PayloadTooShort);
+
+	tUInt16 ClientIdLength;
+	ClientIdLength.Field.MSB = data[offset++];
+	ClientIdLength.Field.LSB = data[offset++];
+
+	if (data.size() - offset < ClientIdLength.Value) // ClientId field of its size
+		return std::unexpected(tError::PayloadTooShort);
+
+	tPayloadCONNECT Payload{};
+
+	auto DataBegin = data.begin() + offset;
+	auto DataEnd = DataBegin + ClientIdLength.Value;
+	Payload.ClientId = std::string(DataBegin, DataEnd);
+
+
+	// These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password
+	// 
+	// 
 	//[TBD] it's needed to be aware of strings types
-	return std::unexpected(tError::Format);
+	return Payload;
 }
 
 std::vector<std::uint8_t> tPayloadCONNECT::ToVector() const
@@ -179,21 +208,27 @@ std::expected<tPacketCONNECT, tError> tPacketCONNECT::Parse(const std::vector<st
 	if (data.empty())
 		return std::unexpected(tError::PacketTooShort);
 
-	tPacketCONNECT Pack{};
-	Pack.m_FixedHeader.Value = data[0];
+	tFixedHeader FixHeader = data[0];
+	if (static_cast<tControlPacketType>(FixHeader.Field.ControlPacketType) != tControlPacketType::CONNECT) // specific
+		return std::unexpected(tError::PacketType);
 
-	auto VarHeadExp = tVariableHeaderCONNECT::Parse(data);
+	tPacketCONNECT Pack{};
+	Pack.m_FixedHeader = FixHeader;
+
+	std::size_t DataOffset = 1; // data[0]
+
+	auto RLengtExp = tRemainingLength::Parse(data, DataOffset);
+	if (!RLengtExp.has_value())
+		return std::unexpected(RLengtExp.error());
+	if (*RLengtExp > data.size() - DataOffset)
+		return std::unexpected(tError::PacketTooShort);
+
+	auto VarHeadExp = tVariableHeaderCONNECT::Parse(data, DataOffset);
 	if (!VarHeadExp.has_value())
 		return std::unexpected(VarHeadExp.error());
 	Pack.m_VariableHeader = *VarHeadExp;
 
-	const std::size_t RemoveBytes = 1 + Pack.m_VariableHeader->GetSize();
-	if (RemoveBytes > data.size())
-		return std::unexpected(tError::PacketTooShort);
-
-	std::vector<std::uint8_t> PayloadVect(data.begin() + RemoveBytes, data.end());
-
-	auto PayloadExp = tPayloadCONNECT::Parse(PayloadVect);
+	auto PayloadExp = tPayloadCONNECT::Parse(Pack.m_VariableHeader->ConnectFlags, data, DataOffset); // specific
 	if (!PayloadExp.has_value())
 		return std::unexpected(PayloadExp.error());
 	Pack.m_Payload = *PayloadExp;

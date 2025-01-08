@@ -5,6 +5,7 @@
 
 //#include <algorithm>
 #include <iostream>
+#include <ranges>
 
 namespace utils
 {
@@ -14,6 +15,15 @@ void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std:
 void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tError error);
 void UnitTest_PacketMQTT_RemainingLengthToVector(const std::string& cap, std::uint32_t packetLength, const std::vector<std::uint8_t>& data);
 void UnitTest_PacketMQTT_RemainingLengthToVectorWrong(const std::string& cap, std::uint32_t packetLength, tError error);
+
+//void TestFun(std::ranges::views:: <std::vector<std::uint8_t>> e)
+//void TestFun(std::ranges::view<std::vector<std::uint8_t>> e)
+//static void TestFun(std::ranges::view<std::vector<int>> e)
+//{
+//}
+//void printElements(std::ranges::input_range auto&& range) {
+//	std::ranges::for_each(range, [](const auto& e) { std::cout << e << '\n'; });
+//}
 
 void UnitTest_PacketMQTT()
 {
@@ -58,6 +68,16 @@ void UnitTest_PacketMQTT()
 	auto Pack1_parsed = tPacketCONNECT::Parse(Pack1Vector);
 
 
+	//{
+	//	std::vector<int> r = { 1, 2, 3, 4, 5 };
+
+	//	std::ranges::reverse_view rv(r);
+
+	//	for (auto i : rv)
+	//		std::cout << i << " ";
+	//}
+
+
 	//Test: The same
 	//{
 	//	tTrap<UnitTest_Trap_Msg, sizeof(UnitTest_Trap_Msg) - 1> Trap;
@@ -76,13 +96,15 @@ void UnitTest_PacketMQTT()
 
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength)
 {
-	tRemainingLengthParseExp Length = tRemainingLength::Parse(data);
+	std::size_t Offset = 0;
+	tRemainingLengthParseExp Length = tRemainingLength::Parse(data, Offset);
 	utils::test::RESULT("RemainingLength Parse " + cap, Length.has_value() && Length == packetLength);
 }
 
 void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tError error)
 {
-	tRemainingLengthParseExp Length = tRemainingLength::Parse(data);
+	std::size_t Offset = 0;
+	tRemainingLengthParseExp Length = tRemainingLength::Parse(data, Offset);
 	utils::test::RESULT("RemainingLength Parse WRONG " + cap, !Length.has_value() && Length.error() == error);
 }
 

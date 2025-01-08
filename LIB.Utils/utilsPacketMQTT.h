@@ -73,7 +73,10 @@ enum class tError
 	LengthNotAll, // There are not all of the bytes of the Length in the array.
 	LengthOverflow,
 	PacketTooShort,
-	Format,
+	PacketType,
+	VariableHeaderTooShort,
+	PayloadTooShort,
+	//Format,
 	ProtocolName,
 	ProtocolLevel,
 };
@@ -88,6 +91,9 @@ union tFixedHeader
 		std::uint8_t ControlPacketType : 4;
 	}Field;
 	std::uint8_t Value = 0;
+
+	tFixedHeader() = default;
+	tFixedHeader(std::uint8_t value) :Value(value) {} // not explicit
 };
 
 constexpr tFixedHeader MakeFixedHeader(tControlPacketType type, std::uint8_t flags = 0)
@@ -134,6 +140,12 @@ constexpr tFixedHeader MakeSUBSCRIBE()
 	return MakeFixedHeader(tControlPacketType::SUBSCRIBE, 0x02);
 }
 
+//class tVectUInt8Pos : public std::vector<std::uint8_t>
+//{
+// std::size_t m_Offset = 0;
+//public:
+//};
+
 using tRemainingLengthParseExp = std::expected<std::uint32_t, tError>;
 using tRemainingLengthToVectorExp = std::expected<std::vector<std::uint8_t>, tError>;
 
@@ -154,7 +166,7 @@ class tRemainingLength
 	tRemainingLength() = delete;
 
 public:
-	static tRemainingLengthParseExp Parse(const std::vector<std::uint8_t>& data);
+	static tRemainingLengthParseExp Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
 	static tRemainingLengthToVectorExp ToVector(std::uint32_t value);
 };
 
@@ -274,9 +286,9 @@ struct tVariableHeaderCONNECT
 	
 	tVariableHeaderCONNECT() :ProtocolName(DefaultProtocolName), ProtocolLevel(DefaultProtocolLevel) {}
 
-	static std::expected<tVariableHeaderCONNECT, tError> Parse(const std::vector<std::uint8_t>& data);
+	static std::expected<tVariableHeaderCONNECT, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
 
-	std::size_t GetSize() { return 2 + ProtocolName.size() + 4; }
+	std::size_t GetSize() const { return 2 + ProtocolName.size() + 4; }
 
 	std::vector<std::uint8_t> ToVector() const;
 };
@@ -294,7 +306,7 @@ struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more
 	std::optional<std::string> UserName;
 	std::optional<std::string> Password;
 
-	static std::expected<tPayloadCONNECT, tError> Parse(const std::vector<std::uint8_t>& data);
+	static std::expected<tPayloadCONNECT, tError> Parse(tVariableHeaderCONNECT::tConnectFlags flags, const std::vector<std::uint8_t>& data, std::size_t& offset);
 
 	std::vector<std::uint8_t> ToVector() const;
 };
