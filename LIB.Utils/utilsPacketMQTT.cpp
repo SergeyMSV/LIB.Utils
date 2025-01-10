@@ -5,13 +5,33 @@ namespace utils
 namespace packet_MQTT
 {
 
-std::vector<std::uint8_t> MQTTStringToVector(const std::string& value)
+std::expected<std::string, tError> tString::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
+{
+	if (data.size() - offset < 2) // 2 = size of the string length
+		return std::unexpected(tError::PayloadTooShort);
+
+	tUInt16 ClientIdLength;
+	ClientIdLength.Field.MSB = data[offset++];
+	ClientIdLength.Field.LSB = data[offset++];
+
+	if (data.size() - offset < ClientIdLength.Value)
+		return std::unexpected(tError::PayloadTooShort);
+
+	auto DataBegin = data.begin() + offset;
+	auto DataEnd = DataBegin + ClientIdLength.Value;
+
+	offset += ClientIdLength.Value;
+
+	return std::string(DataBegin, DataEnd);
+}
+
+std::vector<std::uint8_t> tString::ToVector() const
 {
 	std::vector<std::uint8_t> Data;
-	tUInt16 StrSize = static_cast<std::uint8_t>(value.size());
+	tUInt16 StrSize = static_cast<std::uint8_t>(size());
 	Data.push_back(StrSize.Field.MSB);
 	Data.push_back(StrSize.Field.LSB);
-	Data.insert(Data.end(), value.begin(), value.end());
+	Data.insert(Data.end(), begin(), end());
 	return Data;
 }
 
@@ -100,7 +120,7 @@ std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(cons
 
 std::vector<std::uint8_t> tVariableHeaderCONNECT::ToVector() const
 {
-	std::vector<std::uint8_t> Data = MQTTStringToVector(ProtocolName);
+	std::vector<std::uint8_t> Data = ProtocolName.ToVector();
 	Data.push_back(ProtocolLevel);
 	Data.push_back(ConnectFlags.Value);
 	Data.push_back(KeepAlive.Field.MSB);
@@ -110,42 +130,54 @@ std::vector<std::uint8_t> tVariableHeaderCONNECT::ToVector() const
 
 std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(tVariableHeaderCONNECT::tConnectFlags flags, const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
-	if (data.size() - offset < 2) // ClientId field of its size
-		return std::unexpected(tError::PayloadTooShort);
-
-	tUInt16 ClientIdLength;
-	ClientIdLength.Field.MSB = data[offset++];
-	ClientIdLength.Field.LSB = data[offset++];
-
-	if (data.size() - offset < ClientIdLength.Value) // ClientId field of its size
-		return std::unexpected(tError::PayloadTooShort);
-
 	tPayloadCONNECT Payload{};
-
-	auto DataBegin = data.begin() + offset;
-	auto DataEnd = DataBegin + ClientIdLength.Value;
-	Payload.ClientId = std::string(DataBegin, DataEnd);
-
-
 	// These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password
-	// 
-	// 
-	//[TBD] it's needed to be aware of strings types
+	auto StrExp = tString::Parse(data, offset);
+	if (!StrExp.has_value())
+		return std::unexpected(StrExp.error());
+	Payload.ClientId = StrExp.value();
+
+	if (flags.Field.WillFlag)
+	{
+		StrExp = tString::Parse(data, offset);
+		if (!StrExp.has_value())
+			return std::unexpected(StrExp.error());
+		Payload.WillTopic = StrExp.value();
+
+		StrExp = tString::Parse(data, offset);
+		if (!StrExp.has_value())
+			return std::unexpected(StrExp.error());
+		Payload.WillMessage = StrExp.value();
+	}
+
+	if (flags.Field.UserNameFlag)
+	{
+		StrExp = tString::Parse(data, offset);
+		if (!StrExp.has_value())
+			return std::unexpected(StrExp.error());
+		Payload.UserName = StrExp.value();
+
+		StrExp = tString::Parse(data, offset);
+		if (!StrExp.has_value())
+			return std::unexpected(StrExp.error());
+		Payload.Password = StrExp.value();
+	}
+
 	return Payload;
 }
 
 std::vector<std::uint8_t> tPayloadCONNECT::ToVector() const
 {
 	// These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password
-	std::vector<std::uint8_t> Data = MQTTStringToVector(ClientId); // The Server MUST allow ClientIds which are between 1 and 23 UTF - 8 encoded bytes in length, and that contain only the characters "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
+	std::vector<std::uint8_t> Data = ClientId.ToVector(); // The Server MUST allow ClientIds which are between 1 and 23 UTF - 8 encoded bytes in length, and that contain only the characters "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
 	if (WillTopic.has_value())
-		Data.append_range(MQTTStringToVector(*WillTopic));
+		Data.append_range(WillTopic->ToVector());
 	if (WillMessage.has_value())
-		Data.append_range(MQTTStringToVector(*WillMessage));
+		Data.append_range(WillMessage->ToVector());
 	if (UserName.has_value())
-		Data.append_range(MQTTStringToVector(*UserName));
+		Data.append_range(UserName->ToVector());
 	if (Password.has_value())
-		Data.append_range(MQTTStringToVector(*Password));
+		Data.append_range(Password->ToVector());
 	return Data;
 }
 

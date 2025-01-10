@@ -81,6 +81,42 @@ enum class tError
 	ProtocolLevel,
 };
 
+#pragma pack(push, 1)
+union tUInt16
+{
+	struct
+	{
+		std::uint16_t LSB : 8;
+		std::uint16_t MSB : 8;
+	}Field;
+	std::uint16_t Value = 0;
+
+	tUInt16() = default;
+	tUInt16(std::uint16_t value) :Value(value) {} // not explicit
+
+	tUInt16& operator=(std::uint16_t value)
+	{
+		Value = value;
+		return *this;
+	}
+};
+#pragma pack(pop)
+
+class tString : public std::string
+{
+public:
+	tString() = default;
+	tString(const std::string& value) : std::string(value) {} // not explicit
+	tString(std::string&& value) : std::string(value) {} // not explicit
+
+	std::size_t GetSize() const { return size() + 2; }
+
+	static std::expected<std::string, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
+
+	std::vector<std::uint8_t> ToVector() const;
+};
+
+
 // Where a flag bit is marked as “Reserved” in Table 2.2 - 243 Flag Bits, it is reserved for future use and MUST be set to the value listed in that table[MQTT - 2.2.2 - 1].If 244 invalid flags are received, the receiver MUST close the Network Connection[MQTT - 2.2.2 - 2].
 
 union tFixedHeader
@@ -139,12 +175,6 @@ constexpr tFixedHeader MakeSUBSCRIBE()
 {
 	return MakeFixedHeader(tControlPacketType::SUBSCRIBE, 0x02);
 }
-
-//class tVectUInt8Pos : public std::vector<std::uint8_t>
-//{
-// std::size_t m_Offset = 0;
-//public:
-//};
 
 using tRemainingLengthParseExp = std::expected<std::uint32_t, tError>;
 using tRemainingLengthToVectorExp = std::expected<std::vector<std::uint8_t>, tError>;
@@ -238,30 +268,11 @@ public:
 
 // The variable header for the CONNECT Packet consists of four fields in the following order: Protocol Name, Protocol Level, Connect Flags, and Keep Alive.
 
-#pragma pack(push, 1)
-union tUInt16
-{
-	struct
-	{
-		std::uint16_t LSB : 8;
-		std::uint16_t MSB : 8;
-	}Field;
-	std::uint16_t Value = 0;
 
-	tUInt16() = default;
-	tUInt16(std::uint16_t value) :Value(value) {} // not explicit
-
-	tUInt16& operator=(std::uint16_t value)
-	{
-		Value = value;
-		return *this;
-	}
-};
-#pragma pack(pop)
 
 struct tVariableHeaderCONNECT
 {
-	std::string ProtocolName; // The string, its offset and length will not be changed by future versions of the MQTT specification.
+	tString ProtocolName; // The string, its offset and length will not be changed by future versions of the MQTT specification.
 	std::uint8_t ProtocolLevel; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
 
 	union tConnectFlags
@@ -288,7 +299,7 @@ struct tVariableHeaderCONNECT
 
 	static std::expected<tVariableHeaderCONNECT, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
 
-	std::size_t GetSize() const { return 2 + ProtocolName.size() + 4; }
+	std::size_t GetSize() const { return ProtocolName.GetSize() + 4; }
 
 	std::vector<std::uint8_t> ToVector() const;
 };
@@ -297,14 +308,14 @@ struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more
 {
 	// The Client Identifier (ClientId) identifies the Client to the Server. 
 	// The Server MUST allow ClientIds which are between 1 and 23 UTF - 8 encoded bytes in length, and that contain only the characters "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
-	std::string ClientId;
+	tString ClientId;
 
 	// These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password
-	std::optional<std::string> WillTopic;
-	std::optional<std::string> WillMessage;
+	std::optional<tString> WillTopic;
+	std::optional<tString> WillMessage;
 
-	std::optional<std::string> UserName;
-	std::optional<std::string> Password;
+	std::optional<tString> UserName;
+	std::optional<tString> Password;
 
 	static std::expected<tPayloadCONNECT, tError> Parse(tVariableHeaderCONNECT::tConnectFlags flags, const std::vector<std::uint8_t>& data, std::size_t& offset);
 
