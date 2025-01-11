@@ -125,9 +125,6 @@ public:
 	std::vector<std::uint8_t> ToVector() const;
 };
 
-
-// Where a flag bit is marked as “Reserved” in Table 2.2 - 243 Flag Bits, it is reserved for future use and MUST be set to the value listed in that table[MQTT - 2.2.2 - 1].If 244 invalid flags are received, the receiver MUST close the Network Connection[MQTT - 2.2.2 - 2].
-
 union tFixedHeader
 {
 	struct
@@ -139,6 +136,8 @@ union tFixedHeader
 
 	tFixedHeader() = default;
 	tFixedHeader(std::uint8_t value) :Value(value) {} // not explicit
+
+	tControlPacketType GetControlPacketType() const { return static_cast<tControlPacketType>(Field.ControlPacketType); }
 
 	bool operator==(const tFixedHeader& val) const { return Value == val.Value; }
 };
@@ -211,9 +210,7 @@ public:
 	static tRemainingLengthToVectorExp ToVector(std::uint32_t value);
 };
 
-
-//------------------
-// Some types of MQTT Control Packets contain a variable header component. It resides between the fixed header and the payload.
+std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint8_t>& data);
 
 template <class VH, class PL>
 class tPacket
@@ -228,10 +225,7 @@ private:
 	tPacket() = default;
 
 protected:
-	explicit tPacket(tFixedHeader fixedHeader)
-		:m_FixedHeader(fixedHeader)
-	{
-	}
+	explicit tPacket(tFixedHeader fixedHeader) :m_FixedHeader(fixedHeader) {}
 
 public:
 	virtual ~tPacket() {}
@@ -259,6 +253,7 @@ public:
 			return std::unexpected(RLengtExp.error());
 		if (*RLengtExp > data.size() - DataOffset)
 			return std::unexpected(tError::PacketTooShort);
+		/// |||| - the same in TestPacket
 
 		auto VarHeadExp = VH::Parse(data, DataOffset);
 		if (!VarHeadExp.has_value())

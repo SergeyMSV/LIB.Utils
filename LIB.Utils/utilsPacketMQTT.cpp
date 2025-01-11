@@ -84,6 +84,28 @@ tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t value)
 	return Data;
 }
 
+std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint8_t>& data)
+{
+	if (data.size() < 2)
+		return std::unexpected(tError::PacketTooShort);
+	tFixedHeader FHeader = data[0];
+	// [TBD] it's possible to use RANGE here !!
+	tControlPacketType ControlPacketType = static_cast<tControlPacketType>(FHeader.Field.ControlPacketType);
+	const bool FHeadValid = FHeader.GetControlPacketType() > tControlPacketType::Reserved_1 && FHeader.GetControlPacketType() < tControlPacketType::Reserved_2;
+	if (!FHeadValid)
+		return std::unexpected(tError::PacketType);
+
+	std::size_t DataOffset = 1; // data[0]
+
+	auto RLengtExp = tRemainingLength::Parse(data, DataOffset);
+	if (!RLengtExp.has_value())
+		return std::unexpected(RLengtExp.error());
+	if (*RLengtExp > data.size() - DataOffset)
+		return std::unexpected(tError::PacketTooShort);
+
+	return FHeader.GetControlPacketType();
+}
+
 std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
 	constexpr std::size_t ProtocolNameLengthSize = 2; // sizeof(std::uint16_t)
