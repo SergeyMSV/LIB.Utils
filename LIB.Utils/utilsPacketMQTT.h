@@ -224,17 +224,54 @@ protected:
 	std::optional<VH> m_VariableHeader;
 	std::optional<PL> m_Payload;
 
+private:
+	tPacket() = default;
+
 protected:
 	explicit tPacket(tFixedHeader fixedHeader)
 		:m_FixedHeader(fixedHeader)
 	{
 	}
 
+public:
 	virtual ~tPacket() {}
 
-public:
 	std::optional<VH> GetVariableHeader() { return m_VariableHeader; }
 	std::optional<PL> GetPayload() { return m_Payload; }
+
+	static std::expected<tPacket, tError> Parse(const std::vector<std::uint8_t>& data)
+	{
+		if (data.empty())
+			return std::unexpected(tError::PacketTooShort);
+
+		tFixedHeader FixHeader = data[0];
+		// [TBD] Verify Received packet Type !!!
+		//if (static_cast<tControlPacketType>(FixHeader.Field.ControlPacketType) != tControlPacketType::CONNECT) // specific
+		//	return std::unexpected(tError::PacketType);
+
+		tPacket Pack{};
+		Pack.m_FixedHeader = FixHeader;
+
+		std::size_t DataOffset = 1; // data[0]
+
+		auto RLengtExp = tRemainingLength::Parse(data, DataOffset);
+		if (!RLengtExp.has_value())
+			return std::unexpected(RLengtExp.error());
+		if (*RLengtExp > data.size() - DataOffset)
+			return std::unexpected(tError::PacketTooShort);
+
+		auto VarHeadExp = VH::Parse(data, DataOffset);
+		if (!VarHeadExp.has_value())
+			return std::unexpected(VarHeadExp.error());
+		Pack.m_VariableHeader = *VarHeadExp;
+
+		auto PayloadExp = PL::Parse(*Pack.m_VariableHeader, data, DataOffset);
+		if (!PayloadExp.has_value())
+			return std::unexpected(PayloadExp.error());
+		Pack.m_Payload = *PayloadExp;
+
+		return Pack;
+	}
 
 	std::vector<std::uint8_t> ToVector() const
 	{
@@ -257,6 +294,15 @@ public:
 	}
 };
 
+template <class VH>
+struct tPayloadEmpty
+{
+	static std::expected<tPayloadEmpty, tError> Parse(const VH& variableHeader, const std::vector<std::uint8_t>& data, std::size_t& offset) { return tPayloadEmpty(); }
+
+	std::vector<std::uint8_t> ToVector() const { return {}; }
+
+	bool operator==(const tPayloadEmpty& value) const = default;
+};
 
 
 // **** CONNECT
@@ -314,7 +360,7 @@ struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more
 	std::optional<tString> UserName;
 	std::optional<tString> Password;
 
-	static std::expected<tPayloadCONNECT, tError> Parse(tVariableHeaderCONNECT::tConnectFlags flags, const std::vector<std::uint8_t>& data, std::size_t& offset);
+	static std::expected<tPayloadCONNECT, tError> Parse(const tVariableHeaderCONNECT& variableHeader, const std::vector<std::uint8_t>& data, std::size_t& offset);
 
 	std::vector<std::uint8_t> ToVector() const;
 
@@ -343,13 +389,59 @@ public:
 	void SetClientId(const std::string& value);
 	void SetWill(const std::string& topic, const std::string& message);
 	void SetUser(const std::string& name, const std::string& password);
+};
 
-	static std::expected<tPacketCONNECT, tError> Parse(const std::vector<std::uint8_t>& data);
 
-	//bool operator==(const tPacketCONNECT&) const
-	//{
-	//	return true;
-	//}
+enum class tConnectReturnCode : std::uint8_t
+{
+	ConnectionAccepted,
+	ConnectionRefused_UnacceptableProtocolVersion, // The Server does not support the level of the MQTT protocol requested by the Client.
+	ConnectionRefused_IdentifierRejected, // The Client identifier is correct UTF-8 but not allowed by the Server.
+	ConnectionRefused_ServerUnavailable, // The Network Connection has been made but the MQTT service is unavailable.
+	ConnectionRefused_BadUserNameOrPassword, // The data in the user name or password is malformed.
+	ConnectionRefused_NotAuthorized, // The Client is not authorized to connect.
+	Reserved // 6-255 Reserved for future use.
+};
+
+struct tVariableHeaderCONNACK
+{
+	union tConnectAcknowledgeFlags
+	{
+		struct
+		{
+			std::uint8_t SP : 1; // It is the Session Present Flag.
+			std::uint8_t Reserved : 7; // Bits 7-1 are reserved and MUST be set to 0.
+		}Field;
+		std::uint8_t Value = 0;
+	}ConnectAcknowledgeFlags;
+	tConnectReturnCode ConnectReturnCode = tConnectReturnCode::Reserved;
+
+	tVariableHeaderCONNACK() = default;
+
+	static std::expected<tVariableHeaderCONNACK, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
+
+	static std::size_t GetSize() { return 2; }
+
+	std::vector<std::uint8_t> ToVector() const;
+
+	bool operator==(const tVariableHeaderCONNACK& val) const;
+};
+
+using tPayloadCONNACK = tPayloadEmpty<tVariableHeaderCONNACK>;
+
+class tPacketCONNACK : public tPacket<tVariableHeaderCONNACK, tPayloadCONNACK>
+{
+public:
+	tPacketCONNACK() :tPacket(MakeCONNACK()) {}
+	tPacketCONNACK(bool sessionPresent, tConnectReturnCode connRetCode)
+		:tPacket(MakeCONNACK())
+	{
+		m_VariableHeader = tVariableHeaderCONNACK{};
+		m_VariableHeader->ConnectAcknowledgeFlags.Field.SP = sessionPresent;
+		m_VariableHeader->ConnectReturnCode = connRetCode;
+
+		m_Payload = tPayloadCONNACK{};
+	}
 };
 
 }

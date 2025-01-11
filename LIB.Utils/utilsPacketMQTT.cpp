@@ -133,7 +133,7 @@ bool tVariableHeaderCONNECT::operator==(const tVariableHeaderCONNECT& val) const
 	return ProtocolName == val.ProtocolName && ProtocolLevel == val.ProtocolLevel && ConnectFlags.Value == val.ConnectFlags.Value && KeepAlive.Value == val.KeepAlive.Value;
 }
 
-std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(tVariableHeaderCONNECT::tConnectFlags flags, const std::vector<std::uint8_t>& data, std::size_t& offset)
+std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(const tVariableHeaderCONNECT& variableHeader, const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
 	tPayloadCONNECT Payload{};
 	// These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password
@@ -142,7 +142,7 @@ std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(tVariableHeaderCON
 		return std::unexpected(StrExp.error());
 	Payload.ClientId = StrExp.value();
 
-	if (flags.Field.WillFlag)
+	if (variableHeader.ConnectFlags.Field.WillFlag)
 	{
 		StrExp = tString::Parse(data, offset);
 		if (!StrExp.has_value())
@@ -155,7 +155,7 @@ std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(tVariableHeaderCON
 		Payload.WillMessage = StrExp.value();
 	}
 
-	if (flags.Field.UserNameFlag)
+	if (variableHeader.ConnectFlags.Field.UserNameFlag)
 	{
 		StrExp = tString::Parse(data, offset);
 		if (!StrExp.has_value())
@@ -240,37 +240,35 @@ void tPacketCONNECT::SetUser(const std::string& name, const std::string& passwor
 	}
 }
 
-std::expected<tPacketCONNECT, tError> tPacketCONNECT::Parse(const std::vector<std::uint8_t>& data)
+
+std::expected<tVariableHeaderCONNACK, tError> tVariableHeaderCONNACK::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
-	if (data.empty())
-		return std::unexpected(tError::PacketTooShort);
+	const std::size_t DataSize = data.size() - offset;
+	if (DataSize < GetSize())
+		return std::unexpected(tError::VariableHeaderTooShort);
 
-	tFixedHeader FixHeader = data[0];
-	if (static_cast<tControlPacketType>(FixHeader.Field.ControlPacketType) != tControlPacketType::CONNECT) // specific
-		return std::unexpected(tError::PacketType);
+	tVariableHeaderCONNACK VHeader{};
+	VHeader.ConnectAcknowledgeFlags.Value = data[offset++];
+	VHeader.ConnectReturnCode = static_cast<tConnectReturnCode>(data[offset++]);
 
-	tPacketCONNECT Pack{};
-	Pack.m_FixedHeader = FixHeader;
+	offset += GetSize();
 
-	std::size_t DataOffset = 1; // data[0]
+	return VHeader;
+}
 
-	auto RLengtExp = tRemainingLength::Parse(data, DataOffset);
-	if (!RLengtExp.has_value())
-		return std::unexpected(RLengtExp.error());
-	if (*RLengtExp > data.size() - DataOffset)
-		return std::unexpected(tError::PacketTooShort);
+static std::size_t GetSize() { return 2; }
 
-	auto VarHeadExp = tVariableHeaderCONNECT::Parse(data, DataOffset);
-	if (!VarHeadExp.has_value())
-		return std::unexpected(VarHeadExp.error());
-	Pack.m_VariableHeader = *VarHeadExp;
+std::vector<std::uint8_t> tVariableHeaderCONNACK::ToVector() const
+{
+	std::vector<std::uint8_t> Data;
+	Data.push_back(ConnectAcknowledgeFlags.Value);
+	Data.push_back(static_cast<std::uint8_t>(ConnectReturnCode));
+	return Data;
+}
 
-	auto PayloadExp = tPayloadCONNECT::Parse(Pack.m_VariableHeader->ConnectFlags, data, DataOffset); // specific
-	if (!PayloadExp.has_value())
-		return std::unexpected(PayloadExp.error());
-	Pack.m_Payload = *PayloadExp;
-
-	return Pack;
+bool tVariableHeaderCONNACK::operator==(const tVariableHeaderCONNACK& val) const
+{
+	return ConnectAcknowledgeFlags.Value == val.ConnectAcknowledgeFlags.Value && ConnectReturnCode == val.ConnectReturnCode;
 }
 
 }

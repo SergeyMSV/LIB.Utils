@@ -53,6 +53,29 @@ void UnitTest_PacketMQTT()
 		auto Pack_parsed = tPacketCONNECT::Parse(PackVector);
 		utils::test::RESULT("Pack CONNECT serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
+
+	{
+		tPacketCONNECT Pack("my_client_id", "my_will_topic", "my_will_message", "my_user_name", "my_password");
+		//Pack.
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack_parsed = tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>::Parse(PackVector);
+		//Pack_parsed->GetVariableHeader()->
+		//Pack_parsed->GetPayload()->
+		utils::test::RESULT("Pack CONNECT serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
+
+	{
+		tPacketCONNACK Pack(true, tConnectReturnCode::ConnectionRefused_NotAuthorized);
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack_parsed = tPacket<tVariableHeaderCONNACK, tPayloadCONNACK>::Parse(PackVector);
+		//Pack_parsed->GetVariableHeader()->
+		//Pack_parsed->GetPayload()->
+		utils::test::RESULT("Pack CONNACK serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
 }
 
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength)
