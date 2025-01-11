@@ -81,6 +81,15 @@ enum class tError
 	ProtocolLevel,
 };
 
+// 3.3 PUBLISH – Publish message - 3.3.1 Fixed header [VERIFY]
+/*enum class tQoS : std::uint8_t // [!] it might be only for publish
+{
+	AtMostOnceDelivery,
+	AtLeastOnceDelivery,
+	ExactlyOnceDelivery,
+	Reserved_MustNotBeUsed
+};*/
+
 #pragma pack(push, 1)
 union tUInt16
 {
@@ -130,6 +139,8 @@ union tFixedHeader
 
 	tFixedHeader() = default;
 	tFixedHeader(std::uint8_t value) :Value(value) {} // not explicit
+
+	bool operator==(const tFixedHeader& val) const { return Value == val.Value; }
 };
 
 constexpr tFixedHeader MakeFixedHeader(tControlPacketType type, std::uint8_t flags = 0)
@@ -213,36 +224,15 @@ protected:
 	std::optional<VH> m_VariableHeader;
 	std::optional<PL> m_Payload;
 
-//private:
-	//tPacket() = default;
-
 protected:
 	explicit tPacket(tFixedHeader fixedHeader)
 		:m_FixedHeader(fixedHeader)
 	{
 	}
-//public:
+
 	virtual ~tPacket() {}
 
 public:
-	//static std::expected<tPacket, tError> Parse(const std::vector<std::uint8_t>& data)
-	//{
-	//	if (data.empty())
-	//		return std::unexpected(tError::PacketTooShort);
-
-	//	m_FixedHeader.Value = data[0];
-
-	//	auto VarHeadExp = VH::Parse(data);
-	//	if (!VarHeadExp.has_value())
-	//		return std::unexpected(VarHeadExp.error());
-
-	//	std::vector<std::uint8_t> PayloadVect()
-
-	//	tPacket Pack;
-	//	Pack.m_VariableHeader = *VarHeadExp;
-	//	return Pack;
-	//}
-
 	std::optional<VH> GetVariableHeader() { return m_VariableHeader; }
 	std::optional<PL> GetPayload() { return m_Payload; }
 
@@ -259,6 +249,11 @@ public:
 		Data.insert_range(Data.begin(), *RemainingLength);
 		Data.insert(Data.begin(), m_FixedHeader.Value);
 		return Data;
+	}
+
+	bool operator==(const tPacket& val) const
+	{
+		return m_FixedHeader == val.m_FixedHeader && m_VariableHeader == val.m_VariableHeader && m_Payload == val.m_Payload;
 	}
 };
 
@@ -302,6 +297,8 @@ struct tVariableHeaderCONNECT
 	std::size_t GetSize() const { return ProtocolName.GetSize() + 4; }
 
 	std::vector<std::uint8_t> ToVector() const;
+
+	bool operator==(const tVariableHeaderCONNECT& val) const;
 };
 
 struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more length-prefixed fields, whose presence is determined by the flags in the variable header.
@@ -320,6 +317,8 @@ struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more
 	static std::expected<tPayloadCONNECT, tError> Parse(tVariableHeaderCONNECT::tConnectFlags flags, const std::vector<std::uint8_t>& data, std::size_t& offset);
 
 	std::vector<std::uint8_t> ToVector() const;
+
+	bool operator==(const tPayloadCONNECT& value) const = default;
 };
 
 class tPacketCONNECT : public tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>
@@ -346,6 +345,11 @@ public:
 	void SetUser(const std::string& name, const std::string& password);
 
 	static std::expected<tPacketCONNECT, tError> Parse(const std::vector<std::uint8_t>& data);
+
+	//bool operator==(const tPacketCONNECT&) const
+	//{
+	//	return true;
+	//}
 };
 
 }

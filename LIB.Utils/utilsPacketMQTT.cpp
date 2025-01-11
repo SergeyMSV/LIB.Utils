@@ -128,6 +128,11 @@ std::vector<std::uint8_t> tVariableHeaderCONNECT::ToVector() const
 	return Data;
 }
 
+bool tVariableHeaderCONNECT::operator==(const tVariableHeaderCONNECT& val) const
+{
+	return ProtocolName == val.ProtocolName && ProtocolLevel == val.ProtocolLevel && ConnectFlags.Value == val.ConnectFlags.Value && KeepAlive.Value == val.KeepAlive.Value;
+}
+
 std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(tVariableHeaderCONNECT::tConnectFlags flags, const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
 	tPayloadCONNECT Payload{};
