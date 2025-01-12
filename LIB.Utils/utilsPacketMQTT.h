@@ -72,6 +72,7 @@ enum class tError
 	LengthTooLong,
 	LengthNotAll, // There are not all of the bytes of the Length in the array.
 	LengthOverflow,
+	UInt16TooShort,
 	PacketTooShort,
 	PacketType,
 	VariableHeaderTooShort,
@@ -94,19 +95,13 @@ union tUInt16
 	tUInt16() = default;
 	tUInt16(std::uint16_t value) :Value(value) {} // not explicit
 
-	std::vector<std::uint8_t> ToVector() const
-	{
-		std::vector<std::uint8_t> Data;
-		Data.push_back(Field.MSB);
-		Data.push_back(Field.LSB);
-		return Data;
-	}
+	static std::size_t GetSize() { return 2; }
 
-	tUInt16& operator=(std::uint16_t value)
-	{
-		Value = value;
-		return *this;
-	}
+	static std::expected<tUInt16, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
+
+	std::vector<std::uint8_t> ToVector() const;
+
+	tUInt16& operator=(std::uint16_t value);
 };
 #pragma pack(pop)
 
@@ -452,31 +447,24 @@ public:
 struct tVariableHeaderPUBLISH
 {
 	tString TopicName;
-	tUInt16 PacketId = 0; // The Packet Identifier field is only present in PUBLISH Packets where the QoS level is 1 or 2.
+	std::optional<tUInt16> PacketId; // The Packet Identifier field is only present in PUBLISH Packets where the QoS level is 1 or 2.
 
 	tVariableHeaderPUBLISH() {}
 
-	static std::expected<tVariableHeaderPUBLISH, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
-	{
-		return std::unexpected(tError::None);
-	}
+	static std::expected<tVariableHeaderPUBLISH, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
 
 	std::size_t GetSize() const { return TopicName.GetSize() + 2; }
 
-	std::vector<std::uint8_t> ToVector() const
-	{
-		std::vector<std::uint8_t> Data = TopicName.ToVector();
-		Data.append_range(PacketId.ToVector());
-		return Data;
-	};
+	std::vector<std::uint8_t> ToVector() const;
 
-	bool operator==(const tVariableHeaderPUBLISH& val) const { return false; }
+	bool operator==(const tVariableHeaderPUBLISH& val) const = default;
 };
 
 struct tPayloadPUBLISH
 {
 	static std::expected<tPayloadPUBLISH, tError> Parse(const tVariableHeaderPUBLISH& variableHeader, const std::vector<std::uint8_t>& data, std::size_t& offset)
 	{
+		// [TBD] implement it
 		return std::unexpected(tError::None);
 	}
 
@@ -489,24 +477,15 @@ class tPacketPUBLISH : public tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>
 {
 public:
 	tPacketPUBLISH() = delete;
-	tPacketPUBLISH(bool dup, tQoS qos, bool retain)
+	tPacketPUBLISH(bool dup, tQoS qos, bool retain, const std::string& topicName, tUInt16 packetId)
 		:tPacket(MakePUBLISH(dup, qos, retain))
 	{
-		//m_VariableHeader = tVariableHeaderCONNECT{};
-		//m_VariableHeader->ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
-		//m_VariableHeader->ConnectFlags.Field.CleanSession = 1; // [TBD] TEST
-		//m_VariableHeader->KeepAlive.Value = 11; // [TBD] TEST
-
-		//m_Payload = tPayloadCONNECT{};
-
-		//SetClientId(clientId);
-		//SetWill(willTopic, willMessage);
-		//SetUser(userName, password);
+		m_VariableHeader = tVariableHeaderPUBLISH{};
+		m_VariableHeader->TopicName = topicName;
+		//if (m_FixedHeader.Field.) // [TBD] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		m_VariableHeader->PacketId = packetId;
 	}
 
-	//void SetClientId(const std::string& value);
-	//void SetWill(const std::string& topic, const std::string& message);
-	//void SetUser(const std::string& name, const std::string& password);
 };
 
 }

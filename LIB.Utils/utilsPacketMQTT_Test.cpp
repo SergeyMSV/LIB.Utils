@@ -86,6 +86,15 @@ void UnitTest_PacketMQTT()
 		//Pack_parsed->GetPayload()->
 		utils::test::RESULT("Pack CONNACK serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
+
+	{
+		tPacketPUBLISH Pack(true, tQoS::AtMostOnceDelivery, true, "my_topic_name/some_device", 10);
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack_parsed = tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>::Parse(PackVector);
+		//utils::test::RESULT("Pack PUBLISH serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
 }
 
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength)

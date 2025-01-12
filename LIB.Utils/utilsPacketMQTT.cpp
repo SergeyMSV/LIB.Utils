@@ -5,22 +5,50 @@ namespace utils
 namespace packet_MQTT
 {
 
+
+std::expected<tUInt16, tError> tUInt16::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
+{
+	if (data.size() - offset < 2)
+		return std::unexpected(tError::UInt16TooShort);
+
+	tUInt16 Val;
+	Val.Field.MSB = data[offset++];
+	Val.Field.LSB = data[offset++];
+	return Val;
+}
+
+std::vector<std::uint8_t> tUInt16::ToVector() const
+{
+	std::vector<std::uint8_t> Data;
+	Data.push_back(Field.MSB);
+	Data.push_back(Field.LSB);
+	return Data;
+}
+
+tUInt16& tUInt16::operator=(std::uint16_t value)
+{
+	Value = value;
+	return *this;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::expected<std::string, tError> tString::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
 	if (data.size() - offset < 2) // 2 = size of the string length
 		return std::unexpected(tError::PayloadTooShort);
 
-	tUInt16 ClientIdLength;
-	ClientIdLength.Field.MSB = data[offset++];
-	ClientIdLength.Field.LSB = data[offset++];
+	auto ClientIdLengthExp = tUInt16::Parse(data, offset);
+	if (!ClientIdLengthExp.has_value())
+		return std::unexpected(ClientIdLengthExp.error());
 
-	if (data.size() - offset < ClientIdLength.Value)
+	if (data.size() - offset < ClientIdLengthExp->Value)
 		return std::unexpected(tError::PayloadTooShort);
 
 	auto DataBegin = data.begin() + offset;
-	auto DataEnd = DataBegin + ClientIdLength.Value;
+	auto DataEnd = DataBegin + ClientIdLengthExp->Value;
 
-	offset += ClientIdLength.Value;
+	offset += ClientIdLengthExp->Value;
 
 	return std::string(DataBegin, DataEnd);
 }
@@ -29,8 +57,7 @@ std::vector<std::uint8_t> tString::ToVector() const
 {
 	std::vector<std::uint8_t> Data;
 	tUInt16 StrSize = static_cast<std::uint8_t>(size());
-	Data.push_back(StrSize.Field.MSB);
-	Data.push_back(StrSize.Field.LSB);
+	Data.append_range(StrSize.ToVector());
 	Data.insert(Data.end(), begin(), end());
 	return Data;
 }
@@ -84,6 +111,8 @@ tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t value)
 	return Data;
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint8_t>& data)
 {
 	if (data.size() < 2)
@@ -106,6 +135,8 @@ std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint
 	return FHeader.GetControlPacketType();
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
 	constexpr std::size_t ProtocolNameLengthSize = 2; // sizeof(std::uint16_t)
@@ -113,29 +144,32 @@ std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(cons
 	if (DataSize < ProtocolNameLengthSize)
 		return std::unexpected(tError::VariableHeaderTooShort);
 
-	tUInt16 ProtocolNameLength;
-	ProtocolNameLength.Field.MSB = data[offset++];
-	ProtocolNameLength.Field.LSB = data[offset++];
+	auto ProtocolNameLengthExp = tUInt16::Parse(data, offset);
+	if (!ProtocolNameLengthExp.has_value())
+		return std::unexpected(ProtocolNameLengthExp.error());
 
 	constexpr std::size_t RestSize = ProtocolNameLengthSize + sizeof(ProtocolLevel) + sizeof(ConnectFlags) + sizeof(KeepAlive);
-	const std::size_t VHeaderSize = ProtocolNameLength.Value + RestSize;
+	const std::size_t VHeaderSize = ProtocolNameLengthExp->Value + RestSize;
 	if (DataSize < VHeaderSize)
 		return std::unexpected(tError::VariableHeaderTooShort);
 
 	tVariableHeaderCONNECT VHeader{};
 
 	auto DataBegin = data.begin() + offset;
-	auto DataEnd = DataBegin + ProtocolNameLength.Value;
+	auto DataEnd = DataBegin + ProtocolNameLengthExp->Value;
 	VHeader.ProtocolName = std::string(DataBegin, DataEnd);
 
 	DataBegin = DataEnd;
 	VHeader.ProtocolLevel = *DataBegin;
 
 	VHeader.ConnectFlags.Value = *(++DataBegin);
-	VHeader.KeepAlive.Field.MSB = *(++DataBegin);
-	VHeader.KeepAlive.Field.LSB = *(++DataBegin);
 
-	offset += VHeaderSize - ProtocolNameLengthSize;
+	offset += VHeaderSize - ProtocolNameLengthSize - tUInt16::GetSize();
+
+	auto KeepAliveExp = tUInt16::Parse(data, offset);
+	if (!KeepAliveExp.has_value())
+		return std::unexpected(KeepAliveExp.error());
+	VHeader.KeepAlive = *KeepAliveExp;
 
 	return VHeader;
 }
@@ -145,8 +179,7 @@ std::vector<std::uint8_t> tVariableHeaderCONNECT::ToVector() const
 	std::vector<std::uint8_t> Data = ProtocolName.ToVector();
 	Data.push_back(ProtocolLevel);
 	Data.push_back(ConnectFlags.Value);
-	Data.push_back(KeepAlive.Field.MSB);
-	Data.push_back(KeepAlive.Field.LSB);
+	Data.append_range(KeepAlive.ToVector());
 	return Data;
 }
 
@@ -262,6 +295,7 @@ void tPacketCONNECT::SetUser(const std::string& name, const std::string& passwor
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::expected<tVariableHeaderCONNACK, tError> tVariableHeaderCONNACK::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
@@ -291,6 +325,22 @@ std::vector<std::uint8_t> tVariableHeaderCONNACK::ToVector() const
 bool tVariableHeaderCONNACK::operator==(const tVariableHeaderCONNACK& val) const
 {
 	return ConnectAcknowledgeFlags.Value == val.ConnectAcknowledgeFlags.Value && ConnectReturnCode == val.ConnectReturnCode;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::expected<tVariableHeaderPUBLISH, tError> tVariableHeaderPUBLISH::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
+{
+	// [TBD] implement it
+	return std::unexpected(tError::None);
+}
+
+std::vector<std::uint8_t> tVariableHeaderPUBLISH::ToVector() const
+{
+	std::vector<std::uint8_t> Data = TopicName.ToVector();
+	if (PacketId.has_value())
+		Data.append_range(PacketId->ToVector());
+	return Data;
 }
 
 }
