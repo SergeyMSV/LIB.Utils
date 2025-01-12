@@ -81,15 +81,6 @@ enum class tError
 	ProtocolLevel,
 };
 
-// 3.3 PUBLISH – Publish message - 3.3.1 Fixed header [VERIFY]
-/*enum class tQoS : std::uint8_t // [!] it might be only for publish
-{
-	AtMostOnceDelivery,
-	AtLeastOnceDelivery,
-	ExactlyOnceDelivery,
-	Reserved_MustNotBeUsed
-};*/
-
 #pragma pack(push, 1)
 union tUInt16
 {
@@ -102,6 +93,14 @@ union tUInt16
 
 	tUInt16() = default;
 	tUInt16(std::uint16_t value) :Value(value) {} // not explicit
+
+	std::vector<std::uint8_t> ToVector() const
+	{
+		std::vector<std::uint8_t> Data;
+		Data.push_back(Field.MSB);
+		Data.push_back(Field.LSB);
+		return Data;
+	}
 
 	tUInt16& operator=(std::uint16_t value)
 	{
@@ -160,7 +159,15 @@ constexpr tFixedHeader MakeCONNACK()
 	return MakeFixedHeader(tControlPacketType::CONNACK);
 }
 
-constexpr tFixedHeader MakePUBLISH(bool dup, std::uint8_t qos, bool retain)
+enum class tQoS : std::uint8_t // [!] it might be only for publish
+{
+	AtMostOnceDelivery,
+	AtLeastOnceDelivery,
+	ExactlyOnceDelivery,
+	Reserved_MustNotBeUsed
+};
+
+constexpr tFixedHeader MakePUBLISH(bool dup, tQoS qos, bool retain)
 {
 	union
 	{
@@ -175,7 +182,7 @@ constexpr tFixedHeader MakePUBLISH(bool dup, std::uint8_t qos, bool retain)
 	}Flags;
 
 	Flags.Field.DUP = dup ? 1 : 0;
-	Flags.Field.QoS = qos;
+	Flags.Field.QoS = static_cast<std::uint8_t>(qos);
 	Flags.Field.RETAIN = retain ? 1 : 0;
 
 	return MakeFixedHeader(tControlPacketType::PUBLISH, Flags.Value);
@@ -304,7 +311,7 @@ struct tPayloadEmpty
 
 // The variable header for the CONNECT Packet consists of four fields in the following order: Protocol Name, Protocol Level, Connect Flags, and Keep Alive.
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct tVariableHeaderCONNECT
 {
@@ -386,6 +393,7 @@ public:
 	void SetUser(const std::string& name, const std::string& password);
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 enum class tConnectReturnCode : std::uint8_t
 {
@@ -437,6 +445,68 @@ public:
 
 		m_Payload = tPayloadCONNACK{};
 	}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struct tVariableHeaderPUBLISH
+{
+	tString TopicName;
+	tUInt16 PacketId = 0; // The Packet Identifier field is only present in PUBLISH Packets where the QoS level is 1 or 2.
+
+	tVariableHeaderPUBLISH() {}
+
+	static std::expected<tVariableHeaderPUBLISH, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
+	{
+		return std::unexpected(tError::None);
+	}
+
+	std::size_t GetSize() const { return TopicName.GetSize() + 2; }
+
+	std::vector<std::uint8_t> ToVector() const
+	{
+		std::vector<std::uint8_t> Data = TopicName.ToVector();
+		Data.append_range(PacketId.ToVector());
+		return Data;
+	};
+
+	bool operator==(const tVariableHeaderPUBLISH& val) const { return false; }
+};
+
+struct tPayloadPUBLISH
+{
+	static std::expected<tPayloadPUBLISH, tError> Parse(const tVariableHeaderPUBLISH& variableHeader, const std::vector<std::uint8_t>& data, std::size_t& offset)
+	{
+		return std::unexpected(tError::None);
+	}
+
+	std::vector<std::uint8_t> ToVector() const { return {}; }
+
+	bool operator==(const tPayloadPUBLISH& value) const = default;
+};
+
+class tPacketPUBLISH : public tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>
+{
+public:
+	tPacketPUBLISH() = delete;
+	tPacketPUBLISH(bool dup, tQoS qos, bool retain)
+		:tPacket(MakePUBLISH(dup, qos, retain))
+	{
+		//m_VariableHeader = tVariableHeaderCONNECT{};
+		//m_VariableHeader->ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
+		//m_VariableHeader->ConnectFlags.Field.CleanSession = 1; // [TBD] TEST
+		//m_VariableHeader->KeepAlive.Value = 11; // [TBD] TEST
+
+		//m_Payload = tPayloadCONNECT{};
+
+		//SetClientId(clientId);
+		//SetWill(willTopic, willMessage);
+		//SetUser(userName, password);
+	}
+
+	//void SetClientId(const std::string& value);
+	//void SetWill(const std::string& topic, const std::string& message);
+	//void SetUser(const std::string& name, const std::string& password);
 };
 
 }
