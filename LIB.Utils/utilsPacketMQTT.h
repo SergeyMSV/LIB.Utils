@@ -24,7 +24,8 @@ namespace utils
 {
 namespace packet_MQTT
 {
-
+namespace defs // definitions
+{
 // MQTT 3.1.1
 constexpr char DefaultProtocolName[] = "MQTT"; // The string, its offset and length will not be changed by future versions of the MQTT specification.
 constexpr std::uint8_t DefaultProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
@@ -33,6 +34,10 @@ constexpr std::uint8_t DefaultProtocolLevel = 4; // The value of the Protocol Le
 //constexpr char DefaultProtocolName[] = "MQIsdp";
 //constexpr std::uint8_t DefaultProtocolLevel = 3;
 
+constexpr std::size_t PacketSizeMin = 2; // The minimum packet size is 2 bytes
+constexpr std::size_t PacketSizeMax = 256 * 1024 * 1024; // The maximum packet size is 256 MB.
+
+}
 
 // ... you cannot use a string that would encode to more than 65535 bytes.
 // Unless stated otherwise all UTF-8 encoded strings can have any length in the range 0 to 65535 bytes.
@@ -95,7 +100,7 @@ union tUInt16
 	tUInt16() = default;
 	tUInt16(std::uint16_t value) :Value(value) {} // not explicit
 
-	static std::size_t GetSize() { return 2; }
+	static constexpr std::size_t GetSize() { return 2; }
 
 	static std::expected<tUInt16, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
 
@@ -113,6 +118,7 @@ public:
 	tString(std::string&& value) : std::string(value) {} // not explicit
 
 	std::size_t GetSize() const { return size() + 2; }
+	static constexpr std::size_t GetSizeOfSizeField() { return tUInt16::GetSize(); }
 
 	static std::expected<std::string, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
 
@@ -333,7 +339,7 @@ struct tVariableHeaderCONNECT
 	// transmitting one Control Packet and the point it starts sending the next.
 	tUInt16 KeepAlive = 0; // The maximum value is 18 hours 12 minutes and 15 seconds.
 	
-	tVariableHeaderCONNECT() :ProtocolName(DefaultProtocolName), ProtocolLevel(DefaultProtocolLevel) {}
+	tVariableHeaderCONNECT() :ProtocolName(defs::DefaultProtocolName), ProtocolLevel(defs::DefaultProtocolLevel) {}
 
 	static std::expected<tVariableHeaderCONNECT, tError> Parse(const std::vector<std::uint8_t>& data, std::size_t& offset);
 
@@ -465,6 +471,11 @@ struct tPayloadPUBLISH
 	static std::expected<tPayloadPUBLISH, tError> Parse(const tVariableHeaderPUBLISH& variableHeader, const std::vector<std::uint8_t>& data, std::size_t& offset)
 	{
 		// [TBD] implement it
+
+		// 3.3.3 Payload PAGE 36
+		// The Payload contains the Application Message that is being published. The content and format of the data is application specific.
+		// The length of the payload can be calculated by subtracting the length of the variable header from the Remaining Length field
+		// that is in the Fixed Header.It is valid for a PUBLISH Packet to contain a zero length payload.
 		return std::unexpected(tError::None);
 	}
 
@@ -482,10 +493,23 @@ public:
 	{
 		m_VariableHeader = tVariableHeaderPUBLISH{};
 		m_VariableHeader->TopicName = topicName;
-		//if (m_FixedHeader.Field.) // [TBD] !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		m_VariableHeader->PacketId = packetId;
+		if (IsPacketIdPresent(qos))
+			m_VariableHeader->PacketId = packetId;
+		//else - error: no PacketId
 	}
 
+	tPacketPUBLISH(bool dup, tQoS qos, bool retain, const std::string& topicName)
+		:tPacket(MakePUBLISH(dup, qos, retain))
+	{
+		m_VariableHeader = tVariableHeaderPUBLISH{};
+		m_VariableHeader->TopicName = topicName;
+		//if (IsPacketIdPresent(qos))
+		//	return ERROR: NO packetId
+	}
+
+private:
+	// The Packet Identifier field is only present in PUBLISH Packets where the QoS level is 1 or 2.
+	static bool IsPacketIdPresent(tQoS qos) { return qos == tQoS::AtLeastOnceDelivery || qos == tQoS::ExactlyOnceDelivery; }
 };
 
 }

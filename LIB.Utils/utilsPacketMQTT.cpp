@@ -35,7 +35,7 @@ tUInt16& tUInt16::operator=(std::uint16_t value)
 
 std::expected<std::string, tError> tString::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
-	if (data.size() - offset < 2) // 2 = size of the string length
+	if (data.size() - offset < tString::GetSizeOfSizeField())
 		return std::unexpected(tError::PayloadTooShort);
 
 	auto ClientIdLengthExp = tUInt16::Parse(data, offset);
@@ -115,7 +115,7 @@ tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t value)
 
 std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint8_t>& data)
 {
-	if (data.size() < 2)
+	if (data.size() < defs::PacketSizeMin)
 		return std::unexpected(tError::PacketTooShort);
 	tFixedHeader FHeader = data[0];
 	// [TBD] it's possible to use RANGE here !!
@@ -139,7 +139,7 @@ std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint
 
 std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
-	constexpr std::size_t ProtocolNameLengthSize = 2; // sizeof(std::uint16_t)
+	constexpr std::size_t ProtocolNameLengthSize = tString::GetSizeOfSizeField();
 	const std::size_t DataSize = data.size() - offset;
 	if (DataSize < ProtocolNameLengthSize)
 		return std::unexpected(tError::VariableHeaderTooShort);
@@ -312,8 +312,6 @@ std::expected<tVariableHeaderCONNACK, tError> tVariableHeaderCONNACK::Parse(cons
 	return VHeader;
 }
 
-static std::size_t GetSize() { return 2; }
-
 std::vector<std::uint8_t> tVariableHeaderCONNACK::ToVector() const
 {
 	std::vector<std::uint8_t> Data;
@@ -332,6 +330,47 @@ bool tVariableHeaderCONNACK::operator==(const tVariableHeaderCONNACK& val) const
 std::expected<tVariableHeaderPUBLISH, tError> tVariableHeaderPUBLISH::Parse(const std::vector<std::uint8_t>& data, std::size_t& offset)
 {
 	// [TBD] implement it
+
+	/*
+	constexpr std::size_t ProtocolNameLengthSize = 2; // sizeof(std::uint16_t)
+	const std::size_t DataSize = data.size() - offset;
+	if (DataSize < ProtocolNameLengthSize)
+		return std::unexpected(tError::VariableHeaderTooShort);
+
+	auto ProtocolNameLengthExp = tUInt16::Parse(data, offset);
+	if (!ProtocolNameLengthExp.has_value())
+		return std::unexpected(ProtocolNameLengthExp.error());
+
+	constexpr std::size_t RestSize = ProtocolNameLengthSize + sizeof(ProtocolLevel) + sizeof(ConnectFlags) + sizeof(KeepAlive);
+	const std::size_t VHeaderSize = ProtocolNameLengthExp->Value + RestSize;
+	if (DataSize < VHeaderSize)
+		return std::unexpected(tError::VariableHeaderTooShort);
+
+	tVariableHeaderCONNECT VHeader{};
+
+	auto DataBegin = data.begin() + offset;
+	auto DataEnd = DataBegin + ProtocolNameLengthExp->Value;
+	VHeader.ProtocolName = std::string(DataBegin, DataEnd);
+
+	DataBegin = DataEnd;
+	VHeader.ProtocolLevel = *DataBegin;
+
+	VHeader.ConnectFlags.Value = *(++DataBegin);
+
+	offset += VHeaderSize - ProtocolNameLengthSize - tUInt16::GetSize();
+
+	auto KeepAliveExp = tUInt16::Parse(data, offset);
+	if (!KeepAliveExp.has_value())
+		return std::unexpected(KeepAliveExp.error());
+	VHeader.KeepAlive = *KeepAliveExp;
+
+	return VHeader;
+	}*/
+
+
+
+
+
 	return std::unexpected(tError::None);
 }
 
