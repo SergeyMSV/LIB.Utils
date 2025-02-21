@@ -233,7 +233,6 @@ public:
 
 		tPacket Pack{};
 		Pack.m_FixedHeader = FHeader;
-
 		data.Skip(1);
 
 		auto RLengtExp = tRemainingLength::Parse(data);
@@ -241,7 +240,6 @@ public:
 			return std::unexpected(RLengtExp.error());
 		if (*RLengtExp > data.size())
 			return std::unexpected(tError::PacketTooShort);
-		/// |||| - the same in TestPacket
 		
 		if (ControlPacketType == tControlPacketType::DISCONNECT)
 			return Pack;

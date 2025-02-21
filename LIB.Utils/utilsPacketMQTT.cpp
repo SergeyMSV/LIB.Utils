@@ -112,12 +112,12 @@ std::expected<tControlPacketType, tError> TestPacket(tSpan data)
 {
 	if (data.size() < defs::PacketSizeMin)
 		return std::unexpected(tError::PacketTooShort);
+
 	tFixedHeader FHeader = data[0];
 	data.Skip(1);
-	// [TBD] it's possible to use RANGE here !!
-	tControlPacketType ControlPacketType = static_cast<tControlPacketType>(FHeader.Field.ControlPacketType);
-	const bool FHeadValid = FHeader.GetControlPacketType() > tControlPacketType::Reserved_1 && FHeader.GetControlPacketType() < tControlPacketType::Reserved_2;
-	if (!FHeadValid)
+	
+	const auto ControlPacketType = static_cast<tControlPacketType>(FHeader.Field.ControlPacketType);
+	if (ControlPacketType < tControlPacketType::CONNECT || ControlPacketType > tControlPacketType::DISCONNECT)
 		return std::unexpected(tError::PacketType);
 
 	auto RLengtExp = tRemainingLength::Parse(data);
@@ -125,6 +125,8 @@ std::expected<tControlPacketType, tError> TestPacket(tSpan data)
 		return std::unexpected(RLengtExp.error());
 	if (*RLengtExp > data.size())
 		return std::unexpected(tError::PacketTooShort);
+
+	data.Skip(*RLengtExp);
 
 	return FHeader.GetControlPacketType();
 }
