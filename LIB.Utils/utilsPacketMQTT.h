@@ -233,13 +233,14 @@ public:
 		if (data.empty())
 			return std::unexpected(tError::PacketTooShort);
 
-		tFixedHeader FixHeader = data[0];
-		// [TBD] Verify Received packet Type !!!
-		//if (static_cast<tControlPacketType>(FixHeader.Field.ControlPacketType) != tControlPacketType::CONNECT) // specific
-		//	return std::unexpected(tError::PacketType);
+		tFixedHeader FHeader = data[0];
+
+		const auto ControlPacketType = static_cast<tControlPacketType>(FHeader.Field.ControlPacketType);
+		if (ControlPacketType < tControlPacketType::CONNECT || ControlPacketType > tControlPacketType::DISCONNECT)
+			return std::unexpected(tError::PacketType);
 
 		tPacket Pack{};
-		Pack.m_FixedHeader = FixHeader;
+		Pack.m_FixedHeader = FHeader;
 
 		data.Skip(1);
 
@@ -249,8 +250,7 @@ public:
 		if (*RLengtExp > data.size())
 			return std::unexpected(tError::PacketTooShort);
 		/// |||| - the same in TestPacket
-
-		const auto ControlPacketType = static_cast<tControlPacketType>(Pack.m_FixedHeader.Field.ControlPacketType);
+		
 		if (ControlPacketType == tControlPacketType::DISCONNECT)
 			return Pack;
 
