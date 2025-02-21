@@ -108,7 +108,7 @@ tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t value)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::expected<tControlPacketType, tError> TestPacket(tSpan data)
+std::expected<tControlPacketType, tError> TestPacket(tSpan& data)
 {
 	if (data.size() < defs::PacketSizeMin)
 		return std::unexpected(tError::PacketTooShort);

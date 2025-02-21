@@ -197,7 +197,7 @@ public:
 	static tRemainingLengthToVectorExp ToVector(std::uint32_t value);
 };
 
-std::expected<tControlPacketType, tError> TestPacket(tSpan data);
+std::expected<tControlPacketType, tError> TestPacket(tSpan& data);
 
 template <class VH, class PL>
 class tPacket
@@ -220,7 +220,7 @@ public:
 	std::optional<VH> GetVariableHeader() { return m_VariableHeader; }
 	std::optional<PL> GetPayload() { return m_Payload; }
 
-	static std::expected<tPacket, tError> Parse(tSpan data)
+	static std::expected<tPacket, tError> Parse(tSpan& data)
 	{
 		if (data.empty())
 			return std::unexpected(tError::PacketTooShort);
@@ -279,6 +279,12 @@ public:
 		}
 
 		return Pack;
+	}
+
+	static std::expected<tPacket, tError> Parse(const std::vector<std::uint8_t>& data)
+	{
+		tSpan DataSpan(data);
+		return Parse(DataSpan);
 	}
 
 	std::vector<std::uint8_t> ToVector() const
