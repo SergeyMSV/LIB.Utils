@@ -310,6 +310,15 @@ public:
 	}
 };
 
+struct tVariableHeaderEmpty
+{
+	static std::expected<tVariableHeaderEmpty, tError> Parse(const tFixedHeader& fixedHeader, tSpan& data) { return tVariableHeaderEmpty(); }
+
+	std::vector<std::uint8_t> ToVector() const { return {}; }
+
+	bool operator==(const tVariableHeaderEmpty& value) const = default;
+};
+
 template <class VH>
 struct tPayloadEmpty
 {
@@ -554,6 +563,23 @@ public:
 
 private:
 	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::PUBACK); }
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// [TBD] the other packets
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+using tVariableHeaderDISCONNECT = tVariableHeaderEmpty;
+using tPayloadDISCONNECT = tPayloadEmpty<tVariableHeaderDISCONNECT>;
+
+class tPacketDISCONNECT : public tPacket<tVariableHeaderDISCONNECT, tPayloadDISCONNECT>
+{
+public:
+	tPacketDISCONNECT() :tPacket(GetFixedHeader()) {}
+
+private:
+	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::DISCONNECT); }
 };
 
 }
