@@ -168,14 +168,6 @@ constexpr tFixedHeader MakeFixedHeader(tControlPacketType type, std::uint8_t fla
 	return Header;
 }
 
-enum class tQoS : std::uint8_t // [!] it might be only for PUBLISH
-{
-	AtMostOnceDelivery,
-	AtLeastOnceDelivery,
-	ExactlyOnceDelivery,
-	Reserved_MustNotBeUsed
-};
-
 //constexpr tFixedHeader MakeSUBSCRIBE() [TBD]
 //{ 
 //	return MakeFixedHeader(tControlPacketType::SUBSCRIBE, 0x02);
@@ -477,6 +469,14 @@ private:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+enum class tQoS : std::uint8_t
+{
+	AtMostOnceDelivery,
+	AtLeastOnceDelivery,
+	ExactlyOnceDelivery,
+	Reserved_MustNotBeUsed
+};
 
 union tFixedHeaderPUBLISHFlags
 {
