@@ -126,6 +126,17 @@ void UnitTest_PacketMQTT()
 		auto Pack_parsed = tPacket<tVariableHeaderPUBACK, tPayloadPUBACK>::Parse(PackVector);
 		utils::test::RESULT("Pack PUBACK serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
+
+	//...
+
+	{
+		tPacketDISCONNECT Pack;
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack_parsed = tPacket<tVariableHeaderDISCONNECT, tPayloadDISCONNECT>::Parse(PackVector);
+		utils::test::RESULT("Pack DISCONNECT serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
 }
 
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength)

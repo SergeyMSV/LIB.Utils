@@ -250,12 +250,15 @@ public:
 			return std::unexpected(tError::PacketTooShort);
 		/// |||| - the same in TestPacket
 
+		const auto ControlPacketType = static_cast<tControlPacketType>(Pack.m_FixedHeader.Field.ControlPacketType);
+		if (ControlPacketType == tControlPacketType::DISCONNECT)
+			return Pack;
+
 		auto VarHeadExp = VH::Parse(Pack.m_FixedHeader, data);
 		if (!VarHeadExp.has_value())
 			return std::unexpected(VarHeadExp.error());
 		Pack.m_VariableHeader = *VarHeadExp;
-
-		const auto ControlPacketType = static_cast<tControlPacketType>(Pack.m_FixedHeader.Field.ControlPacketType);
+		
 		switch (ControlPacketType)
 		{
 		case tControlPacketType::CONNACK:
@@ -266,7 +269,6 @@ public:
 		case tControlPacketType::UNSUBACK:
 		case tControlPacketType::PINGREQ:
 		case tControlPacketType::PINGRESP:
-		case tControlPacketType::DISCONNECT:
 			return Pack;
 		case tControlPacketType::PUBLISH:
 			if (data.empty())
@@ -570,6 +572,7 @@ private:
 // [TBD] the other packets
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 using tVariableHeaderDISCONNECT = tVariableHeaderEmpty;
 using tPayloadDISCONNECT = tPayloadEmpty<tVariableHeaderDISCONNECT>;
 
