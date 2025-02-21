@@ -89,6 +89,14 @@ enum class tError
 	ProtocolLevel,
 };
 
+enum class tQoS : std::uint8_t // CONNECT (WillQoS), PUBLISH
+{
+	AtMostOnceDelivery,
+	AtLeastOnceDelivery,
+	ExactlyOnceDelivery,
+	Reserved_MustNotBeUsed
+};
+
 class tSpan : public std::span<const std::uint8_t>
 {
 public:
@@ -473,14 +481,6 @@ private:
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-enum class tQoS : std::uint8_t
-{
-	AtMostOnceDelivery,
-	AtLeastOnceDelivery,
-	ExactlyOnceDelivery,
-	Reserved_MustNotBeUsed
-};
 
 union tFixedHeaderPUBLISHFlags
 {
