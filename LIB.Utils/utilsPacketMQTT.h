@@ -255,13 +255,36 @@ public:
 			return std::unexpected(VarHeadExp.error());
 		Pack.m_VariableHeader = *VarHeadExp;
 
-		if (data.empty() && static_cast<tControlPacketType>(Pack.m_FixedHeader.Field.ControlPacketType) == tControlPacketType::PUBLISH)
+		const auto ControlPacketType = static_cast<tControlPacketType>(Pack.m_FixedHeader.Field.ControlPacketType);
+		switch (ControlPacketType)
+		{
+		case tControlPacketType::CONNACK:
+		case tControlPacketType::PUBACK:
+		case tControlPacketType::PUBREC:
+		case tControlPacketType::PUBREL:
+		case tControlPacketType::PUBCOMP:
+		case tControlPacketType::UNSUBACK:
+		case tControlPacketType::PINGREQ:
+		case tControlPacketType::PINGRESP:
+		case tControlPacketType::DISCONNECT:
 			return Pack;
+		case tControlPacketType::PUBLISH:
+			if (data.empty())
+				return Pack;
+			break;
+		}
 
-		auto PayloadExp = PL::Parse(*Pack.m_VariableHeader, data);
-		if (!PayloadExp.has_value())
-			return std::unexpected(PayloadExp.error());
-		Pack.m_Payload = *PayloadExp;
+		if (ControlPacketType == tControlPacketType::CONNECT ||
+			ControlPacketType == tControlPacketType::PUBLISH && !data.empty() ||
+			ControlPacketType == tControlPacketType::SUBSCRIBE ||
+			ControlPacketType == tControlPacketType::SUBACK ||
+			ControlPacketType == tControlPacketType::UNSUBSCRIBE)
+		{
+			auto PayloadExp = PL::Parse(*Pack.m_VariableHeader, data);
+			if (!PayloadExp.has_value())
+				return std::unexpected(PayloadExp.error());
+			Pack.m_Payload = *PayloadExp;
+		}
 
 		return Pack;
 	}
@@ -436,8 +459,6 @@ public:
 		m_VariableHeader = tVariableHeaderCONNACK{};
 		m_VariableHeader->ConnectAcknowledgeFlags.Field.SP = sessionPresent;
 		m_VariableHeader->ConnectReturnCode = connRetCode;
-
-		m_Payload = tPayloadCONNACK{};
 	}
 
 private:
@@ -529,8 +550,6 @@ public:
 	{
 		m_VariableHeader = tVariableHeaderPUBACK{};
 		m_VariableHeader->PacketId = packetId;
-
-		m_Payload = tPayloadPUBACK{};
 	}
 
 private:
