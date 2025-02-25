@@ -126,8 +126,6 @@ std::expected<tControlPacketType, tError> TestPacket(tSpan& data)
 	if (*RLengtExp > data.size())
 		return std::unexpected(tError::PacketTooShort);
 
-	data.Skip(*RLengtExp);
-
 	return FHeader.GetControlPacketType();
 }
 

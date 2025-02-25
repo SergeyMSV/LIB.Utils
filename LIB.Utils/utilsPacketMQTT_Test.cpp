@@ -83,7 +83,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderCONNACK, tPayloadCONNACK>::Parse(PackVector);
+		auto Pack_parsed = tPacketCONNACK::Parse(PackVector);
 		utils::test::RESULT("Pack CONNACK serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -92,7 +92,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBLISH::Parse(PackVector);
 		utils::test::RESULT("Pack PUBLISH serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -101,7 +101,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBLISH::Parse(PackVector);
 		utils::test::RESULT("Pack PUBLISH serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -110,7 +110,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBLISH::Parse(PackVector);
 		utils::test::RESULT("Pack PUBLISH + Payload serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -119,7 +119,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBLISH::Parse(PackVector);
 		utils::test::RESULT("Pack PUBLISH + Payload serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -128,7 +128,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBACK, tPayloadPUBACK>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBACK::Parse(PackVector);
 		utils::test::RESULT("Pack PUBACK serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -139,7 +139,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderDISCONNECT, tPayloadDISCONNECT>::Parse(PackVector);
+		auto Pack_parsed = tPacketDISCONNECT::Parse(PackVector);
 		utils::test::RESULT("Pack DISCONNECT serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 }

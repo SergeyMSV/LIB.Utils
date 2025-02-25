@@ -101,6 +101,7 @@ class tSpan : public std::span<const std::uint8_t>
 {
 public:
 	tSpan(const std::vector<std::uint8_t>& data) :std::span<const std::uint8_t>(data) {}
+	tSpan(const std::vector<std::uint8_t>& data, std::size_t size) :std::span<const std::uint8_t>(data.begin(), std::min(size, data.size())) {}
 
 	tSpan& operator=(const tSpan& value) = default;
 
@@ -417,6 +418,7 @@ public:
 		SetWill(willTopic, willMessage);
 		SetUser(userName, password);
 	}
+	tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage) :tPacketCONNECT(clientId, willTopic, willMessage, "", "")	{}
 
 	void SetClientId(const std::string& value);
 	void SetWill(const std::string& topic, const std::string& message);
