@@ -252,8 +252,13 @@ public:
 		if (*RLengtExp > data.size())
 			return std::unexpected(tError::PacketTooShort);
 		
-		if (ControlPacketType == tControlPacketType::DISCONNECT)
+		switch (ControlPacketType)
+		{
+		case tControlPacketType::PINGREQ:
+		case tControlPacketType::PINGRESP:
+		case tControlPacketType::DISCONNECT:
 			return Pack;
+		}
 
 		auto VarHeadExp = VH::Parse(Pack.m_FixedHeader, data);
 		if (!VarHeadExp.has_value())
@@ -568,6 +573,32 @@ private:
 // [TBD] the other packets
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+using tVariableHeaderPINGREQ = tVariableHeaderEmpty;
+using tPayloadPINGREQ = tPayloadEmpty<tVariableHeaderPINGREQ>;
+
+class tPacketPINGREQ : public tPacket<tVariableHeaderPINGREQ, tPayloadPINGREQ>
+{
+public:
+	tPacketPINGREQ() :tPacket(GetFixedHeader()) {}
+
+private:
+	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::PINGREQ); }
+};
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using tVariableHeaderPINGRESP = tVariableHeaderEmpty;
+using tPayloadPINGRESP = tPayloadEmpty<tVariableHeaderPINGRESP>;
+
+class tPacketPINGRESP : public tPacket<tVariableHeaderPINGRESP, tPayloadPINGRESP>
+{
+public:
+	tPacketPINGRESP() :tPacket(GetFixedHeader()) {}
+
+private:
+	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::PINGRESP); }
+};
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 using tVariableHeaderDISCONNECT = tVariableHeaderEmpty;
 using tPayloadDISCONNECT = tPayloadEmpty<tVariableHeaderDISCONNECT>;

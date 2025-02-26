@@ -144,6 +144,24 @@ void UnitTest_PacketMQTT()
 	//...
 
 	{
+		tPacketPINGREQ Pack;
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack_parsed = tPacketPINGREQ::Parse(PackVector);
+		utils::test::RESULT("Pack PINGREQ serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
+
+	{
+		tPacketPINGRESP Pack;
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack_parsed = tPacketPINGRESP::Parse(PackVector);
+		utils::test::RESULT("Pack PINGRESP serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
+
+	{
 		tPacketDISCONNECT Pack;
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
