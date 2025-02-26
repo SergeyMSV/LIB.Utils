@@ -131,6 +131,12 @@ std::expected<tControlPacketType, tError> TestPacket(tSpan& data)
 	return FHeader.GetControlPacketType();
 }
 
+std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint8_t>& data)
+{
+	tSpan DataSpan(data);
+	return TestPacket(DataSpan);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(const tFixedHeader& fixedHeader, tSpan& data)

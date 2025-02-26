@@ -206,6 +206,7 @@ public:
 };
 
 std::expected<tControlPacketType, tError> TestPacket(tSpan& data);
+std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint8_t>& data);
 
 template <class VH, class PL>
 class tPacket
