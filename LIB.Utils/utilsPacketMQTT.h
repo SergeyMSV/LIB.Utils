@@ -573,10 +573,8 @@ private:
 // [TBD] the other packets
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-using tVariableHeaderPINGREQ = tVariableHeaderEmpty;
-using tPayloadPINGREQ = tPayloadEmpty<tVariableHeaderPINGREQ>;
 
-class tPacketPINGREQ : public tPacket<tVariableHeaderPINGREQ, tPayloadPINGREQ>
+class tPacketPINGREQ : public tPacket<tVariableHeaderEmpty, tPayloadEmpty<tVariableHeaderEmpty>>
 {
 public:
 	tPacketPINGREQ() :tPacket(GetFixedHeader()) {}
@@ -584,12 +582,10 @@ public:
 private:
 	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::PINGREQ); }
 };
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using tVariableHeaderPINGRESP = tVariableHeaderEmpty;
-using tPayloadPINGRESP = tPayloadEmpty<tVariableHeaderPINGRESP>;
-
-class tPacketPINGRESP : public tPacket<tVariableHeaderPINGRESP, tPayloadPINGRESP>
+class tPacketPINGRESP : public tPacket<tVariableHeaderEmpty, tPayloadEmpty<tVariableHeaderEmpty>>
 {
 public:
 	tPacketPINGRESP() :tPacket(GetFixedHeader()) {}
@@ -597,8 +593,8 @@ public:
 private:
 	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::PINGRESP); }
 };
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 using tVariableHeaderDISCONNECT = tVariableHeaderEmpty;
 using tPayloadDISCONNECT = tPayloadEmpty<tVariableHeaderDISCONNECT>;
