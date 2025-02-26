@@ -596,10 +596,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-using tVariableHeaderDISCONNECT = tVariableHeaderEmpty;
-using tPayloadDISCONNECT = tPayloadEmpty<tVariableHeaderDISCONNECT>;
-
-class tPacketDISCONNECT : public tPacket<tVariableHeaderDISCONNECT, tPayloadDISCONNECT>
+class tPacketDISCONNECT : public tPacket<tVariableHeaderEmpty, tPayloadEmpty<tVariableHeaderEmpty>>
 {
 public:
 	tPacketDISCONNECT() :tPacket(GetFixedHeader()) {}
