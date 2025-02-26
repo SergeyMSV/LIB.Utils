@@ -174,12 +174,12 @@ bool tVariableHeaderCONNECT::operator==(const tVariableHeaderCONNECT& val) const
 	return ProtocolName == val.ProtocolName && ProtocolLevel == val.ProtocolLevel && ConnectFlags.Value == val.ConnectFlags.Value && KeepAlive.Value == val.KeepAlive.Value;
 }
 
-tPacketCONNECT::tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
+tPacketCONNECT::tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
 	:tPacket(GetFixedHeader())
 {
 	m_VariableHeader = tVariableHeaderCONNECT{};
 	m_VariableHeader->ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
-	m_VariableHeader->ConnectFlags.Field.CleanSession = 1; // [TBD] TEST
+	m_VariableHeader->ConnectFlags.Field.CleanSession = cleanSession ? 1 : 0;
 	m_VariableHeader->KeepAlive.Value = 11; // [TBD] TEST
 
 	m_Payload = tPayloadCONNECT{};

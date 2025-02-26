@@ -405,8 +405,9 @@ class tPacketCONNECT : public tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>
 {
 public:
 	tPacketCONNECT() :tPacket(GetFixedHeader()) {}
-	tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
-	tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage) :tPacketCONNECT(clientId, willTopic, willMessage, "", "")	{}
+	tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
+	tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage)
+		:tPacketCONNECT(cleanSession, clientId, willTopic, willMessage, "", "")	{}
 
 private:
 	void SetClientId(std::string value);
