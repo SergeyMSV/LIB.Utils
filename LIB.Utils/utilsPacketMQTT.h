@@ -2,8 +2,9 @@
 // utilsPacketMQTT
 // 2024-11-22
 // C++23
+// 
+// Specification: mqtt-v3.1.1-os.pdf (MQTT Version 3.1.1 OASIS Standard 29 October 2014)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// Based on mqtt - v3.1.1 - os.pdf
 
 // Find out:
 // 1. packet MQTT can be the same for both MQTT-3.1.1 and MQTT-5.0
@@ -404,27 +405,14 @@ class tPacketCONNECT : public tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>
 {
 public:
 	tPacketCONNECT() :tPacket(GetFixedHeader()) {}
-	tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
-		:tPacket(GetFixedHeader())
-	{
-		m_VariableHeader = tVariableHeaderCONNECT{};
-		m_VariableHeader->ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
-		m_VariableHeader->ConnectFlags.Field.CleanSession = 1; // [TBD] TEST
-		m_VariableHeader-> KeepAlive.Value = 11; // [TBD] TEST
-
-		m_Payload = tPayloadCONNECT{};
-
-		SetClientId(clientId);
-		SetWill(willTopic, willMessage);
-		SetUser(userName, password);
-	}
+	tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
 	tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage) :tPacketCONNECT(clientId, willTopic, willMessage, "", "")	{}
 
-	void SetClientId(const std::string& value);
+private:
+	void SetClientId(std::string value);
 	void SetWill(const std::string& topic, const std::string& message);
 	void SetUser(const std::string& name, const std::string& password);
 
-private:
 	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::CONNECT); }
 };
 

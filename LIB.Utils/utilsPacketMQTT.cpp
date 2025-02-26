@@ -174,6 +174,21 @@ bool tVariableHeaderCONNECT::operator==(const tVariableHeaderCONNECT& val) const
 	return ProtocolName == val.ProtocolName && ProtocolLevel == val.ProtocolLevel && ConnectFlags.Value == val.ConnectFlags.Value && KeepAlive.Value == val.KeepAlive.Value;
 }
 
+tPacketCONNECT::tPacketCONNECT(const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
+	:tPacket(GetFixedHeader())
+{
+	m_VariableHeader = tVariableHeaderCONNECT{};
+	m_VariableHeader->ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
+	m_VariableHeader->ConnectFlags.Field.CleanSession = 1; // [TBD] TEST
+	m_VariableHeader->KeepAlive.Value = 11; // [TBD] TEST
+
+	m_Payload = tPayloadCONNECT{};
+
+	SetClientId(clientId);
+	SetWill(willTopic, willMessage);
+	SetUser(userName, password);
+}
+
 std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(const tVariableHeaderCONNECT& variableHeader, tSpan& data)
 {
 	tPayloadCONNECT Payload{};
@@ -227,16 +242,22 @@ std::vector<std::uint8_t> tPayloadCONNECT::ToVector() const
 	return Data;
 }
 
-void tPacketCONNECT::SetClientId(const std::string& value)
+void tPacketCONNECT::SetClientId(std::string value)
 {
-	// The Server MAY allow ClientId’s that contain more than 23 encoded bytes.
-	// The Server MAY allow ClientId’s that contain characters not included in the list given above.
+	// 570 The Server MUST allow ClientIds which are between 1 and 23 UTF-8 encoded bytes in length, and that
+	// 571 contain only the characters
+	// 572 "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	constexpr std::size_t ClientIdSizeMax = 23;
+	if (value.size() > ClientIdSizeMax)
+		value.resize(ClientIdSizeMax);
+	// 574 The Server MAY allow ClientId’s that contain more than 23 encoded bytes.The Server MAY allow
+	// 575 ClientId’s that contain characters not included in the list given above.
 	// 
-	// A Server MAY allow a Client to supply a ClientId that has a length of zero bytes,
-	// however if it does so the Server MUST treat this as a special case and assign a unique ClientId to that Client.
-	// It MUST then process the CONNECT packet as if the Client had provided that unique ClientId [MQTT - 3.1.3 - 6].
+	// 577 A Server MAY allow a Client to supply a ClientId that has a length of zero bytes, however if it does so the
+	// 578 Server MUST treat this as a special case and assign a unique ClientId to that Client. It MUST then
+	// 579 process the CONNECT packet as if the Client had provided that unique ClientId [MQTT-3.1.3-6].
 	// 
-	// If the Client supplies a zero - byte ClientId, the Client MUST also set CleanSession to 1 [MQTT - 3.1.3 - 7].
+	// 581 If the Client supplies a zero - byte ClientId, the Client MUST also set CleanSession to 1 [MQTT-3.1.3-7].
 	m_Payload->ClientId = value;
 }
 

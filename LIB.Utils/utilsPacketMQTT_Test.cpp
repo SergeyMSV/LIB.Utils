@@ -74,8 +74,17 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>::Parse(PackVector);
+		auto Pack_parsed = tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>::Parse(PackVector); // example is here
 		utils::test::RESULT("Pack CONNECT serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
+
+	{
+		// ClientId size is 23 symbols = my_client_id34567890123
+		tPacketCONNECT Pack("my_client_id345678901234567", "my_will_topic", "my_will_message", "my_user_name", "my_password");
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+		auto Pack_parsed = tPacketCONNECT::Parse(PackVector);
+		utils::test::RESULT("Pack CONNECT ClientId size", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
 	{
