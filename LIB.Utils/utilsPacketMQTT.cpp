@@ -219,6 +219,43 @@ std::expected<tVariableHeaderCONNACK, tError> tVariableHeaderCONNACK::Parse(cons
 	return VHeader;
 }
 
+std::string tVariableHeaderCONNACK::ToString(bool extended) const
+{
+	std::string Res("ReturnCode: ");
+
+	if (extended)
+	{
+		switch (ConnectReturnCode)
+		{
+		case tConnectReturnCode::ConnectionAccepted: Res += "0x00 Connection Accepted"; break;
+		case tConnectReturnCode::ConnectionRefused_UnacceptableProtocolVersion: Res += "0x01 Connection Refused, unacceptable protocol version"; break;
+		case tConnectReturnCode::ConnectionRefused_IdentifierRejected: Res += "0x02 Connection Refused, identifier rejected"; break;
+		case tConnectReturnCode::ConnectionRefused_ServerUnavailable: Res += "0x03 Connection Refused, Server unavailable"; break;
+		case tConnectReturnCode::ConnectionRefused_BadUserNameOrPassword: Res += "0x04 Connection Refused, bad user name or password"; break;
+		case tConnectReturnCode::ConnectionRefused_NotAuthorized: Res += "0x05 Connection Refused, not authorized"; break;
+		}
+	}
+	else
+	{
+		Res += std::to_string(static_cast<int>(ConnectReturnCode));
+	}
+
+	if (ConnectReturnCode != tConnectReturnCode::ConnectionAccepted)
+		return Res;
+
+	Res += "; Session Present: ";
+	if (extended)
+	{
+		Res += ConnectAcknowledgeFlags.Field.SessionPresent ? "1 Continued" : "0 Clean";
+	}
+	else
+	{
+		Res += std::to_string(static_cast<int>(ConnectAcknowledgeFlags.Field.SessionPresent));
+	}
+
+	return Res;
+}
+
 std::vector<std::uint8_t> tVariableHeaderCONNACK::ToVector() const
 {
 	std::vector<std::uint8_t> Data;

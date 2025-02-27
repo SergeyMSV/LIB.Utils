@@ -305,6 +305,8 @@ public:
 		return Parse(DataSpan);
 	}
 
+	std::string ToString(bool extended = false) const { return m_VariableHeader->ToString(extended); }
+
 	std::vector<std::uint8_t> ToVector() const
 	{
 		std::vector<std::uint8_t> Data;
@@ -428,6 +430,8 @@ struct tVariableHeaderCONNACK
 
 	static std::size_t GetSize() { return 2; }
 
+	std::string ToString(bool extended = false) const;
+
 	std::vector<std::uint8_t> ToVector() const;
 
 	bool operator==(const tVariableHeaderCONNACK& val) const;
@@ -530,7 +534,7 @@ public:
 		:tPacket(GetFixedHeader())
 	{
 		m_VariableHeader = hidden::tVariableHeaderCONNACK{};
-		m_VariableHeader->ConnectAcknowledgeFlags.Field.SP = sessionPresent;
+		m_VariableHeader->ConnectAcknowledgeFlags.Field.SessionPresent = sessionPresent;
 		m_VariableHeader->ConnectReturnCode = connRetCode;
 	}
 
