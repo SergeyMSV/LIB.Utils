@@ -359,7 +359,7 @@ struct tVariableHeaderCONNECT
 	{
 		struct
 		{
-			std::uint8_t Reserved : 1; // The Server MUST validate that the reserved flag in the CONNECT Control Packet is set to zero and disconnect the Client if it is not zero [MQTT-3.1.2-3].
+			std::uint8_t Reserved : 1;
 			std::uint8_t CleanSession : 1;
 			std::uint8_t WillFlag : 1;
 			std::uint8_t WillQoS : 2; // [TBD] find out how it works
