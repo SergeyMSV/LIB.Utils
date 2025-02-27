@@ -7,6 +7,8 @@ namespace utils
 {
 
 using namespace packet_MQTT;
+using namespace packet_MQTT::hidden;
+
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength);
 void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tError error);
 void UnitTest_PacketMQTT_RemainingLengthToVector(const std::string& cap, std::uint32_t packetLength, const std::vector<std::uint8_t>& data);
@@ -142,6 +144,7 @@ void UnitTest_PacketMQTT()
 	}
 
 	//...
+	//packet_MQTT::
 
 	{
 		tPacketPINGREQ Pack;

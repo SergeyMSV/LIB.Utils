@@ -26,21 +26,6 @@ namespace utils
 {
 namespace packet_MQTT
 {
-namespace defs // definitions
-{
-// MQTT 3.1.1
-constexpr char DefaultProtocolName[] = "MQTT"; // The string, its offset and length will not be changed by future versions of the MQTT specification.
-constexpr std::uint8_t DefaultProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
-
-// MQTT 3.1
-//constexpr char DefaultProtocolName[] = "MQIsdp";
-//constexpr std::uint8_t DefaultProtocolLevel = 3;
-
-constexpr std::size_t PacketSizeMin = 2; // The minimum packet size is 2 bytes
-constexpr std::size_t PacketSizeMax = 256 * 1024 * 1024; // The maximum packet size is 256 MB.
-
-}
-
 // ... you cannot use a string that would encode to more than 65535 bytes.
 // Unless stated otherwise all UTF-8 encoded strings can have any length in the range 0 to 65535 bytes.
 
@@ -54,8 +39,8 @@ constexpr std::size_t PacketSizeMax = 256 * 1024 * 1024; // The maximum packet s
 
 enum class tControlPacketType
 {
-	Reserved_1,		// Forbidden
-	CONNECT,		// Client to Server							Client request to connect to Server
+	//Reserved_1,		// Forbidden
+	CONNECT = 1,	// Client to Server							Client request to connect to Server
 	CONNACK,		// Server to Client							Connect acknowledgment
 	PUBLISH,		// Client to Server or Server to Client		Publish message
 	PUBACK,			// Client to Server or Server to Client		Publish acknowledgment
@@ -69,7 +54,7 @@ enum class tControlPacketType
 	PINGREQ,		// Client to Server							PING request
 	PINGRESP,		// Server to Client							PING response
 	DISCONNECT,		// Client to Server							Client is disconnecting
-	Reserved_2		// Forbidden
+	//Reserved_2		// Forbidden
 };
 
 enum class tError
@@ -96,6 +81,17 @@ enum class tQoS : std::uint8_t // CONNECT (WillQoS), PUBLISH
 	AtLeastOnceDelivery,
 	ExactlyOnceDelivery,
 	Reserved_MustNotBeUsed
+};
+
+enum class tConnectReturnCode : std::uint8_t // CONNECT
+{
+	ConnectionAccepted,
+	ConnectionRefused_UnacceptableProtocolVersion, // The Server does not support the level of the MQTT protocol requested by the Client.
+	ConnectionRefused_IdentifierRejected, // The Client identifier is correct UTF-8 but not allowed by the Server.
+	ConnectionRefused_ServerUnavailable, // The Network Connection has been made but the MQTT service is unavailable.
+	ConnectionRefused_BadUserNameOrPassword, // The data in the user name or password is malformed.
+	ConnectionRefused_NotAuthorized, // The Client is not authorized to connect.
+	Reserved // 6-255 Reserved for future use.
 };
 
 class tSpan : public std::span<const std::uint8_t>
@@ -153,6 +149,20 @@ public:
 	std::vector<std::uint8_t> ToVector() const;
 };
 
+namespace hidden
+{
+
+// MQTT 3.1.1
+constexpr char DefaultProtocolName[] = "MQTT"; // The string, its offset and length will not be changed by future versions of the MQTT specification.
+constexpr std::uint8_t DefaultProtocolLevel = 4; // The value of the Protocol Level field for the version 3.1.1 of the protocol is 4 (0x04).
+
+// MQTT 3.1
+//constexpr char DefaultProtocolName[] = "MQIsdp";
+//constexpr std::uint8_t DefaultProtocolLevel = 3;
+
+constexpr std::size_t PacketSizeMin = 2; // The minimum packet size is 2 bytes
+constexpr std::size_t PacketSizeMax = 256 * 1024 * 1024; // The maximum packet size is 256 MB.
+
 union tFixedHeader
 {
 	struct
@@ -178,11 +188,6 @@ constexpr tFixedHeader MakeFixedHeader(tControlPacketType type, std::uint8_t fla
 	return Header;
 }
 
-//constexpr tFixedHeader MakeSUBSCRIBE() [TBD]
-//{ 
-//	return MakeFixedHeader(tControlPacketType::SUBSCRIBE, 0x02);
-//}
-
 using tRemainingLengthParseExp = std::expected<std::uint32_t, tError>;
 using tRemainingLengthToVectorExp = std::expected<std::vector<std::uint8_t>, tError>;
 
@@ -206,9 +211,6 @@ public:
 	static tRemainingLengthParseExp Parse(tSpan& data);
 	static tRemainingLengthToVectorExp ToVector(std::uint32_t value);
 };
-
-std::expected<tControlPacketType, tError> TestPacket(tSpan& data);
-std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint8_t>& data);
 
 template <class VH, class PL>
 class tPacket
@@ -324,9 +326,11 @@ public:
 	}
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct tVariableHeaderEmpty
 {
-	static std::expected<tVariableHeaderEmpty, tError> Parse(const tFixedHeader& fixedHeader, tSpan& data) { return tVariableHeaderEmpty(); }
+	static std::expected<tVariableHeaderEmpty, tError> Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data) { return tVariableHeaderEmpty(); }
 
 	std::vector<std::uint8_t> ToVector() const { return {}; }
 
@@ -343,12 +347,8 @@ struct tPayloadEmpty
 	bool operator==(const tPayloadEmpty& value) const = default;
 };
 
-
-// **** CONNECT
-
-// The variable header for the CONNECT Packet consists of four fields in the following order: Protocol Name, Protocol Level, Connect Flags, and Keep Alive.
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// CONNECT
 
 struct tVariableHeaderCONNECT
 {
@@ -374,10 +374,10 @@ struct tVariableHeaderCONNECT
 	// Expressed as a 16-bit word, it is the maximum time interval that is permitted to elapse between the point at which the Client finishes
 	// transmitting one Control Packet and the point it starts sending the next.
 	tUInt16 KeepAlive = 0; // The maximum value is 18 hours 12 minutes and 15 seconds.
-	
-	tVariableHeaderCONNECT() :ProtocolName(defs::DefaultProtocolName), ProtocolLevel(defs::DefaultProtocolLevel) {}
 
-	static std::expected<tVariableHeaderCONNECT, tError> Parse(const tFixedHeader& fixedHeader, tSpan& data);
+	tVariableHeaderCONNECT() :ProtocolName(hidden::DefaultProtocolName), ProtocolLevel(hidden::DefaultProtocolLevel) {}
+
+	static std::expected<tVariableHeaderCONNECT, tError> Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data);
 
 	std::size_t GetSize() const { return ProtocolName.GetSize() + 4; }
 
@@ -406,34 +406,8 @@ struct tPayloadCONNECT // The payload of the CONNECT Packet contains one or more
 	bool operator==(const tPayloadCONNECT& value) const = default;
 };
 
-class tPacketCONNECT : public tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>
-{
-public:
-	tPacketCONNECT() :tPacket(GetFixedHeader()) {}
-	tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
-	tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage)
-		:tPacketCONNECT(cleanSession, clientId, willTopic, willMessage, "", "")	{}
-
-private:
-	void SetClientId(std::string value);
-	void SetWill(const std::string& topic, const std::string& message);
-	void SetUser(const std::string& name, const std::string& password);
-
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::CONNECT); }
-};
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-enum class tConnectReturnCode : std::uint8_t
-{
-	ConnectionAccepted,
-	ConnectionRefused_UnacceptableProtocolVersion, // The Server does not support the level of the MQTT protocol requested by the Client.
-	ConnectionRefused_IdentifierRejected, // The Client identifier is correct UTF-8 but not allowed by the Server.
-	ConnectionRefused_ServerUnavailable, // The Network Connection has been made but the MQTT service is unavailable.
-	ConnectionRefused_BadUserNameOrPassword, // The data in the user name or password is malformed.
-	ConnectionRefused_NotAuthorized, // The Client is not authorized to connect.
-	Reserved // 6-255 Reserved for future use.
-};
+// CONNACK
 
 struct tVariableHeaderCONNACK
 {
@@ -450,7 +424,7 @@ struct tVariableHeaderCONNACK
 
 	tVariableHeaderCONNACK() = default;
 
-	static std::expected<tVariableHeaderCONNACK, tError> Parse(const tFixedHeader& fixedHeader, tSpan& data);
+	static std::expected<tVariableHeaderCONNACK, tError> Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data);
 
 	static std::size_t GetSize() { return 2; }
 
@@ -461,23 +435,8 @@ struct tVariableHeaderCONNACK
 
 using tPayloadCONNACK = tPayloadEmpty<tVariableHeaderCONNACK>;
 
-class tPacketCONNACK : public tPacket<tVariableHeaderCONNACK, tPayloadCONNACK>
-{
-public:
-	tPacketCONNACK() :tPacket(GetFixedHeader()) {}
-	tPacketCONNACK(bool sessionPresent, tConnectReturnCode connRetCode)
-		:tPacket(GetFixedHeader())
-	{
-		m_VariableHeader = tVariableHeaderCONNACK{};
-		m_VariableHeader->ConnectAcknowledgeFlags.Field.SP = sessionPresent;
-		m_VariableHeader->ConnectReturnCode = connRetCode;
-	}
-
-private:
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::CONNACK); }
-};
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PUBLISH
 
 union tFixedHeaderPUBLISHFlags
 {
@@ -498,7 +457,7 @@ struct tVariableHeaderPUBLISH
 
 	tVariableHeaderPUBLISH() {}
 
-	static std::expected<tVariableHeaderPUBLISH, tError> Parse(const tFixedHeader& fixedHeader, tSpan& data);
+	static std::expected<tVariableHeaderPUBLISH, tError> Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data);
 
 	std::size_t GetSize() const { return TopicName.GetSize() + 2; }
 
@@ -518,7 +477,68 @@ struct tPayloadPUBLISH
 	bool operator==(const tPayloadPUBLISH& value) const = default;
 };
 
-class tPacketPUBLISH : public tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PUBACK
+
+struct tVariableHeaderPUBACK
+{
+	tUInt16 PacketId; // This contains the Packet Identifier from the PUBLISH Packet that is being acknowledged.
+
+	tVariableHeaderPUBACK() = default;
+
+	static std::expected<tVariableHeaderPUBACK, tError> Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data);
+
+	static std::size_t GetSize() { return 2; } // For the PUBACK Packet this has the value 2.
+
+	std::vector<std::uint8_t> ToVector() const { return PacketId.ToVector(); }
+
+	bool operator==(const tVariableHeaderPUBACK& val) const = default;
+};
+
+using tPayloadPUBACK = tPayloadEmpty<tVariableHeaderPUBACK>;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// PUB...
+
+// [TBD] the other packets
+
+} // hidden
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+class tPacketCONNECT : public hidden::tPacket<hidden::tVariableHeaderCONNECT, hidden::tPayloadCONNECT>
+{
+public:
+	tPacketCONNECT() :tPacket(GetFixedHeader()) {}
+	tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
+	tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage)
+		:tPacketCONNECT(cleanSession, clientId, willTopic, willMessage, "", "")	{}
+
+private:
+	void SetClientId(std::string value);
+	void SetWill(const std::string& topic, const std::string& message);
+	void SetUser(const std::string& name, const std::string& password);
+
+	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::CONNECT); }
+};
+
+class tPacketCONNACK : public hidden::tPacket<hidden::tVariableHeaderCONNACK, hidden::tPayloadCONNACK>
+{
+public:
+	tPacketCONNACK() :tPacket(GetFixedHeader()) {}
+	tPacketCONNACK(bool sessionPresent, tConnectReturnCode connRetCode)
+		:tPacket(GetFixedHeader())
+	{
+		m_VariableHeader = hidden::tVariableHeaderCONNACK{};
+		m_VariableHeader->ConnectAcknowledgeFlags.Field.SP = sessionPresent;
+		m_VariableHeader->ConnectReturnCode = connRetCode;
+	}
+
+private:
+	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::CONNACK); }
+};
+
+class tPacketPUBLISH : public hidden::tPacket<hidden::tVariableHeaderPUBLISH, hidden::tPayloadPUBLISH>
 {
 public:
 	tPacketPUBLISH() = delete;
@@ -531,79 +551,59 @@ public:
 	static bool IsPacketIdPresent(std::uint8_t flags);
 
 private:
-	static tFixedHeader GetFixedHeader(bool dup, tQoS qos, bool retain);
+	static hidden::tFixedHeader GetFixedHeader(bool dup, tQoS qos, bool retain);
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-struct tVariableHeaderPUBACK
-{
-	tUInt16 PacketId; // This contains the Packet Identifier from the PUBLISH Packet that is being acknowledged.
-
-	tVariableHeaderPUBACK() = default;
-
-	static std::expected<tVariableHeaderPUBACK, tError> Parse(const tFixedHeader& fixedHeader, tSpan& data);
-
-	static std::size_t GetSize() { return 2; } // For the PUBACK Packet this has the value 2.
-
-	std::vector<std::uint8_t> ToVector() const { return PacketId.ToVector(); }
-
-	bool operator==(const tVariableHeaderPUBACK& val) const = default;
-};
-
-using tPayloadPUBACK = tPayloadEmpty<tVariableHeaderPUBACK>;
-
-class tPacketPUBACK : public tPacket<tVariableHeaderPUBACK, tPayloadPUBACK>
+class tPacketPUBACK : public hidden::tPacket<hidden::tVariableHeaderPUBACK, hidden::tPayloadPUBACK>
 {
 public:
 	tPacketPUBACK() = delete;
 	explicit tPacketPUBACK(tUInt16 packetId)
 		:tPacket(GetFixedHeader())
 	{
-		m_VariableHeader = tVariableHeaderPUBACK{};
+		m_VariableHeader = hidden::tVariableHeaderPUBACK{};
 		m_VariableHeader->PacketId = packetId;
 	}
 
 private:
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::PUBACK); }
+	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::PUBACK); }
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // [TBD] the other packets
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class tPacketPINGREQ : public tPacket<tVariableHeaderEmpty, tPayloadEmpty<tVariableHeaderEmpty>>
+class tPacketPINGREQ : public hidden::tPacket<hidden::tVariableHeaderEmpty, hidden::tPayloadEmpty<hidden::tVariableHeaderEmpty>>
 {
 public:
 	tPacketPINGREQ() :tPacket(GetFixedHeader()) {}
 
 private:
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::PINGREQ); }
+	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::PINGREQ); }
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class tPacketPINGRESP : public tPacket<tVariableHeaderEmpty, tPayloadEmpty<tVariableHeaderEmpty>>
+class tPacketPINGRESP : public hidden::tPacket<hidden::tVariableHeaderEmpty, hidden::tPayloadEmpty<hidden::tVariableHeaderEmpty>>
 {
 public:
 	tPacketPINGRESP() :tPacket(GetFixedHeader()) {}
 
 private:
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::PINGRESP); }
+	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::PINGRESP); }
 };
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class tPacketDISCONNECT : public tPacket<tVariableHeaderEmpty, tPayloadEmpty<tVariableHeaderEmpty>>
+class tPacketDISCONNECT : public hidden::tPacket<hidden::tVariableHeaderEmpty, hidden::tPayloadEmpty<hidden::tVariableHeaderEmpty>>
 {
 public:
 	tPacketDISCONNECT() :tPacket(GetFixedHeader()) {}
 
 private:
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::DISCONNECT); }
+	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::DISCONNECT); }
 };
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::expected<tControlPacketType, tError> TestPacket(tSpan& data);
+std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint8_t>& data);
 
 }
 }
