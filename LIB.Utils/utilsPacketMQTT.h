@@ -450,6 +450,8 @@ union tFixedHeaderPUBLISHFlags
 {
 	struct
 	{
+		// Normally if a publisher publishes a message to a topic, and no one is subscribed to that topic the message is simply discarded by the broker.
+		// However the publisher can tell the broker to keep the last message on that topic by setting the retained message flag.
 		std::uint8_t RETAIN : 1;
 		std::uint8_t QoS : 2;
 		std::uint8_t DUP : 1;
