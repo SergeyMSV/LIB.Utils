@@ -372,10 +372,14 @@ struct tVariableHeaderCONNECT
 		std::uint8_t Value = 0;
 	}ConnectFlags;
 
-	// The Keep Alive is a time interval measured in seconds.
-	// Expressed as a 16-bit word, it is the maximum time interval that is permitted to elapse between the point at which the Client finishes
-	// transmitting one Control Packet and the point it starts sending the next.
-	tUInt16 KeepAlive = 0; // The maximum value is 18 hours 12 minutes and 15 seconds.
+	// 529 The Keep Alive is a time interval measured in seconds.
+	// 
+	// 538 If the Keep Alive value is non-zero and the Server does not receive a Control Packet from the Client
+	// 539 within one and a half times the Keep Alive time period, it MUST disconnect the Network Connection to the
+	// 540 Client as if the network had failed[MQTT-3.1.2-24].
+	// 
+	// 551 ... The maximum value is 18 hours 12 minutes and 15 seconds.
+	tUInt16 KeepAlive = 0;
 
 	tVariableHeaderCONNECT() :ProtocolName(hidden::DefaultProtocolName), ProtocolLevel(hidden::DefaultProtocolLevel) {}
 
@@ -514,9 +518,9 @@ class tPacketCONNECT : public hidden::tPacket<hidden::tVariableHeaderCONNECT, hi
 {
 public:
 	tPacketCONNECT() :tPacket(GetFixedHeader()) {}
-	tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
-	tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage)
-		:tPacketCONNECT(cleanSession, clientId, willTopic, willMessage, "", "")	{}
+	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
+	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& willTopic, const std::string& willMessage)
+		:tPacketCONNECT(cleanSession, keepAlive, clientId, willTopic, willMessage, "", "")	{}
 
 private:
 	void SetClientId(std::string value);

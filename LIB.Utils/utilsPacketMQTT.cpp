@@ -338,13 +338,13 @@ std::expected<tVariableHeaderPUBACK, tError> tVariableHeaderPUBACK::Parse(const 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-tPacketCONNECT::tPacketCONNECT(bool cleanSession, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
+tPacketCONNECT::tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
 	:tPacket(GetFixedHeader())
 {
 	m_VariableHeader = hidden::tVariableHeaderCONNECT{};
 	m_VariableHeader->ConnectFlags.Field.WillQoS = 1; // [TBD] TEST
 	m_VariableHeader->ConnectFlags.Field.CleanSession = cleanSession ? 1 : 0;
-	m_VariableHeader->KeepAlive.Value = 11; // [TBD] TEST
+	m_VariableHeader->KeepAlive.Value = keepAlive;
 
 	m_Payload = hidden::tPayloadCONNECT{};
 
