@@ -415,8 +415,8 @@ struct tVariableHeaderCONNACK
 	{
 		struct
 		{
-			std::uint8_t SP : 1; // It is the Session Present Flag.
-			std::uint8_t Reserved : 7; // Bits 7-1 are reserved and MUST be set to 0.
+			std::uint8_t SessionPresent : 1; // 683 ... the value set in Session Present depends on whether the Server already has stored Session state for the supplied client ID.
+			std::uint8_t Reserved : 7;
 		}Field;
 		std::uint8_t Value = 0;
 	}ConnectAcknowledgeFlags;
