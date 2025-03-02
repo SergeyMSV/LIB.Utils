@@ -81,7 +81,7 @@ enum class tQoS : std::uint8_t // CONNECT (WillQoS), PUBLISH
 	AtMostOnceDelivery,
 	AtLeastOnceDelivery,
 	ExactlyOnceDelivery,
-	Reserved_MustNotBeUsed
+	//Reserved_MustNotBeUsed
 };
 
 std::string ToString(tQoS value);
@@ -421,6 +421,11 @@ struct tPayloadCONNECT
 
 	// 567 ... These fields, if present, MUST appear in the order Client
 	// 568 Identifier, Will Topic, Will Message, User Name, Password [MQTT-3.1.3-1].
+
+	// 483 If the Will Flag is set to 1 this indicates that, if the Connect request is accepted, a Will Message MUST be
+	// 484 stored on the Server and associated with the Network Connection.The Will Message MUST be published
+	// 485 when the Network Connection is subsequently closed unless the Will Message has been deleted by the
+	// 486 Server on receipt of a DISCONNECT Packet[MQTT - 3.1.2 - 8].
 	std::optional<tString> WillTopic;
 	std::optional<tString> WillMessage;
 
@@ -542,13 +547,17 @@ class tPacketCONNECT : public hidden::tPacket<hidden::tVariableHeaderCONNECT, hi
 {
 public:
 	tPacketCONNECT() :tPacket(GetFixedHeader()) {}
-	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
-	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& willTopic, const std::string& willMessage)
-		:tPacketCONNECT(cleanSession, keepAlive, clientId, willTopic, willMessage, "", "")	{}
+	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
+	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage)
+		:tPacketCONNECT(cleanSession, keepAlive, clientId, willQos, willRetain, willTopic, willMessage, "", "")	{}
+	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId)
+		:tPacketCONNECT(cleanSession, keepAlive, clientId, tQoS::AtMostOnceDelivery, false, "", "", "", "") {}
+	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& userName, const std::string& password)
+		:tPacketCONNECT(cleanSession, keepAlive, clientId, tQoS::AtMostOnceDelivery, false, "", "", userName, password) {}
 
 private:
 	void SetClientId(std::string value);
-	void SetWill(const std::string& topic, const std::string& message);
+	void SetWill(tQoS qos, bool retain, const std::string& topic, const std::string& message);
 	void SetUser(const std::string& name, const std::string& password);
 
 	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::CONNECT); }

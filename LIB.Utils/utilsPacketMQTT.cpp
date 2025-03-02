@@ -386,7 +386,7 @@ std::expected<tVariableHeaderPUBACK, tError> tVariableHeaderPUBACK::Parse(const 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-tPacketCONNECT::tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
+tPacketCONNECT::tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
 	:tPacket(GetFixedHeader())
 {
 	m_VariableHeader = hidden::tVariableHeaderCONNECT{};
@@ -397,7 +397,7 @@ tPacketCONNECT::tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const
 	m_Payload = hidden::tPayloadCONNECT{};
 
 	SetClientId(clientId);
-	SetWill(willTopic, willMessage);
+	SetWill(willQos, willRetain, willTopic, willMessage);
 	SetUser(userName, password);
 }
 
@@ -421,12 +421,14 @@ void tPacketCONNECT::SetClientId(std::string value)
 	m_Payload->ClientId = value;
 }
 
-void tPacketCONNECT::SetWill(const std::string& topic, const std::string& message)
+void tPacketCONNECT::SetWill(tQoS qos, bool retain, const std::string& topic, const std::string& message)
 {
 	m_VariableHeader->ConnectFlags.Field.WillFlag = !topic.empty() && !message.empty();
 
 	if (m_VariableHeader->ConnectFlags.Field.WillFlag)
 	{
+		m_VariableHeader->ConnectFlags.Field.WillQoS = static_cast<std::uint8_t>(qos);
+		m_VariableHeader->ConnectFlags.Field.WillRetain = retain ? 1 : 0;
 		m_Payload->WillTopic = topic;
 		m_Payload->WillMessage = message;
 	}
