@@ -7,6 +7,8 @@ namespace utils
 {
 
 using namespace packet_MQTT;
+using namespace packet_MQTT::hidden;
+
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength);
 void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tError error);
 void UnitTest_PacketMQTT_RemainingLengthToVector(const std::string& cap, std::uint32_t packetLength, const std::vector<std::uint8_t>& data);
@@ -32,16 +34,21 @@ void UnitTest_PacketMQTT()
 	UnitTest_PacketMQTT_RemainingLengthToVectorWrong("0x4FFFFFFF", 0x4FFFFFFF, tError::LengthOverflow);
 
 	{
-		auto PackType = TestPacket(std::vector<std::uint8_t>{ 0x10, 0x53, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 });
+		std::vector<std::uint8_t> Data{ 0x10, 0x53, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 };
+		tSpan DataSpan(Data);
+		auto PackType = TestPacket(DataSpan);
 		utils::test::RESULT("TestPacket 1", PackType.has_value() && *PackType == tControlPacketType::CONNECT);
 	}
 
 	{
-		auto PackType = TestPacket(std::vector<std::uint8_t>{ 0x00, 0x53, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 });
+		std::vector<std::uint8_t> Data{ 0x00, 0x53, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 };
+		tSpan DataSpan(Data);
+		auto PackType = TestPacket(DataSpan);
 		utils::test::RESULT("TestPacket tError::PacketType 1", !PackType.has_value() && PackType.error() == tError::PacketType);
 	}
 
 	{
+
 		auto Pack = tPacketCONNECT::Parse(std::vector<std::uint8_t>{ 0x10, 0x53, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 });
 		utils::test::RESULT("Pack CONNECT Parse MQTT 3.1.1", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQTT");
 	}
@@ -57,7 +64,7 @@ void UnitTest_PacketMQTT()
 	}
 
 	{
-		tPacketCONNECT Pack("my_client_id", "my_will_topic", "my_will_message", "my_user_name", "my_password");
+		tPacketCONNECT Pack(true, 10, "my_client_id", "my_will_topic", "my_will_message", "my_user_name", "my_password");
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 		auto Pack_parsed = tPacketCONNECT::Parse(PackVector);
@@ -65,20 +72,30 @@ void UnitTest_PacketMQTT()
 	}
 
 	{
-		tPacketCONNECT Pack("my_client_id", "my_will_topic", "my_will_message", "my_user_name", "my_password");
+		tPacketCONNECT Pack(true, 10, "my_client_id", "my_will_topic", "my_will_message", "my_user_name", "my_password");
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>::Parse(PackVector);
+		auto Pack_parsed = tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>::Parse(PackVector); // example is here
 		utils::test::RESULT("Pack CONNECT serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
 	{
+		// ClientId size is 23 symbols = my_client_id34567890123
+		tPacketCONNECT Pack(true, 10, "my_client_id345678901234567", "my_will_topic", "my_will_message", "my_user_name", "my_password");
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+		auto Pack_parsed = tPacketCONNECT::Parse(PackVector);
+		utils::test::RESULT("Pack CONNECT ClientId size", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
+
+	{
 		tPacketCONNACK Pack(true, tConnectReturnCode::ConnectionRefused_NotAuthorized);
+		std::cout << Pack.ToString(true) << '\n';
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderCONNACK, tPayloadCONNACK>::Parse(PackVector);
+		auto Pack_parsed = tPacketCONNACK::Parse(PackVector);
 		utils::test::RESULT("Pack CONNACK serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -87,7 +104,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBLISH::Parse(PackVector);
 		utils::test::RESULT("Pack PUBLISH serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -96,7 +113,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBLISH::Parse(PackVector);
 		utils::test::RESULT("Pack PUBLISH serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -105,7 +122,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBLISH::Parse(PackVector);
 		utils::test::RESULT("Pack PUBLISH + Payload serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -114,7 +131,7 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBLISH, tPayloadPUBLISH>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBLISH::Parse(PackVector);
 		utils::test::RESULT("Pack PUBLISH + Payload serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 
@@ -123,8 +140,39 @@ void UnitTest_PacketMQTT()
 		auto PackVector = Pack.ToVector();
 		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
 
-		auto Pack_parsed = tPacket<tVariableHeaderPUBACK, tPayloadPUBACK>::Parse(PackVector);
+		auto Pack_parsed = tPacketPUBACK::Parse(PackVector);
 		utils::test::RESULT("Pack PUBACK serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
+
+	//...
+	//packet_MQTT::
+
+	{
+		tPacketPINGREQ Pack;
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack_parsed = tPacketPINGREQ::Parse(PackVector);
+		utils::test::RESULT("Pack PINGREQ serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
+
+	{
+		tPacketPINGRESP Pack;
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack_parsed = tPacketPINGRESP::Parse(PackVector);
+		utils::test::RESULT("Pack PINGRESP serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
+	}
+
+	{
+		tPacketDISCONNECT Pack;
+		std::cout << Pack.ToString(true) << '\n';
+		auto PackVector = Pack.ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack_parsed = tPacketDISCONNECT::Parse(PackVector);
+		utils::test::RESULT("Pack DISCONNECT serialize-deserialize", Pack_parsed.has_value() && Pack_parsed == Pack);
 	}
 }
 
