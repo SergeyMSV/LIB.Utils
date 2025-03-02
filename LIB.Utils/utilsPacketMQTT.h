@@ -10,6 +10,8 @@
 // 1. packet MQTT can be the same for both MQTT-3.1.1 and MQTT-5.0
 //    or compatible part can be defined separately
 
+#include <libConfig.h>
+
 #include <expected> // C++ 23
 #include <optional>
 #include <span> // C++ 20
@@ -310,11 +312,11 @@ public:
 		return Parse(DataSpan);
 	}
 
-	std::string ToString(bool extended = false) const
+	std::string ToString() const
 	{
 		std::string Res(packet_MQTT::ToString(static_cast<tControlPacketType>(m_FixedHeader.Field.ControlPacketType)));
 		if (m_VariableHeader.has_value())
-			Res += " - " + m_VariableHeader->ToString(extended);
+			Res += " - " + m_VariableHeader->ToString();
 		return Res;
 	}
 
@@ -345,7 +347,7 @@ struct tVariableHeaderEmpty
 {
 	static std::expected<tVariableHeaderEmpty, tError> Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data) { return tVariableHeaderEmpty(); }
 
-	std::string ToString(bool extended) const { return{}; }
+	std::string ToString() const { return{}; }
 
 	std::vector<std::uint8_t> ToVector() const { return {}; }
 
@@ -400,7 +402,7 @@ struct tVariableHeaderCONNECT
 
 	std::size_t GetSize() const { return ProtocolName.GetSize() + 4; }
 
-	std::string ToString(bool extended) const { return "[TBD]"; }
+	std::string ToString() const;
 
 	std::vector<std::uint8_t> ToVector() const;
 
@@ -461,7 +463,7 @@ struct tVariableHeaderCONNACK
 
 	static std::size_t GetSize() { return 2; }
 
-	std::string ToString(bool extended) const;
+	std::string ToString() const;
 
 	std::vector<std::uint8_t> ToVector() const;
 

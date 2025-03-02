@@ -11,6 +11,11 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, std::string>::type
 	return std::string("[") + std::to_string(static_cast<int>(code)) + "] " + msg;
 }
 
+std::string ToString(bool state)
+{
+	return state ? "true" : "false";
+}
+
 std::string ToString(tControlPacketType value)
 {
 	switch (value)
@@ -190,6 +195,23 @@ std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(cons
 	return VHeader;
 }
 
+std::string tVariableHeaderCONNECT::ToString() const
+{
+	std::string Res("Protocol");
+	Res += " name: " + ProtocolName;
+	Res += ", level: " + std::to_string(ProtocolLevel);
+	Res += "; Clean session: " + packet_MQTT::ToString(ConnectFlags.Field.CleanSession);
+	Res += "; Will";
+	Res += " flag: " + packet_MQTT::ToString(ConnectFlags.Field.WillFlag);
+	Res += ", QoS: " + packet_MQTT::ToString(static_cast<tQoS>(ConnectFlags.Field.WillQoS));
+	Res += ", retain: " + packet_MQTT::ToString(ConnectFlags.Field.WillRetain);
+	Res += "; User";
+	Res += " name: " + packet_MQTT::ToString(ConnectFlags.Field.UserNameFlag);
+	Res += ", password: " + packet_MQTT::ToString(ConnectFlags.Field.PasswordFlag);
+	Res += "; Keep alive: " + std::to_string(KeepAlive.Value) + " s.";
+	return Res;
+}
+
 std::vector<std::uint8_t> tVariableHeaderCONNECT::ToVector() const
 {
 	std::vector<std::uint8_t> Data = ProtocolName.ToVector();
@@ -274,33 +296,17 @@ std::expected<tVariableHeaderCONNACK, tError> tVariableHeaderCONNACK::Parse(cons
 	return VHeader;
 }
 
-std::string tVariableHeaderCONNACK::ToString(bool extended) const
+std::string tVariableHeaderCONNACK::ToString() const
 {
 	std::string Res("ReturnCode: ");
-
-	if (extended)
-	{
-		Res += packet_MQTT::ToString(ConnectReturnCode);
-	}
-	else
-	{
-		Res += std::to_string(static_cast<int>(ConnectReturnCode));
-	}
+	Res += packet_MQTT::ToString(ConnectReturnCode);
 
 	if (ConnectReturnCode != tConnectReturnCode::ConnectionAccepted)
 		return Res;
 
 	Res += "; Session Present: ";
-	if (extended)
-	{
-		Res += ConnectAcknowledgeFlags.Field.SessionPresent ?
+	Res += ConnectAcknowledgeFlags.Field.SessionPresent ?
 			packet_MQTT::ToString(ConnectAcknowledgeFlags.Field.SessionPresent, "Continued") : packet_MQTT::ToString(ConnectAcknowledgeFlags.Field.SessionPresent, "Clean");
-	}
-	else
-	{
-		Res += std::to_string(static_cast<int>(ConnectAcknowledgeFlags.Field.SessionPresent));
-	}
-
 	return Res;
 }
 
