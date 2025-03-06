@@ -6,10 +6,6 @@
 // Specification: mqtt-v3.1.1.pdf (MQTT Version 3.1.1 Plus Errata 01; OASIS Standard Incorporating Approved Errata 01; 10 December 2015)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-// Find out:
-// 1. packet MQTT can be the same for both MQTT-3.1.1 and MQTT-5.0
-//    or compatible part can be defined separately
-
 #include <libConfig.h>
 
 #include <expected> // C++ 23
@@ -93,7 +89,6 @@ enum class tConnectReturnCode : std::uint8_t
 	ConnectionRefused_ServerUnavailable, // The Network Connection has been made but the MQTT service is unavailable.
 	ConnectionRefused_BadUserNameOrPassword, // The data in the user name or password is malformed.
 	ConnectionRefused_NotAuthorized, // The Client is not authorized to connect.
-	Reserved // 6-255 Reserved for future use.
 };
 
 enum class tSubscribeReturnCode : std::uint8_t
@@ -486,7 +481,7 @@ struct tVariableHeaderCONNACK
 		}Field;
 		std::uint8_t Value = 0;
 	}ConnectAcknowledgeFlags;
-	tConnectReturnCode ConnectReturnCode = tConnectReturnCode::Reserved;
+	tConnectReturnCode ConnectReturnCode = tConnectReturnCode::ConnectionAccepted;
 
 	tVariableHeaderCONNACK() = default;
 
