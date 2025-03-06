@@ -77,7 +77,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;..\Lib.Utils;$(LIB_BOOST);</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;..\Lib.Utils;$(LIB_BOOST);</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -110,7 +110,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;..\Lib.Utils;$(LIB_BOOST);</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,7 +128,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>.;..\Lib.Utils;$(LIB_BOOST);</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
       <PreprocessorDefinitions>_MBCS;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -159,6 +159,8 @@
     <ClCompile Include="..\LIB.Utils\utilsLog_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPacketCameraVC0706.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPacketCameraVC0706_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsPacketMQTT.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsPacketMQTT_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPacketNMEAPayload_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPacketNMEAType.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsPacketNMEAType_Test.cpp" />
@@ -174,6 +176,8 @@
     <ClCompile Include="..\Lib.Utils\utilsTest.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsTest_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsTrap_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsVersion.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsVersion_Test.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -192,6 +196,7 @@
     <ClInclude Include="..\LIB.Utils\utilsLog.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacket.h" />
     <ClInclude Include="..\LIB.Utils\utilsPacketCameraVC0706.h" />
+    <ClInclude Include="..\LIB.Utils\utilsPacketMQTT.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketNMEA.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketNMEAPayload.h" />
     <ClInclude Include="..\Lib.Utils\utilsPacketNMEAType.h" />
@@ -203,6 +208,7 @@
     <ClInclude Include="..\LIB.Utils\utilsPortSerial.h" />
     <ClInclude Include="..\Lib.Utils\utilsTest.h" />
     <ClInclude Include="..\Lib.Utils\utilsTrap.h" />
+    <ClInclude Include="..\LIB.Utils\utilsVersion.h" />
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
   </ItemGroup>

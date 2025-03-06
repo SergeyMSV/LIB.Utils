@@ -19,6 +19,7 @@
 /UnitTest_Log/x64/Debug
 /UnitTest_Packet/x64/Debug
 /UnitTest_PacketBNTBX/x64/Debug
+/UnitTest_PacketMQTT/x64/Debug
 /UnitTest_PacketStar/x64/Debug
 /UnitTest_PacketStar2/x64/Debug
 /UnitTest_Shell/x64/Debug

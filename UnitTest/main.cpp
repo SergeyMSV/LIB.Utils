@@ -12,6 +12,7 @@ namespace utils
 	void UnitTest_tLog();
 	//void UnitTest_PacketBNTBX2();
 	void UnitTest_PacketCameraVC0706();
+	void UnitTest_PacketMQTT();
 	void UnitTest_PacketNMEA();
 	void UnitTest_PacketNMEAPayload();
 	void UnitTest_PacketNMEAType();
@@ -41,6 +42,7 @@ int main()
 	UnitTest_Linux();
 	//UnitTest_PacketBNTBX2();
 	UnitTest_PacketCameraVC0706();
+	UnitTest_PacketMQTT();
 	UnitTest_PacketNMEA();
 	UnitTest_PacketNMEAPayload();
 	UnitTest_PacketNMEAType();
