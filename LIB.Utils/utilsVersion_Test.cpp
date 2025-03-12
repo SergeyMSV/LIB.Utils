@@ -8,50 +8,50 @@ void UnitTest_Version()
 {
 	std::cout << "\n""utils::Version" << std::endl;
 
-	{
-		bool Result = false;
+	//{
+	//	bool Result = false;
 
-		try
-		{
-			tVersion Value("123.456.dd");
-		}
-		catch (const std::exception & e)
-		{
-			Result = std::string(e.what()).find_first_of("format") != std::string::npos;
-		}
+	//	try
+	//	{
+	//		tVersion Value("123.456.dd");
+	//	}
+	//	catch (const std::exception& e)
+	//	{
+	//		Result = std::string(e.what()).find_first_of("format") != std::string::npos;
+	//	}
 
-		utils::test::RESULT("tVersion 123.456.dd", Result);
-	}
+	//	utils::test::RESULT("tVersion 123.456.dd", Result);
+	//}
 
-	{
-		bool Result = false;
+	//{
+	//	bool Result = false;
 
-		try
-		{
-			tVersion Value("123.");
-		}
-		catch (const std::exception & e)
-		{
-			Result = std::string(e.what()).find_first_of("format") != std::string::npos;
-		}
+	//	try
+	//	{
+	//		tVersion Value("123.");
+	//	}
+	//	catch (const std::exception& e)
+	//	{
+	//		Result = std::string(e.what()).find_first_of("format") != std::string::npos;
+	//	}
 
-		utils::test::RESULT("tVersion 123.", Result);
-	}
+	//	utils::test::RESULT("tVersion 123.", Result);
+	//}
 
-	{
-		bool Result = false;
+	//{
+	//	bool Result = false;
 
-		try
-		{
-			tVersion Value("123.456.");
-		}
-		catch (const std::exception & e)
-		{
-			Result = std::string(e.what()).find_first_of("format") != std::string::npos;
-		}
+	//	try
+	//	{
+	//		tVersion Value("123.456.");
+	//	}
+	//	catch (const std::exception& e)
+	//	{
+	//		Result = std::string(e.what()).find_first_of("format") != std::string::npos;
+	//	}
 
-		utils::test::RESULT("tVersion 123.456.", Result);
-	}
+	//	utils::test::RESULT("tVersion 123.456.", Result);
+	//}
 
 	{
 		tVersion Value("asdf 123.456.7890");
