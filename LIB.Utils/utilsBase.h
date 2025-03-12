@@ -179,7 +179,7 @@ enum class tGNSSCode : std::uint8_t
 };
 
 //from /usr/include/sysexits.h
-enum class tExitCode : int
+enum class tExitCode : int // DEPRECATED, use from utilsExits.h
 {
 	EX_OK = 0,			// successful termination
 	EX__BASE = 64,		// base value for error messages
