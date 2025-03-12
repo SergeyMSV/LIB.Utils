@@ -8,6 +8,12 @@ tVersion::tVersion(std::uint16_t major, std::uint16_t minor, std::uint16_t build
 {
 }
 
+tVersion::tVersion(const std::string& strVersion)
+{
+	if (!TryParse(strVersion, *this))
+		*this = tVersion();
+}
+
 bool tVersion::operator==(const tVersion& val) const
 {
 	return Major == val.Major && Minor == val.Minor && Build == val.Build;
