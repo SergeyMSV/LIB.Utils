@@ -19,12 +19,7 @@ struct tVersion // 1.0.234
 
 	tVersion() = default;
 	tVersion(std::uint16_t major, std::uint16_t minor, std::uint16_t build);
-	explicit tVersion(const std::string& strVersion)
-	{
-		if (!TryParse(strVersion, *this))
-			return;
-			//THROW_RUNTIME_ERROR("format");
-	}
+	explicit tVersion(const std::string& strVersion);
 
 	bool operator==(const tVersion& val) const;
 	bool operator!=(const tVersion& val) const;
