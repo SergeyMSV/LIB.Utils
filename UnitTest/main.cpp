@@ -13,6 +13,7 @@ namespace utils
 	void UnitTest_MIFARE();
 	//void UnitTest_PacketBNTBX2();
 	void UnitTest_PacketCameraVC0706();
+	void UnitTest_PacketMQTT();
 	void UnitTest_PacketNMEA();
 	void UnitTest_PacketNMEAPayload();
 	void UnitTest_PacketNMEAType();
@@ -24,6 +25,7 @@ namespace utils
 	void UnitTest_PortSerial();
 	void UnitTest_Test();
 	void UnitTest_Trap();
+	void UnitTest_Version();
 }
 
 int main()
@@ -42,6 +44,7 @@ int main()
 	UnitTest_MIFARE();
 	//UnitTest_PacketBNTBX2();
 	UnitTest_PacketCameraVC0706();
+	UnitTest_PacketMQTT();
 	UnitTest_PacketNMEA();
 	UnitTest_PacketNMEAPayload();
 	UnitTest_PacketNMEAType();
@@ -53,6 +56,7 @@ int main()
 	UnitTest_PortSerial();
 	//UnitTest_Test();
 	UnitTest_Trap();
+	UnitTest_Version();
 
 	UnitTest_tLog();
 
