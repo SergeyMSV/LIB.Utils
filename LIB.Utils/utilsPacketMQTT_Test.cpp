@@ -6,8 +6,8 @@
 namespace utils
 {
 
-using namespace packet_MQTT;
-using namespace packet_MQTT::hidden;
+using namespace packet::mqtt;
+using namespace packet::mqtt::hidden;
 
 template<typename T>
 void UnitTest_PacketMQTT(const T& pack, const std::string& testName)
