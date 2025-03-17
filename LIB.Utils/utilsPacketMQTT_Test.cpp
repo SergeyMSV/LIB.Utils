@@ -82,7 +82,7 @@ void UnitTest_PacketMQTT()
 	}
 
 	UnitTest_PacketMQTT(tPacketCONNECT(true, 10, "my_client_id", tQoS::AtLeastOnceDelivery, true, "my_will_topic", "my_will_message", "my_user_name", "my_password"), "Pack CONNECT serialize-deserialize 1");
-	UnitTest_PacketMQTT<tPacket<tVariableHeaderCONNECT, tPayloadCONNECT>>(tPacketCONNECT(true, 10, "my_client_id", tQoS::AtLeastOnceDelivery, true, "my_will_topic", "my_will_message", "my_user_name", "my_password"), "Pack CONNECT serialize-deserialize 2");
+	UnitTest_PacketMQTT<tPacketBase<tVariableHeaderCONNECT, tPayloadCONNECT>>(tPacketCONNECT(true, 10, "my_client_id", tQoS::AtLeastOnceDelivery, true, "my_will_topic", "my_will_message", "my_user_name", "my_password"), "Pack CONNECT serialize-deserialize 2");
 	UnitTest_PacketMQTT(tPacketCONNECT(true, 10, "my_client_id345678901234567", tQoS::AtLeastOnceDelivery, true, "my_will_topic", "my_will_message", "my_user_name", "my_password"), "Pack CONNECT ClientId size - 23 symbols = my_client_id34567890123");
 	UnitTest_PacketMQTT(tPacketCONNACK(true, tConnectReturnCode::ConnectionRefused_NotAuthorized), "Pack CONNACK serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketPUBLISH(true, true, "my_topic_name/some_device", tQoS::AtLeastOnceDelivery, 10), "Pack PUBLISH serialize-deserialize 1");
