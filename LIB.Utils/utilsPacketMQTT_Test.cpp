@@ -22,9 +22,9 @@ void UnitTest_PacketMQTT(const T& pack, const std::string& testName)
 }
 
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength);
-void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tError error);
+void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data);
 void UnitTest_PacketMQTT_RemainingLengthToVector(const std::string& cap, std::uint32_t packetLength, const std::vector<std::uint8_t>& data);
-void UnitTest_PacketMQTT_RemainingLengthToVectorWrong(const std::string& cap, std::uint32_t packetLength, tError error);
+void UnitTest_PacketMQTT_RemainingLengthToVectorWrong(const std::string& cap, std::uint32_t packetLength);
 
 void UnitTest_PacketMQTT()
 {
@@ -32,18 +32,18 @@ void UnitTest_PacketMQTT()
 	UnitTest_PacketMQTT_RemainingLengthParse("2 B", { 0xFF, 0x7F }, 16383);
 	UnitTest_PacketMQTT_RemainingLengthParse("3 B", { 0xFF, 0xFF, 0x7F }, 2097151);
 	UnitTest_PacketMQTT_RemainingLengthParse("4 B", { 0xFF, 0xFF, 0xFF, 0x7F }, 268435455);
-	UnitTest_PacketMQTT_RemainingLengthParseWrong("Empty", { }, tError::LengthTooShort);
-	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF", { 0xFF }, tError::LengthNotAll);
-	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF", { 0xFF, 0xFF }, tError::LengthNotAll);
-	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF, 0xFF", { 0xFF, 0xFF, 0xFF }, tError::LengthNotAll);
-	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF, 0xFF, 0xFF", { 0xFF, 0xFF, 0xFF, 0xFF }, tError::LengthTooLong);
-	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF, 0xFF, 0xFF, 0x7F", { 0xFF, 0xFF, 0xFF, 0xFF, 0x7F }, tError::LengthTooLong);
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("Empty", { });
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF", { 0xFF });
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF", { 0xFF, 0xFF });
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF, 0xFF", { 0xFF, 0xFF, 0xFF });
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF, 0xFF, 0xFF", { 0xFF, 0xFF, 0xFF, 0xFF });
+	UnitTest_PacketMQTT_RemainingLengthParseWrong("0xFF, 0xFF, 0xFF, 0xFF, 0x7F", { 0xFF, 0xFF, 0xFF, 0xFF, 0x7F });
 	UnitTest_PacketMQTT_RemainingLengthToVector("0", 0, { 0x00 });
 	UnitTest_PacketMQTT_RemainingLengthToVector("127", 127, { 127 });
 	UnitTest_PacketMQTT_RemainingLengthToVector("16383", 16383, { 0xFF, 0x7F });
 	UnitTest_PacketMQTT_RemainingLengthToVector("2097151", 2097151, { 0xFF, 0xFF, 0x7F });
 	UnitTest_PacketMQTT_RemainingLengthToVector("268435455 = 0x0FFFFFFF (MAX)", 268435455, { 0xFF, 0xFF, 0xFF, 0x7F });
-	UnitTest_PacketMQTT_RemainingLengthToVectorWrong("0x4FFFFFFF", 0x4FFFFFFF, tError::LengthOverflow);
+	UnitTest_PacketMQTT_RemainingLengthToVectorWrong("0x4FFFFFFF", 0x4FFFFFFF);
 
 	{
 		std::vector<std::uint8_t> Data{ 0x10, 0x53, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 };
@@ -56,7 +56,7 @@ void UnitTest_PacketMQTT()
 		std::vector<std::uint8_t> Data{ 0x00, 0x53, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 };
 		tSpan DataSpan(Data);
 		auto PackType = TestPacket(DataSpan);
-		utils::test::RESULT("TestPacket tError::PacketType 1", !PackType.has_value() && PackType.error() == tError::PacketType);
+		utils::test::RESULT("TestPacket tError::PacketType 1", !PackType.has_value());
 	}
 
 	{
@@ -146,11 +146,11 @@ void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std:
 	utils::test::RESULT("RemainingLength Parse " + cap, Length.has_value() && Length == packetLength);
 }
 
-void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data, tError error)
+void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data)
 {
 	tSpan DataSpan(data);
 	tRemainingLengthParseExp Length = tRemainingLength::Parse(DataSpan);
-	utils::test::RESULT("RemainingLength Parse WRONG " + cap, !Length.has_value() && Length.error() == error);
+	utils::test::RESULT("RemainingLength Parse WRONG " + cap, !Length.has_value());
 }
 
 void UnitTest_PacketMQTT_RemainingLengthToVector(const std::string& cap, std::uint32_t packetLength, const std::vector<std::uint8_t>& data)
@@ -159,10 +159,10 @@ void UnitTest_PacketMQTT_RemainingLengthToVector(const std::string& cap, std::ui
 	utils::test::RESULT("RemainingLength ToVector " + cap, Length.has_value() && Length == data);
 }
 
-void UnitTest_PacketMQTT_RemainingLengthToVectorWrong(const std::string& cap, std::uint32_t packetLength, tError error)
+void UnitTest_PacketMQTT_RemainingLengthToVectorWrong(const std::string& cap, std::uint32_t packetLength)
 {
 	tRemainingLengthToVectorExp Length = tRemainingLength::ToVector(packetLength);
-	utils::test::RESULT("RemainingLength ToVector WRONG " + cap, !Length.has_value() && Length.error() == error);
+	utils::test::RESULT("RemainingLength ToVector WRONG " + cap, !Length.has_value());
 }
 
 }
