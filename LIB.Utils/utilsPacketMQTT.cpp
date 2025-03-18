@@ -102,10 +102,10 @@ std::string ToString(tControlPacketType value)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::expected<tUInt16, tError> tUInt16::Parse(tSpan& data)
+std::optional<tUInt16> tUInt16::Parse(tSpan& data)
 {
 	if (data.size() < 2)
-		return std::unexpected(tError::UInt16TooShort);
+		return {};
 	tUInt16 Val;
 	Val.Field.MSB = data[0];
 	Val.Field.LSB = data[1];
@@ -129,14 +129,14 @@ tUInt16& tUInt16::operator=(std::uint16_t value)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::expected<tString, tError> tString::Parse(tSpan& data)
+std::optional<tString> tString::Parse(tSpan& data)
 {
 	auto LengthExp = tUInt16::Parse(data);
 	if (!LengthExp.has_value())
-		return std::unexpected(LengthExp.error());
+		return {};
 
 	if (data.size() < LengthExp->Value)
-		return std::unexpected(tError::StringTooShort);
+		return {};
 
 	std::string Str(data.begin(), data.begin() + LengthExp->Value);
 	data.Skip(LengthExp->Value);
@@ -176,7 +176,7 @@ std::string tFixedHeader::ToString() const
 tRemainingLengthParseExp tRemainingLength::Parse(tSpan& data)
 {
 	if (data.empty())
-		return std::unexpected(tError::LengthTooShort);
+		return {};
 
 	auto DataBegin = data.begin();
 
@@ -195,7 +195,7 @@ tRemainingLengthParseExp tRemainingLength::Parse(tSpan& data)
 		}
 	}
 
-	return std::unexpected(data.size() < m_SizeMax ? tError::LengthNotAll : tError::LengthTooLong);
+	return {};
 }
 
 tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t value)
@@ -217,7 +217,7 @@ tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t value)
 	}
 
 	if (value)
-		return std::unexpected(tError::LengthOverflow);
+		return {};
 
 	return Data;
 }
@@ -225,15 +225,15 @@ tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t value)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONNECT: header & payload
 
-std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data)
+std::optional<tVariableHeaderCONNECT> tVariableHeaderCONNECT::Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data)
 {
 	auto ProtocolNameExp = tString::Parse(data);
 	if (!ProtocolNameExp.has_value())
-		return std::unexpected(ProtocolNameExp.error());
+		return {};
 
 	constexpr std::size_t VHeaderSize = sizeof(ProtocolLevel) + sizeof(ConnectFlags) + sizeof(KeepAlive);
 	if (VHeaderSize > data.size())
-		return std::unexpected(tError::VariableHeaderTooShort);
+		return {};
 
 	tVariableHeaderCONNECT VHeader{};
 	VHeader.ProtocolName = *ProtocolNameExp;
@@ -242,7 +242,7 @@ std::expected<tVariableHeaderCONNECT, tError> tVariableHeaderCONNECT::Parse(cons
 	data.Skip(2);
 	auto KeepAliveExp = tUInt16::Parse(data);
 	if (!KeepAliveExp.has_value())
-		return std::unexpected(KeepAliveExp.error());
+		return {};
 	VHeader.KeepAlive = *KeepAliveExp;
 
 	return VHeader;
@@ -279,25 +279,25 @@ bool tVariableHeaderCONNECT::operator==(const tVariableHeaderCONNECT& val) const
 	return ProtocolName == val.ProtocolName && ProtocolLevel == val.ProtocolLevel && ConnectFlags.Value == val.ConnectFlags.Value && KeepAlive.Value == val.KeepAlive.Value;
 }
 
-std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(const tVariableHeaderCONNECT& variableHeader, tSpan& data)
+std::optional<tPayloadCONNECT> tPayloadCONNECT::Parse(const tVariableHeaderCONNECT& variableHeader, tSpan& data)
 {
 	tPayloadCONNECT Payload{};
 	// These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password
 	auto StrExp = tString::Parse(data);
 	if (!StrExp.has_value())
-		return std::unexpected(StrExp.error());
+		return {};
 	Payload.ClientId = StrExp.value();
 
 	if (variableHeader.ConnectFlags.Field.WillFlag)
 	{
 		StrExp = tString::Parse(data);
 		if (!StrExp.has_value())
-			return std::unexpected(StrExp.error());
+			return {};
 		Payload.WillTopic = StrExp.value();
 
 		StrExp = tString::Parse(data);
 		if (!StrExp.has_value())
-			return std::unexpected(StrExp.error());
+			return {};
 		Payload.WillMessage = StrExp.value();
 	}
 
@@ -305,12 +305,12 @@ std::expected<tPayloadCONNECT, tError> tPayloadCONNECT::Parse(const tVariableHea
 	{
 		StrExp = tString::Parse(data);
 		if (!StrExp.has_value())
-			return std::unexpected(StrExp.error());
+			return {};
 		Payload.UserName = StrExp.value();
 
 		StrExp = tString::Parse(data);
 		if (!StrExp.has_value())
-			return std::unexpected(StrExp.error());
+			return {};
 		Payload.Password = StrExp.value();
 	}
 
@@ -350,10 +350,10 @@ std::vector<std::uint8_t> tPayloadCONNECT::ToVector() const
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONNACK: header & payload
 
-std::expected<tVariableHeaderCONNACK, tError> tVariableHeaderCONNACK::Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data)
+std::optional<tVariableHeaderCONNACK> tVariableHeaderCONNACK::Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data)
 {
 	if (data.size() < GetSize())
-		return std::unexpected(tError::VariableHeaderTooShort);
+		return {};
 
 	tVariableHeaderCONNACK VHeader{};
 	VHeader.ConnectAcknowledgeFlags.Value = data[0];
@@ -394,11 +394,11 @@ bool tVariableHeaderCONNACK::operator==(const tVariableHeaderCONNACK& val) const
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PUBLISH: header & payload
 
-std::expected<tVariableHeaderPUBLISH, tError> tVariableHeaderPUBLISH::Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data)
+std::optional<tVariableHeaderPUBLISH> tVariableHeaderPUBLISH::Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data)
 {
 	auto StrExp = tString::Parse(data);
 	if (!StrExp.has_value())
-		return std::unexpected(StrExp.error());
+		return {};
 
 	tVariableHeaderPUBLISH VHeader{};
 	VHeader.TopicName = *StrExp;
@@ -408,7 +408,7 @@ std::expected<tVariableHeaderPUBLISH, tError> tVariableHeaderPUBLISH::Parse(cons
 
 	auto PacketIdExp = tUInt16::Parse(data);
 	if (!PacketIdExp.has_value())
-		return std::unexpected(PacketIdExp.error());
+		return {};
 
 	VHeader.PacketId = *PacketIdExp;
 
@@ -439,7 +439,7 @@ bool tVariableHeaderPUBLISH::operator==(const tVariableHeaderPUBLISH& val) const
 		(PacketId.has_value() != val.PacketId.has_value() ? false : PacketId.has_value() == false ? true : *PacketId == *val.PacketId);
 }
 
-std::expected<tPayloadPUBLISH, tError> tPayloadPUBLISH::Parse(const tVariableHeaderPUBLISH& variableHeader, tSpan& data)
+std::optional<tPayloadPUBLISH> tPayloadPUBLISH::Parse(const tVariableHeaderPUBLISH& variableHeader, tSpan& data)
 {
 	// 819 The Payload contains the Application Message that is being published.The content and format of the
 	// 820 data is application specific.The length of the payload can be calculated by subtracting the length of the
@@ -453,11 +453,11 @@ std::expected<tPayloadPUBLISH, tError> tPayloadPUBLISH::Parse(const tVariableHea
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PUBACK: header & payload
 
-std::expected<tVariableHeaderPUBACK, tError> tVariableHeaderPUBACK::Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data)
+std::optional<tVariableHeaderPUBACK> tVariableHeaderPUBACK::Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data)
 {
 	auto PacketIdExp = tUInt16::Parse(data);
 	if (!PacketIdExp.has_value())
-		return std::unexpected(PacketIdExp.error());
+		return {};
 
 	tVariableHeaderPUBACK VHeader{};
 	VHeader.PacketId = *PacketIdExp;
@@ -473,17 +473,14 @@ std::string tVariableHeaderPUBACK::ToString() const
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SUBSCRIBE: header & payload
 
-std::expected<tPayloadSUBSCRIBE::tTopicFilter, tError> tPayloadSUBSCRIBE::tTopicFilter::Parse(tSpan& data)
+std::optional<tPayloadSUBSCRIBE::tTopicFilter> tPayloadSUBSCRIBE::tTopicFilter::Parse(tSpan& data)
 {
 	auto StrExp = tString::Parse(data);
-	if (!StrExp.has_value())
-		return std::unexpected(StrExp.error());
+	if (!StrExp.has_value() || data.empty())
+		return {};
 
 	tTopicFilter Parsed{};
 	Parsed.TopicFilter = *StrExp;
-
-	if (data.empty())
-		return std::unexpected(tError::TopicFilterTooShort);
 
 	Parsed.QoS = static_cast<tQoS>(data[0]);
 	data.Skip(1);
@@ -503,14 +500,14 @@ std::vector<std::uint8_t> tPayloadSUBSCRIBE::tTopicFilter::ToVector() const
 	return Data;
 }
 
-std::expected<tPayloadSUBSCRIBE, tError> tPayloadSUBSCRIBE::Parse(const tVariableHeaderSUBSCRIBE& variableHeader, tSpan& data)
+std::optional<tPayloadSUBSCRIBE> tPayloadSUBSCRIBE::Parse(const tVariableHeaderSUBSCRIBE& variableHeader, tSpan& data)
 {
 	tPayloadSUBSCRIBE Payload{};
 	while (!data.empty())
 	{
 		auto TopicFilterExp = tTopicFilter::Parse(data);
 		if (!TopicFilterExp.has_value())
-			return std::unexpected(TopicFilterExp.error());
+			return {};
 		Payload.TopicFilters.push_back(*TopicFilterExp);
 	}
 	return Payload;
@@ -545,10 +542,10 @@ std::vector<std::uint8_t> tPayloadSUBSCRIBE::ToVector() const
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SUBACK: header & payload
 
-std::expected<tPayloadSUBACK, tError> tPayloadSUBACK::Parse(const tVariableHeaderSUBACK& variableHeader, tSpan& data)
+std::optional<tPayloadSUBACK> tPayloadSUBACK::Parse(const tVariableHeaderSUBACK& variableHeader, tSpan& data)
 {
 	if (data.size() != tPayloadSUBACK::GetSize())
-		return std::unexpected(tError::WrongSize);
+		return {};
 	tPayloadSUBACK Payload{};
 	Payload.SubscribeReturnCode = static_cast<tSubscribeReturnCode>(data[0]);
 	data.Skip(1);
@@ -570,14 +567,14 @@ std::vector<std::uint8_t> tPayloadSUBACK::ToVector() const
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // UNSUBSCRIBE: header & payload
 
-std::expected<tPayloadUNSUBSCRIBE, tError> tPayloadUNSUBSCRIBE::Parse(const tVariableHeaderUNSUBSCRIBE& variableHeader, tSpan& data)
+std::optional<tPayloadUNSUBSCRIBE> tPayloadUNSUBSCRIBE::Parse(const tVariableHeaderUNSUBSCRIBE& variableHeader, tSpan& data)
 {
 	tPayloadUNSUBSCRIBE Payload{};
 	while (!data.empty())
 	{
 		auto StrExp = tString::Parse(data);
 		if (!StrExp.has_value())
-			return std::unexpected(StrExp.error());
+			return {};
 		Payload.TopicFilters.push_back(*StrExp);
 	}
 	return Payload;
@@ -745,28 +742,26 @@ hidden::tFixedHeader tPacketPUBLISH::GetFixedHeader(bool dup, tQoS qos, bool ret
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::expected<tControlPacketType, tError> TestPacket(tSpan& data)
+std::optional<tControlPacketType> TestPacket(tSpan& data)
 {
 	if (data.size() < hidden::PacketSizeMin)
-		return std::unexpected(tError::PacketTooShort);
+		return {};
 
 	hidden::tFixedHeader FHeader = data[0];
 	data.Skip(1);
 
 	const auto ControlPacketType = static_cast<tControlPacketType>(FHeader.Field.ControlPacketType);
 	if (ControlPacketType < tControlPacketType::CONNECT || ControlPacketType > tControlPacketType::DISCONNECT)
-		return std::unexpected(tError::PacketType);
+		return {};
 
 	auto RLengtExp = hidden::tRemainingLength::Parse(data);
-	if (!RLengtExp.has_value())
-		return std::unexpected(RLengtExp.error());
-	if (*RLengtExp > data.size())
-		return std::unexpected(tError::PacketTooShort);
+	if (!RLengtExp.has_value() || *RLengtExp > data.size())
+		return {};
 
 	return FHeader.GetControlPacketType();
 }
 
-std::expected<tControlPacketType, tError> TestPacket(const std::vector<std::uint8_t>& data)
+std::optional<tControlPacketType> TestPacket(const std::vector<std::uint8_t>& data)
 {
 	tSpan DataSpan(data);
 	return TestPacket(DataSpan);
