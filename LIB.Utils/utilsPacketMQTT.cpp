@@ -77,27 +77,27 @@ std::string GetString(const std::vector<std::pair<tControlPacketType, std::strin
 }
 
 template<typename T>
-std::string ToString(T value)
+std::string ToString(T val)
 {
 	if constexpr (std::is_same_v<T, tQoS>)
-		return GetString(LogQoS, value);
+		return GetString(LogQoS, val);
 
 	if constexpr (std::is_same_v<T, tConnectReturnCode>)
-		return GetString(LogConnectReturnCode, value);	
+		return GetString(LogConnectReturnCode, val);
 
 	if constexpr (std::is_same_v<T, tSubscribeReturnCode>)
-		return GetString(LogSubscribeReturnCode, value);
+		return GetString(LogSubscribeReturnCode, val);
 
 	if constexpr (std::is_same_v<T, bool>)
-		return value ? "true" : "false";
+		return val ? "true" : "false";
 
 	return "ERROR";
 }
 
 template<>
-std::string ToString(tControlPacketType value)
+std::string ToString(tControlPacketType val)
 {
-	return GetString(LogControlPacketType, value);
+	return GetString(LogControlPacketType, val);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -121,9 +121,9 @@ std::vector<std::uint8_t> tUInt16::ToVector() const
 	return Data;
 }
 
-tUInt16& tUInt16::operator=(std::uint16_t value)
+tUInt16& tUInt16::operator=(std::uint16_t val)
 {
-	Value = value;
+	Value = val;
 	return *this;
 }
 
@@ -198,25 +198,25 @@ tRemainingLengthParseExp tRemainingLength::Parse(tSpan& data)
 	return {};
 }
 
-tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t value)
+tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t val)
 {
 	std::vector<std::uint8_t> Data;
 	for (int i = 0; i < m_SizeMax; ++i)
 	{
 		tLengthPart Part{};
-		Part.Field.Num = value;
+		Part.Field.Num = val;
 
-		value = value >> 7;
-		if (value)
+		val = val >> 7;
+		if (val)
 			Part.Field.Continuation = 1;
 
 		Data.push_back(Part.Value);
 
-		if (!value)
+		if (!val)
 			break;
 	}
 
-	if (value)
+	if (val)
 		return {};
 
 	return Data;
@@ -625,14 +625,14 @@ tPacketCONNECT::tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const
 }
 
 
-void tPacketCONNECT::SetClientId(std::string value)
+void tPacketCONNECT::SetClientId(std::string val)
 {
 	// 579 The Server MUST allow ClientIds which are between 1 and 23 UTF-8 encoded bytes in length, and that
 	// 580 contain only the characters
 	// 581 "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" [MQTT-3.1.3-5].
 	constexpr std::size_t ClientIdSizeMax = 23;
-	if (value.size() > ClientIdSizeMax)
-		value.resize(ClientIdSizeMax);
+	if (val.size() > ClientIdSizeMax)
+		val.resize(ClientIdSizeMax);
 	// 583 The Server MAY allow ClientId’s that contain more than 23 encoded bytes. The Server MAY allow
 	// 584 ClientId’s that contain characters not included in the list given above.
 	// 
@@ -641,7 +641,7 @@ void tPacketCONNECT::SetClientId(std::string value)
 	// 588 process the CONNECT packet as if the Client had provided that unique ClientId [MQTT-3.1.3-6].
 	// 
 	// 590 If the Client supplies a zero-byte ClientId, the Client MUST also set CleanSession to 1 [MQTT-3.1.3-7].
-	m_Payload->ClientId = value;
+	m_Payload->ClientId = val;
 }
 
 void tPacketCONNECT::SetWill(tQoS qos, bool retain, const std::string& topic, const std::string& message)
