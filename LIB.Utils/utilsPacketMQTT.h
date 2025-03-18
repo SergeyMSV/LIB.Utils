@@ -263,6 +263,14 @@ protected:
 	explicit tPacketBase(tFixedHeader fixedHeader) :m_FixedHeader(fixedHeader) {}
 
 public:
+	tPacketBase(const tPacketBase& value) = default;
+	tPacketBase(tPacketBase&& value) noexcept
+	{
+		m_FixedHeader = value.m_FixedHeader;
+		m_VariableHeader = std::move(value.m_VariableHeader);
+		m_Payload = std::move(value.m_Payload);
+	}
+
 	std::optional<VH> GetVariableHeader() { return m_VariableHeader; }
 	std::optional<PL> GetPayload() { return m_Payload; }
 
@@ -676,6 +684,8 @@ public:
 		:tPacketCONNECT(cleanSession, keepAlive, clientId, tQoS::AtMostOnceDelivery, false, "", "", "", "") {}
 	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& userName, const std::string& password)
 		:tPacketCONNECT(cleanSession, keepAlive, clientId, tQoS::AtMostOnceDelivery, false, "", "", userName, password) {}
+	tPacketCONNECT(const hidden::tPacketBase<hidden::tVariableHeaderCONNECT, hidden::tPayloadCONNECT>& value) :tPacketBase(value) {}
+	tPacketCONNECT(hidden::tPacketBase<hidden::tVariableHeaderCONNECT, hidden::tPayloadCONNECT>&& value) :tPacketBase(std::move(value)) {}
 
 private:
 	void SetClientId(std::string value);
@@ -709,6 +719,8 @@ public:
 	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId, const std::vector<std::uint8_t>& payloadData);
 	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName);
 	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payloadData);
+	tPacketPUBLISH(const hidden::tPacketBase<hidden::tVariableHeaderPUBLISH, hidden::tPayloadPUBLISH>& value) :tPacketBase(value) {}
+	tPacketPUBLISH(hidden::tPacketBase<hidden::tVariableHeaderPUBLISH, hidden::tPayloadPUBLISH>&& value) :tPacketBase(std::move(value)) {}
 
 	// 809 The Packet Identifier field is only present in PUBLISH Packets where the QoS level is 1 or 2.
 	static bool IsPacketIdPresent(std::uint8_t flags);
