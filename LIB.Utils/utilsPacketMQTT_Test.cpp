@@ -111,6 +111,29 @@ void UnitTest_PacketMQTT()
 	UnitTest_PacketMQTT(tPacketPINGREQ(), "Pack PINGREQ serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketPINGRESP(), "Pack PINGRESP serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketDISCONNECT(), "Pack DISCONNECT serialize-deserialize");
+
+	{ // copy c_tor and move c_tor
+		auto Pack = tPacketCONNECT::Parse(std::vector<std::uint8_t>{ 0x10, 0x55, 0x00, 0x06, 0x4d, 0x51, 0x49, 0x73, 0x64, 0x70, 0x03, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 });
+		if (Pack.has_value())
+			std::cout << Pack->ToString() << '\n';
+		tPacketCONNECT Pack2 = *Pack;
+		tPacketCONNECT Pack3 = std::move(*Pack);
+		//utils::test::RESULT("????", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQIsdp");
+	}
+
+	{ // copy c_tor and move c_tor
+		auto PackVector = tPacketPUBLISH(true, true, "my_topic_name/some_device", tQoS::AtLeastOnceDelivery, 10, { 0x01, 0x02, 0x03, 0x04 }).ToVector();
+		std::cout << utils::test::ToStringHEX(PackVector, true) << '\n';
+
+		auto Pack = tPacketPUBLISH::Parse(PackVector);
+		if (Pack.has_value())
+			std::cout << Pack->ToString() << '\n';
+		tPacketPUBLISH Pack2 = *Pack;
+		tPacketPUBLISH Pack3 = std::move(*Pack);
+		//utils::test::RESULT("????", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQIsdp");
+	}
+
+	
 }
 
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength)
