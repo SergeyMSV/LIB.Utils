@@ -146,7 +146,7 @@ std::optional<tString> tString::Parse(tSpan& data)
 
 std::vector<std::uint8_t> tString::ToVector() const
 {
-	std::vector<std::uint8_t> Data;
+	std23::vector<std::uint8_t> Data;
 	tUInt16 StrSize = static_cast<std::uint8_t>(size());
 	Data.append_range(StrSize.ToVector());
 	Data.insert(Data.end(), begin(), end());
@@ -267,7 +267,7 @@ std::string tVariableHeaderCONNECT::ToString() const
 
 std::vector<std::uint8_t> tVariableHeaderCONNECT::ToVector() const
 {
-	std::vector<std::uint8_t> Data = ProtocolName.ToVector();
+	std23::vector<std::uint8_t> Data = ProtocolName.ToVector();
 	Data.push_back(ProtocolLevel);
 	Data.push_back(ConnectFlags.Value);
 	Data.append_range(KeepAlive.ToVector());
@@ -335,7 +335,7 @@ std::string tPayloadCONNECT::ToString() const
 std::vector<std::uint8_t> tPayloadCONNECT::ToVector() const
 {
 	// These fields, if present, MUST appear in the order Client Identifier, Will Topic, Will Message, User Name, Password
-	std::vector<std::uint8_t> Data = ClientId.ToVector(); // The Server MUST allow ClientIds which are between 1 and 23 UTF - 8 encoded bytes in length, and that contain only the characters "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
+	std23::vector<std::uint8_t> Data = ClientId.ToVector(); // The Server MUST allow ClientIds which are between 1 and 23 UTF - 8 encoded bytes in length, and that contain only the characters "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".
 	if (WillTopic.has_value())
 		Data.append_range(WillTopic->ToVector());
 	if (WillMessage.has_value())
@@ -426,7 +426,7 @@ std::string tVariableHeaderPUBLISH::ToString() const
 
 std::vector<std::uint8_t> tVariableHeaderPUBLISH::ToVector() const
 {
-	std::vector<std::uint8_t> Data = TopicName.ToVector();
+	std23::vector<std::uint8_t> Data = TopicName.ToVector();
 	if (PacketId.has_value())
 		Data.append_range(PacketId->ToVector());
 	return Data;
@@ -534,7 +534,7 @@ std::string tPayloadSUBSCRIBE::ToString() const
 
 std::vector<std::uint8_t> tPayloadSUBSCRIBE::ToVector() const
 {
-	std::vector<std::uint8_t> Data;
+	std23::vector<std::uint8_t> Data;
 	std::ranges::for_each(TopicFilters, [&Data](const tTopicFilter& tf) { Data.append_range(tf.ToVector()); });
 	return Data;
 }
@@ -601,7 +601,7 @@ std::string tPayloadUNSUBSCRIBE::ToString() const
 
 std::vector<std::uint8_t> tPayloadUNSUBSCRIBE::ToVector() const
 {
-	std::vector<std::uint8_t> Data;
+	std23::vector<std::uint8_t> Data;
 	std::ranges::for_each(TopicFilters, [&Data](const tString& tf) { Data.append_range(tf.ToVector()); });
 	return Data;
 }

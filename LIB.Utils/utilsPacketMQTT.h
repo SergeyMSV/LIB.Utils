@@ -8,6 +8,8 @@
 
 #include <libConfig.h>
 
+#include "utilsStd.h"
+
 #include <optional>
 #include <span> // C++ 20
 #include <string>
@@ -348,7 +350,7 @@ public:
 
 	std::vector<std::uint8_t> ToVector() const
 	{
-		std::vector<std::uint8_t> Data;
+		std23::vector<std::uint8_t> Data;
 		if (m_VariableHeader.has_value())
 			Data.append_range(m_VariableHeader->ToVector());
 		if (m_Payload.has_value())
