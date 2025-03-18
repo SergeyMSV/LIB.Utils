@@ -263,12 +263,23 @@ protected:
 	explicit tPacketBase(tFixedHeader fixedHeader) :m_FixedHeader(fixedHeader) {}
 
 public:
-	tPacketBase(const tPacketBase& value) = default;
-	tPacketBase(tPacketBase&& value) noexcept
+	tPacketBase(const tPacketBase&) = default;
+	tPacketBase(tPacketBase&& val) noexcept
+		:m_FixedHeader(val.m_FixedHeader)
 	{
-		m_FixedHeader = value.m_FixedHeader;
-		m_VariableHeader = std::move(value.m_VariableHeader);
-		m_Payload = std::move(value.m_Payload);
+		m_VariableHeader = std::move(val.m_VariableHeader);
+		m_Payload = std::move(val.m_Payload);
+	}
+
+	tPacketBase& operator=(const tPacketBase&) = default;
+	tPacketBase& operator=(tPacketBase&& val)
+	{
+		if (this == &val)
+			return *this;
+		m_FixedHeader = val.m_FixedHeader;
+		m_VariableHeader = std::move(val.m_VariableHeader);
+		m_Payload = std::move(val.m_Payload);
+		return *this;
 	}
 
 	std::optional<VH> GetVariableHeader() { return m_VariableHeader; }
@@ -389,7 +400,7 @@ struct tVariableHeaderEmpty
 
 	std::vector<std::uint8_t> ToVector() const { return {}; }
 
-	bool operator==(const tVariableHeaderEmpty& value) const = default;
+	bool operator==(const tVariableHeaderEmpty&) const = default;
 };
 
 template <class VH>
@@ -401,7 +412,7 @@ struct tPayloadEmpty
 
 	std::vector<std::uint8_t> ToVector() const { return {}; }
 
-	bool operator==(const tPayloadEmpty& value) const = default;
+	bool operator==(const tPayloadEmpty&) const = default;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -482,7 +493,7 @@ struct tPayloadCONNECT
 
 	std::vector<std::uint8_t> ToVector() const;
 
-	bool operator==(const tPayloadCONNECT& value) const = default;
+	bool operator==(const tPayloadCONNECT&) const = default;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -561,7 +572,7 @@ struct tPayloadPUBLISH
 
 	std::vector<std::uint8_t> ToVector() const { return Data; }
 
-	bool operator==(const tPayloadPUBLISH& value) const = default;
+	bool operator==(const tPayloadPUBLISH&) const = default;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -581,7 +592,7 @@ struct tVariableHeaderPUBACK
 
 	std::vector<std::uint8_t> ToVector() const { return PacketId.ToVector(); }
 
-	bool operator==(const tVariableHeaderPUBACK& val) const = default;
+	bool operator==(const tVariableHeaderPUBACK&) const = default;
 };
 
 using tPayloadPUBACK = tPayloadEmpty<tVariableHeaderPUBACK>;
@@ -606,7 +617,7 @@ struct tPayloadSUBSCRIBE
 
 		std::size_t GetSize() const { return TopicFilter.GetSize() + sizeof(QoS); }
 
-		bool operator==(const tTopicFilter& val) const = default;
+		bool operator==(const tTopicFilter&) const = default;
 	};
 
 	std::vector<tTopicFilter> TopicFilters;
@@ -619,7 +630,7 @@ struct tPayloadSUBSCRIBE
 
 	std::vector<std::uint8_t> ToVector() const;
 
-	bool operator==(const tPayloadSUBSCRIBE& value) const = default;
+	bool operator==(const tPayloadSUBSCRIBE&) const = default;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -639,7 +650,7 @@ struct tPayloadSUBACK
 
 	std::vector<std::uint8_t> ToVector() const;
 
-	bool operator==(const tPayloadSUBACK& value) const = default;
+	bool operator==(const tPayloadSUBACK&) const = default;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -659,7 +670,7 @@ struct tPayloadUNSUBSCRIBE
 
 	std::vector<std::uint8_t> ToVector() const;
 
-	bool operator==(const tPayloadUNSUBSCRIBE& value) const = default;
+	bool operator==(const tPayloadUNSUBSCRIBE&) const = default;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -706,9 +717,13 @@ public:
 		m_VariableHeader->ConnectAcknowledgeFlags.Field.SessionPresent = sessionPresent;
 		m_VariableHeader->ConnectReturnCode = connectRetCode;
 	}
+	tPacketCONNACK(const hidden::tPacketBase<hidden::tVariableHeaderCONNACK, hidden::tPayloadCONNACK>& value) :tPacketBase(value) {}
+	tPacketCONNACK(hidden::tPacketBase<hidden::tVariableHeaderCONNACK, hidden::tPayloadCONNACK>&& value) :tPacketBase(std::move(value)) {}
+
+	static tControlPacketType GetControlPacketType() { return tControlPacketType::CONNACK; }
 
 private:
-	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::CONNACK); }
+	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(GetControlPacketType()); }
 };
 
 class tPacketPUBLISH : public hidden::tPacketBase<hidden::tVariableHeaderPUBLISH, hidden::tPayloadPUBLISH>
@@ -879,6 +894,8 @@ class tPacketPINGREQ : public hidden::tPacketBase<hidden::tVariableHeaderEmpty, 
 {
 public:
 	tPacketPINGREQ() :tPacketBase(GetFixedHeader()) {}
+	tPacketPINGREQ(const hidden::tPacketBase<hidden::tVariableHeaderEmpty, hidden::tPayloadEmpty<hidden::tVariableHeaderEmpty>>& value) :tPacketBase(value) {}
+	tPacketPINGREQ(hidden::tPacketBase<hidden::tVariableHeaderEmpty, hidden::tPayloadEmpty<hidden::tVariableHeaderEmpty>>&& value) :tPacketBase(std::move(value)) {}
 
 private:
 	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::PINGREQ); }
@@ -888,9 +905,13 @@ class tPacketPINGRESP : public hidden::tPacketBase<hidden::tVariableHeaderEmpty,
 {
 public:
 	tPacketPINGRESP() :tPacketBase(GetFixedHeader()) {}
+	tPacketPINGRESP(const hidden::tPacketBase<hidden::tVariableHeaderEmpty, hidden::tPayloadEmpty<hidden::tVariableHeaderEmpty>>& value) :tPacketBase(value) {}
+	tPacketPINGRESP(hidden::tPacketBase<hidden::tVariableHeaderEmpty, hidden::tPayloadEmpty<hidden::tVariableHeaderEmpty>>&& value) :tPacketBase(std::move(value)) {}
+
+	static tControlPacketType GetControlPacketType() { return tControlPacketType::PINGRESP; }
 
 private:
-	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::PINGRESP); }
+	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(GetControlPacketType()); }
 };
 
 class tPacketDISCONNECT : public hidden::tPacketBase<hidden::tVariableHeaderEmpty, hidden::tPayloadEmpty<hidden::tVariableHeaderEmpty>>
