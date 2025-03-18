@@ -130,6 +130,9 @@ void UnitTest_PacketMQTT()
 			std::cout << Pack->ToString() << '\n';
 		tPacketPUBLISH Pack2 = *Pack;
 		tPacketPUBLISH Pack3 = std::move(*Pack);
+		Pack2 = *Pack;
+		Pack2 = std::move(Pack3);
+
 		//utils::test::RESULT("????", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQIsdp");
 	}
 
