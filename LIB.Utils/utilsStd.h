@@ -13,6 +13,7 @@ class vector : public std::vector<T>
 public:
 	vector() = default;
 	vector(const std::vector<T>& val) :std::vector<T>(val) {}
+	vector(std::vector<T>&& val) :std::vector<T>(std::move(val)) {}
 
 	void append_range(const std::vector<T>& range)
 	{
