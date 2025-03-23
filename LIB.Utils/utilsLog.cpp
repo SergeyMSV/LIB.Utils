@@ -1,9 +1,10 @@
 #include "utilsLog.h"
 
 #include <chrono>
-#include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <time.h>
+#include <ctime>
 
 #ifdef LIB_UTILS_LOG
 
@@ -106,7 +107,9 @@ void tLog::WriteLog(bool timestamp, bool endl, tLogColour textColour, const std:
 		const std::time_t Time = std::chrono::system_clock::to_time_t(TimeNow);
 
 		Stream << '[';
-		Stream << std::put_time(std::localtime(&Time), "%T") << '.';
+		tm TmBuf;
+		localtime_s(&TmBuf, &Time);
+		Stream << std::put_time(&TmBuf, "%T") << '.';
 		Stream << std::setfill('0');
 		Stream << std::setw(6) << TimeFract;
 
