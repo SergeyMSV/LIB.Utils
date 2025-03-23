@@ -101,9 +101,15 @@ void tLog::WriteLog(bool timestamp, bool endl, tLogColour textColour, const std:
 	if (timestamp)
 	{
 		const auto TimeNow = std::chrono::system_clock::now();
+#ifdef LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
 		const auto Time_us = std::chrono::time_point_cast<std::chrono::microseconds>(TimeNow);
 		const auto TimeFract = static_cast<unsigned int>(Time_us.time_since_epoch().count() % 1000000);
-
+		const int Digits = 6;
+#else // LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
+		const auto Time_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(TimeNow);
+		const auto TimeFract = static_cast<unsigned int>(Time_ms.time_since_epoch().count() % 1000);
+		const int Digits = 3;
+#endif // LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
 		const std::time_t Time = std::chrono::system_clock::to_time_t(TimeNow);
 
 		Stream << '[';
@@ -111,7 +117,7 @@ void tLog::WriteLog(bool timestamp, bool endl, tLogColour textColour, const std:
 		localtime_s(&TmBuf, &Time);
 		Stream << std::put_time(&TmBuf, "%T") << '.';
 		Stream << std::setfill('0');
-		Stream << std::setw(6) << TimeFract;
+		Stream << std::setw(Digits) << TimeFract;
 
 		const std::string Label = GetLabel();
 		if (!Label.empty())
