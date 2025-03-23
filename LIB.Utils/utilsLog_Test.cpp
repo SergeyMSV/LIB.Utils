@@ -16,7 +16,7 @@ public:
 	}
 
 protected:
-	const char* GetSign() const override final
+	std::string GetLabel() const override final
 	{
 		return "SIGN";
 	}
