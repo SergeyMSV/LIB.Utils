@@ -1,9 +1,9 @@
 #include "utilsLog.h"
 
 #include <chrono>
-#include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <time.h>
 
 #ifdef LIB_UTILS_LOG
 
@@ -100,15 +100,27 @@ void tLog::WriteLog(bool timestamp, bool endl, tLogColour textColour, const std:
 	if (timestamp)
 	{
 		const auto TimeNow = std::chrono::system_clock::now();
+#ifdef LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
 		const auto Time_us = std::chrono::time_point_cast<std::chrono::microseconds>(TimeNow);
 		const auto TimeFract = static_cast<unsigned int>(Time_us.time_since_epoch().count() % 1000000);
-
-		const std::time_t Time = std::chrono::system_clock::to_time_t(TimeNow);
+		const int Digits = 6;
+#else // LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
+		const auto Time_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(TimeNow);
+		const auto TimeFract = static_cast<unsigned int>(Time_ms.time_since_epoch().count() % 1000);
+		const int Digits = 3;
+#endif // LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
+		time_t Time = std::chrono::system_clock::to_time_t(TimeNow);
 
 		Stream << '[';
-		Stream << std::put_time(std::localtime(&Time), "%T") << '.';
+		tm TmBuf;
+#ifdef _WIN32
+		localtime_s(&TmBuf, &Time);
+#else // _WIN32
+		localtime_r(&Time, &TmBuf);
+#endif // _WIN32
+		Stream << std::put_time(&TmBuf, "%T") << '.';
 		Stream << std::setfill('0');
-		Stream << std::setw(6) << TimeFract;
+		Stream << std::setw(Digits) << TimeFract;
 
 		const std::string Label = GetLabel();
 		if (!Label.empty())
