@@ -33,6 +33,18 @@ std::uint32_t GetDuration(std::chrono::time_point<T> timeStart, std::chrono::tim
 	return static_cast<std::uint32_t>(Duration);
 }
 
+class tTimeDuration
+{
+	tTimePoint m_TimeStart = tClock::now();
+
+public:
+	tTimeDuration() = default;
+	virtual ~tTimeDuration() {}
+
+	template<typename T>
+	std::uint32_t Get() const { return GetDuration<T>(m_TimeStart, tClock::now()); }
+};
+
 class tTimePeriod
 {
 	std::uint32_t m_Period = 0;//in seconds
