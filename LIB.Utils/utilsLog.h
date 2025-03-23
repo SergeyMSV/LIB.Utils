@@ -1,23 +1,17 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// utilsLog.h
-//
+// utilsLog
+// 2016-05-16 (before)
 // Standard ISO/IEC 114882, C++11
-//
-// |   version  |    release    | Description
-// |------------|---------------|---------------------------------
-// |      1     |    long ago   | ... before 2016 05 16
-// |            |               |
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
 #include <libConfig.h>
 
-#include "utilsBase.h"
-
 #include <cstdint>
 
-#include <string>
 #include <mutex>
+#include <string>
+#include <vector>
 
 namespace utils
 {
@@ -63,10 +57,10 @@ public:
 	void WriteLine();
 	void WriteLine(bool timestamp, tLogColour textColour, const std::string& msg);
 
-	void WriteHex(bool timestamp, tLogColour textColour, const std::string& msg, const tVectorUInt8& data);
+	void WriteHex(bool timestamp, tLogColour textColour, const std::string& msg, const std::vector<std::uint8_t>& data);
 
 protected:
-	virtual const char* GetSign() const { return nullptr; }
+	virtual std::string GetLabel() const { return {}; }
 
 	virtual void WriteLog(const std::string& msg) = 0;
 
@@ -90,10 +84,10 @@ public:
 	void WriteLine() { }
 	void WriteLine(bool timestamp, tLogColour textColour, const std::string& msg) { }
 
-	void WriteHex(bool timestamp, tLogColour textColour, const std::string& msg, const tVectorUInt8& data) { }
+	void WriteHex(bool timestamp, tLogColour textColour, const std::string& msg, const std::vector<std::uint8_t>& data) { }
 
 protected:
-	virtual const char* GetSign() const { return nullptr; }
+	virtual std::string GetLabel() const { return {}; }
 
 	virtual void WriteLog(const std::string& msg) = 0;
 };
