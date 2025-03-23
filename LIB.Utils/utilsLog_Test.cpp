@@ -43,6 +43,8 @@ void UnitTest_tLog()
 	Log.Write(false, tLogColour::LightGreen, "Write light green");
 	Log.WriteLine();
 
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
 	Log.WriteLine(true, tLogColour::Blue, "Write blue");
 	Log.WriteLine(false, tLogColour::Yellow, "Write yellow");
 	Log.WriteLine(true, tLogColour::LightYellow, std::string("Write light yellow"));
