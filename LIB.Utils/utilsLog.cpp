@@ -36,7 +36,7 @@ void tLog::WriteLine(bool timestamp, tLogColour textColour, const std::string& m
 	WriteLog(timestamp, true, textColour, msg);
 }
 
-void tLog::WriteHex(bool timestamp, tLogColour textColour, const std::string& msg, const tVectorUInt8& data)
+void tLog::WriteHex(bool timestamp, tLogColour textColour, const std::string& msg, const std::vector<std::uint8_t>& data)
 {
 	std::stringstream Stream;
 
@@ -110,12 +110,12 @@ void tLog::WriteLog(bool timestamp, bool endl, tLogColour textColour, const std:
 		Stream << std::setfill('0');
 		Stream << std::setw(6) << TimeFract;
 
-		const char* Sign = GetSign();
-		if (Sign)
+		const std::string Label = GetLabel();
+		if (!Label.empty())
 		{
 			Stream << ' ';
 			Stream << std::setfill(' ');
-			Stream << std::setw(4) << Sign;
+			Stream << std::setw(4) << Label;
 		}
 
 		Stream << ']';
