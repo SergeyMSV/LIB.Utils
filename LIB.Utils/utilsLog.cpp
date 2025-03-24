@@ -10,34 +10,25 @@
 
 namespace utils
 {
-
-tLog::tLog(bool colourEnabled)
-	:m_ColourEnabled(colourEnabled)
+namespace log
 {
 
-}
-
-void tLog::ColourEnabled(bool state)
+void tLog::Write(bool timestamp, tColor colorText, const std::string& msg)
 {
-	m_ColourEnabled = state;
-}
-
-void tLog::Write(bool timestamp, tLogColour textColour, const std::string& msg)
-{
-	WriteLog(timestamp, false, textColour, msg);
+	WriteLog(timestamp, false, colorText, msg);
 }
 
 void tLog::WriteLine()
 {
-	WriteLog(false, true, tLogColour::Default, "");
+	WriteLog(false, true, tColor::Default, "");
 }
 
-void tLog::WriteLine(bool timestamp, tLogColour textColour, const std::string& msg)
+void tLog::WriteLine(bool timestamp, tColor colorText, const std::string& msg)
 {
-	WriteLog(timestamp, true, textColour, msg);
+	WriteLog(timestamp, true, colorText, msg);
 }
 
-void tLog::WriteHex(bool timestamp, tLogColour textColour, const std::string& msg, const std::vector<std::uint8_t>& data)
+void tLog::WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data)
 {
 	std::stringstream Stream;
 
@@ -89,10 +80,10 @@ void tLog::WriteHex(bool timestamp, tLogColour textColour, const std::string& ms
 		Stream << Substr;
 	}
 
-	WriteLog(timestamp, true, textColour, Stream.str().c_str());
+	WriteLog(timestamp, true, colorText, Stream.str().c_str());
 }
 
-void tLog::WriteLog(bool timestamp, bool endl, tLogColour textColour, const std::string& msg)
+void tLog::WriteLog(bool timestamp, bool endl, tColor colorText, const std::string& msg)
 {
 	std::lock_guard<std::mutex> Lock(m_Mtx);
 
@@ -112,70 +103,53 @@ void tLog::WriteLog(bool timestamp, bool endl, tLogColour textColour, const std:
 #endif // LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
 		const std::time_t Time = std::chrono::system_clock::to_time_t(TimeNow);
 
-		Stream << '[';
 		tm TmBuf;
 		localtime_s(&TmBuf, &Time);
 		Stream << std::put_time(&TmBuf, "%T") << '.';
-		Stream << std::setfill('0');
-		Stream << std::setw(Digits) << TimeFract;
+		Stream << std::setfill('0') << std::setw(Digits) << TimeFract << ' ';
 
 		const std::string Label = GetLabel();
 		if (!Label.empty())
-		{
-			Stream << ' ';
-			Stream << std::setfill(' ');
-			Stream << std::setw(4) << Label;
-		}
-
-		Stream << ']';
+			Stream << std::setfill(' ') << std::setw(4) << Label << ' ';
 	}
 
-	if (m_ColourEnabled)
+#ifdef LIB_UTILS_LOG_COLOR
+	Stream << "\x1b[";
+
+	switch (colorText)
 	{
-		Stream << "\x1b[";
-
-		switch (textColour)
-		{
-		case tLogColour::Black: Stream << "30"; break;
-		case tLogColour::Red: Stream << "31"; break;
-		case tLogColour::Green: Stream << "32"; break;
-		case tLogColour::Yellow: Stream << "33"; break;
-		case tLogColour::Blue: Stream << "34"; break;
-		case tLogColour::Magenta: Stream << "35"; break;
-		case tLogColour::Cyan: Stream << "36"; break;
-		case tLogColour::White: Stream << "37"; break;
-		case tLogColour::Default: Stream << "39"; break;
-		case tLogColour::LightGray: Stream << "90"; break;
-		case tLogColour::LightRed: Stream << "91"; break;
-		case tLogColour::LightGreen: Stream << "92"; break;
-		case tLogColour::LightYellow: Stream << "93"; break;
-		case tLogColour::LightBlue: Stream << "94"; break;
-		case tLogColour::LightMagenta: Stream << "95"; break;
-		case tLogColour::LightCyan: Stream << "96"; break;
-		case tLogColour::LightWhite: Stream << "97"; break;
-		default: Stream << "39"; break;
-		}
-
-		Stream << "m" + msg + "\x1b[0m";
-
-		if (endl)
-		{
-			Stream << '\n';
-		}	
+	case tColor::Black: Stream << "30"; break;
+	case tColor::Red: Stream << "31"; break;
+	case tColor::Green: Stream << "32"; break;
+	case tColor::Yellow: Stream << "33"; break;
+	case tColor::Blue: Stream << "34"; break;
+	case tColor::Magenta: Stream << "35"; break;
+	case tColor::Cyan: Stream << "36"; break;
+	case tColor::White: Stream << "37"; break;
+	case tColor::Default: Stream << "39"; break;
+	case tColor::LightGray: Stream << "90"; break;
+	case tColor::LightRed: Stream << "91"; break;
+	case tColor::LightGreen: Stream << "92"; break;
+	case tColor::LightYellow: Stream << "93"; break;
+	case tColor::LightBlue: Stream << "94"; break;
+	case tColor::LightMagenta: Stream << "95"; break;
+	case tColor::LightCyan: Stream << "96"; break;
+	case tColor::LightWhite: Stream << "97"; break;
+	default: Stream << "39"; break;
 	}
-	else
-	{
-		Stream << msg;
 
-		if (endl)
-		{
-			Stream << '\n';
-		}
-	}
+	Stream << "m" + msg + "\x1b[0m";
+#else // LIB_UTILS_LOG_COLOR
+	Stream << msg;
+#endif // LIB_UTILS_LOG_COLOR
+
+	if (endl)
+		Stream << '\n';
 
 	WriteLog(Stream.str().c_str());
 }
 
+}
 }
 
 #endif//LIB_UTILS_LOG
