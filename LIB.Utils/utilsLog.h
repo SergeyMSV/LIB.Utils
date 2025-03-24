@@ -15,8 +15,10 @@
 
 namespace utils
 {
+namespace log
+{
 
-enum class tLogColour : std::uint8_t
+enum class tColor
 {
 	Black,
 	Red,
@@ -43,21 +45,16 @@ class tLog
 {
 	mutable std::mutex m_Mtx;
 
-	bool m_ColourEnabled = false;
-
 public:
-	tLog() = delete;
-	explicit tLog(bool colourEnabled);
+	tLog() = default;
 	virtual ~tLog() { }
 
-	void ColourEnabled(bool state);
-
-	void Write(bool timestamp, tLogColour textColour, const std::string& msg);
+	void Write(bool timestamp, tColor colorText, const std::string& msg);
 
 	void WriteLine();
-	void WriteLine(bool timestamp, tLogColour textColour, const std::string& msg);
+	void WriteLine(bool timestamp, tColor colorText, const std::string& msg);
 
-	void WriteHex(bool timestamp, tLogColour textColour, const std::string& msg, const std::vector<std::uint8_t>& data);
+	void WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data);
 
 protected:
 	virtual std::string GetLabel() const { return {}; }
@@ -65,26 +62,23 @@ protected:
 	virtual void WriteLog(const std::string& msg) = 0;
 
 private:
-	virtual void WriteLog(bool timestamp, bool endl, tLogColour textColour, const std::string& msg);
+	virtual void WriteLog(bool timestamp, bool endl, tColor colorText, const std::string& msg);
 };
 
-#else//LIB_UTILS_LOG
+#else // LIB_UTILS_LOG
 
 class tLog
 {
 public:
-	tLog() = delete;
-	explicit tLog(bool colourEnabled) { }
+	tLog() = default;
 	virtual ~tLog() { }
 
-	void ColourEnabled(bool state) { }
-
-	void Write(bool timestamp, tLogColour textColour, const std::string& msg) { }
+	void Write(bool timestamp, tColor colorText, const std::string& msg) { }
 
 	void WriteLine() { }
-	void WriteLine(bool timestamp, tLogColour textColour, const std::string& msg) { }
+	void WriteLine(bool timestamp, tColor colorText, const std::string& msg) { }
 
-	void WriteHex(bool timestamp, tLogColour textColour, const std::string& msg, const std::vector<std::uint8_t>& data) { }
+	void WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data) { }
 
 protected:
 	virtual std::string GetLabel() const { return {}; }
@@ -92,6 +86,7 @@ protected:
 	virtual void WriteLog(const std::string& msg) = 0;
 };
 
-#endif//LIB_UTILS_LOG
+#endif // LIB_UTILS_LOG
 
+}
 }
