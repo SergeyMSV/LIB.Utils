@@ -33,7 +33,7 @@ void UnitTest_Chrono()
 		test::RESULT("GetDuration 2", Duration == 0);
 	}
 
-	std::cout << "\n""utils::Chrono::tTimePeriod" << std::endl;
+	std::cout << "\n""utils::Chrono::tTimePeriod\n";
 
 	{
 		tTimePeriod TimePeriod(true);
@@ -55,7 +55,7 @@ void UnitTest_Chrono()
 		}
 	}
 
-	std::cout << "\n""utils::Chrono::tTimePeriodCount" << std::endl;
+	std::cout << "\n""utils::Chrono::tTimePeriodCount 1\n";
 
 	{
 		tTimePeriodCount TimePeriod(true);
@@ -76,6 +76,8 @@ void UnitTest_Chrono()
 			std::cout << ++j << " > " << std::put_time(std::gmtime(&t), "%T") << '\n';
 		}
 	}
+
+	std::cout << "\n""utils::Chrono::tTimePeriodCount 2\n";
 
 	{
 		tTimePeriodCount TimePeriod(true);
