@@ -47,9 +47,9 @@ void UnitTest_DALLAS()
 	using namespace std::chrono_literals;
 
 	{ // Time scale
-		tTimePoint TimeStart = tClock::now();
+		utils::chrono::tTimePoint TimeStart = utils::chrono::tClock::now();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		test::RESULT("Sleep for 10 ms -> " + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms", true);
+		test::RESULT("Sleep for 10 ms -> " + std::to_string(utils::chrono::GetDuration<utils::chrono::ttime_ms>(TimeStart, utils::chrono::tClock::now())) + " ms", true);
 	}
 
 	{
