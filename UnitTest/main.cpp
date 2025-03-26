@@ -24,6 +24,7 @@ namespace utils
 	void UnitTest_PortSerial();
 	void UnitTest_Test();
 	void UnitTest_Trap();
+	void UnitTest_Version();
 }
 
 int main()
@@ -53,6 +54,7 @@ int main()
 	UnitTest_PortSerial();
 	//UnitTest_Test();
 	UnitTest_Trap();
+	UnitTest_Version();
 
 	UnitTest_tLog();
 
