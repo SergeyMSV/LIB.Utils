@@ -1,5 +1,5 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// utilsChrono.h
+// utilsChrono
 // 2021-12-29
 // Standard ISO/IEC 114882, C++20
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -9,6 +9,8 @@
 #include <chrono>
 
 namespace utils
+{
+namespace chrono
 {
 
 using tClock = std::chrono::steady_clock;
@@ -32,7 +34,7 @@ class tTimePeriod
 {
 	std::uint32_t m_Period = 0;//in seconds
 
-	utils::tTimePoint m_StartTime = utils::tClock::now();
+	tTimePoint m_StartTime = tClock::now();
 
 protected:
 	const bool m_Sync = false;
@@ -50,8 +52,8 @@ public:
 protected:
 	bool IsReady(const tTimePoint& timePointNow);
 
-	utils::tTimePoint GetStartTime(const tTimePoint& timePointNow, const utils::tTimePoint& startTime, std::uint32_t period) const;
-	utils::tTimePoint GetStartTime() const { return m_StartTime; }
+	tTimePoint GetStartTime(const tTimePoint& timePointNow, const tTimePoint& startTime, std::uint32_t period) const;
+	tTimePoint GetStartTime() const { return m_StartTime; }
 };
 
 class tTimePeriodCount : private tTimePeriod
@@ -60,7 +62,7 @@ class tTimePeriodCount : private tTimePeriod
 	int m_RepQty = 0;
 	int m_RepQtyCount = 0;
 
-	utils::tTimePoint m_RepStartTime = GetStartTime();
+	tTimePoint m_RepStartTime = GetStartTime();
 
 public:
 	explicit tTimePeriodCount(bool sync);
@@ -78,4 +80,5 @@ private:
 	void SetRep(uint32_t repPeriod, int repQty);
 };
 
+}
 }
