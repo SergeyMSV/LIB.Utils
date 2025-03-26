@@ -71,6 +71,8 @@ void UnitTest_PortSerial()
 		Thread_ioc.join();
 	}
 
+	using namespace utils::chrono;
+
 	{ // Time scale
 		tTimePoint TimeStart = tClock::now();
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
