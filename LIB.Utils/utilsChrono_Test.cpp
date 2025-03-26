@@ -11,6 +11,8 @@ namespace utils
 
 void UnitTest_Chrono()
 {
+	using namespace utils::chrono;
+
 	std::cout << "\n""utils::Chrono" << std::endl;
 
 	{
