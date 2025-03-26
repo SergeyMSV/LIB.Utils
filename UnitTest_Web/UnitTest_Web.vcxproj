@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\LIB.Utils\utilsException.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsTest.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsWeb.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsWeb_Test.cpp" />
@@ -150,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Lib.Utils\utilsBase.h" />
+    <ClInclude Include="..\LIB.Utils\utilsException.h" />
     <ClInclude Include="..\LIB.Utils\utilsTest.h" />
     <ClInclude Include="..\LIB.Utils\utilsWeb.h" />
     <ClInclude Include="devConfig.h" />

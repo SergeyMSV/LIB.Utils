@@ -1,4 +1,5 @@
 #include "utilsBase.h"
+#include "utilsException.h"
 #include "utilsPath.h"
 
 #include <cstdlib>
