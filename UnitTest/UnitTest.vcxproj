@@ -149,6 +149,7 @@
     <ClCompile Include="..\Lib.Utils\utilsCryptoRSA32_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsDALLAS.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsDALLAS_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsException.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsFile.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsFile_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsKey_Test.cpp" />
@@ -184,6 +185,7 @@
     <ClInclude Include="..\Lib.Utils\utilsCryptoAES.h" />
     <ClInclude Include="..\Lib.Utils\utilsCryptoRSA32.h" />
     <ClInclude Include="..\LIB.Utils\utilsDALLAS.h" />
+    <ClInclude Include="..\LIB.Utils\utilsException.h" />
     <ClInclude Include="..\LIB.Utils\utilsFile.h" />
     <ClInclude Include="..\Lib.Utils\utilsKey.h" />
     <ClInclude Include="..\LIB.Utils\utilsLinux.h" />
