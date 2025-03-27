@@ -59,8 +59,8 @@ enum class tControlPacketType
 
 enum class tQoS : std::uint8_t
 {
-	AtMostOnceDelivery,
-	AtLeastOnceDelivery,
+	AtMostOnceDelivery, // (Fire and Forget)
+	AtLeastOnceDelivery, // (Acknowledged deliver)
 	ExactlyOnceDelivery,
 };
 
