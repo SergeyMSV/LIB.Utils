@@ -205,7 +205,7 @@ constexpr tFixedHeader MakeFixedHeader(tControlPacketType type)
 }
 
 using tRemainingLengthParseExp = std::optional<std::uint32_t>;
-using tRemainingLengthToVectorExp = std::optional<std::vector<std::uint8_t>>;
+//using tRemainingLengthToVectorExp = std::optional<std::vector<std::uint8_t>>;
 
 class tRemainingLength
 {
@@ -225,31 +225,34 @@ class tRemainingLength
 
 public:
 	static tRemainingLengthParseExp Parse(tSpan& data);
-	static tRemainingLengthToVectorExp ToVector(std::uint32_t val);
+	static std::vector<std::uint8_t> ToVector(std::uint32_t val);
+	//static tRemainingLengthToVectorExp ToVector(std::uint32_t val);
 };
 
-template <class VH, class PL>
+template <class TCont>
 class tPacketBase : public tPacket
 {
 protected:
-	tFixedHeader m_FixedHeader{};
-
-	std::optional<VH> m_VariableHeader;
-	std::optional<PL> m_Payload;
+	TCont m_Content;
 
 private:
 	tPacketBase() = default;
 
 protected:
-	explicit tPacketBase(tFixedHeader fixedHeader) :m_FixedHeader(fixedHeader) {}
+	//explicit tPacketBase(const TCont& content) :m_Content(content) {}  --- [TBD] - IT DOESN'T WORK - WHY ?
+	explicit tPacketBase(const TCont& content)
+	{
+		m_Content = content;
+	}
+	//explicit tPacketBase(tFixedHeader fixedHeader) :m_FixedHeader(fixedHeader) {}
 
 public:
 	tPacketBase(const tPacketBase&) = default;
 	tPacketBase(tPacketBase&& val) noexcept
-		:m_FixedHeader(val.m_FixedHeader)
 	{
-		m_VariableHeader = std::move(val.m_VariableHeader);
-		m_Payload = std::move(val.m_Payload);
+		m_Content = std::move(val.m_Content);
+	//	//m_VariableHeader = std::move(val.m_VariableHeader);
+	//	//m_Payload = std::move(val.m_Payload);
 	}
 
 	tPacketBase& operator=(const tPacketBase&) = default;
@@ -257,79 +260,90 @@ public:
 	{
 		if (this == &val)
 			return *this;
-		m_FixedHeader = val.m_FixedHeader;
-		m_VariableHeader = std::move(val.m_VariableHeader);
-		m_Payload = std::move(val.m_Payload);
+		//m_FixedHeader = val.m_FixedHeader;
+		//m_VariableHeader = std::move(val.m_VariableHeader);
+		//m_Payload = std::move(val.m_Payload);
 		return *this;
 	}
 
-	std::optional<VH> GetVariableHeader() { return m_VariableHeader; }
-	std::optional<PL> GetPayload() { return m_Payload; }
+	TCont::fixed_header_type GetFixedeHeader() const { return m_Content.FixedHeader; }
+	TCont::variable_header_type GetVariableHeader() const { return m_Content.VariableHeader; }
+	TCont::payload_type GetPayload() const { return m_Content.Payload; }
+	//std::optional<VH> GetVariableHeader() { return m_VariableHeader; }
+	//std::optional<PL> GetPayload() { return m_Payload; }
 
 	static std::optional<tPacketBase> Parse(tSpan& data)
 	{
 		if (data.empty())
 			return {};
-
-		tFixedHeader FHeader = data[0];
-
-		const auto ControlPacketType = static_cast<tControlPacketType>(FHeader.Field.ControlPacketType);
-		if (ControlPacketType < tControlPacketType::CONNECT || ControlPacketType > tControlPacketType::DISCONNECT)
+		std::optional<TCont> Cont = TCont::Parse(data);
+		if (!Cont.has_value())
 			return {};
-
 		tPacketBase Pack{};
-		Pack.m_FixedHeader = FHeader;
-		data.Skip(1);
-
-		auto RLengtExp = tRemainingLength::Parse(data);
-		if (!RLengtExp.has_value() || *RLengtExp > data.size())
-			return {};
-		
-		tSpan PacketDataSpan(data, *RLengtExp);
-
-		switch (ControlPacketType)
-		{
-		case tControlPacketType::PINGREQ:
-		case tControlPacketType::PINGRESP:
-		case tControlPacketType::DISCONNECT:
-			return Pack;
-		}
-
-		auto VarHeadExp = VH::Parse(Pack.m_FixedHeader, PacketDataSpan);
-		if (!VarHeadExp.has_value())
-			return {};
-		Pack.m_VariableHeader = *VarHeadExp;
-		
-		switch (ControlPacketType)
-		{
-		case tControlPacketType::CONNACK:
-		case tControlPacketType::PUBACK:
-		case tControlPacketType::PUBREC:
-		case tControlPacketType::PUBREL:
-		case tControlPacketType::PUBCOMP:
-		case tControlPacketType::UNSUBACK:
-		case tControlPacketType::PINGREQ:
-		case tControlPacketType::PINGRESP:
-			return Pack;
-		case tControlPacketType::PUBLISH:
-			if (PacketDataSpan.empty())
-				return Pack;
-			break;
-		}
-
-		if (ControlPacketType == tControlPacketType::CONNECT ||
-			ControlPacketType == tControlPacketType::PUBLISH && !PacketDataSpan.empty() ||
-			ControlPacketType == tControlPacketType::SUBSCRIBE ||
-			ControlPacketType == tControlPacketType::SUBACK ||
-			ControlPacketType == tControlPacketType::UNSUBSCRIBE)
-		{
-			auto PayloadExp = PL::Parse(*Pack.m_VariableHeader, PacketDataSpan);
-			if (!PayloadExp.has_value())
-				return {};
-			Pack.m_Payload = *PayloadExp;
-		}
-
+		Pack.m_Content = *Cont;
 		return Pack;
+
+		//TCont Content = TCont::Parse(data);
+
+		//tFixedHeader FHeader = data[0];
+
+		//const auto ControlPacketType = static_cast<tControlPacketType>(FHeader.Field.ControlPacketType);
+		//if (ControlPacketType < tControlPacketType::CONNECT || ControlPacketType > tControlPacketType::DISCONNECT)
+		//	return {};
+
+
+		//Pack.m_FixedHeader = FHeader;
+		//data.Skip(1);
+
+		//auto RLengtExp = tRemainingLength::Parse(data);
+		//if (!RLengtExp.has_value() || *RLengtExp > data.size())
+		//	return {};
+		//
+		//tSpan PacketDataSpan(data, *RLengtExp);
+
+		//switch (ControlPacketType)
+		//{
+		//case tControlPacketType::PINGREQ:
+		//case tControlPacketType::PINGRESP:
+		//case tControlPacketType::DISCONNECT:
+		//	return Pack;
+		//}
+
+		//auto VarHeadExp = VH::Parse(Pack.m_FixedHeader, PacketDataSpan);
+		//if (!VarHeadExp.has_value())
+		//	return {};
+		//Pack.m_VariableHeader = *VarHeadExp;
+		//
+		//switch (ControlPacketType)
+		//{
+		//case tControlPacketType::CONNACK:
+		//case tControlPacketType::PUBACK:
+		//case tControlPacketType::PUBREC:
+		//case tControlPacketType::PUBREL:
+		//case tControlPacketType::PUBCOMP:
+		//case tControlPacketType::UNSUBACK:
+		//case tControlPacketType::PINGREQ:
+		//case tControlPacketType::PINGRESP:
+		//	return Pack;
+		//case tControlPacketType::PUBLISH:
+		//	if (PacketDataSpan.empty())
+		//		return Pack;
+		//	break;
+		//}
+
+		//if (ControlPacketType == tControlPacketType::CONNECT ||
+		//	ControlPacketType == tControlPacketType::PUBLISH && !PacketDataSpan.empty() ||
+		//	ControlPacketType == tControlPacketType::SUBSCRIBE ||
+		//	ControlPacketType == tControlPacketType::SUBACK ||
+		//	ControlPacketType == tControlPacketType::UNSUBSCRIBE)
+		//{
+		//	auto PayloadExp = PL::Parse(*Pack.m_VariableHeader, PacketDataSpan);
+		//	if (!PayloadExp.has_value())
+		//		return {};
+		//	Pack.m_Payload = *PayloadExp;
+		//}
+
+		//return Pack;
 	}
 
 	static std::optional<tPacketBase> Parse(const std::vector<std::uint8_t>& data)
@@ -340,32 +354,34 @@ public:
 
 	std::string ToString() const
 	{
-		std::string Str = m_FixedHeader.ToString();
-		if (m_VariableHeader.has_value())
-			Str += "; - " + m_VariableHeader->ToString();
-		if (m_Payload.has_value())
-			Str += "; - " + m_Payload->ToString();
-		return Str;
+		return m_Content.ToString();
+		//std::string Str = m_FixedHeader.ToString();
+		//if (m_VariableHeader.has_value())
+		//	Str += "; - " + m_VariableHeader->ToString();
+		//if (m_Payload.has_value())
+		//	Str += "; - " + m_Payload->ToString();
+		//return Str;
 	}
 
 	std::vector<std::uint8_t> ToVector() const
 	{
-		std23::vector<std::uint8_t> Data;
-		if (m_VariableHeader.has_value())
-			Data.append_range(m_VariableHeader->ToVector());
-		if (m_Payload.has_value())
-			Data.append_range(m_Payload->ToVector());
-		auto RemainingLength = tRemainingLength::ToVector(static_cast<std::uint32_t>(Data.size()));
-		if (!RemainingLength.has_value())
-			return {};
-		Data.insert_range(Data.begin(), *RemainingLength);
-		Data.insert(Data.begin(), m_FixedHeader.Value);
-		return Data;
+		return m_Content.ToVector();
+		//std23::vector<std::uint8_t> Data;
+		//if (m_VariableHeader.has_value())
+		//	Data.append_range(m_VariableHeader->ToVector());
+		//if (m_Payload.has_value())
+		//	Data.append_range(m_Payload->ToVector());
+		//auto RemainingLength = tRemainingLength::ToVector(static_cast<std::uint32_t>(Data.size()));
+		//if (!RemainingLength.has_value())
+		//	return {};
+		//Data.insert_range(Data.begin(), *RemainingLength);
+		//Data.insert(Data.begin(), m_FixedHeader.Value);
+		//return Data;
 	}
 
 	bool operator==(const tPacketBase& val) const
 	{
-		return m_FixedHeader == val.m_FixedHeader && m_VariableHeader == val.m_VariableHeader && m_Payload == val.m_Payload;
+		return false;// m_FixedHeader == val.m_FixedHeader && m_VariableHeader == val.m_VariableHeader && m_Payload == val.m_Payload;
 	}
 };
 
@@ -523,6 +539,80 @@ union tFixedHeaderPUBLISHFlags
 	std::uint8_t Value = 0;
 };
 
+
+//struct tContent // [TBD] shared
+//{
+//
+//};
+
+struct tContentPUBLISH// : public tContent
+{
+	tFixedHeader FixedHeader{};
+	struct tVariableHeader
+	{
+		tString TopicName;
+		std::optional<tUInt16> PacketId; // 809 The Packet Identifier field is only present in PUBLISH Packets where the QoS level is 1 or 2.
+
+		bool operator==(const tVariableHeader& val) const
+		{
+			return TopicName == val.TopicName &&
+				(PacketId.has_value() != val.PacketId.has_value() ? false : PacketId.has_value() == false ? true : *PacketId == *val.PacketId);
+		}
+	}VariableHeader;
+	std::vector<std::uint8_t> Payload; // The content and format of the data is application specific.
+
+	typedef typename tFixedHeader fixed_header_type;
+	typedef typename tVariableHeader variable_header_type;
+	typedef typename std::vector<std::uint8_t> payload_type;
+
+	tContentPUBLISH() = default;
+	tContentPUBLISH(bool dup, bool retain, const std::string& topicName)
+	{
+		FixedHeader = GetFixedHeader(dup, tQoS::AtMostOnceDelivery, retain);
+		VariableHeader.TopicName = topicName;
+	}
+	//tContentPUBLISH(tContentPUBLISH&) {} // ?
+	//tContentPUBLISH(tContentPUBLISH&&) noexcept {} // ?
+
+	static std::optional<tContentPUBLISH> Parse(tSpan& data);
+
+	//std::size_t GetSize() const { return TopicName.GetSize() + (PacketId.has_value() ? tUInt16::GetSize() : 0); }
+
+	//tFixedHeader GetFixedHeader() const { return FixedHeader; }
+	//tVariableHeader GetVariableHeader() const {return }
+
+	std::string ToString() const;
+
+	std::vector<std::uint8_t> ToVector() const;
+
+	//tContentPUBLISH& operator=(const tContentPUBLISH& val);// = default; // ?
+	//tContentPUBLISH& operator=(const tContentPUBLISH&& val);// = default; // ?
+
+	bool operator==(const tContentPUBLISH& val) const;
+
+private:
+	// 809 The Packet Identifier field is only present in PUBLISH Packets where the QoS level is 1 or 2.
+	static bool IsPacketIdPresent(std::uint8_t flags)
+	{
+		tFixedHeaderPUBLISHFlags Flags;
+		Flags.Value = flags;
+		return static_cast<tQoS>(Flags.Field.QoS) == tQoS::AtLeastOnceDelivery || static_cast<tQoS>(Flags.Field.QoS) == tQoS::ExactlyOnceDelivery;
+	}
+
+	hidden::tFixedHeader GetFixedHeader(bool dup, tQoS qos, bool retain) // [TBD] get rid of it
+	{
+		hidden::tFixedHeaderPUBLISHFlags Flags;
+
+		Flags.Field.DUP = dup ? 1 : 0;
+		Flags.Field.QoS = static_cast<std::uint8_t>(qos);
+		Flags.Field.RETAIN = retain ? 1 : 0;
+
+		return hidden::MakeFixedHeader(tControlPacketType::PUBLISH, Flags.Value);
+	}
+};
+
+
+/*
 struct tVariableHeaderPUBLISH
 {
 	tString TopicName;
@@ -552,7 +642,7 @@ struct tPayloadPUBLISH
 	std::vector<std::uint8_t> ToVector() const { return Data; }
 
 	bool operator==(const tPayloadPUBLISH&) const = default;
-};
+};*/
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PUBACK, PUBREC, PUBREL, PUBCOMP
@@ -662,7 +752,7 @@ using tPayloadUNSUBACK = tPayloadEmpty<tVariableHeaderUNSUBACK>;
 } // hidden
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 class tPacketCONNECT : public hidden::tPacketBase<hidden::tVariableHeaderCONNECT, hidden::tPayloadCONNECT>
 {
 public:
@@ -703,28 +793,90 @@ public:
 
 private:
 	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(GetControlPacketType()); }
+};*/
+
+class tPacketNOACK
+{
+public:
+	static std::optional<tControlPacketType> GetControlPacketType() { return {}; }
 };
 
-class tPacketPUBLISH : public hidden::tPacketBase<hidden::tVariableHeaderPUBLISH, hidden::tPayloadPUBLISH>
+
+template<tQoS qos>
+class tPacketPUBLISH : public hidden::tPacketBase<hidden::tContentPUBLISH>
+{
+};
+
+template<>
+class tPacketPUBLISH<tQoS::AtMostOnceDelivery> : public hidden::tPacketBase<hidden::tContentPUBLISH>
+{
+public:
+	
+	typedef typename tPacketNOACK response_type;
+
+	tPacketPUBLISH() = delete;
+	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName)
+		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName))
+	{
+	}
+	/*tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payload)
+		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName, payload))
+	{
+	}*/
+};
+
+template<>
+class tPacketPUBLISH<tQoS::AtLeastOnceDelivery> : public hidden::tPacketBase<hidden::tContentPUBLISH>
+{
+public:
+	class tPacketPUBACK;
+	typedef typename tPacketPUBACK response_type;
+
+	tPacketPUBLISH() = delete;
+	//tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId);
+	//tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId, const std::vector<std::uint8_t>& payloadData);
+};
+
+template<>
+class tPacketPUBLISH<tQoS::ExactlyOnceDelivery> : public hidden::tPacketBase<hidden::tContentPUBLISH>
+{
+public:
+	class tPacketPUBREC;
+	typedef typename tPacketPUBREC response_type;
+
+	tPacketPUBLISH() = delete;
+	//tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId);
+	//tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId, const std::vector<std::uint8_t>& payloadData);
+};
+
+/*
+template<>
+class tPacketPUBLISH<tQoS::AtLeastOnceDelivery> : public hidden::tPacketBase<hidden::tContentPUBLISH>
 {
 public:
 	tPacketPUBLISH() = delete;
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId);
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId, const std::vector<std::uint8_t>& payloadData);
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName);
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payloadData);
-	tPacketPUBLISH(const hidden::tPacketBase<hidden::tVariableHeaderPUBLISH, hidden::tPayloadPUBLISH>& val) :tPacketBase(val) {}
-	tPacketPUBLISH(hidden::tPacketBase<hidden::tVariableHeaderPUBLISH, hidden::tPayloadPUBLISH>&& val) :tPacketBase(std::move(val)) {}
+	//	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId);
+	//	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId, const std::vector<std::uint8_t>& payloadData);
+	// 
+		//tPacketPUBLISH(bool dup, bool retain, const std::string& topicName);
+	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName)
+		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName))
+	{
+	}
+	//	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payloadData);
+		//tPacketPUBLISH(const tPacketPUBLISH& val) :tPacketBase(hidden::tContentPUBLISH()) {}
+		//tPacketPUBLISH(const hidden::tPacketBase<hidden::tVariableHeaderPUBLISH, hidden::tPayloadPUBLISH>& val) :tPacketBase(val) {}
+		//tPacketPUBLISH(hidden::tPacketBase<hidden::tVariableHeaderPUBLISH, hidden::tPayloadPUBLISH>&& val) :tPacketBase(std::move(val)) {}
 
-	// 809 The Packet Identifier field is only present in PUBLISH Packets where the QoS level is 1 or 2.
-	static bool IsPacketIdPresent(std::uint8_t flags);
+		// 809 The Packet Identifier field is only present in PUBLISH Packets where the QoS level is 1 or 2.
+		//static bool IsPacketIdPresent(std::uint8_t flags);
 
-private:
-	static hidden::tFixedHeader GetFixedHeader(bool dup, tQoS qos, bool retain);
-};
+	//private:
+		//static hidden::tFixedHeader GetFixedHeader(bool dup, tQoS qos, bool retain);
+};*/
 
 // 848 A PUBACK Packet is the response to a PUBLISH Packet with QoS level 1. (AtLeastOnceDelivery)
-class tPacketPUBACK : public hidden::tPacketBase<hidden::tVariableHeaderPUBACK, hidden::tPayloadPUBACK>
+/*class tPacketPUBACK : public hidden::tPacketBase<hidden::tVariableHeaderPUBACK, hidden::tPayloadPUBACK>
 {
 public:
 	tPacketPUBACK() = delete;
@@ -737,8 +889,8 @@ public:
 
 private:
 	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::PUBACK); }
-};
-
+};*/
+/*
 // 863 A PUBREC Packet is the response to a PUBLISH Packet with QoS 2. It is the second packet of the QoS
 // 864 2 protocol exchange.
 class tPacketPUBREC : public hidden::tPacketBase<hidden::tVariableHeaderPUBACK, hidden::tPayloadPUBACK>
@@ -901,7 +1053,7 @@ public:
 private:
 	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::DISCONNECT); }
 };
-
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::optional<tControlPacketType> TestPacket(tSpan& data);

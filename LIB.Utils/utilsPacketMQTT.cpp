@@ -131,15 +131,15 @@ tUInt16& tUInt16::operator=(std::uint16_t val)
 
 std::optional<tString> tString::Parse(tSpan& data)
 {
-	auto LengthExp = tUInt16::Parse(data);
-	if (!LengthExp.has_value())
+	std::optional<tUInt16> LengthOpt = tUInt16::Parse(data);
+	if (!LengthOpt.has_value())
 		return {};
 
-	if (data.size() < LengthExp->Value)
+	if (data.size() < LengthOpt->Value)
 		return {};
 
-	std::string Str(data.begin(), data.begin() + LengthExp->Value);
-	data.Skip(LengthExp->Value);
+	std::string Str(data.begin(), data.begin() + LengthOpt->Value);
+	data.Skip(LengthOpt->Value);
 
 	return Str;
 }
@@ -198,7 +198,7 @@ tRemainingLengthParseExp tRemainingLength::Parse(tSpan& data)
 	return {};
 }
 
-tRemainingLengthToVectorExp tRemainingLength::ToVector(std::uint32_t val)
+std::vector<std::uint8_t> tRemainingLength::ToVector(std::uint32_t val)
 {
 	std::vector<std::uint8_t> Data;
 	for (int i = 0; i < m_SizeMax; ++i)
@@ -394,6 +394,82 @@ bool tVariableHeaderCONNACK::operator==(const tVariableHeaderCONNACK& val) const
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PUBLISH: header & payload
 
+std::optional<tContentPUBLISH> tContentPUBLISH::Parse(tSpan& data)
+{
+	tContentPUBLISH Content{};
+
+	if (data.empty())
+		return {};
+	Content.FixedHeader = data[0]; // [TBD] ---- *** it is the same for all types of packets
+	data.Skip(1);
+
+	std::optional<std::string> StrOpt = tString::Parse(data);
+	if (!StrOpt.has_value())
+		return {};
+	Content.VariableHeader.TopicName = *StrOpt;
+
+	if (!IsPacketIdPresent(Content.FixedHeader.Field.Flags))
+	{
+		std::optional<tUInt16> PacketIdOpt = tUInt16::Parse(data);
+		if (!PacketIdOpt.has_value())
+			return {};
+		Content.VariableHeader.PacketId = *PacketIdOpt;
+	}
+		
+	// 819 The Payload contains the Application Message that is being published.The content and format of the
+	// 820 data is application specific.The length of the payload can be calculated by subtracting the length of the
+	// 821 variable header from the Remaining Length field that is in the Fixed Header.It is valid for a PUBLISH
+	// 822 Packet to contain a zero length payload.
+	Content.Payload = std::vector<std::uint8_t>(data.begin(), data.end());
+
+	return Content;
+}
+
+std::string tContentPUBLISH::ToString() const
+{
+	std::string Str = FixedHeader.ToString(); // [TBD] ---- *** it is the same for all types of packets
+	Str += "Topic name: " + VariableHeader.TopicName;
+	if (VariableHeader.PacketId.has_value())
+		Str += "; Packet ID: " + std::to_string(VariableHeader.PacketId->Value);
+	Str += std::string("; Payload size: ") + std::to_string(Payload.size());
+	return Str;
+}
+
+std::vector<std::uint8_t> tContentPUBLISH::ToVector() const
+{
+	std23::vector<std::uint8_t> Data;
+	Data.append_range(VariableHeader.TopicName.ToVector());
+	if (VariableHeader.PacketId.has_value())
+		Data.append_range(VariableHeader.PacketId->ToVector());
+
+	// [TBD] ---- *** the following is the same for all types of packets
+	std::vector<std::uint8_t> RemainingLength = tRemainingLength::ToVector(static_cast<std::uint32_t>(Data.size()));
+	if (RemainingLength.empty())
+		return {};
+	Data.insert_range(Data.begin(), RemainingLength);
+	Data.insert(Data.begin(), FixedHeader.Value);
+	return Data;
+}
+
+//tContentPUBLISH& tContentPUBLISH::operator=(const tContentPUBLISH& val)
+//{
+//	return *this;
+//}
+//
+//tContentPUBLISH& tContentPUBLISH::operator=(const tContentPUBLISH&& val)
+//{
+//	return *this;
+//}
+
+bool tContentPUBLISH::operator==(const tContentPUBLISH& val) const
+{
+	return FixedHeader == val.FixedHeader && // [TBD] ---- *** it is the same for all types of packets
+		VariableHeader == val.VariableHeader && Payload == val.Payload;
+}
+
+
+
+/*
 std::optional<tVariableHeaderPUBLISH> tVariableHeaderPUBLISH::Parse(const hidden::tFixedHeader& fixedHeader, tSpan& data)
 {
 	auto StrExp = tString::Parse(data);
@@ -449,7 +525,7 @@ std::optional<tPayloadPUBLISH> tPayloadPUBLISH::Parse(const tVariableHeaderPUBLI
 	Payload.Data = std::vector<std::uint8_t>(data.begin(), data.end());
 	return Payload;
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // PUBACK: header & payload
 
@@ -609,7 +685,7 @@ std::vector<std::uint8_t> tPayloadUNSUBSCRIBE::ToVector() const
 } // hidden
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
 tPacketCONNECT::tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
 	:tPacketBase(GetFixedHeader())
 {
@@ -690,7 +766,12 @@ void tPacketCONNECT::SetUser(const std::string& name, const std::string& passwor
 		m_Payload->Password.reset();
 	}
 }
+*/
 
+
+
+
+/*
 tPacketPUBLISH::tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId)
 	:tPacketBase(GetFixedHeader(dup, qos, retain))
 {
@@ -707,14 +788,25 @@ tPacketPUBLISH::tPacketPUBLISH(bool dup, bool retain, const std::string& topicNa
 	m_Payload = hidden::tPayloadPUBLISH{};
 	m_Payload->Data = payloadData;
 }
-
+*/
+//	tPacketPUBLISH::tPacketPUBLISH(bool dup, bool retain, const std::string& topicName)
+//		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName))
+//		//:tPacketBase(GetFixedHeader(dup, tQoS::AtMostOnceDelivery, retain))
+//	{
+//		//m_Content.FixedHeader = GetFixedHeader(dup, tQoS::AtLeastOnceDelivery, true);
+//			//hidden::tFixedHeader GetFixedHeader(bool dup, tQoS qos, bool retain);
+//	
+//		//m_VariableHeader = hidden::tVariableHeaderPUBLISH{};
+//		//m_VariableHeader->TopicName = topicName;
+//	}
+/*
 tPacketPUBLISH::tPacketPUBLISH(bool dup, bool retain, const std::string& topicName)
 	:tPacketBase(GetFixedHeader(dup, tQoS::AtMostOnceDelivery, retain))
 {
 	m_VariableHeader = hidden::tVariableHeaderPUBLISH{};
 	m_VariableHeader->TopicName = topicName;
-}
-
+}*/
+/*
 tPacketPUBLISH::tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payloadData)
 	:tPacketPUBLISH(dup, retain, topicName)
 {
@@ -739,7 +831,7 @@ hidden::tFixedHeader tPacketPUBLISH::GetFixedHeader(bool dup, tQoS qos, bool ret
 
 	return hidden::MakeFixedHeader(tControlPacketType::PUBLISH, Flags.Value);
 }
-
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 std::optional<tControlPacketType> TestPacket(tSpan& data)
