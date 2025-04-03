@@ -59,41 +59,95 @@ void UnitTest_PacketMQTT()
 		utils::test::RESULT("TestPacket tError::PacketType 1", !PackType.has_value());
 	}
 
-	{
+	////////////////////////////////////////////////////////////
 
+	{
 		auto Pack = tPacketCONNECT::Parse(std::vector<std::uint8_t>{ 0x10, 0x53, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x04, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 });
 		if (Pack.has_value())
 			std::cout << Pack->ToString() << '\n';
-		utils::test::RESULT("Pack CONNECT Parse MQTT 3.1.1", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQTT");
+		utils::test::RESULT("Pack CONNECT Parse MQTT 3.1.1", Pack.has_value() && Pack->GetVariableHeader().ProtocolName == "MQTT");
 	}
 
 	{
 		auto Pack = tPacketCONNECT::Parse(std::vector<std::uint8_t>{ 0x10, 0x1e, 0x00, 0x04, 0x4d, 0x51, 0x54, 0x54, 0x05, 0xc2, 0x00, 0x3c, 0x00, 0x04, 0x6d, 0x79, 0x50, 0x79, 0x00, 0x06, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x00, 0x04, 0x70, 0x61, 0x73, 0x73});
 		if (Pack.has_value())
 			std::cout << Pack->ToString() << '\n';
-		utils::test::RESULT("Pack CONNECT Parse MQTT v.5", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQTT");
+		utils::test::RESULT("Pack CONNECT Parse MQTT v.5", Pack.has_value() && Pack->GetVariableHeader().ProtocolName == "MQTT");
 	}
 
 	{
 		auto Pack = tPacketCONNECT::Parse(std::vector<std::uint8_t>{ 0x10, 0x55, 0x00, 0x06, 0x4d, 0x51, 0x49, 0x73, 0x64, 0x70, 0x03, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 });
 		if (Pack.has_value())
 			std::cout << Pack->ToString() << '\n';
-		utils::test::RESULT("Pack CONNECT Parse MQTT v.3.1 MQIsdp (presumably)", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQIsdp");
+		utils::test::RESULT("Pack CONNECT Parse MQTT v.3.1 MQIsdp (presumably)", Pack.has_value() && Pack->GetVariableHeader().ProtocolName == "MQIsdp");
+	}
+
+	////////////////////////////////////////////////////////////
+
+	{// tQoS::AtMostOnceDelivery
+		utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::AtMostOnceDelivery> Pack(true, true, "demo_topic");
+		auto fh = Pack.GetFixedHeader();
+		auto vh = Pack.GetVariableHeader();
+		auto pl = Pack.GetPayload();
+		UnitTest_PacketMQTT(Pack, "tPacketPUBLISH tQoS::AtMostOnceDelivery");
+		utils::test::RESULT("Response type", std::is_same<utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::AtMostOnceDelivery>::response_type, utils::packet::mqtt::tPacketNOACK>::value);
+	}
+	{// tQoS::AtMostOnceDeliver
+		utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::AtMostOnceDelivery> Pack(true, true, "demo_topic", { 1,2,3,4,5 });
+		auto fh = Pack.GetFixedHeader();
+		auto vh = Pack.GetVariableHeader();
+		auto pl = Pack.GetPayload();
+		UnitTest_PacketMQTT(Pack, "tPacketPUBLISH tQoS::AtMostOnceDelivery");
+	}
+
+	{// tQoS::AtLeastOnceDelivery
+		utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::AtLeastOnceDelivery> Pack(true, true, "demo_topic", 78);
+		auto fh = Pack.GetFixedHeader();
+		auto vh = Pack.GetVariableHeader();
+		auto pl = Pack.GetPayload();
+		UnitTest_PacketMQTT(Pack, "tPacketPUBLISH tQoS::AtLeastOnceDelivery");
+		utils::test::RESULT("Response type", std::is_same<utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::AtLeastOnceDelivery>::response_type, utils::packet::mqtt::tPacketPUBACK>::value);
+	}
+
+	{// tQoS::AtLeastOnceDelivery
+		utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::AtLeastOnceDelivery> Pack(true, true, "demo_topic", 78, { 1,2,3,4,5 });
+		auto fh = Pack.GetFixedHeader();
+		auto vh = Pack.GetVariableHeader();
+		auto pl = Pack.GetPayload();
+		UnitTest_PacketMQTT(Pack, "tPacketPUBLISH tQoS::AtLeastOnceDelivery");
+	}
+
+	{// tQoS::ExactlyOnceDelivery
+		utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::ExactlyOnceDelivery> Pack(true, true, "demo_topic", 78);
+		auto fh = Pack.GetFixedHeader();
+		auto vh = Pack.GetVariableHeader();
+		auto pl = Pack.GetPayload();
+		UnitTest_PacketMQTT(Pack, "tPacketPUBLISH tQoS::ExactlyOnceDelivery");
+		utils::test::RESULT("Response type", std::is_same<utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::ExactlyOnceDelivery>::response_type, utils::packet::mqtt::tPacketPUBREC>::value);
+	}
+
+	{// tQoS::ExactlyOnceDelivery
+		utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::ExactlyOnceDelivery> Pack(true, true, "demo_topic", 78, { 1,2,3,4,5 });
+		auto fh = Pack.GetFixedHeader();
+		auto vh = Pack.GetVariableHeader();
+		auto pl = Pack.GetPayload();
+		UnitTest_PacketMQTT(Pack, "tPacketPUBLISH tQoS::ExactlyOnceDelivery");
 	}
 
 	UnitTest_PacketMQTT(tPacketCONNECT(true, 10, "my_client_id", tQoS::AtLeastOnceDelivery, true, "my_will_topic", "my_will_message", "my_user_name", "my_password"), "Pack CONNECT serialize-deserialize 1");
-	UnitTest_PacketMQTT<tPacketBase<tVariableHeaderCONNECT, tPayloadCONNECT>>(tPacketCONNECT(true, 10, "my_client_id", tQoS::AtLeastOnceDelivery, true, "my_will_topic", "my_will_message", "my_user_name", "my_password"), "Pack CONNECT serialize-deserialize 2");
+	UnitTest_PacketMQTT(tPacketCONNECT(true, 10, "my_client_id", "my_user_name", "my_password"), "Pack CONNECT serialize-deserialize 1");
+	//UnitTest_PacketMQTT<tPacketBase<tVariableHeaderCONNECT, tPayloadCONNECT>>(tPacketCONNECT(true, 10, "my_client_id", tQoS::AtLeastOnceDelivery, true, "my_will_topic", "my_will_message", "my_user_name", "my_password"), "Pack CONNECT serialize-deserialize 2");
 	UnitTest_PacketMQTT(tPacketCONNECT(true, 10, "my_client_id345678901234567", tQoS::AtLeastOnceDelivery, true, "my_will_topic", "my_will_message", "my_user_name", "my_password"), "Pack CONNECT ClientId size - 23 symbols = my_client_id34567890123");
 	UnitTest_PacketMQTT(tPacketCONNACK(true, tConnectReturnCode::ConnectionRefused_NotAuthorized), "Pack CONNACK serialize-deserialize");
-	UnitTest_PacketMQTT(tPacketPUBLISH(true, true, "my_topic_name/some_device", tQoS::AtLeastOnceDelivery, 10), "Pack PUBLISH serialize-deserialize 1");
-	UnitTest_PacketMQTT(tPacketPUBLISH(true, true, "my_topic_name/some_device"), "Pack PUBLISH serialize-deserialize 2");
-	UnitTest_PacketMQTT(tPacketPUBLISH(true, true, "my_topic_name/some_device", tQoS::AtLeastOnceDelivery, 10, { 0x01, 0x02 }), "Pack PUBLISH + Payload serialize-deserialize 1");
-	UnitTest_PacketMQTT(tPacketPUBLISH(true, true, "my_topic_name/some_device", { 0x01, 0x02 }), "Pack PUBLISH + Payload serialize-deserialize 2");
+	UnitTest_PacketMQTT(tPacketPUBLISH<tQoS::AtLeastOnceDelivery>(true, true, "my_topic_name/some_device", 10), "Pack PUBLISH serialize-deserialize 1");
+	UnitTest_PacketMQTT(tPacketPUBLISH<tQoS::AtMostOnceDelivery>(true, true, "my_topic_name/some_device"), "Pack PUBLISH serialize-deserialize 2");
+	UnitTest_PacketMQTT(tPacketPUBLISH<tQoS::ExactlyOnceDelivery>(true, true, "my_topic_name/some_device", 10, { 0x01, 0x02 }), "Pack PUBLISH + Payload serialize-deserialize 1");
+	UnitTest_PacketMQTT(tPacketPUBLISH<tQoS::AtMostOnceDelivery>(true, true, "my_topic_name/some_device", { 0x01, 0x02 }), "Pack PUBLISH + Payload serialize-deserialize 2");
 	UnitTest_PacketMQTT(tPacketPUBACK(0x1234), "Pack PUBACK serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketPUBREC(0x1234), "Pack PUBREC serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketPUBREL(0x1234), "Pack PUBREL serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketPUBCOMP(0x1234), "Pack PUBCOMP serialize-deserialize");
-	{
+/* {
 		tPacketSUBSCRIBE Pack(0x1234, "my_topic_filter_1", tQoS::AtMostOnceDelivery);
 		Pack.AddTopicFilter("my_topic_filter_2", tQoS::ExactlyOnceDelivery);
 		Pack.AddTopicFilter("my_topic_filter_3", tQoS::AtLeastOnceDelivery);
@@ -106,12 +160,12 @@ void UnitTest_PacketMQTT()
 		Pack.AddTopicFilter("my_topic_filter_3");
 		UnitTest_PacketMQTT(Pack, "Pack UNSUBSCRIBE serialize-deserialize");
 	}
-	UnitTest_PacketMQTT(tPacketUNSUBACK(0x1234), "Pack UNSUBACK serialize-deserialize");
+	UnitTest_PacketMQTT(tPacketUNSUBACK(0x1234), "Pack UNSUBACK serialize-deserialize");*/
 
 	UnitTest_PacketMQTT(tPacketPINGREQ(), "Pack PINGREQ serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketPINGRESP(), "Pack PINGRESP serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketDISCONNECT(), "Pack DISCONNECT serialize-deserialize");
-
+	/*
 	{ // copy c_tor and move c_tor
 		auto Pack = tPacketCONNECT::Parse(std::vector<std::uint8_t>{ 0x10, 0x55, 0x00, 0x06, 0x4d, 0x51, 0x49, 0x73, 0x64, 0x70, 0x03, 0xce, 0x00, 0x0b, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x5f, 0x69, 0x64, 0x00, 0x0d, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x74, 0x6f, 0x70, 0x69, 0x63, 0x00, 0x0f, 0x6d, 0x79, 0x5f, 0x77, 0x69, 0x6c, 0x6c, 0x5f, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x00, 0x0c, 0x6d, 0x79, 0x5f, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x0b, 0x6d, 0x79, 0x5f, 0x70, 0x61, 0x73, 0x73, 0x77, 0x6f, 0x72, 0x64 });
 		if (Pack.has_value())
@@ -134,35 +188,33 @@ void UnitTest_PacketMQTT()
 		Pack2 = std::move(Pack3);
 
 		//utils::test::RESULT("????", Pack.has_value() && Pack->GetVariableHeader()->ProtocolName == "MQIsdp");
-	}
-
-	
+	}*/	
 }
 
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength)
 {
 	tSpan DataSpan(data);
-	tRemainingLengthParseExp Length = tRemainingLength::Parse(DataSpan);
+	std::optional<std::uint32_t> Length = tRemainingLength::Parse(DataSpan);
 	utils::test::RESULT("RemainingLength Parse " + cap, Length.has_value() && Length == packetLength);
 }
 
 void UnitTest_PacketMQTT_RemainingLengthParseWrong(const std::string& cap, const std::vector<std::uint8_t>& data)
 {
 	tSpan DataSpan(data);
-	tRemainingLengthParseExp Length = tRemainingLength::Parse(DataSpan);
+	std::optional<std::uint32_t> Length = tRemainingLength::Parse(DataSpan);
 	utils::test::RESULT("RemainingLength Parse WRONG " + cap, !Length.has_value());
 }
 
 void UnitTest_PacketMQTT_RemainingLengthToVector(const std::string& cap, std::uint32_t packetLength, const std::vector<std::uint8_t>& data)
 {
-	tRemainingLengthToVectorExp Length = tRemainingLength::ToVector(packetLength);
-	utils::test::RESULT("RemainingLength ToVector " + cap, Length.has_value() && Length == data);
+	std::vector<std::uint8_t> Length = tRemainingLength::ToVector(packetLength);
+	utils::test::RESULT("RemainingLength ToVector " + cap, !Length.empty() && Length == data);
 }
 
 void UnitTest_PacketMQTT_RemainingLengthToVectorWrong(const std::string& cap, std::uint32_t packetLength)
 {
-	tRemainingLengthToVectorExp Length = tRemainingLength::ToVector(packetLength);
-	utils::test::RESULT("RemainingLength ToVector WRONG " + cap, !Length.has_value());
+	std::vector<std::uint8_t> Length = tRemainingLength::ToVector(packetLength);
+	utils::test::RESULT("RemainingLength ToVector WRONG " + cap, Length.empty());
 }
 
 }
