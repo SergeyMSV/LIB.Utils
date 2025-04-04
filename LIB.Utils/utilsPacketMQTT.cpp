@@ -194,10 +194,13 @@ std::optional<std::pair<tFixedHeader, std::size_t>> tFixedHeader::Parse(tSpan& d
 	return std::pair(FixedHeader, *RLengtOpt);
 }
 
-std::string tFixedHeader::ToString() const
+std::string tFixedHeader::ToString(bool align) const
 {
 	tControlPacketType PacketType = static_cast<tControlPacketType>(Field.ControlPacketType);
 	std::string Str = mqtt::ToString(PacketType);
+	constexpr std::size_t LenghAligned = 11; // That is size of the longest packet name: "UNSUBSCRIBE".
+	if (align && Str.size() < LenghAligned)
+		Str.append(LenghAligned - Str.size(), ' ');
 	if (PacketType == tControlPacketType::PUBLISH)
 	{
 		tContentPUBLISH::tFixedHeaderPUBLISHFlags Flags{};
@@ -477,7 +480,7 @@ void tContentCONNECT::SetUser(const std::string& name, const std::string& passwo
 
 std::string tContentCONNECT::ToString() const
 {
-	std::string Str = FixedHeader.ToString();
+	std::string Str = FixedHeader.ToString(true);
 	Str += " Protocol";
 	Str += " name: " + VariableHeader.ProtocolName;
 	Str += ", level: " + std::to_string(VariableHeader.ProtocolLevel);
@@ -552,7 +555,7 @@ std::optional<tContentCONNACK> tContentCONNACK::Parse(tSpan& data)
 
 std::string tContentCONNACK::ToString() const
 {
-	std::string Str = FixedHeader.ToString();
+	std::string Str = FixedHeader.ToString(true);
 	Str += " ReturnCode: ";
 	Str += mqtt::ToString(VariableHeader.ConnectReturnCode);
 
@@ -659,7 +662,7 @@ std::optional<tContentPUBLISH> tContentPUBLISH::Parse(tSpan& data)
 
 std::string tContentPUBLISH::ToString() const
 {
-	std::string Str = FixedHeader.ToString();
+	std::string Str = FixedHeader.ToString(true);
 	Str += " Topic name: " + VariableHeader.TopicName;
 	Str += mqtt::ToString("; Packet ID: ", VariableHeader.PacketId);
 	Str += std::string("; Payload size: ") + std::to_string(Payload.size());
