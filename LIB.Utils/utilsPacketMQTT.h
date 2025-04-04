@@ -190,7 +190,7 @@ union tFixedHeader
 
 	tControlPacketType GetControlPacketType() const { return static_cast<tControlPacketType>(Field.ControlPacketType); }
 
-	std::string ToString() const;
+	std::string ToString(bool align = false) const;
 
 	std::vector<std::uint8_t> ToVector(std::size_t dataSize) const;
 
@@ -326,7 +326,7 @@ struct tContentEMPTY
 		return Content;
 	}
 
-	std::string ToString() const { return FixedHeader.ToString(); }
+	std::string ToString() const { return FixedHeader.ToString(true); }
 
 	std::vector<std::uint8_t> ToVector() const { return FixedHeader.ToVector(0); }
 
@@ -601,7 +601,7 @@ struct tContentPUB
 
 	std::string ToString() const
 	{
-		std::string Str = FixedHeader.ToString();
+		std::string Str = FixedHeader.ToString(true);
 		Str += " Packet ID: " + std::to_string(VariableHeader.PacketId.Value);
 		return Str;
 	}
