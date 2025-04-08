@@ -10,6 +10,7 @@
 
 #include "utilsStd.h"
 
+#include <algorithm>
 #include <optional>
 #include <span> // C++ 20
 #include <string>
@@ -41,6 +42,7 @@ namespace mqtt
 
 enum class tControlPacketType
 {
+	_None = 0,
 	CONNECT = 1,	// Client to Server							Client request to connect to Server
 	CONNACK,		// Server to Client							Connect acknowledgment
 	PUBLISH,		// Client to Server or Server to Client		Publish message
@@ -89,6 +91,7 @@ class tSpan : public std::span<const std::uint8_t>
 public:
 	tSpan(const std::vector<std::uint8_t>& data) :std::span<const std::uint8_t>(data) {}
 	tSpan(const std::vector<std::uint8_t>& data, std::size_t size) :std::span<const std::uint8_t>(data.begin(), std::min(size, data.size())) {}
+	tSpan(std::vector<std::uint8_t>::const_iterator data_begin, std::size_t size) :std::span<const std::uint8_t>(data_begin, size) {}
 	tSpan(tSpan& data, std::size_t size) :std::span<const std::uint8_t>(data.begin(), std::min(size, data.size())) {}
 
 	tSpan& operator=(const tSpan&) = default;
@@ -270,14 +273,8 @@ public:
 		return *this;
 	}
 
-	TCont::fixed_header_type GetFixedHeader() const { return m_Content.FixedHeader; }
-	TCont::variable_header_type GetVariableHeader() const { return m_Content.VariableHeader; }
-	TCont::payload_type GetPayload() const { return m_Content.Payload; }
-
 	static std::optional<tPacketBase> Parse(tSpan& data)
 	{
-		if (data.empty())
-			return {};
 		std::optional<TCont> Cont = TCont::Parse(data);
 		if (!Cont.has_value())
 			return {};
@@ -292,14 +289,17 @@ public:
 		return Parse(DataSpan);
 	}
 
+	static tControlPacketType GetControlPacketType() { return TCont::GetControlPacketType(); }
+
+	TCont::fixed_header_type GetFixedHeader() const { return m_Content.FixedHeader; }
+	TCont::variable_header_type GetVariableHeader() const { return m_Content.VariableHeader; }
+	TCont::payload_type GetPayload() const { return m_Content.Payload; }
+
 	std::string ToString() const { return m_Content.ToString(); }
 
 	std::vector<std::uint8_t> ToVector() const { return m_Content.ToVector(); }
 
-	bool operator==(const tPacketBase& val) const
-	{
-		return m_Content == val.m_Content;
-	}
+	bool operator==(const tPacketBase& val) const { return m_Content == val.m_Content; }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ struct tContentEMPTY
 	typedef typename void variable_header_type;
 	typedef typename void payload_type;
 
-	tContentEMPTY() :FixedHeader(GetFixedHeader()) {}
+	tContentEMPTY() :FixedHeader(MakeFixedHeader(GetControlPacketType())) {}
 
 	static std::optional<tContentEMPTY> Parse(tSpan& data)
 	{
@@ -326,14 +326,13 @@ struct tContentEMPTY
 		return Content;
 	}
 
+	static tControlPacketType GetControlPacketType() { return ControlPacketType; }
+
 	std::string ToString() const { return FixedHeader.ToString(true); }
 
 	std::vector<std::uint8_t> ToVector() const { return FixedHeader.ToVector(0); }
 
 	bool operator==(const tContentEMPTY& val) const = default;
-
-private:
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(ControlPacketType); }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -430,6 +429,8 @@ struct tContentCONNECT
 
 	static std::optional<tContentCONNECT> Parse(tSpan& data);
 
+	static tControlPacketType GetControlPacketType() { return tControlPacketType::CONNECT; }
+
 	void SetClientId(std::string val);
 	void SetWill(tQoS qos, bool retain, const std::string& topic, const std::string& message);
 	void SetUser(const std::string& name, const std::string& password);
@@ -442,9 +443,6 @@ struct tContentCONNECT
 	tContentCONNECT& operator=(tContentCONNECT&& val) noexcept;
 
 	bool operator==(const tContentCONNECT& val) const = default;
-
-private:
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::CONNECT); }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -481,14 +479,13 @@ struct tContentCONNACK
 
 	static std::optional<tContentCONNACK> Parse(tSpan& data);
 
+	static tControlPacketType GetControlPacketType() { return tControlPacketType::CONNACK; }
+
 	std::string ToString() const;
 
 	std::vector<std::uint8_t> ToVector() const;
 
 	bool operator==(const tContentCONNACK& val) const = default;
-
-private:
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(tControlPacketType::CONNACK); }
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -541,6 +538,8 @@ struct tContentPUBLISH
 
 	static std::optional<tContentPUBLISH> Parse(tSpan& data);
 
+	static tControlPacketType GetControlPacketType() { return tControlPacketType::PUBLISH; }
+
 	std::string ToString() const;
 
 	std::vector<std::uint8_t> ToVector() const;
@@ -577,7 +576,7 @@ struct tContentPUB
 
 	tContentPUB() = default;
 	explicit tContentPUB(tUInt16 packetId)
-		:FixedHeader(GetFixedHeader())
+		:FixedHeader(MakeFixedHeader(GetControlPacketType()))
 	{
 		VariableHeader.PacketId = packetId;
 	}
@@ -599,6 +598,8 @@ struct tContentPUB
 		return Content;
 	}
 
+	static tControlPacketType GetControlPacketType() { return ControlPacketType; }
+
 	std::string ToString() const
 	{
 		std::string Str = FixedHeader.ToString(true);
@@ -618,23 +619,27 @@ struct tContentPUB
 	{
 		return FixedHeader == val.FixedHeader && VariableHeader == val.VariableHeader;
 	}
-
-private:
-	static tFixedHeader GetFixedHeader() { return MakeFixedHeader(ControlPacketType); }
 };
 
 using tContentPUBACK = tContentPUB<tControlPacketType::PUBACK>;
 using tContentPUBREC = tContentPUB<tControlPacketType::PUBREC>;
 using tContentPUBREL = tContentPUB<tControlPacketType::PUBREL>;
 using tContentPUBCOMP = tContentPUB<tControlPacketType::PUBCOMP>;
+//using tContentUNSUBACK = tContentPUB<tControlPacketType::UNSUBACK>; // [TBD] tContentPUB = tContentPacketID = tContentACK
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SUBSCRIBE
-/*
-using tVariableHeaderSUBSCRIBE = tVariableHeaderPUBACK;
 
-struct tPayloadSUBSCRIBE
+struct tContentSUBSCRIBE
 {
+	tFixedHeader FixedHeader{};
+	struct tVariableHeader
+	{
+		tUInt16 PacketId;
+
+		bool operator==(const tVariableHeader& val) const = default;
+	}VariableHeader;
+
 	struct tTopicFilter
 	{
 		tString TopicFilter;
@@ -646,47 +651,64 @@ struct tPayloadSUBSCRIBE
 
 		std::vector<std::uint8_t> ToVector() const;
 
-		std::size_t GetSize() const { return TopicFilter.GetSize() + sizeof(QoS); }
-
 		bool operator==(const tTopicFilter&) const = default;
 	};
+	std::vector<tTopicFilter> Payload;
 
-	std::vector<tTopicFilter> TopicFilters;
+	typedef typename tFixedHeader fixed_header_type;
+	typedef typename tVariableHeader variable_header_type;
+	typedef typename std::vector<tTopicFilter> payload_type;
 
-	static std::optional<tPayloadSUBSCRIBE> Parse(const tVariableHeaderSUBSCRIBE& variableHeader, tSpan& data);
+	tContentSUBSCRIBE() = default;
+	tContentSUBSCRIBE(tUInt16 packetId, const payload_type& topicFilters);
 
-	std::size_t GetSize() const;
+	static std::optional<tContentSUBSCRIBE> Parse(tSpan& data);
+
+	static tControlPacketType GetControlPacketType() { return tControlPacketType::SUBSCRIBE; }
 
 	std::string ToString() const;
 
 	std::vector<std::uint8_t> ToVector() const;
 
-	bool operator==(const tPayloadSUBSCRIBE&) const = default;
+	bool operator==(const tContentSUBSCRIBE& val) const = default;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SUBACK
 
-using tVariableHeaderSUBACK = tVariableHeaderPUBACK;
-
-struct tPayloadSUBACK
+struct tContentSUBACK
 {
-	tSubscribeReturnCode SubscribeReturnCode;
+	tFixedHeader FixedHeader{};
+	struct tVariableHeader
+	{
+		tUInt16 PacketId;
 
-	static std::optional<tPayloadSUBACK> Parse(const tVariableHeaderSUBACK& variableHeader, tSpan& data);
+		bool operator==(const tVariableHeader& val) const = default;
+	}VariableHeader;
 
-	static std::size_t GetSize() { return sizeof(tSubscribeReturnCode); }
+	std::vector<tSubscribeReturnCode> Payload;
+
+	typedef typename tFixedHeader fixed_header_type;
+	typedef typename tVariableHeader variable_header_type;
+	typedef typename std::vector<tSubscribeReturnCode> payload_type;
+
+	tContentSUBACK() = default;
+	tContentSUBACK(tUInt16 packetId, std::vector<tSubscribeReturnCode> payload);
+
+	static std::optional<tContentSUBACK> Parse(tSpan& data);
+
+	static tControlPacketType GetControlPacketType() { return tControlPacketType::SUBACK; }
 
 	std::string ToString() const;
 
 	std::vector<std::uint8_t> ToVector() const;
 
-	bool operator==(const tPayloadSUBACK&) const = default;
+	bool operator==(const tContentSUBACK& val) const = default;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // UNSUBSCRIBE
-
+/*
 using tVariableHeaderUNSUBSCRIBE = tVariableHeaderPUBACK;
 
 struct tPayloadUNSUBSCRIBE
@@ -720,6 +742,8 @@ class tPacketNOACK
 public:
 	static std::optional<tPacketNOACK> Parse(tSpan& data) { return {}; }
 
+	static tControlPacketType GetControlPacketType() { return tControlPacketType::_None; }
+
 	std::string ToString() const { return {}; }
 
 	std::vector<std::uint8_t> ToVector() const { return {}; }
@@ -737,8 +761,6 @@ public:
 	}
 	tPacketCONNACK(const hidden::tPacketBase<hidden::tContentCONNACK>& val) :tPacketBase(val) {} // for std::future<..>
 	tPacketCONNACK(hidden::tPacketBase<hidden::tContentCONNACK>&& val) :tPacketBase(std::move(val)) {} // for std::future<..>
-
-	//static tControlPacketType GetControlPacketType() { return tControlPacketType::CONNACK; }
 };
 
 class tPacketCONNECT : public hidden::tPacketBase<hidden::tContentCONNECT>
@@ -888,48 +910,37 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-class tPacketSUBSCRIBE : public hidden::tPacketBase<hidden::tVariableHeaderSUBSCRIBE, hidden::tPayloadSUBSCRIBE>
-{
-public:
-	tPacketSUBSCRIBE() = delete;
-	tPacketSUBSCRIBE(tUInt16 packetId, const tString& topicFilter, tQoS qos)
-		:tPacketBase(GetFixedHeader())
-	{
-		m_VariableHeader = hidden::tVariableHeaderSUBSCRIBE{};
-		m_VariableHeader->PacketId = packetId;
-
-		m_Payload = hidden::tPayloadSUBSCRIBE{};
-		m_Payload->TopicFilters.emplace_back(topicFilter, qos);
-	}
-
-	void AddTopicFilter(const tString& topicFilter, tQoS qos)
-	{
-		m_Payload->TopicFilters.emplace_back(topicFilter, qos);
-	}
-
-private:
-	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::SUBSCRIBE); }
-};
-
-class tPacketSUBACK : public hidden::tPacketBase<hidden::tVariableHeaderSUBACK, hidden::tPayloadSUBACK>
+class tPacketSUBACK : public hidden::tPacketBase<hidden::tContentSUBACK>
 {
 public:
 	tPacketSUBACK() = delete;
-	explicit tPacketSUBACK(tUInt16 packetId, tSubscribeReturnCode subscribeReturnCode)
-		:tPacketBase(GetFixedHeader())
+	tPacketSUBACK(tUInt16 packetId, const std::vector<tSubscribeReturnCode>& subscribeReturnCodes)
+		:tPacketBase(hidden::tContentSUBACK(packetId, subscribeReturnCodes))
 	{
-		m_VariableHeader = hidden::tVariableHeaderSUBACK{};
-		m_VariableHeader->PacketId = packetId;
-
-		m_Payload = hidden::tPayloadSUBACK{};
-		m_Payload->SubscribeReturnCode = subscribeReturnCode;
 	}
-
-private:
-	static hidden::tFixedHeader GetFixedHeader() { return hidden::MakeFixedHeader(tControlPacketType::SUBACK); }
+	tPacketSUBACK(const hidden::tPacketBase<hidden::tContentSUBACK>& val) :tPacketBase(val) {} // for std::future<..>, std::optional<..>
+	tPacketSUBACK(hidden::tPacketBase<hidden::tContentSUBACK>&& val) :tPacketBase(std::move(val)) {} // for std::future<..>, std::optional<..>
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+using tSubscribeTopicFilter = hidden::tContentSUBSCRIBE::tTopicFilter;
+
+class tPacketSUBSCRIBE : public hidden::tPacketBase<hidden::tContentSUBSCRIBE>
+{
+public:
+	typedef typename tPacketSUBACK response_type;
+
+	tPacketSUBSCRIBE() = delete;
+	tPacketSUBSCRIBE(tUInt16 packetId, const std::vector<tSubscribeTopicFilter>& topicFilters)
+		:tPacketBase(hidden::tContentSUBSCRIBE(packetId, topicFilters))
+	{
+	}
+};
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
 class tPacketUNSUBSCRIBE : public hidden::tPacketBase<hidden::tVariableHeaderUNSUBSCRIBE, hidden::tPayloadUNSUBSCRIBE>
 {
 public:

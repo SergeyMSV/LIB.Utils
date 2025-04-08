@@ -147,14 +147,27 @@ void UnitTest_PacketMQTT()
 	UnitTest_PacketMQTT(tPacketPUBREC(0x1234), "Pack PUBREC serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketPUBREL(0x1234), "Pack PUBREL serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketPUBCOMP(0x1234), "Pack PUBCOMP serialize-deserialize");
-/* {
-		tPacketSUBSCRIBE Pack(0x1234, "my_topic_filter_1", tQoS::AtMostOnceDelivery);
-		Pack.AddTopicFilter("my_topic_filter_2", tQoS::ExactlyOnceDelivery);
-		Pack.AddTopicFilter("my_topic_filter_3", tQoS::AtLeastOnceDelivery);
-		UnitTest_PacketMQTT(Pack, "Pack SUBSCRIBE serialize-deserialize");
-	}
-	UnitTest_PacketMQTT(tPacketSUBACK(0x1234, tSubscribeReturnCode::SuccessMaximumQoS_ExactlyOnceDelivery), "Pack SUBACK serialize-deserialize");
 	{
+		tPacketSUBSCRIBE Pack(0x1234, { {"my_topic_filter_1", tQoS::AtMostOnceDelivery} });
+		UnitTest_PacketMQTT(Pack, "Pack SUBSCRIBE serialize-deserialize 1");
+	}
+	{
+		std::vector<tSubscribeTopicFilter> Filters;
+		Filters.emplace_back("my_topic_filter_1", tQoS::AtMostOnceDelivery);
+		Filters.emplace_back("my_topic_filter_2", tQoS::ExactlyOnceDelivery);
+		Filters.emplace_back("my_topic_filter_3", tQoS::AtLeastOnceDelivery);
+		tPacketSUBSCRIBE Pack(0x1234, Filters);
+		UnitTest_PacketMQTT(Pack, "Pack SUBSCRIBE serialize-deserialize 2");
+	}
+	{
+		std::vector<tSubscribeReturnCode> Filters;
+		Filters.emplace_back(tSubscribeReturnCode::SuccessMaximumQoS_AtMostOnceDelivery);
+		Filters.emplace_back(tSubscribeReturnCode::SuccessMaximumQoS_AtLeastOnceDelivery);
+		Filters.emplace_back(tSubscribeReturnCode::SuccessMaximumQoS_ExactlyOnceDelivery);
+		Filters.emplace_back(tSubscribeReturnCode::Failure);
+		UnitTest_PacketMQTT(tPacketSUBACK(0x1234, Filters), "Pack SUBACK serialize-deserialize");
+	}
+	/* {
 		tPacketUNSUBSCRIBE Pack(0x1234, "my_topic_filter_1");
 		Pack.AddTopicFilter("my_topic_filter_2");
 		Pack.AddTopicFilter("my_topic_filter_3");
