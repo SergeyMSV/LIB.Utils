@@ -84,6 +84,35 @@ void UnitTest_PacketMQTT()
 
 	////////////////////////////////////////////////////////////
 
+	{
+		// It's a very important test too.
+		auto pt1 = utils::packet::mqtt::tPacketCONNECT::GetControlPacketType();
+		auto pt2 = utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::AtMostOnceDelivery>::GetControlPacketType();
+		auto pt3 = utils::packet::mqtt::tPacketNOACK::GetControlPacketType();
+
+		tFixedHeaderBaseT<utils::packet::mqtt::tControlPacketType::CONNECT> www;
+		tFixedHeaderBaseT<utils::packet::mqtt::tControlPacketType::PUBLISH> eee;
+		//www.
+		//eee.
+	}
+
+	{
+		auto Pack = tPacketPUBLISH_Parse::Parse(std::vector<std::uint8_t>{ 0x35, 0x27, 0x00, 0x10, 0x53, 0x65, 0x6e, 0x73, 0x6f, 0x72, 0x41, 0x5f, 0x44, 0x61, 0x74, 0x65, 0x54, 0x69, 0x6d, 0x65, 0x00, 0x04, 0x32, 0x30, 0x32, 0x35, 0x2d, 0x30, 0x34, 0x2d, 0x30, 0x39, 0x20, 0x31, 0x35, 0x3a, 0x35, 0x30, 0x3a, 0x34, 0x30 });
+		if (Pack.has_value())
+			std::cout << Pack->ToString() << '\n';
+		utils::test::RESULT("Pack PUBLISH Parse 0x35", Pack.has_value() &&
+			Pack->GetFixedHeader().GetQoS() == utils::packet::mqtt::tQoS::ExactlyOnceDelivery &&
+			Pack->GetVariableHeader().PacketId == 0x04);
+	}
+
+	{
+		auto Pack = tPacketPUBLISH_Parse::Parse(std::vector<std::uint8_t>{ 0x30, 0x25, 0x00, 0x10, 0x53, 0x65, 0x6e, 0x73, 0x6f, 0x72, 0x41, 0x5f, 0x44, 0x61, 0x74, 0x65, 0x54, 0x69, 0x6d, 0x65, 0x32, 0x30, 0x32, 0x35, 0x2d, 0x30, 0x34, 0x2d, 0x30, 0x39, 0x20, 0x31, 0x35, 0x3a, 0x34, 0x39, 0x3a, 0x32, 0x38 });
+		if (Pack.has_value())
+			std::cout << Pack->ToString() << '\n';
+		utils::test::RESULT("Pack PUBLISH Parse 0x30", Pack.has_value() &&
+			Pack->GetFixedHeader().GetQoS() == utils::packet::mqtt::tQoS::AtMostOnceDelivery);
+	}
+
 	{// tQoS::AtMostOnceDelivery
 		utils::packet::mqtt::tPacketPUBLISH<utils::packet::mqtt::tQoS::AtMostOnceDelivery> Pack(true, true, "demo_topic");
 		auto fh = Pack.GetFixedHeader();
