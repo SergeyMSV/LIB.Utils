@@ -1,6 +1,7 @@
 #include "utilsPacketMQTT.h"
 
 #include <algorithm>
+#include <variant>
 
 namespace utils
 {
@@ -79,39 +80,31 @@ std::string GetString(const std::vector<std::pair<tControlPacketType, std::strin
 template<typename T>
 std::string ToString(T val)
 {
-	if constexpr (std::is_same_v<T, tQoS>)
-		return GetString(LogQoS, val);
+	struct tToString
+	{
+		std::string operator()(bool val) const { return val ? "true" : "false"; }
+		std::string operator()(tConnectReturnCode val) const { return GetString(LogConnectReturnCode, val); }
+		std::string operator()(tControlPacketType val) const { return GetString(LogControlPacketType, val); }
+		std::string operator()(tQoS val) const { return GetString(LogQoS, val); }
+		std::string operator()(tSubscribeReturnCode val) const { return GetString(LogSubscribeReturnCode, val); }
+		std::string operator()(...) const { return "ERROR"; }
+	};
 
-	if constexpr (std::is_same_v<T, tConnectReturnCode>)
-		return GetString(LogConnectReturnCode, val);
-
-	if constexpr (std::is_same_v<T, tSubscribeReturnCode>)
-		return GetString(LogSubscribeReturnCode, val);
-
-	if constexpr (std::is_same_v<T, bool>)
-		return val ? "true" : "false";
-
-	return "ERROR";
+	return tToString{}(val);
 }
 
-template<>
-std::string ToString(tControlPacketType val)
+std::string ToString(const std::string& label, const std::optional<std::variant<std::string, tUInt16>>& val)
 {
-	return GetString(LogControlPacketType, val);
-}
+	if (!val.has_value())
+		return {};
 
-std::string ToString(const std::string& label, const std::optional<std::string>& val)
-{
-	if (val.has_value())
-		return label + *val;
-	return {};
-}
+	struct tToString
+	{
+		std::string operator()(const std::string& val) const { return val; }
+		std::string operator()(tUInt16 val) const { return std::to_string(val.Value); }
+	};
 
-std::string ToString(const std::string& label, const std::optional<tUInt16>& val)
-{
-	if (val.has_value())
-		return label + std::to_string(val->Value);
-	return {};
+	return label + std::visit(tToString{}, *val);
 }
 
 std::vector<std::uint8_t> ToVector(const std::optional<tString>& val)
