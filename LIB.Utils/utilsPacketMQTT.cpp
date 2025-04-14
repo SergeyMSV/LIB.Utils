@@ -59,6 +59,18 @@ const std::vector<std::pair<tSubscribeReturnCode, std::string>> LogSubscribeRetu
 	{tSubscribeReturnCode::Failure, "Failure"},
 };
 
+const std::vector<std::pair<tSessionState, std::string>> LogSessionState =
+{
+	{tSessionState::New, "New"},
+	{tSessionState::Present, "Present"},
+};
+
+const std::vector<std::pair<tSessionStateRequest, std::string>> LogSessionStateRequest =
+{
+	{tSessionStateRequest::Clean, "Clean"},
+	{tSessionStateRequest::Continue, "Continue"},
+};
+
 template<typename T>
 std::string GetString(const std::vector<std::pair<T, std::string>>& list, T id)
 {
@@ -86,6 +98,8 @@ std::string ToString(T val)
 		std::string operator()(tConnectReturnCode val) const { return GetString(LogConnectReturnCode, val); }
 		std::string operator()(tControlPacketType val) const { return GetString(LogControlPacketType, val); }
 		std::string operator()(tQoS val) const { return GetString(LogQoS, val); }
+		std::string operator()(tSessionState val) const { return GetString(LogSessionState, val); }
+		std::string operator()(tSessionStateRequest val) const { return GetString(LogSessionStateRequest, val); }
 		std::string operator()(tSubscribeReturnCode val) const { return GetString(LogSubscribeReturnCode, val); }
 		std::string operator()(...) const { return "ERROR"; }
 	};
@@ -287,11 +301,11 @@ bool tContentCONNECT::tPayload::operator==(const tPayload& val) const
 	return ClientId == val.ClientId && WillTopic == val.WillTopic && WillMessage == val.WillMessage && UserName == val.UserName && Password == val.Password;
 }
 
-tContentCONNECT::tContentCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
+tContentCONNECT::tContentCONNECT(tSessionStateRequest sessStateReq, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
 {
 	VariableHeader.ProtocolName = DefaultProtocolName;
 	VariableHeader.ProtocolLevel = DefaultProtocolLevel;
-	VariableHeader.ConnectFlags.Field.CleanSession = cleanSession ? 1 : 0;
+	VariableHeader.ConnectFlags.Field.CleanSession = static_cast<std::uint8_t>(sessStateReq);
 	VariableHeader.KeepAlive.Value = keepAlive;
 
 	SetClientId(clientId);
@@ -299,18 +313,18 @@ tContentCONNECT::tContentCONNECT(bool cleanSession, std::uint16_t keepAlive, con
 	SetUser(userName, password);
 }
 
-tContentCONNECT::tContentCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage)
-	:tContentCONNECT(cleanSession, keepAlive, clientId, willQos, willRetain, willTopic, willMessage, "", "")
+tContentCONNECT::tContentCONNECT(tSessionStateRequest sessStateReq, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage)
+	:tContentCONNECT(sessStateReq, keepAlive, clientId, willQos, willRetain, willTopic, willMessage, "", "")
 {
 }
 
-tContentCONNECT::tContentCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId)
-	:tContentCONNECT(cleanSession, keepAlive, clientId, tQoS::AtMostOnceDelivery, false, "", "", "", "")
+tContentCONNECT::tContentCONNECT(tSessionStateRequest sessStateReq, std::uint16_t keepAlive, const std::string& clientId)
+	:tContentCONNECT(sessStateReq, keepAlive, clientId, tQoS::AtMostOnceDelivery, false, "", "", "", "")
 {
 }
 
-tContentCONNECT::tContentCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& userName, const std::string& password)
-	:tContentCONNECT(cleanSession, keepAlive, clientId, tQoS::AtMostOnceDelivery, false, "", "", userName, password)
+tContentCONNECT::tContentCONNECT(tSessionStateRequest sessStateReq, std::uint16_t keepAlive, const std::string& clientId, const std::string& userName, const std::string& password)
+	:tContentCONNECT(sessStateReq, keepAlive, clientId, tQoS::AtMostOnceDelivery, false, "", "", userName, password)
 {
 }
 
@@ -498,9 +512,9 @@ tContentCONNECT& tContentCONNECT::operator=(tContentCONNECT&& val) noexcept
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CONNACK
 
-tContentCONNACK::tContentCONNACK(bool sessionPresent, tConnectReturnCode connectRetCode)
+tContentCONNACK::tContentCONNACK(tSessionState sessionState, tConnectReturnCode connectRetCode)
 {
-	VariableHeader.ConnectAcknowledgeFlags.Field.SessionPresent = sessionPresent;
+	VariableHeader.ConnectAcknowledgeFlags.Field.SessionPresent = static_cast<std::uint8_t>(sessionState);
 	VariableHeader.ConnectReturnCode = connectRetCode;
 }
 
@@ -525,13 +539,10 @@ std::string tContentCONNACK::ToString() const
 	std::string Str = FixedHeader.ToString(true);
 	Str += " ReturnCode: ";
 	Str += mqtt::ToString(VariableHeader.ConnectReturnCode);
-
 	if (VariableHeader.ConnectReturnCode != tConnectReturnCode::ConnectionAccepted)
 		return Str;
-
 	Str += "; Session Present: ";
-	Str += VariableHeader.ConnectAcknowledgeFlags.Field.SessionPresent ?
-		mqtt::ToString(VariableHeader.ConnectAcknowledgeFlags.Field.SessionPresent, "Continued") : mqtt::ToString(VariableHeader.ConnectAcknowledgeFlags.Field.SessionPresent, "Clean");
+	Str += mqtt::ToString(static_cast<tSessionState>(VariableHeader.ConnectAcknowledgeFlags.Field.SessionPresent));
 	return Str;
 }
 

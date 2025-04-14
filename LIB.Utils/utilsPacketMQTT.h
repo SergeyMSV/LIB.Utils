@@ -84,6 +84,18 @@ enum class tSubscribeReturnCode : std::uint8_t
 	Failure = 0x80,
 };
 
+enum class tSessionState
+{
+	New,
+	Present,
+};
+
+enum class tSessionStateRequest
+{
+	Clean, // open a "new" session (tSessionState::New)
+	Continue, // open a "present" session if possible (tSessionState::Present)
+};
+
 template<typename T> std::string ToString(T val);
 
 class tSpan : public std::span<const std::uint8_t>
@@ -499,10 +511,10 @@ struct tContentCONNECT
 	using payload_type = tPayload;
 
 	tContentCONNECT() = default;
-	tContentCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
-	tContentCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage);
-	tContentCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId);
-	tContentCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& userName, const std::string& password);
+	tContentCONNECT(tSessionStateRequest sessStateReq, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password);
+	tContentCONNECT(tSessionStateRequest sessStateReq, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage);
+	tContentCONNECT(tSessionStateRequest sessStateReq, std::uint16_t keepAlive, const std::string& clientId);
+	tContentCONNECT(tSessionStateRequest sessStateReq, std::uint16_t keepAlive, const std::string& clientId, const std::string& userName, const std::string& password);
 	tContentCONNECT(const tContentCONNECT&) = default;
 	tContentCONNECT(tContentCONNECT&& val) noexcept;
 
@@ -554,7 +566,7 @@ struct tContentCONNACK
 	using payload_type = void;
 
 	tContentCONNACK() = default;
-	tContentCONNACK(bool sessionPresent, tConnectReturnCode connectRetCode);
+	tContentCONNACK(tSessionState sessionState, tConnectReturnCode connectRetCode);
 
 	static std::optional<tContentCONNACK> Parse(tSpan& data);
 
@@ -829,8 +841,8 @@ class tPacketCONNACK : public hidden::tPacketBase<hidden::tContentCONNACK>
 {
 public:
 	tPacketCONNACK() = delete;
-	tPacketCONNACK(bool sessionPresent, tConnectReturnCode connectRetCode)
-		:tPacketBase(hidden::tContentCONNACK(sessionPresent, connectRetCode))
+	tPacketCONNACK(tSessionState sessionState, tConnectReturnCode connectRetCode)
+		:tPacketBase(hidden::tContentCONNACK(sessionState, connectRetCode))
 	{
 	}
 	tPacketCONNACK(const hidden::tPacketBase<hidden::tContentCONNACK>& val) :tPacketBase(val) {} // Parse(..) in the base class returns an instance of the base class and it shall be transform to an instance of derived one (for std::future<..>, std::optional<..>).
@@ -843,20 +855,20 @@ public:
 	using response_type = tPacketCONNACK;
 
 	tPacketCONNECT() = delete;
-	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
-		:tPacketBase(hidden::tContentCONNECT(cleanSession, keepAlive, clientId, willQos, willRetain, willTopic, willMessage, userName, password))
+	tPacketCONNECT(tSessionStateRequest sessionStateRequest, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage, const std::string& userName, const std::string& password)
+		:tPacketBase(hidden::tContentCONNECT(sessionStateRequest, keepAlive, clientId, willQos, willRetain, willTopic, willMessage, userName, password))
 	{
 	}
-	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage)
-		:tPacketBase(hidden::tContentCONNECT(cleanSession, keepAlive, clientId, willQos, willRetain, willTopic, willMessage))
+	tPacketCONNECT(tSessionStateRequest sessionStateRequest, std::uint16_t keepAlive, const std::string& clientId, tQoS willQos, bool willRetain, const std::string& willTopic, const std::string& willMessage)
+		:tPacketBase(hidden::tContentCONNECT(sessionStateRequest, keepAlive, clientId, willQos, willRetain, willTopic, willMessage))
 	{
 	}
-	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId, const std::string& userName, const std::string& password)
-		:tPacketBase(hidden::tContentCONNECT(cleanSession, keepAlive, clientId, userName, password))
+	tPacketCONNECT(tSessionStateRequest sessionStateRequest, std::uint16_t keepAlive, const std::string& clientId, const std::string& userName, const std::string& password)
+		:tPacketBase(hidden::tContentCONNECT(sessionStateRequest, keepAlive, clientId, userName, password))
 	{
 	}
-	tPacketCONNECT(bool cleanSession, std::uint16_t keepAlive, const std::string& clientId)
-		:tPacketBase(hidden::tContentCONNECT(cleanSession, keepAlive, clientId))
+	tPacketCONNECT(tSessionStateRequest sessionStateRequest, std::uint16_t keepAlive, const std::string& clientId)
+		:tPacketBase(hidden::tContentCONNECT(sessionStateRequest, keepAlive, clientId))
 	{
 	}
 };
