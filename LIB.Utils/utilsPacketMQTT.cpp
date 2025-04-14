@@ -537,11 +537,11 @@ std::optional<tContentCONNACK> tContentCONNACK::Parse(tSpan& data)
 std::string tContentCONNACK::ToString() const
 {
 	std::string Str = FixedHeader.ToString(true);
-	Str += " ReturnCode: ";
+	Str += " Return code: ";
 	Str += mqtt::ToString(VariableHeader.ConnectReturnCode);
 	if (VariableHeader.ConnectReturnCode != tConnectReturnCode::ConnectionAccepted)
 		return Str;
-	Str += "; Session Present: ";
+	Str += "; Session state: ";
 	Str += mqtt::ToString(static_cast<tSessionState>(VariableHeader.ConnectAcknowledgeFlags.Field.SessionPresent));
 	return Str;
 }
@@ -790,7 +790,7 @@ std::string tContentSUBACK::ToString() const
 {
 	std::string Str = FixedHeader.ToString(true);
 	Str += " Packet ID: " + std::to_string(VariableHeader.PacketId.Value);
-	Str += ", Return Codes:";
+	Str += ", Return codes:";
 	std::ranges::for_each(Payload, [&Str](tSubscribeReturnCode rc) { Str += ", " + mqtt::ToString(rc); });
 	return Str;
 }
