@@ -246,6 +246,11 @@ std::string tFixedHeaderBase::ToString(bool align) const
 	return Str;
 }
 
+std::string tFixedHeaderBase::ToStringControlPacketType() const
+{
+	return mqtt_main::ToString(GetControlPacketType());
+}
+
 std::vector<std::uint8_t> tFixedHeaderBase::ToVector(std::size_t dataSize) const
 {
 	std23::vector<std::uint8_t> Vect = tRemainingLength::ToVector(static_cast<std::uint32_t>(dataSize));
@@ -572,28 +577,28 @@ tContentPUBLISH::tVariableHeader& tContentPUBLISH::tVariableHeader::operator=(tV
 	return *this;
 }
 
-tContentPUBLISH::tContentPUBLISH(bool dup, bool retain, const std::string& topicName)
-	:FixedHeader(dup, tQoS::AtMostOnceDelivery, retain)
+tContentPUBLISH::tContentPUBLISH(bool retain, const std::string& topicName)
+	:FixedHeader(retain, tQoS::AtMostOnceDelivery, false) // 738 [MQTT-3.3.1.-1]. The DUP flag MUST be set to 0 for all QoS 0 messages [MQTT-3.3.1-2].
 {
 	VariableHeader.TopicName = topicName;
 }
 
-tContentPUBLISH::tContentPUBLISH(bool dup, bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payload)
-	:FixedHeader(dup, tQoS::AtMostOnceDelivery, retain)
+tContentPUBLISH::tContentPUBLISH(bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payload)
+	:FixedHeader(retain, tQoS::AtMostOnceDelivery, false) // 738 [MQTT-3.3.1.-1]. The DUP flag MUST be set to 0 for all QoS 0 messages [MQTT-3.3.1-2].
 {
 	VariableHeader.TopicName = topicName;
 	Payload = payload;
 }
 
-tContentPUBLISH::tContentPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId)
-	:FixedHeader(dup, qos, retain)
+tContentPUBLISH::tContentPUBLISH(bool retain, bool dup, const std::string& topicName, tQoS qos, tUInt16 packetId)
+	:FixedHeader(retain, qos, dup)
 {
 	VariableHeader.TopicName = topicName;
 	VariableHeader.PacketId = packetId;
 }
 
-tContentPUBLISH::tContentPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId, const std::vector<std::uint8_t>& payload)
-	:FixedHeader(dup, qos, retain)
+tContentPUBLISH::tContentPUBLISH(bool retain, bool dup, const std::string& topicName, tQoS qos, tUInt16 packetId, const std::vector<std::uint8_t>& payload)
+	:FixedHeader(retain, qos, dup)
 {
 	VariableHeader.TopicName = topicName;
 	VariableHeader.PacketId = packetId;
