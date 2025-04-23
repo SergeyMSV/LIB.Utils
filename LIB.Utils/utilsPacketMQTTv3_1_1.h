@@ -163,6 +163,7 @@ public:
 	virtual ~tPacket() {}
 
 	virtual std::string ToString() const = 0;
+	virtual std::string ToStringControlPacketType() const = 0;
 
 	virtual std::vector<std::uint8_t> ToVector() const = 0;
 };
@@ -273,6 +274,7 @@ public:
 	tControlPacketType GetControlPacketType() const { return static_cast<tControlPacketType>(Data.Field.ControlPacketType); }
 
 	std::string ToString(bool align = false) const;
+	std::string ToStringControlPacketType() const;
 
 	std::vector<std::uint8_t> ToVector(std::size_t dataSize) const;
 
@@ -302,12 +304,12 @@ class tFixedHeaderBaseT<tControlPacketType::PUBLISH> : public tFixedHeaderBase
 {
 public:
 	tFixedHeaderBaseT() :tFixedHeaderBase(tControlPacketType::PUBLISH) {}
-	tFixedHeaderBaseT(bool dup, tQoS qos, bool retain)
+	tFixedHeaderBaseT(bool retain, tQoS qos, bool dup)
 		:tFixedHeaderBase(tControlPacketType::PUBLISH)
 	{
-		Data.FieldPUBLISH.DUP = dup ? 1 : 0;
-		Data.FieldPUBLISH.QoS = static_cast<std::uint8_t>(qos);
 		Data.FieldPUBLISH.RETAIN = retain ? 1 : 0;
+		Data.FieldPUBLISH.QoS = static_cast<std::uint8_t>(qos);
+		Data.FieldPUBLISH.DUP = dup ? 1 : 0;
 	}
 	explicit tFixedHeaderBaseT(std::uint8_t val)
 	{
@@ -387,9 +389,10 @@ public:
 	TCont::variable_header_type GetVariableHeader() const { return m_Content.VariableHeader; }
 	TCont::payload_type GetPayload() const { return m_Content.Payload; }
 
-	std::string ToString() const { return m_Content.ToString(); }
+	std::string ToString() const override { return m_Content.ToString(); }
+	std::string ToStringControlPacketType() const override { return m_Content.FixedHeader.ToStringControlPacketType(); }
 
-	std::vector<std::uint8_t> ToVector() const { return m_Content.ToVector(); }
+	std::vector<std::uint8_t> ToVector() const override { return m_Content.ToVector(); }
 
 	bool operator==(const tPacketBase& val) const { return m_Content == val.m_Content; }
 };
@@ -623,10 +626,10 @@ struct tContentPUBLISH
 	using payload_type = std::vector<std::uint8_t>;
 
 	tContentPUBLISH() = default;
-	tContentPUBLISH(bool dup, bool retain, const std::string& topicName);
-	tContentPUBLISH(bool dup, bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payload);
-	tContentPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId);
-	tContentPUBLISH(bool dup, bool retain, const std::string& topicName, tQoS qos, tUInt16 packetId, const std::vector<std::uint8_t>& payload);
+	tContentPUBLISH(bool retain, const std::string& topicName);
+	tContentPUBLISH(bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payload);
+	tContentPUBLISH(bool retain, bool dup, const std::string& topicName, tQoS qos, tUInt16 packetId);
+	tContentPUBLISH(bool retain, bool dup, const std::string& topicName, tQoS qos, tUInt16 packetId, const std::vector<std::uint8_t>& payload);
 	tContentPUBLISH(const tContentPUBLISH&) = default;
 	tContentPUBLISH(tContentPUBLISH&& val) noexcept;
 
@@ -933,12 +936,12 @@ public:
 	using response_type = tPacketNOACK;
 
 	tPacketPUBLISH() = delete;
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName)
-		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName))
+	tPacketPUBLISH(bool retain, const std::string& topicName)
+		:tPacketBase(hidden::tContentPUBLISH(retain, topicName))
 	{
 	}
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payload)
-		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName, payload))
+	tPacketPUBLISH(bool retain, const std::string& topicName, const std::vector<std::uint8_t>& payload)
+		:tPacketBase(hidden::tContentPUBLISH(retain, topicName, payload))
 	{
 	}
 };
@@ -950,12 +953,12 @@ public:
 	using response_type = tPacketPUBACK;
 
 	tPacketPUBLISH() = delete;
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tUInt16 packetId)
+	tPacketPUBLISH(bool retain, bool dup, const std::string& topicName, tUInt16 packetId)
 		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName, tQoS::AtLeastOnceDelivery, packetId))
 	{
 	}
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tUInt16 packetId, const std::vector<std::uint8_t>& payload)
-		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName, tQoS::AtLeastOnceDelivery, packetId, payload))
+	tPacketPUBLISH(bool retain, bool dup, const std::string& topicName, tUInt16 packetId, const std::vector<std::uint8_t>& payload)
+		:tPacketBase(hidden::tContentPUBLISH(retain, dup, topicName, tQoS::AtLeastOnceDelivery, packetId, payload))
 	{
 	}
 };
@@ -967,12 +970,12 @@ public:
 	using response_type = tPacketPUBREC;
 
 	tPacketPUBLISH() = delete;
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tUInt16 packetId)
-		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName, tQoS::ExactlyOnceDelivery, packetId))
+	tPacketPUBLISH(bool retain, bool dup, const std::string& topicName, tUInt16 packetId)
+		:tPacketBase(hidden::tContentPUBLISH(retain, dup, topicName, tQoS::ExactlyOnceDelivery, packetId))
 	{
 	}
-	tPacketPUBLISH(bool dup, bool retain, const std::string& topicName, tUInt16 packetId, const std::vector<std::uint8_t>& payload)
-		:tPacketBase(hidden::tContentPUBLISH(dup, retain, topicName, tQoS::ExactlyOnceDelivery, packetId, payload))
+	tPacketPUBLISH(bool retain, bool dup, const std::string& topicName, tUInt16 packetId, const std::vector<std::uint8_t>& payload)
+		:tPacketBase(hidden::tContentPUBLISH(retain, dup, topicName, tQoS::ExactlyOnceDelivery, packetId, payload))
 	{
 	}
 };
