@@ -884,18 +884,22 @@ std::vector<std::uint8_t> tContentUNSUBSCRIBE::ToVector() const
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::optional<tControlPacketType> TestPacket(tSpan& data)
+std::optional<tPacketDataSpan> TestPacket(tSpan& data)
 {
 	if (data.size() < hidden::PacketSizeMin)
 		return {};
-	std::optional<std::pair<hidden::tFixedHeaderBase, std::size_t>> FixedHeaderOpt = hidden::tFixedHeaderBase::Parse<hidden::tFixedHeaderBase>(data);
+	tSpan DataRaw = data;
+	std::optional<std::pair<hidden::tFixedHeaderBase, std::size_t>> FixedHeaderOpt = hidden::tFixedHeaderBase::Parse<hidden::tFixedHeaderBase>(DataRaw);
 	if (!FixedHeaderOpt.has_value())
 		return {};
-	data.Skip(FixedHeaderOpt->second);
-	return FixedHeaderOpt->first.GetControlPacketType();
+	DataRaw.Skip(FixedHeaderOpt->second);
+	tSpan DataPacket = data;
+	DataPacket.Shorten(DataPacket.size() - DataRaw.size());
+	data = DataRaw;
+	return std::pair{ FixedHeaderOpt->first.GetControlPacketType(), DataPacket };
 }
 
-std::optional<tControlPacketType> TestPacket(const std::vector<std::uint8_t>& data)
+std::optional<tPacketDataSpan> TestPacket(const std::vector<std::uint8_t>& data)
 {
 	tSpan DataSpan(data);
 	return TestPacket(DataSpan);

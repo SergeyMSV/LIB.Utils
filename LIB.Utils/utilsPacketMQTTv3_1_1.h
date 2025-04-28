@@ -14,6 +14,7 @@
 #include <optional>
 #include <span> // C++ 20
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <cstdint>
@@ -113,8 +114,17 @@ public:
 	{
 		if (count >= size())
 			count = size();
-		*static_cast<std::span<const std::uint8_t>*>(this) = subspan(count, size() - count);
+		*static_cast<std::span<const std::uint8_t>*>(this) = last(size() - count);
 	}
+
+	void Shorten(std::size_t count)
+	{
+		if (count >= size())
+			count = size();
+		*static_cast<std::span<const std::uint8_t>*>(this) = first(count);
+	}
+
+	std::vector<std::uint8_t> ToVector() const { return std::vector<std::uint8_t>(begin(), end()); }
 };
 
 #pragma pack(push, 1)
@@ -1112,8 +1122,10 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-std::optional<tControlPacketType> TestPacket(tSpan& data);
-std::optional<tControlPacketType> TestPacket(const std::vector<std::uint8_t>& data);
+using tPacketDataSpan = std::pair<tControlPacketType, tSpan>;
+
+std::optional<tPacketDataSpan> TestPacket(tSpan& data);
+std::optional<tPacketDataSpan> TestPacket(const std::vector<std::uint8_t>& data);
 
 }
 }
