@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsPacketMQTTv3_1_1.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsPacketMQTTv3_1_1_Test.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Lib.Utils">
+      <UniqueIdentifier>{be192240-b290-4bbb-861d-6b01b7a540c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include=".vscode">
+      <UniqueIdentifier>{69dbfc21-0b52-4fcd-93d2-9ecc575d8849}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\LIB.Utils\utilsPacketMQTTv3_1_1.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsTest.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="libConfig.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".vscode\c_cpp_properties.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include=".vscode\launch.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include=".vscode\tasks.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include="UnitTest_PacketMQTTv3_1_1.code-workspace" />
+  </ItemGroup>
+</Project>
