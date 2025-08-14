@@ -27,19 +27,25 @@ void tLog::WriteLine(bool timestamp, tColor colorText, const std::string& msg)
 	WriteLog(timestamp, true, colorText, msg);
 }
 
-void tLog::WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data)
+static bool IsSymbol(char value)
+{
+	return value > 0x20 && value != 0x25 && value != 0x7F;
+}
+
+template <typename T>
+static std::enable_if<std::is_same<T, char>::value || std::is_same<T, unsigned char>::value, std::string>::type MakeStringHex(const std::vector<T>& data, std::size_t linesMax)
 {
 	std::stringstream Stream;
 
-	Stream << msg + '\n';
-
 	std::string Substr;
+
+	std::size_t LinesCounter = 0;
 
 	for (std::size_t i = 0; i < data.size(); ++i)
 	{
 		Stream << std::setfill('0') << std::setw(2) << std::hex << static_cast<int>(data[i]) << ' ';
 
-		if (data[i] <= 0x20 || data[i] == 0x25)
+		if (!IsSymbol(data[i]))
 		{
 			Substr += '.';
 		}
@@ -57,6 +63,16 @@ void tLog::WriteHex(bool timestamp, tColor colorText, const std::string& msg, co
 			if (i < data.size() - 1)//It's not needed for the last string
 			{
 				Stream << '\n';
+				if (linesMax && ++LinesCounter == linesMax)
+				{
+					const std::size_t Bytes = data.size() - (i + 1);
+					std::size_t Lines = Bytes / 16;
+					if (Bytes % 16)
+						++Lines;
+
+					Stream << "< " + std::to_string(Lines) + " lines are hidden >";
+					return Stream.str();
+				}
 			}
 		}
 		else if (((i + 1) % 8) == 0)
@@ -79,7 +95,23 @@ void tLog::WriteHex(bool timestamp, tColor colorText, const std::string& msg, co
 		Stream << Substr;
 	}
 
-	WriteLog(timestamp, true, colorText, Stream.str().c_str());
+	return Stream.str();
+}
+
+void tLog::WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data)
+{
+	WriteHex(timestamp, colorText, msg, colorText, data);
+}
+
+void tLog::WriteHex(bool timestamp, tColor colorMsg, const std::string& msg, tColor colorData, const std::vector<std::uint8_t>& data, std::size_t dataLinesMax)
+{
+	WriteLog(timestamp, true, colorMsg, msg);
+	WriteLog(false, true, colorData, MakeStringHex(data, dataLinesMax));
+}
+
+void tLog::WriteHex(bool timestamp, tColor colorMsg, const std::string& msg, tColor colorData, const std::vector<std::uint8_t>& data)
+{
+	WriteHex(timestamp, colorMsg, msg, colorData, data, 0);
 }
 
 void tLog::WriteLog(bool timestamp, bool endl, tColor colorText, const std::string& msg)
@@ -149,7 +181,7 @@ void tLog::WriteLog(bool timestamp, bool endl, tColor colorText, const std::stri
 	if (endl)
 		Stream << '\n';
 
-	WriteLog(Stream.str().c_str());
+	WriteLog(Stream.str());
 }
 
 }
