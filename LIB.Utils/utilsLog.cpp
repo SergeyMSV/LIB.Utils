@@ -12,19 +12,29 @@ namespace utils
 namespace log
 {
 
+void tLog::Write(bool timestamp, const std::string& msg, tColor color)
+{
+	WriteLog(timestamp, false, msg, color);
+}
+
 void tLog::Write(bool timestamp, tColor colorText, const std::string& msg)
 {
-	WriteLog(timestamp, false, colorText, msg);
+	Write(timestamp, msg, colorText);
 }
 
 void tLog::WriteLine()
 {
-	WriteLog(false, true, tColor::Default, "");
+	WriteLog(false, true, "", tColor::Default);
+}
+
+void tLog::WriteLine(bool timestamp, const std::string& msg, tColor color)
+{
+	WriteLog(timestamp, true, msg, color);
 }
 
 void tLog::WriteLine(bool timestamp, tColor colorText, const std::string& msg)
 {
-	WriteLog(timestamp, true, colorText, msg);
+	WriteLine(timestamp, msg, colorText);
 }
 
 static bool IsSymbol(char value)
@@ -33,18 +43,21 @@ static bool IsSymbol(char value)
 }
 
 template <typename T>
-static std::enable_if<std::is_same<T, char>::value || std::is_same<T, unsigned char>::value, std::string>::type MakeStringHex(const std::vector<T>& data, std::size_t dataLinesBegin, std::size_t dataLinesEnd)
+static std::enable_if<std::is_same<T, char>::value || std::is_same<T, unsigned char>::value, std::string>::type MakeStringHex(const std::vector<T>& data, int dataLinesBegin, int dataLinesEnd)
 {
-	const std::size_t LinesQty = (data.size() / 16) + (data.size() % 16 ? 1 : 0);
+	const int LinesQty = static_cast<int>((data.size() / 16) + (data.size() % 16 ? 1 : 0));
 	const int LinesToSkip = dataLinesBegin && dataLinesEnd ? static_cast<int>(LinesQty - dataLinesBegin - dataLinesEnd) : 0;
 	if (LinesToSkip > 0)
+	{
+		--dataLinesBegin; // transform to index
 		dataLinesEnd = LinesQty - dataLinesEnd;
+	}
 
-	const auto IsLineSkipped = [&dataLinesBegin, &dataLinesEnd, &LinesToSkip](size_t linesCounter)->bool { return LinesToSkip > 0 && linesCounter > dataLinesBegin && linesCounter < dataLinesEnd; };
+	const auto IsLineSkipped = [&dataLinesBegin, &dataLinesEnd, &LinesToSkip](int linesCounter)->bool { return LinesToSkip > 0 && linesCounter > dataLinesBegin && linesCounter < dataLinesEnd; };
 
 	std::stringstream Stream;
 	bool SkipMsgInserted = false;
-	for (std::size_t i = 0; i < LinesQty; ++i)
+	for (int i = 0; i < LinesQty; ++i)
 	{
 		if (IsLineSkipped(i))
 		{
@@ -88,10 +101,10 @@ void tLog::WriteHex(bool timestamp, tColor colorText, const std::string& msg, co
 	WriteHex(timestamp, msg, colorText, data, colorText);
 }
 
-void tLog::WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, std::size_t dataLinesBegin, std::size_t dataLinesEnd)
+void tLog::WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd)
 {
-	WriteLog(timestamp, true, msgColor, msg);
-	WriteLog(false, true, dataColor, MakeStringHex(data, dataLinesBegin, dataLinesEnd));
+	WriteLog(timestamp, true, msg, msgColor);
+	WriteLog(false, true, MakeStringHex(data, dataLinesBegin, dataLinesEnd), dataColor);
 }
 
 void tLog::WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor)
@@ -99,7 +112,12 @@ void tLog::WriteHex(bool timestamp, const std::string& msg, tColor msgColor, con
 	WriteHex(timestamp, msg, msgColor, data, dataColor, 0, 0);
 }
 
-void tLog::WriteLog(bool timestamp, bool endl, tColor colorText, const std::string& msg)
+void tLog::WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data, tColor color)
+{
+	WriteHex(timestamp, msg, color, data, color);
+}
+
+void tLog::WriteLog(bool timestamp, bool endl, const std::string& text, tColor textColor)
 {
 	std::lock_guard<std::mutex> Lock(m_Mtx);
 
@@ -136,7 +154,7 @@ void tLog::WriteLog(bool timestamp, bool endl, tColor colorText, const std::stri
 #ifdef LIB_UTILS_LOG_COLOR
 	Stream << "\x1b[";
 
-	switch (colorText)
+	switch (textColor)
 	{
 	case tColor::Black: Stream << "30"; break;
 	case tColor::Red: Stream << "31"; break;
@@ -158,9 +176,9 @@ void tLog::WriteLog(bool timestamp, bool endl, tColor colorText, const std::stri
 	default: Stream << "39"; break;
 	}
 
-	Stream << "m" + msg + "\x1b[0m";
+	Stream << "m" + text + "\x1b[0m";
 #else // LIB_UTILS_LOG_COLOR
-	Stream << msg;
+	Stream << text;
 #endif // LIB_UTILS_LOG_COLOR
 
 	if (endl)
