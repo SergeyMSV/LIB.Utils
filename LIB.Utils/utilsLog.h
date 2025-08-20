@@ -55,8 +55,9 @@ public:
 	void WriteLine(bool timestamp, tColor colorText, const std::string& msg);
 
 	void WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data);
-	void WriteHex(bool timestamp, tColor colorMsg, const std::string& msg, tColor colorData, const std::vector<std::uint8_t>& data, std::size_t dataLinesMax);
-	void WriteHex(bool timestamp, tColor colorMsg, const std::string& msg, tColor colorData, const std::vector<std::uint8_t>& data);
+	
+	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, std::size_t dataLinesBegin, std::size_t dataLinesEnd);
+	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor);
 
 protected:
 	virtual std::string GetLabel() const { return {}; }
@@ -81,8 +82,9 @@ public:
 	void WriteLine(bool timestamp, tColor colorText, const std::string& msg) { }
 
 	void WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data) { }
-	void WriteHex(bool timestamp, tColor colorMsg, const std::string& msg, tColor colorData, const std::vector<std::uint8_t>& data, std::size_t dataLinesMax) { }
-	void WriteHex(bool timestamp, tColor colorMsg, const std::string& msg, tColor colorData, const std::vector<std::uint8_t>& data) { }
+
+	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, std::size_t dataLinesBegin, std::size_t dataLinesEnd) { }
+	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor) { }
 
 protected:
 	virtual std::string GetLabel() const { return {}; }
