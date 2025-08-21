@@ -15,9 +15,13 @@ protected:
 		return "SIGN";
 	}
 
-	void WriteLog(const std::string& msg) override final
+	void WriteLog(const std::string& text) override final
 	{
-		std::cout << msg;
+		std::cout << text;
+	}
+	void WriteLogFile(const std::string& text) override final
+	{
+		//std::cout << text;
 	}
 };
 

@@ -65,7 +65,8 @@ public:
 protected:
 	virtual std::string GetLabel() const { return {}; }
 
-	virtual void WriteLog(const std::string& msg) = 0;
+	virtual void WriteLog(const std::string& text) = 0;
+	virtual void WriteLogFile(const std::string& text) = 0;
 
 private:
 	virtual void WriteLog(bool timestamp, bool endl, const std::string& text, tColor textColor);
@@ -94,7 +95,8 @@ public:
 protected:
 	virtual std::string GetLabel() const { return {}; }
 
-	virtual void WriteLog(const std::string& msg) = 0;
+	virtual void WriteLog(const std::string& text) = 0;
+	virtual void WriteLogFile(const std::string& text) = 0;
 };
 
 #endif // LIB_UTILS_LOG

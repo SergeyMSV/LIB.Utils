@@ -121,7 +121,8 @@ void tLog::WriteLog(bool timestamp, bool endl, const std::string& text, tColor t
 {
 	std::lock_guard<std::mutex> Lock(m_Mtx);
 
-	std::stringstream Stream;
+	std::string Str;
+	Str.reserve(80); // [#]
 
 	if (timestamp)
 	{
@@ -143,48 +144,49 @@ void tLog::WriteLog(bool timestamp, bool endl, const std::string& text, tColor t
 #else // _WIN32
 		localtime_r(&Time, &TmBuf);
 #endif // _WIN32
-		Stream << std::put_time(&TmBuf, "%T") << '.';
-		Stream << std::setfill('0') << std::setw(Digits) << TimeFract << ' ';
+		std::stringstream SStr;
+		SStr << std::put_time(&TmBuf, "%T") << '.';
+		SStr << std::setfill('0') << std::setw(Digits) << TimeFract << ' ';
 
 		const std::string Label = GetLabel();
 		if (!Label.empty())
-			Stream << std::setfill(' ') << std::setw(4) << Label << ' ';
+			SStr << std::setfill(' ') << std::setw(4) << Label << ' ';
+		Str = SStr.str();
 	}
 
-#ifdef LIB_UTILS_LOG_COLOR
-	Stream << "\x1b[";
+	std::string StrNoColor = Str + text + (endl ? "\n" : "");
+	WriteLogFile(StrNoColor);
+
+#ifndef LIB_UTILS_LOG_COLOR
+	WriteLog(StrNoColor);
+#else
+	Str += "\x1b[";
 
 	switch (textColor)
 	{
-	case tColor::Black: Stream << "30"; break;
-	case tColor::Red: Stream << "31"; break;
-	case tColor::Green: Stream << "32"; break;
-	case tColor::Yellow: Stream << "33"; break;
-	case tColor::Blue: Stream << "34"; break;
-	case tColor::Magenta: Stream << "35"; break;
-	case tColor::Cyan: Stream << "36"; break;
-	case tColor::White: Stream << "37"; break;
-	case tColor::Default: Stream << "39"; break;
-	case tColor::LightGray: Stream << "90"; break;
-	case tColor::LightRed: Stream << "91"; break;
-	case tColor::LightGreen: Stream << "92"; break;
-	case tColor::LightYellow: Stream << "93"; break;
-	case tColor::LightBlue: Stream << "94"; break;
-	case tColor::LightMagenta: Stream << "95"; break;
-	case tColor::LightCyan: Stream << "96"; break;
-	case tColor::LightWhite: Stream << "97"; break;
-	default: Stream << "39"; break;
+	case tColor::Black:        Str += "30"; break;
+	case tColor::Red:          Str += "31"; break;
+	case tColor::Green:        Str += "32"; break;
+	case tColor::Yellow:       Str += "33"; break;
+	case tColor::Blue:         Str += "34"; break;
+	case tColor::Magenta:      Str += "35"; break;
+	case tColor::Cyan:         Str += "36"; break;
+	case tColor::White:        Str += "37"; break;
+	case tColor::Default:      Str += "39"; break;
+	case tColor::LightGray:    Str += "90"; break;
+	case tColor::LightRed:     Str += "91"; break;
+	case tColor::LightGreen:   Str += "92"; break;
+	case tColor::LightYellow:  Str += "93"; break;
+	case tColor::LightBlue:    Str += "94"; break;
+	case tColor::LightMagenta: Str += "95"; break;
+	case tColor::LightCyan:    Str += "96"; break;
+	case tColor::LightWhite:   Str += "97"; break;
+	default:                   Str += "39"; break;
 	}
 
-	Stream << "m" + text + "\x1b[0m";
-#else // LIB_UTILS_LOG_COLOR
-	Stream << text;
+	Str += "m" + text + "\x1b[0m" + (endl ? "\n" : "");
+	WriteLog(Str);
 #endif // LIB_UTILS_LOG_COLOR
-
-	if (endl)
-		Stream << '\n';
-
-	WriteLog(Stream.str());
 }
 
 }
