@@ -47,7 +47,7 @@ class tLog
 
 public:
 	tLog() = default;
-	virtual ~tLog() { }
+	virtual ~tLog() {}
 
 	void Write(bool timestamp, const std::string& msg, tColor color);
 	void Write(bool timestamp, tColor colorText, const std::string& msg); // DEPRECATED
@@ -66,7 +66,7 @@ protected:
 	virtual std::string GetLabel() const { return {}; }
 
 	virtual void WriteLog(const std::string& text) = 0;
-	virtual void WriteLogFile(const std::string& text) = 0;
+	virtual void WriteLogFile(const std::string& text) {}
 
 private:
 	virtual void WriteLog(bool timestamp, bool endl, const std::string& text, tColor textColor);
@@ -78,25 +78,25 @@ class tLog
 {
 public:
 	tLog() = default;
-	virtual ~tLog() { }
+	virtual ~tLog() {}
 
-	void Write(bool timestamp, tColor colorText, const std::string& msg) { }
+	void Write(bool timestamp, tColor colorText, const std::string& msg) {}
 
-	void WriteLine() { }
-	void WriteLine(bool timestamp, const std::string& msg, tColor color) { }
-	void WriteLine(bool timestamp, tColor colorText, const std::string& msg) { }
+	void WriteLine() {}
+	void WriteLine(bool timestamp, const std::string& msg, tColor color) {}
+	void WriteLine(bool timestamp, tColor colorText, const std::string& msg) {}
 
-	void WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data) { }
+	void WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data) {}
 
-	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd) { }
-	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor) { }
+	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd) {}
+	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor) {}
 	void WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data, tColor color) {}
 
 protected:
 	virtual std::string GetLabel() const { return {}; }
 
 	virtual void WriteLog(const std::string& text) = 0;
-	virtual void WriteLogFile(const std::string& text) = 0;
+	virtual void WriteLogFile(const std::string& text) {}
 };
 
 #endif // LIB_UTILS_LOG
