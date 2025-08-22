@@ -69,6 +69,8 @@ static std::enable_if<std::is_same<T, char>::value || std::is_same<T, unsigned c
 			continue;
 		}
 
+		Stream << std::setfill('0') << std::setw(4) << std::hex << (16 * i) << "   ";
+
 		std::string Substr;
 		std::size_t byteCount = 0;
 		for (std::size_t k = (16 * i); byteCount < 16 && k < data.size(); ++byteCount, ++k)
