@@ -57,7 +57,9 @@ public:
 	void WriteLine(bool timestamp, tColor colorText, const std::string& msg); // DEPRECATED
 
 	void WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data); // DEPRECATED
-	
+
+	void WriteHex(const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd);
+	void WriteHex(const std::vector<std::uint8_t>& data, tColor dataColor);
 	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd);
 	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor);
 	void WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data, tColor color);
@@ -88,6 +90,8 @@ public:
 
 	void WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data) {}
 
+	void WriteHex(const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd) {}
+	void WriteHex(const std::vector<std::uint8_t>& data, tColor dataColor) {}
 	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd) {}
 	void WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor) {}
 	void WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data, tColor color) {}

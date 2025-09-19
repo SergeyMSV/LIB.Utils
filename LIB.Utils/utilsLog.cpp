@@ -103,10 +103,20 @@ void tLog::WriteHex(bool timestamp, tColor colorText, const std::string& msg, co
 	WriteHex(timestamp, msg, colorText, data, colorText);
 }
 
+void tLog::WriteHex(const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd)
+{
+	WriteLog(false, true, MakeStringHex(data, dataLinesBegin, dataLinesEnd), dataColor);
+}
+
+void tLog::WriteHex(const std::vector<std::uint8_t>& data, tColor dataColor)
+{
+	WriteHex(data, dataColor, 0, 0);
+}
+
 void tLog::WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd)
 {
 	WriteLog(timestamp, true, msg, msgColor);
-	WriteLog(false, true, MakeStringHex(data, dataLinesBegin, dataLinesEnd), dataColor);
+	WriteHex(data, dataColor, dataLinesBegin, dataLinesEnd);
 }
 
 void tLog::WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor)
