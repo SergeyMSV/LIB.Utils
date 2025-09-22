@@ -17,10 +17,17 @@ void tLog::Write(bool timestamp, const std::string& msg, tColor color)
 	WriteLog(timestamp, false, msg, color);
 }
 
+void tLog::Write(bool timestamp, const std::string& msg)
+{
+	Write(timestamp, msg, tColor::Default);
+}
+
+#ifdef LIB_UTILS_LOG_DEPRECATED
 void tLog::Write(bool timestamp, tColor colorText, const std::string& msg)
 {
 	Write(timestamp, msg, colorText);
 }
+#endif LIB_UTILS_LOG_DEPRECATED
 
 void tLog::WriteLine()
 {
@@ -32,10 +39,17 @@ void tLog::WriteLine(bool timestamp, const std::string& msg, tColor color)
 	WriteLog(timestamp, true, msg, color);
 }
 
+void tLog::WriteLine(bool timestamp, const std::string& msg)
+{
+	WriteLine(timestamp, msg, tColor::Default);
+}
+
+#ifdef LIB_UTILS_LOG_DEPRECATED
 void tLog::WriteLine(bool timestamp, tColor colorText, const std::string& msg)
 {
 	WriteLine(timestamp, msg, colorText);
 }
+#endif LIB_UTILS_LOG_DEPRECATED
 
 static bool IsSymbol(char value)
 {
@@ -98,10 +112,12 @@ static std::enable_if<std::is_same<T, char>::value || std::is_same<T, unsigned c
 	return Stream.str();
 }
 
+#ifdef LIB_UTILS_LOG_DEPRECATED
 void tLog::WriteHex(bool timestamp, tColor colorText, const std::string& msg, const std::vector<std::uint8_t>& data)
 {
 	WriteHex(timestamp, msg, colorText, data, colorText);
 }
+#endif LIB_UTILS_LOG_DEPRECATED
 
 void tLog::WriteHex(const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd)
 {
@@ -111,6 +127,11 @@ void tLog::WriteHex(const std::vector<std::uint8_t>& data, tColor dataColor, int
 void tLog::WriteHex(const std::vector<std::uint8_t>& data, tColor dataColor)
 {
 	WriteHex(data, dataColor, 0, 0);
+}
+
+void tLog::WriteHex(const std::vector<std::uint8_t>& data)
+{
+	WriteHex(data, tColor::Default, 0, 0);
 }
 
 void tLog::WriteHex(bool timestamp, const std::string& msg, tColor msgColor, const std::vector<std::uint8_t>& data, tColor dataColor, int dataLinesBegin, int dataLinesEnd)
@@ -124,9 +145,24 @@ void tLog::WriteHex(bool timestamp, const std::string& msg, tColor msgColor, con
 	WriteHex(timestamp, msg, msgColor, data, dataColor, 0, 0);
 }
 
+void tLog::WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data, tColor color, int dataLinesBegin, int dataLinesEnd)
+{
+	WriteHex(timestamp, msg, color, data, color, dataLinesBegin, dataLinesEnd);
+}
+
 void tLog::WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data, tColor color)
 {
 	WriteHex(timestamp, msg, color, data, color);
+}
+
+void tLog::WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data, int dataLinesBegin, int dataLinesEnd)
+{
+	WriteHex(timestamp, msg, tColor::Default, data, tColor::Default, dataLinesBegin, dataLinesEnd);
+}
+
+void tLog::WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data)
+{
+	WriteHex(timestamp, msg, tColor::Default, data, tColor::Default);
 }
 
 void tLog::WriteLog(bool timestamp, bool endl, const std::string& text, tColor textColor)
