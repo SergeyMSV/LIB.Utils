@@ -2,22 +2,25 @@
 
 namespace utils
 {
-	namespace packet_NMEA
-	{
-		namespace Type
-		{
-///////////////////////////////////////////////////////////////////////////////////////////////////
-tGNSS::tGNSS(const std::string& val)
+namespace packet
 {
-	if (val.size() >= 2 && val[0] == 'G')
+namespace nmea
+{
+namespace type
+{
+///////////////////////////////////////////////////////////////////////////////////////////////////
+tOptional<tGNSS> tGNSS::Parse(const std::string& val)
+{
+	if (val.size() < 2 || val[0] != 'G')
+		return {};
+
+	switch (val[1])
 	{
-		switch (val[1])
-		{
-		case 'P': Value = tGNSS_State::GPS; break;
-		case 'L': Value = tGNSS_State::GLONASS; break;
-		case 'N': Value = tGNSS_State::GPS_GLONASS; break;
-		}
+	case 'P': return tGNSS(tGNSS_State::GPS); break;
+	case 'L': return tGNSS(tGNSS_State::GLONASS); break;
+	case 'N': return tGNSS(tGNSS_State::GPS_GLONASS); break;
 	}
+	return {};
 }
 
 std::string tGNSS::ToString() const
@@ -31,68 +34,43 @@ std::string tGNSS::ToString() const
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tValid::tValid(const std::string& val)
+tOptional<tValid> tValid::Parse(const std::string& val)
 {
-	if (val.size() == 1)
-	{
-		m_Empty = false;
-
-		Value = val[0] == 'A' ? true : false;
-	}
+	if (val.size() != 1)
+		return {};
+	return tValid(val[0] == 'A' ? true : false);
 }
 
 std::string tValid::ToString() const
 {
-	if (m_Empty) return "";
-
 	return Value ? "A" : "V";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tDate::tDate(std::uint8_t year, std::uint8_t month, std::uint8_t day)
-	:tEmptyAble(false), Year(year), Month(month), Day(day)
+	:Year(year), Month(month), Day(day)
 {
 
 }
 
-tDate::tDate(const std::string& val)
+tOptional<tDate> tDate::Parse(const std::string& val)
 {
-	if (val.size() == 6)//260216
-	{
-		m_Empty = false;
-
-		char Data[3]{};//C++11
-
-		Data[0] = val[0];
-		Data[1] = val[1];
-
-		Day = static_cast<std::uint8_t>(std::strtoul(Data, 0, 10));
-
-		Data[0] = val[2];
-		Data[1] = val[3];
-
-		Month = static_cast<std::uint8_t>(std::strtoul(Data, 0, 10));
-
-		Data[0] = val[4];
-		Data[1] = val[5];
-
-		Year = static_cast<std::uint8_t>(std::strtoul(Data, 0, 10));
-	}
+	if (val.size() != 6) // 260216
+		return {};
+	auto Day = static_cast<std::uint8_t>(std::strtoul(val.substr(0,2).c_str(), 0, 10));
+	auto Month = static_cast<std::uint8_t>(std::strtoul(val.substr(2, 2).c_str(), 0, 10));
+	auto Year = static_cast<std::uint8_t>(std::strtoul(val.c_str() + 4, 0, 10));
+	return tDate(Year, Month, Day);
 }
 
 std::string tDate::ToString() const
 {
-	if (m_Empty) return "";
-
+	if (Year > 99 || Month > 12 || Day > 31)
+		return "";
 	std::stringstream SStream;
-	
-	if (Year < 100 && Month < 13 && Day < 32)
-	{
-		SStream << std::setfill('0');
-		SStream << std::setw(2) << static_cast<unsigned int>(Day);
-		SStream << std::setw(2) << static_cast<unsigned int>(Month);
-		SStream << std::setw(2) << static_cast<unsigned int>(Year);
-	}
-
+	SStream << std::setfill('0');
+	SStream << std::setw(2) << static_cast<int>(Day);
+	SStream << std::setw(2) << static_cast<int>(Month);
+	SStream << std::setw(2) << static_cast<int>(Year);
 	return SStream.str();
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,17 +95,17 @@ std::string tModeIndicator::ToString() const
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tSatellite::tSatellite(std::uint8_t id, std::uint8_t elevation, std::uint16_t azimuth, std::uint8_t snr)
-	:ID(id), Elevation(elevation), Azimuth(azimuth), SNR(snr)
+	:ID(id_type(id)), Elevation(elevation_type(elevation)), Azimuth(azimuth_type(azimuth)), SNR(snr_type(snr))
 {
 
 }
 
 tSatellite::tSatellite(const std::string& valID, const std::string& valElevation, const std::string& valAzimuth, const std::string& valSNR)
 {
-	ID = id_type(valID);
-	Elevation = elevation_type(valElevation);
-	Azimuth = azimuth_type(valAzimuth);
-	SNR = snr_type(valSNR);
+	ID = id_type::Parse(valID);
+	Elevation = elevation_type::Parse(valElevation);
+	Azimuth = azimuth_type::Parse(valAzimuth);
+	SNR = snr_type::Parse(valSNR);
 }
 
 std::string tSatellite::ToStringID() const
@@ -155,6 +133,7 @@ std::string tSatellite::ToString() const
 	return ToStringID() + ',' + ToStringElevation() + ',' + ToStringAzimuth() + ',' + ToStringSNR();
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-		}
-	}
+}
+}
+}
 }
