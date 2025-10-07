@@ -1,9 +1,11 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// utilsBase.h
+// utilsBase
 // 2014-09-24
-// Standard ISO/IEC 114882, C++17
+// C++17
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
+
+#include <libConfig.h>
 
 #include <cassert>
 #include <cctype>
@@ -142,6 +144,7 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Reverse(T
 	return value;
 }
 
+#ifdef LIB_UTILS_BASE_DEPRECATED
 class tEmptyAble
 {
 protected:
@@ -200,5 +203,5 @@ enum class tExitCode : int // DEPRECATED, use from utilsExits.h
 	EX_CONFIG = 78,		// configuration error
 	EX__MAX = 78,		// maximum listed value
 };
-
+#endif // LIB_UTILS_BASE_DEPRECATED
 }
