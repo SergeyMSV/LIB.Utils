@@ -4,7 +4,6 @@
 #include "utilsPacketNMEAPayloadPMTK.h"
 #include "utilsPacketNMEAPayloadPTWS.h"
 
-#include "utilsBase.h"
 #include "utilsTest.h"
 
 #include <iostream>
@@ -61,6 +60,8 @@ void UnitTest_PacketNMEAPayload()
 	using namespace std::string_literals;
 
 	using namespace utils::packet_NMEA;
+
+	//utils::packet_NMEA::Type::
 
 	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadCommon> tPacketNMEA;
 
