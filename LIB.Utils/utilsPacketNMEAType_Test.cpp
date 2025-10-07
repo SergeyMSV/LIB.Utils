@@ -1,48 +1,79 @@
 #include "utilsPacketNMEAType.h"
 
-#include "utilsBase.h"
 #include "utilsTest.h"
 
 #include <iostream>
 #include <iomanip>
 //#include <tuple>
+#include <type_traits>
 
 namespace utils
 {
 
+using namespace utils::packet::nmea::type;
+
 template <class T>
 void UnitTest_PacketNMEAPayload_Test()
 {
-	T Val;
+	tOptional<T> Val;
 	std::cout << Val.ToString() << '\n';
 }
 
 template <class T, class TArg>
 void UnitTest_PacketNMEAPayload_Test(TArg arg)
 {
-	T Val(arg);
-	std::cout << Val.ToString() << '\n';
+	if constexpr (std::is_same_v<TArg, const char*>)
+	{
+		tOptional<T> Val = T::Parse(arg);
+		std::cout << Val.ToString() << '\n';
+	}
+	else
+	{
+		tOptional<T> Val = T(arg);
+		std::cout << Val.ToString() << '\n';
+	}
 }
 
 template <class T, class TArg>
 void UnitTest_PacketNMEAPayload_Test(TArg arg1, TArg arg2)
 {
-	T Val(arg1, arg2);
-	std::cout << Val.ToString() << '\n';
+	if constexpr (std::is_same_v<TArg, const char*>)
+	{
+		tOptional<T> Val = T::Parse(arg1, arg2);
+		std::cout << Val.ToString() << '\n';
+	}
+	else
+	{
+		tOptional<T> Val(T(arg1, arg2));
+		std::cout << Val.ToString() << '\n';
+	}
 }
 
 template <class T, class TArg>
 void UnitTest_PacketNMEAPayload_Test(TArg arg1, TArg arg2, TArg arg3, TArg arg4)
 {
-	T Val(arg1, arg2, arg3, arg4);
+	tOptional<T> Val(T(arg1, arg2, arg3, arg4));
 	std::cout << Val.ToString() << '\n';
+}
+
+template <class T, class TArg1, class TArg2>
+void UnitTest_PacketNMEAPayload_Test(TArg1 arg1, TArg2 arg2)
+{
+	if constexpr (std::is_same_v<TArg2, char>)
+	{
+		tOptional<T> Val(T(arg1, arg2));
+		std::cout << Val.ToString() << '\n';
+	}
+	else
+	{
+		tOptional<T> Val = T::Parse(arg1, arg2);
+		std::cout << Val.ToString() << '\n';
+	}
 }
 
 void UnitTest_PacketNMEAType()
 {
 	std::cout << "\n""utils::packet_NMEA::Payload\n";
-
-	using namespace utils::packet_NMEA::Type;
 
 	UnitTest_PacketNMEAPayload_Test<tDate>();
 	UnitTest_PacketNMEAPayload_Test<tDate>("120517");
@@ -77,7 +108,7 @@ void UnitTest_PacketNMEAType()
 
 	typedef tLatitude<2> tLatitude2;
 	UnitTest_PacketNMEAPayload_Test<tLatitude2>();
-	UnitTest_PacketNMEAPayload_Test<tLatitude2>(0);
+	UnitTest_PacketNMEAPayload_Test<tLatitude2>(0.0);
 	UnitTest_PacketNMEAPayload_Test<tLatitude2>("5539.56", "S");
 	UnitTest_PacketNMEAPayload_Test<tLatitude2>(31.45);
 	UnitTest_PacketNMEAPayload_Test<tLatitude2>(34);
@@ -155,6 +186,10 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAPayload_Test<tSatellite>(12, 34, 56, 78);
 	UnitTest_PacketNMEAPayload_Test<tSatellite>("23", "38", "230", "44");
 
+	UnitTest_PacketNMEAPayload_Test<tFloatUnit<2, 4>>();
+	UnitTest_PacketNMEAPayload_Test<tFloatUnit<2, 4>>(0, 'G');
+	UnitTest_PacketNMEAPayload_Test<tFloatUnit<2, 4>>("54.5736", "R");
+	UnitTest_PacketNMEAPayload_Test<tFloatUnit<2, 4>>(27.384, 'S');
 
 	std::cout << std::endl;
 }
