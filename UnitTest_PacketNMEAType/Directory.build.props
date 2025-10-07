@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <LLVMInstallDir>C:\DEV\clang+llvm-21.1.0-x86_64-pc-windows-msvc</LLVMInstallDir>
+    <LLVMToolsVersion>21.1.0</LLVMToolsVersion>
+  </PropertyGroup>
+</Project>
