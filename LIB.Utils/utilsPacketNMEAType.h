@@ -6,7 +6,7 @@
 #pragma once
 
 #include <iomanip>
-#include <optional>
+#include <optional> // [TBD] REMOVE
 #include <sstream>
 #include <string>
 #include <vector>
@@ -38,7 +38,7 @@ struct tOptional : public std::optional<T>
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 enum class tGNSS_State : std::uint8_t // it's like bitfield
 {
-	UNKNOWN = 0,
+	None = 0,
 	GPS = 1,     // 0000'0001
 	GLONASS,     // 0000'0010
 	GPS_GLONASS, // 0000'0011
@@ -46,43 +46,53 @@ enum class tGNSS_State : std::uint8_t // it's like bitfield
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tGNSS
 {
-	tGNSS_State Value = tGNSS_State::UNKNOWN;
+	tGNSS_State Value = tGNSS_State::None;
 
 	tGNSS() = default;
 	explicit tGNSS(tGNSS_State val) :Value(val) {}
+	explicit tGNSS(const std::string& val);
 
-	static tOptional<tGNSS> Parse(const std::string& val);
+	bool IsEmpty() const { return Value == tGNSS_State::None; }
 
 	std::string ToString() const;
-	static std::string ToStringEmpty() { return ""; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tValid
+class tValid
 {
-	bool Value = false;
+	enum class tValidity
+	{
+		None = 0,
+		Valid,
+		NotValid,
+	};
 
+	tValidity Value = tValidity::None;
+
+public:
 	tValid() = default;
-	explicit tValid(bool val) :Value(val) {}
+	explicit tValid(bool val) :Value(val ? tValidity::Valid : tValidity::NotValid) {}
+	explicit tValid(const std::string& val);
 
-	static tOptional<tValid> Parse(const std::string& val);
+	bool IsEmpty() const { return Value == tValidity::None; }
 
 	std::string ToString() const;
-	static std::string ToStringEmpty() { return ""; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tDate
 {
-	std::uint8_t Year = 0;
-	std::uint8_t Month = 0;
-	std::uint8_t Day = 0;
+	std::int8_t Year = -1;
+	std::int8_t Month = -1;
+	std::int8_t Day = -1;
 
 	tDate() = default;
-	tDate(std::uint8_t year, std::uint8_t month, std::uint8_t day);
+	tDate(std::int8_t year, std::int8_t month, std::int8_t day);
+	explicit tDate(const std::string& val);
 
-	static tOptional<tDate> Parse(const std::string& val);
+	bool IsEmpty() const { return !IsValid(Year, Month, Day); }
 
 	std::string ToString() const;
-	static std::string ToStringEmpty() { return ""; }
+
+	static bool IsValid(std::int8_t year, std::int8_t month, std::int8_t day) { return year > -1 && year < 100 && month > 0 && month <= 12 && day > 0 && day <= 31; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <int SizeFract>
@@ -144,42 +154,52 @@ std::ostream& operator<< (std::ostream& out, const tTime<SizeFract>& value)
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeFract>
-class tLatitude
+// The valid range of latitude in degrees is - 90 and +90 for the southern and northern hemisphere, respectively.
+// Longitude is in the range - 180 and +180 specifying coordinates west and east of the Prime Meridian, respectively.For reference,
+// the Equator has a latitude of 0°, the North pole has a latitude of 90° north(written 90° N or +90°), and the South pole has a latitude of - 90°.
+
+template <std::size_t SizeDeg, std::size_t SizeFract, char Positive, char Negative, int MaxAbs>
+class tGeoDegree
 {
-	static const std::size_t Size = 5 + SizeFract; // sizeof(ddmm.) = 5
+	// Latitude -> sizeof(ddmm.) = 2 + 3 + fract.
+	// Longitude -> sizeof(dddmm.) = 3 + 3 + fract.
+	static constexpr std::size_t Size = SizeDeg + 3 + SizeFract; // "dd" and "ddd" stand for SizeDeg for Latitude and Longitude respectively.
+
+	enum { Empty = -500 };
 
 public:
-	double Value = 0;
+	double Value = Empty;
 
-	tLatitude() = default;
-	explicit tLatitude(double val) :Value(val) {}
-
-	static tOptional<tLatitude> Parse(const std::string& val, const std::string& valSign)
+	tGeoDegree() = default;
+	explicit tGeoDegree(double val)
 	{
-		if (val.size() != Size || valSign.size() != 1)
-			return {};
-		double Value = std::strtod(val.substr(0, 2).c_str(), 0);
-		const double Rest = std::strtod(val.c_str() + 2, 0);
-		Value += Rest / 60;
-		if (valSign[0] == 'S')
-			Value = -Value;
-		return tLatitude(Value);
+		if (IsValid(val))
+			Value = val;
 	}
+	tGeoDegree(const std::string& val, const std::string& valSign)
+	{
+		if (val.size() != Size || valSign.size() != 1 || (valSign[0] != Negative && valSign[0] != Positive))
+			return;
+		double Lat = std::strtod(val.substr(0, SizeDeg).c_str(), 0);
+		const double Rest = std::strtod(val.c_str() + SizeDeg, 0);
+		Lat += Rest / 60;
+		if (!IsValid(Lat))
+			return;
+		Value = valSign[0] == Positive ? Lat : -Lat;
+	}
+
+	bool IsEmpty() const { return !IsValid(Value); }
 
 	std::string ToStringValue() const
 	{
+		if (IsEmpty())
+			return "";
 		const double ValueAbs = std::abs(Value);
-
 		const std::int8_t Deg = static_cast<std::int8_t>(ValueAbs);
-		if (Deg >= 100) // [TBD] check it - why is that equal to 100 ?
-			return "";
-
 		const double Min = (ValueAbs - Deg) * 60;
-
 		std::stringstream SStream;
 		SStream << std::setfill('0');
-		SStream << std::setw(2) << static_cast<int>(Deg);
+		SStream << std::setw(SizeDeg) << static_cast<int>(Deg);
 		SStream.setf(std::ios::fixed);
 		SStream << std::setw(3 + SizeFract) << std::setprecision(SizeFract) << Min;
 		SStream.unsetf(std::ios::fixed);
@@ -188,69 +208,27 @@ public:
 
 	std::string ToStringHemisphere() const
 	{
-		return Value < 0 ? "S" : "N";
+		if (IsEmpty())
+			return "";
+		return std::string(1, Value < 0 ? Negative : Positive);
 	}
 
-	std::string ToString() const
-	{
-		return ToStringValue() + ',' + ToStringHemisphere();
-	}
-	static std::string ToStringEmpty() { return ","; }
+	std::string ToString() const { return ToStringValue() + ',' + ToStringHemisphere(); }
+
+	static bool IsValid(double value) { return value >= -MaxAbs && value <= MaxAbs; }
 };
+
+using tLatitude2 = tGeoDegree<2, 2, 'N', 'S', 90>;
+using tLongitude2 = tGeoDegree<3, 2, 'E', 'W', 180>;
+
+using tLatitude4 = tGeoDegree<2, 4, 'N', 'S', 90>;
+using tLongitude4 = tGeoDegree<3, 4, 'E', 'W', 180>;
+
+using tLatitude6 = tGeoDegree<2, 6, 'N', 'S', 90>;
+using tLongitude6 = tGeoDegree<3, 6, 'E', 'W', 180>;
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeFract>
-class tLongitude
-{
-	static const std::size_t Size = 6 + SizeFract; // sizeof(dddmm.) = 6
 
-public:
-	double Value = 0;
-
-	tLongitude() = default;
-	explicit tLongitude(double val) :Value(val) { }
-
-	static tOptional<tLongitude> Parse(const std::string& val, const std::string& valSign)
-	{
-		if (val.size() != Size || valSign.size() != 1)
-			return {};
-		double Value = std::strtod(val.substr(0, 3).c_str(), 0);
-		double Rest = std::strtod(val.c_str() + 3, 0);
-		Value += Rest / 60;
-		if (valSign[0] == 'W')
-			Value = -Value;
-		return tLongitude(Value);
-	}
-
-	std::string ToStringValue() const
-	{
-		const double ValueAbs = std::abs(Value);
-
-		const std::int16_t Deg = static_cast<std::int16_t>(ValueAbs);
-		if (Deg >= 1000) // [TBD] check it - why is that equal to 1000 ?
-			return "";
-
-		const double Min = (ValueAbs - Deg) * 60;
-
-		std::stringstream SStream;
-		SStream << std::setfill('0');
-		SStream << std::setw(3) << static_cast<int>(Deg);
-		SStream.setf(std::ios::fixed);
-		SStream << std::setw(3 + SizeFract) << std::setprecision(SizeFract) << Min;
-		SStream.unsetf(std::ios::fixed);
-		return SStream.str();
-	}
-
-	std::string ToStringHemisphere() const
-	{
-		return Value < 0 ? "W" : "E";
-	}
-
-	std::string ToString() const
-	{
-		return ToStringValue() + ',' + ToStringHemisphere();
-	}
-	static std::string ToStringEmpty() { return ","; }
-};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeInt, std::size_t SizeFract>
 class tFloat

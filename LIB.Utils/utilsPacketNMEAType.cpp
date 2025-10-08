@@ -9,18 +9,17 @@ namespace nmea
 namespace type
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tOptional<tGNSS> tGNSS::Parse(const std::string& val)
+tGNSS::tGNSS(const std::string& val)
 {
-	if (val.size() < 2 || val[0] != 'G')
-		return {};
+	if (val.size() != 2 || val[0] != 'G')
+		return;
 
 	switch (val[1])
 	{
-	case 'P': return tGNSS(tGNSS_State::GPS); break;
-	case 'L': return tGNSS(tGNSS_State::GLONASS); break;
-	case 'N': return tGNSS(tGNSS_State::GPS_GLONASS); break;
-	}
-	return {};
+	case 'P': Value = tGNSS_State::GPS; break;
+	case 'L': Value = tGNSS_State::GLONASS; break;
+	case 'N': Value = tGNSS_State::GPS_GLONASS; break;
+	}	
 }
 
 std::string tGNSS::ToString() const
@@ -34,37 +33,49 @@ std::string tGNSS::ToString() const
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tOptional<tValid> tValid::Parse(const std::string& val)
+tValid::tValid(const std::string& val)
 {
-	if (val.size() != 1)
-		return {};
-	return tValid(val[0] == 'A' ? true : false);
+	if (val.size() == 1 && (val[0] == 'A' || val[0] == 'V'))
+		*this = tValid(val[0] == 'A' ? true : false);
 }
 
 std::string tValid::ToString() const
 {
-	return Value ? "A" : "V";
+	switch (Value)
+	{
+	case tValidity::None: break;
+	case tValidity::Valid: return "A";
+	case tValidity::NotValid: return "V";
+	}
+	return "";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tDate::tDate(std::uint8_t year, std::uint8_t month, std::uint8_t day)
-	:Year(year), Month(month), Day(day)
+tDate::tDate(std::int8_t year, std::int8_t month, std::int8_t day)
 {
-
+	if (!IsValid(year, month, day))
+		return;
+	Year = year;
+	Month = month;
+	Day = day;
 }
 
-tOptional<tDate> tDate::Parse(const std::string& val)
+tDate::tDate(const std::string& val)
 {
 	if (val.size() != 6) // 260216
-		return {};
-	auto Day = static_cast<std::uint8_t>(std::strtoul(val.substr(0,2).c_str(), 0, 10));
-	auto Month = static_cast<std::uint8_t>(std::strtoul(val.substr(2, 2).c_str(), 0, 10));
-	auto Year = static_cast<std::uint8_t>(std::strtoul(val.c_str() + 4, 0, 10));
-	return tDate(Year, Month, Day);
+		return;
+	std::int8_t ParsedDay = static_cast<std::int8_t>(std::strtoul(val.substr(0,2).c_str(), 0, 10));
+	std::int8_t ParsedMonth = static_cast<std::int8_t>(std::strtoul(val.substr(2, 2).c_str(), 0, 10));
+	std::int8_t ParsedYear = static_cast<std::int8_t>(std::strtoul(val.c_str() + 4, 0, 10));
+	if (!IsValid(ParsedYear, ParsedMonth, ParsedDay))
+		return;
+	Day = ParsedDay;
+	Month = ParsedMonth;
+	Year = ParsedYear;
 }
 
 std::string tDate::ToString() const
 {
-	if (Year > 99 || Month > 12 || Day > 31)
+	if (IsEmpty())
 		return "";
 	std::stringstream SStream;
 	SStream << std::setfill('0');
