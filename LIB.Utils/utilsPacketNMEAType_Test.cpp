@@ -217,6 +217,12 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tUInt4>(0, "tUInt4 0", "0000");
 	UnitTest_PacketNMEAType_Test<tUInt4>(4567, "tUInt4 4567", "4567");
 
+	UnitTest_PacketNMEAType_Test<tFloat2x4>("tFloat2x4", "");
+	UnitTest_PacketNMEAType_Test<tFloat2x4>("00.0000", "tFloat2x4 00.0000", "00.0000");
+	UnitTest_PacketNMEAType_Test<tFloat2x4>("12.3456", "tFloat2x4 12.3456", "12.3456");
+	UnitTest_PacketNMEAType_Test<tFloat2x4>(0, "tFloat2x4 0", "00.0000");
+	UnitTest_PacketNMEAType_Test<tFloat2x4>(12.3456, "tFloat2x4 12.3456", "12.3456");
+
 	/*UnitTest_PacketNMEAType_Test<tFloat<2, 4>>();
 	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>(23);
 	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>("34.5688");

@@ -72,6 +72,15 @@ std::ostream& operator<<(std::ostream& out, const tNumberFixedItem& value)
 	return out;
 }
 
+std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::uint32_t precision)
+{
+	const std::uint32_t Mult = std::pow(10, precision);
+	const double Temp = std::round(value * Mult);
+	const std::uint32_t ValInt = static_cast<std::uint32_t>(Temp / Mult);
+	const std::uint32_t ValFract = static_cast<std::uint32_t>(Temp - ValInt * Mult);
+	return { ValInt, ValFract };
+}
+
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tDate::tDate(const std::string& values) : tBase(values)
