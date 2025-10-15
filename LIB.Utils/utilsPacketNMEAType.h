@@ -5,8 +5,8 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include <iomanip>
-#include <optional>
+#include <algorithm>
+//#include <iomanip>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -23,22 +23,10 @@ namespace nmea
 {
 namespace type
 {
-
-template<class T>
-struct tOptional : public std::optional<T>
-{
-	tOptional() :std::optional<T>() {}
-	tOptional(T value) :std::optional<T>(value) {}
-
-	std::string ToString() const
-	{
-		return this->has_value() ? (*this)->ToString() : T::ToStringEmpty();
-	}
-};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-enum class tGNSS_State : std::uint8_t // it's like bitfield
+enum class tGNSS_State : std::uint8_t // It's like bitfield.
 {
-	UNKNOWN = 0,
+	None = 0,
 	GPS = 1,     // 0000'0001
 	GLONASS,     // 0000'0010
 	GPS_GLONASS, // 0000'0011
@@ -46,213 +34,345 @@ enum class tGNSS_State : std::uint8_t // it's like bitfield
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tGNSS
 {
-	tGNSS_State Value = tGNSS_State::UNKNOWN;
+	tGNSS_State Value = tGNSS_State::None;
 
 	tGNSS() = default;
-	explicit tGNSS(tGNSS_State val) :Value(val) {}
+	explicit tGNSS(tGNSS_State val) : Value(val) {}
+	explicit tGNSS(const std::string& val);
 
-	static tOptional<tGNSS> Parse(const std::string& val);
-
-	std::string ToString() const;
-	static std::string ToStringEmpty() { return ""; }
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tValid
-{
-	bool Value = false;
-
-	tValid() = default;
-	explicit tValid(bool val) :Value(val) {}
-
-	static tOptional<tValid> Parse(const std::string& val);
+	bool IsEmpty() const { return Value == tGNSS_State::None; }
 
 	std::string ToString() const;
-	static std::string ToStringEmpty() { return ""; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tDate
+class tValid
 {
-	std::uint8_t Year = 0;
-	std::uint8_t Month = 0;
-	std::uint8_t Day = 0;
+	enum class tValidity
+	{
+		None = 0,
+		Valid,
+		NotValid,
+	};
 
-	tDate() = default;
-	tDate(std::uint8_t year, std::uint8_t month, std::uint8_t day);
-
-	static tOptional<tDate> Parse(const std::string& val);
-
-	std::string ToString() const;
-	static std::string ToStringEmpty() { return ""; }
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <int SizeFract>
-class tTime
-{
-	static_assert(SizeFract >= 0, "tTime: SizeFract"); // C++11
-	static const std::size_t Size = SizeFract == 0 ? 6 : 7 + SizeFract; // sizeof(hhmmss.) = 7
+	tValidity Value = tValidity::None;
 
 public:
-	std::uint8_t Hour = 0;
-	std::uint8_t Minute = 0;
-	double Second = 0;
+	tValid() = default;
+	explicit tValid(bool val) : Value(val ? tValidity::Valid : tValidity::NotValid) {}
+	explicit tValid(const std::string& val);
 
-	tTime() = default;
-	tTime(std::uint8_t hour, std::uint8_t minute, double second) :Hour(hour), Minute(minute), Second(second) {}
+	bool IsEmpty() const { return Value == tValidity::None; }
 
-	static tOptional<tTime> Parse(const std::string& val)
+	std::string ToString() const;
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+namespace hidden
+{
+
+struct tNumberFixedItem
+{
+	std::uint32_t Value;
+	std::uint32_t Size;
+	bool Fractional;
+
+	tNumberFixedItem() = default;
+	tNumberFixedItem(std::uint32_t value, std::uint32_t size, bool fract) : Value(value), Size(size), Fractional(fract) {}
+};
+
+template <std::uint32_t... ints>
+class tNumberFixed
+{
+	using tVectorParts = std::vector<tNumberFixedItem>;
+
+	tVectorParts m_Parts;
+
+public:
+	tNumberFixed() = default;
+	explicit tNumberFixed(const std::string& values)
 	{
-		if (val.size() != Size)
-			return {};
-		auto Hour = static_cast<std::uint8_t>(std::strtoul(val.substr(0,2).c_str(), 0, 10));
-		auto Minute = static_cast<std::uint8_t>(std::strtoul(val.substr(2, 2).c_str(), 0, 10));
-		double Second = std::strtod(val.c_str() + 4, 0);
-		return tTime(Hour, Minute, Second);
+		if (values.size() != GetValuesStringSize())
+			return;
+		int PartIndex = -1;
+		std::uint32_t Position = values.size();
+		if (((!Parse(values, ++PartIndex, ints, Position)) || ...))
+			m_Parts.clear(); // That means that the values haven't been parsed due to wrong format or something like that.
+	}
+	explicit tNumberFixed(const std::vector<std::uint32_t>& values)
+	{
+		int PartIndex = -1;
+		auto MakeParts = [this](int index, std::uint32_t size)
+			{
+				if (!size && !index)
+					return;
+				this->m_Parts.emplace_back(0, size, index == 0);
+			};
+		(MakeParts(++PartIndex, ints), ...);
+
+		if (m_Parts.size() != values.size())
+		{
+			m_Parts.clear();
+			return;
+		}
+
+		for (std::size_t i = 0; i < values.size(); ++i)
+			m_Parts[i].Value = values[i];
 	}
 
-	template <int SizeFract1>
-	friend std::ostream& operator<< (std::ostream& out, const tTime<SizeFract1>& value);
+	void clear() { m_Parts.clear(); }
+	bool empty() const { return m_Parts.empty(); }
+	std::size_t size() const { return m_Parts.size(); }
 
 	std::string ToString() const
 	{
-		std::stringstream Stream;
-		Stream << *this;
-		return Stream.str();
+		tVectorParts Parts = m_Parts;
+		std::reverse(Parts.begin(), Parts.end());
+		std::stringstream SStr;
+		std::for_each(Parts.cbegin(), Parts.cend(), [&SStr](const tNumberFixedItem& item)
+			{
+				SStr << item;
+			});
+		return SStr.str();
 	}
-	static std::string ToStringEmpty() { return ""; }
+
+protected:
+	std::uint32_t operator[](std::size_t index) const
+	{
+		return index < m_Parts.size() ? m_Parts[index].Value : 0;
+	}
+
+private:
+	bool Parse(const std::string& values, int partIndex, int size, std::uint32_t& position)
+	{
+		if (!partIndex)
+			return ParseFract(values, size, position);
+
+		if (position < size)
+			return false;
+		position -= size;
+		m_Parts.emplace_back(strtoul(values.substr(position, size).c_str(), nullptr, 10), size, false);
+		return true;
+	}
+
+	bool ParseFract(const std::string& values, int size, std::uint32_t& position)
+	{
+		if (!size)
+			return true;
+		std::size_t DotPos = values.find_last_of('.');
+		if (DotPos == std::string::npos)
+			return false;
+		std::size_t FractSize = values.size() - DotPos - 1;
+		if (FractSize != size)
+			return false;
+		m_Parts.emplace_back(strtoul(values.substr(DotPos + 1).c_str(), nullptr, 10), size, true);
+		position = static_cast<std::uint32_t>(DotPos);
+		return true;
+	}
+
+	static std::size_t GetValuesStringSize()
+	{
+		int Counter = 0;
+		std::size_t Size = 0;
+		(GetValuesStringPartSize(Counter++, ints, std::ref(Size)), ...);
+		return Size;
+	}
+
+	static void GetValuesStringPartSize(int position, std::uint32_t sizePart, std::size_t& size)
+	{
+		size += !position && sizePart > 0 ? sizePart + 1 : sizePart;
+	}
 };
 
-template <int SizeFract>
-std::ostream& operator<< (std::ostream& out, const tTime<SizeFract>& value)
-{
-	if (value.Hour > 23 || value.Minute > 59 || value.Second > 59)
-		return out;
+std::ostream& operator<<(std::ostream& out, const tNumberFixedItem& value);
 
-	out << std::setfill('0');
-	out << std::setw(2) << static_cast<int>(value.Hour);
-	out << std::setw(2) << static_cast<int>(value.Minute);
-
-	if (SizeFract > 0)
-	{
-		out.setf(std::ios::fixed);
-		out << std::setw(3 + SizeFract) << std::setprecision(SizeFract) << value.Second;
-		out.unsetf(std::ios::fixed);
-	}
-	else
-	{
-		out << std::setw(2) << static_cast<int>(value.Second);
-	}
-	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeFract>
-class tLatitude
+class tDate : public hidden::tNumberFixed<0, 2, 2, 2>
 {
-	static const std::size_t Size = 5 + SizeFract; // sizeof(ddmm.) = 5
+	using tBase = hidden::tNumberFixed<0, 2, 2, 2>;
+
+	explicit tDate(std::vector<std::uint32_t>& values) : tBase(values) {}
 
 public:
-	double Value = 0;
+	tDate() = default;
+	explicit tDate(const std::string& values);
+	explicit tDate(std::int8_t year, std::int8_t month, std::int8_t day);
 
+	std::uint8_t GetYear() const { return (*this)[0]; }
+	std::uint8_t GetMonth() const { return (*this)[1]; }
+	std::uint8_t GetDay() const { return (*this)[2]; }
+
+private:
+	static bool IsValid(std::int8_t year, std::int8_t month, std::int8_t day) { return year > -1 && year < 100 && month > 0 && month <= 12 && day > 0 && day <= 31; }
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::uint32_t Precision>
+class tTime : public hidden::tNumberFixed<Precision, 2, 2, 2>
+{
+	using tBase = hidden::tNumberFixed<Precision, 2, 2, 2>;
+
+	explicit tTime(std::vector<std::uint32_t>& values) : tBase(values) {}
+
+public:
+	tTime() = default;
+	explicit tTime(const std::string& values) : tBase(values)
+	{
+		if (!IsValid((*this)[3], (*this)[2], (*this)[1]))
+			this->clear();
+	}
+	explicit tTime(std::int8_t hour, std::int8_t minute, double second)
+	{
+		auto Sec = static_cast<std::int8_t>(second);
+		if (!IsValid(hour, minute, Sec))
+			return;
+		std::vector<std::uint32_t> Items;
+		if (Precision)
+		{
+			std::uint32_t SecFract = (second - Sec) * std::pow(10, Precision);
+			Items.push_back(SecFract);
+		}
+		Items.push_back(Sec);
+		Items.push_back(minute);
+		Items.push_back(hour);
+		*this = tTime(Items);
+	}
+
+	std::uint8_t GetHour() const { return (*this)[3]; }
+	std::uint8_t GetMinute() const { return (*this)[2]; }
+	double GetSecond() const { return static_cast<double>((*this)[1]) + (*this)[0] * std::pow(10, Precision); }
+
+private:
+	static bool IsValid(std::int8_t hour, std::int8_t minute, std::int8_t second) { return hour > -1 && hour < 24 && minute > -1 && minute < 60 && second > -1 && second < 60; }
+};
+
+using tTime0 = tTime<0>;
+using tTime1 = tTime<1>;
+using tTime2 = tTime<2>;
+using tTime3 = tTime<3>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// The valid range of latitude in degrees is - 90 and +90 for the southern and northern hemisphere, respectively.
+// Longitude is in the range - 180 and +180 specifying coordinates west and east of the Prime Meridian, respectively.For reference,
+// the Equator has a latitude of 0°, the North pole has a latitude of 90° north(written 90° N or +90°), and the South pole has a latitude of - 90°.
+template <std::uint32_t SizeDeg, std::uint32_t Precision, char Positive, char Negative, int MaxAbs>
+class tGeoDegree : public hidden::tNumberFixed<Precision, 2, SizeDeg>
+{
+	using tBase = hidden::tNumberFixed<Precision, 2, SizeDeg>;
+
+	bool m_Negative;
+
+	explicit tGeoDegree(std::vector<std::uint32_t>& values, bool negative) : tBase(values), m_Negative(negative) {}
+
+public:
+	tGeoDegree() = default;
+	explicit tGeoDegree(const std::string& values, const std::string& sign)
+		: tBase(values)
+	{
+		if (sign.size() != 1 || (sign[0] != Negative && sign[0] != Positive))
+		{
+			this->clear();
+			return;
+		}
+		m_Negative = sign[0] == Negative;
+
+		if (!IsValid(GetDegree()))
+			this->clear();
+	}
+	explicit tGeoDegree(double degree)
+	{
+		if (!IsValid(degree))
+			return;
+		m_Negative = degree < 0;
+		degree = std::abs(degree);
+		const std::uint32_t Mult = std::pow(10, Precision);
+		const std::uint32_t Deg = static_cast<std::int8_t>(degree);
+		const double Min1 = (degree - Deg) * 60;
+		const double Min2 = std::round(Min1 * Mult);
+		const std::uint32_t Min = static_cast<std::uint32_t>(Min2 / Mult);
+		const std::uint32_t MinFract = static_cast<std::uint32_t>(Min2 - Min * Mult);
+		std::vector<std::uint32_t> Items;
+		Items.push_back(MinFract);
+		Items.push_back(Min);
+		Items.push_back(Deg);
+		*this = tGeoDegree(Items, m_Negative);
+	}
+
+	double GetValue() const
+	{
+		return GetDegree() * m_Negative ? -1 : 1;
+	}
+
+	std::string ToString() const
+	{
+		if (this->empty())
+			return ",";
+		return tBase::ToString() + ',' + (m_Negative ? Negative : Positive);
+	}
+
+private:
+	double GetDegree() const
+	{
+		return (*this)[2] + ((*this)[1] + (*this)[0] / std::pow(10, Precision)) / 60;
+	}
+
+	static bool IsValid(double value) { return value >= -MaxAbs && value <= MaxAbs; }
+};
+
+template <std::uint32_t Precision>
+class tLatitude : public tGeoDegree<2, Precision, 'N', 'S', 90>
+{
+	using tBase = tGeoDegree<2, Precision, 'N', 'S', 90>;
+
+public:
 	tLatitude() = default;
-	explicit tLatitude(double val) :Value(val) {}
-
-	static tOptional<tLatitude> Parse(const std::string& val, const std::string& valSign)
-	{
-		if (val.size() != Size || valSign.size() != 1)
-			return {};
-		double Value = std::strtod(val.substr(0, 2).c_str(), 0);
-		const double Rest = std::strtod(val.c_str() + 2, 0);
-		Value += Rest / 60;
-		if (valSign[0] == 'S')
-			Value = -Value;
-		return tLatitude(Value);
-	}
-
-	std::string ToStringValue() const
-	{
-		const double ValueAbs = std::abs(Value);
-
-		const std::int8_t Deg = static_cast<std::int8_t>(ValueAbs);
-		if (Deg >= 100) // [TBD] check it - why is that equal to 100 ?
-			return "";
-
-		const double Min = (ValueAbs - Deg) * 60;
-
-		std::stringstream SStream;
-		SStream << std::setfill('0');
-		SStream << std::setw(2) << static_cast<int>(Deg);
-		SStream.setf(std::ios::fixed);
-		SStream << std::setw(3 + SizeFract) << std::setprecision(SizeFract) << Min;
-		SStream.unsetf(std::ios::fixed);
-		return SStream.str();
-	}
-
-	std::string ToStringHemisphere() const
-	{
-		return Value < 0 ? "S" : "N";
-	}
-
-	std::string ToString() const
-	{
-		return ToStringValue() + ',' + ToStringHemisphere();
-	}
-	static std::string ToStringEmpty() { return ","; }
+	explicit tLatitude(const std::string& values, const std::string& sign) : tBase(values, sign) {}
+	explicit tLatitude(double degree) : tBase(degree) {}
 };
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeFract>
-class tLongitude
+
+template <std::uint32_t Precision>
+class tLongitude : public tGeoDegree<3, Precision, 'E', 'W', 180>
 {
-	static const std::size_t Size = 6 + SizeFract; // sizeof(dddmm.) = 6
+	using tBase = tGeoDegree<3, Precision, 'E', 'W', 180>;
 
 public:
-	double Value = 0;
-
 	tLongitude() = default;
-	explicit tLongitude(double val) :Value(val) { }
-
-	static tOptional<tLongitude> Parse(const std::string& val, const std::string& valSign)
-	{
-		if (val.size() != Size || valSign.size() != 1)
-			return {};
-		double Value = std::strtod(val.substr(0, 3).c_str(), 0);
-		double Rest = std::strtod(val.c_str() + 3, 0);
-		Value += Rest / 60;
-		if (valSign[0] == 'W')
-			Value = -Value;
-		return tLongitude(Value);
-	}
-
-	std::string ToStringValue() const
-	{
-		const double ValueAbs = std::abs(Value);
-
-		const std::int16_t Deg = static_cast<std::int16_t>(ValueAbs);
-		if (Deg >= 1000) // [TBD] check it - why is that equal to 1000 ?
-			return "";
-
-		const double Min = (ValueAbs - Deg) * 60;
-
-		std::stringstream SStream;
-		SStream << std::setfill('0');
-		SStream << std::setw(3) << static_cast<int>(Deg);
-		SStream.setf(std::ios::fixed);
-		SStream << std::setw(3 + SizeFract) << std::setprecision(SizeFract) << Min;
-		SStream.unsetf(std::ios::fixed);
-		return SStream.str();
-	}
-
-	std::string ToStringHemisphere() const
-	{
-		return Value < 0 ? "W" : "E";
-	}
-
-	std::string ToString() const
-	{
-		return ToStringValue() + ',' + ToStringHemisphere();
-	}
-	static std::string ToStringEmpty() { return ","; }
+	explicit tLongitude(const std::string& values, const std::string& sign) : tBase(values, sign) {}
+	explicit tLongitude(double degree) : tBase(degree) {}
 };
+
+using tLatitude2 = tLatitude<2>;
+using tLongitude2 = tLongitude<2>;
+
+using tLatitude4 = tLatitude<4>;
+using tLongitude4 = tLongitude<4>;
+
+using tLatitude6 = tLatitude<6>;
+using tLongitude6 = tLongitude<6>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeInt, std::size_t SizeFract>
+template <std::size_t Size>
+class tUInt : public hidden::tNumberFixed<0, Size>
+{
+	using tBase = hidden::tNumberFixed<0, Size>;
+
+	explicit tUInt(std::vector<std::uint32_t>& values) : tBase(values) {}
+
+public:
+	tUInt() = default;
+	explicit tUInt(const std::string& values) : tBase(values) {}
+	explicit tUInt(std::uint32_t value)
+	{
+		std::vector<std::uint32_t> Items;
+		Items.push_back(value);
+		*this = tUInt(Items);
+	}
+
+	std::uint8_t GetValue() const { return (*this)[0]; }
+};
+
+using tUInt1 = tUInt<1>;
+using tUInt2 = tUInt<2>;
+using tUInt3 = tUInt<3>;
+using tUInt4 = tUInt<4>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+/*template <std::size_t SizeInt, std::size_t SizeFract>
 class tFloat
 {
 	static const std::size_t Size = SizeInt + SizeFract + 1;
@@ -355,7 +475,7 @@ public:
 		return ToStringValue() + ',' + ToStringUnit();
 	}
 	static std::string ToStringEmpty() { return ","; }
-};
+};*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tModeIndicator
 {
@@ -368,7 +488,7 @@ struct tModeIndicator
 	static std::string ToStringEmpty() { return ""; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <typename T, std::size_t Size>
+/*template <typename T, std::size_t Size>
 struct tUInt
 {
 	T Value = static_cast<T>(0);
@@ -391,9 +511,9 @@ public:
 		return SStream.str();
 	}
 	static std::string ToStringEmpty() { return ""; }
-};
+};*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <typename TValue>
+/*template <typename TValue>
 struct tUInt<TValue, 0>
 {
 	TValue Value = static_cast<TValue>(0);
@@ -441,7 +561,7 @@ struct tSatellite
 
 	std::string ToString() const;
 	static std::string ToStringEmpty() { return ",,,"; }
-};
+};*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 }
