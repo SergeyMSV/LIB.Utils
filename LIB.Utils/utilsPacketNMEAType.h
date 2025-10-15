@@ -9,6 +9,7 @@
 //#include <iomanip>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <cmath>
@@ -184,6 +185,7 @@ private:
 
 std::ostream& operator<<(std::ostream& out, const tNumberFixedItem& value);
 
+std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::uint32_t precision);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class tDate : public hidden::tNumberFixed<0, 2, 2, 2>
@@ -282,12 +284,9 @@ public:
 			return;
 		m_Negative = degree < 0;
 		degree = std::abs(degree);
-		const std::uint32_t Mult = std::pow(10, Precision);
 		const std::uint32_t Deg = static_cast<std::int8_t>(degree);
 		const double Min1 = (degree - Deg) * 60;
-		const double Min2 = std::round(Min1 * Mult);
-		const std::uint32_t Min = static_cast<std::uint32_t>(Min2 / Mult);
-		const std::uint32_t MinFract = static_cast<std::uint32_t>(Min2 - Min * Mult);
+		auto [Min, MinFract] = hidden::SplitDouble(Min1, Precision);
 		std::vector<std::uint32_t> Items;
 		Items.push_back(MinFract);
 		Items.push_back(Min);
@@ -364,7 +363,7 @@ public:
 		*this = tUInt(Items);
 	}
 
-	std::uint8_t GetValue() const { return (*this)[0]; }
+	std::uint8_t GetValue() const { return (*this)[1]; }
 };
 
 using tUInt1 = tUInt<1>;
@@ -372,6 +371,32 @@ using tUInt2 = tUInt<2>;
 using tUInt3 = tUInt<3>;
 using tUInt4 = tUInt<4>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t Size, std::uint32_t Precision>
+class tFloat : public hidden::tNumberFixed<Precision, Size>
+{
+	using tBase = hidden::tNumberFixed<Precision, Size>;
+
+	explicit tFloat(std::vector<std::uint32_t>& values) : tBase(values) {}
+
+public:
+	tFloat() = default;
+	explicit tFloat(const std::string& values) : tBase(values) {}
+	explicit tFloat(double value)
+	{
+		value = std::abs(value);
+		auto [ValInt, ValFract] = hidden::SplitDouble(value, Precision);
+		std::vector<std::uint32_t> Items;
+		Items.push_back(ValFract);
+		Items.push_back(ValInt);
+		*this = tFloat(Items);
+	}
+
+	double GetValue() const { return static_cast<double>((*this)[1]) + (*this)[0] * std::pow(10, Precision); }
+};
+
+using tFloat2x4 = tFloat<2, 4>;
+
+
 /*template <std::size_t SizeInt, std::size_t SizeFract>
 class tFloat
 {
