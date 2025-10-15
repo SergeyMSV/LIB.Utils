@@ -1,5 +1,7 @@
 #include "utilsPacketNMEAType.h"
 
+#include <iomanip>
+
 namespace utils
 {
 namespace packet
@@ -9,18 +11,17 @@ namespace nmea
 namespace type
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tOptional<tGNSS> tGNSS::Parse(const std::string& val)
+tGNSS::tGNSS(const std::string& val)
 {
-	if (val.size() < 2 || val[0] != 'G')
-		return {};
+	if (val.size() != 2 || val[0] != 'G')
+		return;
 
 	switch (val[1])
 	{
-	case 'P': return tGNSS(tGNSS_State::GPS); break;
-	case 'L': return tGNSS(tGNSS_State::GLONASS); break;
-	case 'N': return tGNSS(tGNSS_State::GPS_GLONASS); break;
-	}
-	return {};
+	case 'P': Value = tGNSS_State::GPS; break;
+	case 'L': Value = tGNSS_State::GLONASS; break;
+	case 'N': Value = tGNSS_State::GPS_GLONASS; break;
+	}	
 }
 
 std::string tGNSS::ToString() const
@@ -34,44 +35,60 @@ std::string tGNSS::ToString() const
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tOptional<tValid> tValid::Parse(const std::string& val)
+tValid::tValid(const std::string& val)
 {
-	if (val.size() != 1)
-		return {};
-	return tValid(val[0] == 'A' ? true : false);
+	if (val.size() == 1 && (val[0] == 'A' || val[0] == 'V'))
+		*this = tValid(val[0] == 'A' ? true : false);
 }
 
 std::string tValid::ToString() const
 {
-	return Value ? "A" : "V";
+	switch (Value)
+	{
+	case tValidity::None: break;
+	case tValidity::Valid: return "A";
+	case tValidity::NotValid: return "V";
+	}
+	return "";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tDate::tDate(std::uint8_t year, std::uint8_t month, std::uint8_t day)
-	:Year(year), Month(month), Day(day)
+namespace hidden
 {
 
+std::ostream& operator<<(std::ostream& out, const tNumberFixedItem& value)
+{
+	if (value.Fractional)
+	{
+		out << '.';
+		std::string ValueStr = std::to_string(value.Value);
+		if (ValueStr.size() > value.Size)
+		{
+			ValueStr.resize(value.Size);
+			out << ValueStr;
+			return out;
+		}
+	}
+	out << std::setfill('0') << std::setw(value.Size) << value.Value;
+	return out;
 }
 
-tOptional<tDate> tDate::Parse(const std::string& val)
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+tDate::tDate(const std::string& values) : tBase(values)
 {
-	if (val.size() != 6) // 260216
-		return {};
-	auto Day = static_cast<std::uint8_t>(std::strtoul(val.substr(0,2).c_str(), 0, 10));
-	auto Month = static_cast<std::uint8_t>(std::strtoul(val.substr(2, 2).c_str(), 0, 10));
-	auto Year = static_cast<std::uint8_t>(std::strtoul(val.c_str() + 4, 0, 10));
-	return tDate(Year, Month, Day);
+	if (!IsValid((*this)[0], (*this)[1], (*this)[2]))
+		clear();
 }
 
-std::string tDate::ToString() const
+tDate::tDate(std::int8_t year, std::int8_t month, std::int8_t day)
 {
-	if (Year > 99 || Month > 12 || Day > 31)
-		return "";
-	std::stringstream SStream;
-	SStream << std::setfill('0');
-	SStream << std::setw(2) << static_cast<int>(Day);
-	SStream << std::setw(2) << static_cast<int>(Month);
-	SStream << std::setw(2) << static_cast<int>(Year);
-	return SStream.str();
+	if (!IsValid(year, month, day))
+		return;
+	std::vector<std::uint32_t> Items;
+	Items.push_back(year);
+	Items.push_back(month);
+	Items.push_back(day);
+	*this = tDate(Items);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tModeIndicator::tModeIndicator(const std::string& val)
@@ -94,7 +111,7 @@ std::string tModeIndicator::ToString() const
 	return "Error";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tSatellite::tSatellite(std::uint8_t id, std::uint8_t elevation, std::uint16_t azimuth, std::uint8_t snr)
+/*tSatellite::tSatellite(std::uint8_t id, std::uint8_t elevation, std::uint16_t azimuth, std::uint8_t snr)
 	:ID(id_type(id)), Elevation(elevation_type(elevation)), Azimuth(azimuth_type(azimuth)), SNR(snr_type(snr))
 {
 
@@ -131,7 +148,7 @@ std::string tSatellite::ToStringSNR() const
 std::string tSatellite::ToString() const
 {
 	return ToStringID() + ',' + ToStringElevation() + ',' + ToStringAzimuth() + ',' + ToStringSNR();
-}
+}*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 }
