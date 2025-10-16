@@ -6,7 +6,8 @@
 #pragma once
 
 #include <algorithm>
-//#include <iomanip>
+#include <iomanip>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -158,7 +159,7 @@ private:
 	{
 		if (!size)
 			return true;
-		std::size_t DotPos = values.find_last_of('.');
+		std::size_t DotPos = values.find('.');
 		if (DotPos == std::string::npos)
 			return false;
 		std::size_t FractSize = values.size() - DotPos - 1;
@@ -177,7 +178,7 @@ private:
 		return Size;
 	}
 
-	static void GetValuesStringPartSize(int position, std::uint32_t sizePart, std::size_t& size)
+	static void GetValuesStringPartSize(std::uint32_t position, std::uint32_t sizePart, std::size_t& size)
 	{
 		size += !position && sizePart > 0 ? sizePart + 1 : sizePart;
 	}
@@ -371,7 +372,7 @@ using tUInt2 = tUInt<2>;
 using tUInt3 = tUInt<3>;
 using tUInt4 = tUInt<4>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t Size, std::uint32_t Precision>
+template <std::uint32_t Precision, std::size_t Size>
 class tFloat : public hidden::tNumberFixed<Precision, Size>
 {
 	using tBase = hidden::tNumberFixed<Precision, Size>;
@@ -394,74 +395,52 @@ public:
 	double GetValue() const { return static_cast<double>((*this)[1]) + (*this)[0] * std::pow(10, Precision); }
 };
 
-using tFloat2x4 = tFloat<2, 4>;
+template <std::uint32_t Precision>
+class tFloat<Precision, 0>
+{
+	static constexpr std::size_t SizeInt = 6;
+	static constexpr std::size_t SizeMax = SizeInt + Precision + 1;
 
+	std::optional<double> m_Value;
 
+public:
+	tFloat() = default;
+	explicit tFloat(const std::string& values)
+	{
+		if (values.empty() || values.size() >= SizeMax)
+			return;
+		std::size_t DotPos = values.find('.');
+		if (DotPos == std::string::npos || values.size() - DotPos != Precision + 1)
+			return;
+		m_Value = std::strtod(values.c_str(), nullptr);
+	}
+	explicit tFloat(double value) : m_Value(value) {}
+
+	void clear() { m_Value.reset(); }
+	bool empty() const { return !m_Value.has_value(); }
+
+	double GetValue() const { return m_Value.value_or(0); }
+
+	std::string ToString()
+	{
+		if (empty())
+			return {};
+		std::stringstream SStream;
+		SStream.setf(std::ios::fixed);
+		SStream << std::setw(Precision + 1) << std::setprecision(Precision) << m_Value.value_or(0);
+		SStream.unsetf(std::ios::fixed);
+		return SStream.str();
+	}
+};
+
+template <> class tFloat<0, 0>; // Such an object cannot be created.
+
+using tFloat2x0 = tFloat<2, 0>; // Its integer part is not of fixed size.
+using tFloat3x0 = tFloat<3, 0>; // Its integer part is not of fixed size.
+using tFloat4x0 = tFloat<4, 0>; // Its integer part is not of fixed size.
+using tFloat4x2 = tFloat<4, 2>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
 /*template <std::size_t SizeInt, std::size_t SizeFract>
-class tFloat
-{
-	static const std::size_t Size = SizeInt + SizeFract + 1;
-
-public:
-	double Value = 0;
-
-	tFloat() = default;
-	explicit tFloat(double val) :Value(val) {}
-
-	static tOptional<tFloat> Parse(const std::string& val)
-	{
-		if (val.size() != Size)
-			return {};
-		return tFloat(std::strtod(val.c_str(), 0));
-	}
-
-	std::string ToString() const
-	{
-		std::stringstream SStream;
-		SStream << std::setfill('0');
-		SStream.setf(std::ios::fixed);
-		SStream << std::setw(SizeInt + SizeFract + 1) << std::setprecision(SizeFract) << Value;
-		SStream.unsetf(std::ios::fixed);
-		return SStream.str();
-	}
-	static std::string ToStringEmpty() { return ""; }
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeFract>
-class tFloat<0, SizeFract>
-{
-	static const std::size_t SizeInt = 6;
-	static const std::size_t SizeMax = SizeInt + SizeFract + 1;
-
-public:
-	double Value = 0;
-
-	tFloat() = default;
-	explicit tFloat(double val) :Value(val) {}
-
-	static tOptional<tFloat> Parse(const std::string& val)
-	{
-		if (val.empty() || val.size() >= SizeMax)
-			return {};
-		return tFloat(std::strtod(val.c_str(), 0));
-	}
-
-	std::string ToString() const
-	{
-		std::stringstream SStream;
-		SStream.setf(std::ios::fixed);
-		SStream << std::setw(SizeFract + 1) << std::setprecision(SizeFract) << Value;
-		SStream.unsetf(std::ios::fixed);
-		return SStream.str();
-	}
-	static std::string ToStringEmpty() { return ""; }
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <> class tFloat<0, 0>; // Fractional part is just of max length (6 chars), therefore this specialisation makes no sense.
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeInt> class tFloat<SizeInt, 0>;
-///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeInt, std::size_t SizeFract>
 class tFloatUnit
 {
 	typedef tFloat<SizeInt, SizeFract> value_type;

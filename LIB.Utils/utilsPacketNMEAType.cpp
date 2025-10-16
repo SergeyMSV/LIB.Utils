@@ -1,7 +1,5 @@
 #include "utilsPacketNMEAType.h"
 
-#include <iomanip>
-
 namespace utils
 {
 namespace packet
