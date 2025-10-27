@@ -8,10 +8,6 @@
 #include <libConfig.h>
 
 #include <cassert>
-#include <cctype>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
 
 #include <algorithm>
 #include <string>
@@ -20,10 +16,12 @@
 namespace utils
 {
 
+#ifdef LIB_UTILS_BASE_DEPRECATED
 typedef std::vector<std::uint8_t> tVectorUInt8;
+#endif // LIB_UTILS_BASE_DEPRECATED
 
 template<typename T>
-typename std::enable_if<std::is_trivially_copyable<T>::value, void>::type Append(tVectorUInt8& dst, const T& value)
+typename std::enable_if<std::is_trivially_copyable<T>::value, void>::type Append(std::vector<std::uint8_t>& dst, const T& value)
 {
 	const std::uint8_t* Begin = reinterpret_cast<const std::uint8_t*>(&value);
 
@@ -31,9 +29,9 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, void>::type Append
 }
 
 template<typename T>
-typename std::enable_if<std::is_trivially_copyable<T>::value, tVectorUInt8>::type ToVector(const T& value)
+typename std::enable_if<std::is_trivially_copyable<T>::value, std::vector<std::uint8_t>>::type ToVector(const T& value)
 {
-	tVectorUInt8 Data;
+	std::vector<std::uint8_t> Data;
 
 	Data.reserve(sizeof(value));
 
