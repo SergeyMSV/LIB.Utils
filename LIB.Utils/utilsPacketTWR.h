@@ -39,13 +39,6 @@ enum class tMsgId : std::uint8_t
 	SPI_GetSettings,
 	SPI_SetSettings,
 	SPI_SetChipControl, // Enable, RESET, etc.
-	//...
-	//DALLAS_Search = 0xA0,
-	//DALLAS_SearchFamily,	// arg: tFamilyCode familyCode
-	//DALLAS_ReadKey,			// Only one device (key) can be connected to the bus.
-	//DALLAS_WriteKey,		// It writes ROM if only one device connected to the bus. In other words only one key must be connected to the bus and not original one.
-	//DALLAS_GetTemperature,	// arg: std::vector<tROM>& devices
-
 };
 
 enum class tMsgStatus : std::uint8_t
@@ -256,22 +249,12 @@ public:
 		return Make(tMsgId::SPI_SetChipControl, ep, Data);
 	}
 
-	//static tPacketTWRCmd Make_DALLAS_Request( ep, const std::vector<std::uint8_t>& msg)
-	//{
-	//	return Make(tMsgId::DEMO_Request, tEndpoint::DALLAS, msg);
-	//	//assert(CheckEndpointSPI(ep));
-	//	//std::vector<std::uint8_t> Data;
-	//	//Data.push_back(ctrl.Value);
-	//	//return Make(tMsgId::SPI_SetChipControl, ep, Data);
-	//}
-
 	// ... Make-functions for other packets
 
 private:
 	static tPacketTWRCmd Make(tMsgId id, tEndpoint ep, const std::vector<std::uint8_t>& msgData)
 	{
-		tPayloadTWRData Pld;
-		//tPayloadTWR::value_type Pld; // GCC: "'struct utils::packet_TWR::tPayloadTWR utils::packet_TWR::tPayloadTWR::tPayloadTWR' is inaccessible within this context"
+		payload_value_type Pld;
 		Pld.MsgId = id;
 		Pld.Endpoint = ep;
 		Pld.Payload = msgData;
@@ -317,8 +300,6 @@ public:
 private:
 	static tPacketTWRRsp Make(tMsgId id, tMsgStatus status, tEndpoint ep, const std::vector<std::uint8_t>& msgData)
 	{
-		//tPayloadTWRData Pld;
-		//tPayloadTWR::value_type Pld; // GCC: "'struct utils::packet_TWR::tPayloadTWR utils::packet_TWR::tPayloadTWR::tPayloadTWR' is inaccessible within this context"
 		payload_value_type Pld;
 		Pld.MsgId = id;
 		Pld.MsgStatus = status;
