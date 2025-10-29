@@ -39,6 +39,13 @@ enum class tMsgId : std::uint8_t
 	SPI_GetSettings,
 	SPI_SetSettings,
 	SPI_SetChipControl, // Enable, RESET, etc.
+	//...
+	DALLAS = 0xA0,
+	//DALLAS_Search = 0xA0,
+	//DALLAS_SearchFamily,	// arg: tFamilyCode familyCode
+	//DALLAS_ReadKey,			// Only one device (key) can be connected to the bus.
+	//DALLAS_WriteKey,		// It writes ROM if only one device connected to the bus. In other words only one key must be connected to the bus and not original one.
+	//DALLAS_GetTemperature,	// arg: std::vector<tROM>& devices
 };
 
 enum class tMsgStatus : std::uint8_t
