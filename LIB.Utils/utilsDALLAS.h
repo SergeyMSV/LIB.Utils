@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsDALLAS
 // 2024-01-30
-// Standard ISO/IEC 114882, C++20
+// C++20
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -11,7 +11,7 @@
 
 namespace utils
 {
-namespace DALLAS
+namespace dallas
 {
 
 enum class tFamilyCode : std::uint8_t
@@ -31,7 +31,7 @@ enum class tFamilyCode : std::uint8_t
 	DS18B20 = 0x28, // Thermometer
 };
 
-using tBoardOneWire = utils::port_serial::tPortOneWireSync; // [TBD] put in libConfig
+using tBoardOneWire = utils::port::serial::tPortOneWireSync; // [TBD] put in libConfig
 
 struct tID
 {
@@ -55,7 +55,7 @@ bool operator == (const tROM& a, const tROM& b);
 
 tROM MakeROM(tFamilyCode familyCode, tID id);
 
-struct DsDS18B20
+struct tDsDS18B20
 {
 	tROM ROM;
 	double Temperature;
@@ -83,7 +83,7 @@ public:
 	std::vector<tROM> Search(tFamilyCode familyCode);
 	std::vector<tROM> Search();
 
-	std::vector<DsDS18B20> GetDsDS18B20(const std::vector<tROM>& devices);
+	std::vector<tDsDS18B20> GetDsDS18B20(const std::vector<tROM>& devices);
 
 	std::optional<tID> ReadKey(); // Only one device (key) can be connected to the bus.
 	tCodeError WriteKey(const tID& value); // It writes ROM if only one device connected to the bus. In other words only one key must be connected to the bus and not original one.
