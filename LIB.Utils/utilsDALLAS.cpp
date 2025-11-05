@@ -120,7 +120,7 @@ std::vector<tROM> tDALLAS::Search()
 	return Search(tFamilyCode::None);
 }
 
-std::vector<DsDS18B20> tDALLAS::GetDsDS18B20(const std::vector<tROM>& devices)
+std::vector<tDsDS18B20> tDALLAS::GetDsDS18B20(const std::vector<tROM>& devices)
 {
 	std::vector<tROM> ThermoROMs;
 	for (auto& i : devices)
@@ -153,7 +153,7 @@ std::vector<DsDS18B20> tDALLAS::GetDsDS18B20(const std::vector<tROM>& devices)
 		std::this_thread::sleep_for(std::chrono::milliseconds(800)); // 800ms but 750ms enough
 	}
 
-	std::vector<DsDS18B20> ThermalSens;
+	std::vector<tDsDS18B20> ThermalSens;
 	for (auto& i : ThermoROMs)
 	{
 		if (Reset() != tStatus::Success)
@@ -169,7 +169,7 @@ std::vector<DsDS18B20> tDALLAS::GetDsDS18B20(const std::vector<tROM>& devices)
 		std::uint8_t CRC = utils::crc::CRC08_DALLAS(Rsp.data(), Rsp.size() - 1);
 		if (Rsp[Rsp.size() - 1] != CRC)
 			continue;
-		DsDS18B20 Thermal{};
+		tDsDS18B20 Thermal{};
 		Thermal.ROM = i;
 		Thermal.Temperature = ParseTemperature(Rsp);
 		ThermalSens.push_back(Thermal);

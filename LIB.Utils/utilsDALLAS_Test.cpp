@@ -13,10 +13,12 @@
 
 namespace utils
 {
-	namespace DALLAS
-	{
-		double ParseTemperature(const std::vector<std::uint8_t>& scratchPad);
-	}
+namespace DALLAS
+{
+
+double ParseTemperature(const std::vector<std::uint8_t>& scratchPad);
+
+}
 
 using namespace DALLAS;
 
@@ -51,15 +53,15 @@ void UnitTest_DALLAS()
 	}
 
 	{
-		tID ID{}; // 28ff640e7744c86e
-		ID.Value[0] = 0xff;
-		ID.Value[1] = 0x64;
-		ID.Value[2] = 0x0e;
-		ID.Value[3] = 0x77;
-		ID.Value[4] = 0x44;
-		ID.Value[5] = 0xc8;
+		tID ID{}; // 2811223344556656
+		ID.Value[0] = 0x11;
+		ID.Value[1] = 0x22;
+		ID.Value[2] = 0x33;
+		ID.Value[3] = 0x44;
+		ID.Value[4] = 0x55;
+		ID.Value[5] = 0x66;
 		tROM ROM = MakeROM((tFamilyCode)0x28, ID);
-		test::RESULT("MakeROM", ROM.Field.CRC == 0x6e);
+		test::RESULT("MakeROM", ROM.Field.CRC == 0x56);
 	}
 
 	{
@@ -119,11 +121,11 @@ void UnitTest_DALLAS()
 		//std::vector<std::uint8_t> Rsp = Port.Transaction({ 0x7E, 0x7E }, 0);
 
 		{ // Reset
-			tTimePoint TimeStart = tClock::now();
+			utils::chrono::tTimePoint TimeStart = utils::chrono::tClock::now();
 			const std::vector<std::uint8_t> Rsp_Reset = { 0x0F, 0xFF };
 			tDALLAS::tStatus Status = Port.Reset();
 			bool Result = Status == tDALLAS::tStatus::Success;
-			test::RESULT("OneWire: Reset (" + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms)", Result);
+			test::RESULT("OneWire: Reset (" + std::to_string(utils::chrono::GetDuration<std::chrono::milliseconds>(TimeStart, utils::chrono::tClock::now())) + " ms)", Result);
 			test::WARNING("1-Wire Port: check if DS1990A/DS18B20 is connected to " + PortID, !Result);
 		}
 
@@ -137,43 +139,43 @@ void UnitTest_DALLAS()
 		};
 
 		{ // SearchROM
-			tTimePoint TimeStart = tClock::now();
+			utils::chrono::tTimePoint TimeStart = utils::chrono::tClock::now();
 			auto Found = Port.Search();
 			ShowROMs("Search All", Found);
 			bool Result = !Found.empty();
-			test::RESULT("Search All: (" + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms)", Result);
+			test::RESULT("Search All: (" + std::to_string(utils::chrono::GetDuration<std::chrono::milliseconds>(TimeStart, utils::chrono::tClock::now())) + " ms)", Result);
 		}
 		{
-			tTimePoint TimeStart = tClock::now();
+			utils::chrono::tTimePoint TimeStart = utils::chrono::tClock::now();
 			auto Found = Port.Search(tFamilyCode::DS18B20);
 			ShowROMs("Search DS18B20", Found);
 			bool Result = !Found.empty();
-			test::RESULT("Search DS18B20: (" + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms)", Result);
+			test::RESULT("Search DS18B20: (" + std::to_string(utils::chrono::GetDuration<std::chrono::milliseconds>(TimeStart, utils::chrono::tClock::now())) + " ms)", Result);
 		}
 		{
-			tTimePoint TimeStart = tClock::now();
+			utils::chrono::tTimePoint TimeStart = utils::chrono::tClock::now();
 			auto Found = Port.Search(tFamilyCode::DS1990A);
 			ShowROMs("Search DS1990A", Found);
 			bool Result = !Found.empty();
-			test::RESULT("Search DS1990A: (" + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms)", Result);
+			test::RESULT("Search DS1990A: (" + std::to_string(utils::chrono::GetDuration<std::chrono::milliseconds>(TimeStart, utils::chrono::tClock::now())) + " ms)", Result);
 		}
 
 		{ // SearchROM
-			tTimePoint TimeStart = tClock::now();
+			utils::chrono::tTimePoint TimeStart = utils::chrono::tClock::now();
 			auto Found = Port.Search();
 			ShowROMs("Search", Found);
 			bool Result = !Found.empty();
-			test::RESULT("Search: (" + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms)", Result);
+			test::RESULT("Search: (" + std::to_string(utils::chrono::GetDuration<std::chrono::milliseconds>(TimeStart, utils::chrono::tClock::now())) + " ms)", Result);
 			for (int i = 0; i < 5; ++i)
 			{
-				tTimePoint TimeStart = tClock::now();
-				std::vector<DsDS18B20> Thermo = Port.GetDsDS18B20(Found);
+				utils::chrono::tTimePoint TimeStart = utils::chrono::tClock::now();
+				std::vector<tDsDS18B20> Thermo = Port.GetDsDS18B20(Found);
 				std::cout << '\n';
 				for (auto& i : Thermo)
 				{
 					std::cout << ToString(i.ROM) << " Temperature = " << i.Temperature << '\n';
 				}
-				test::RESULT("GetTemperature: (" + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms)", Result);
+				test::RESULT("GetTemperature: (" + std::to_string(utils::chrono::GetDuration<std::chrono::milliseconds>(TimeStart, utils::chrono::tClock::now())) + " ms)", Result);
 			}
 		}
 
