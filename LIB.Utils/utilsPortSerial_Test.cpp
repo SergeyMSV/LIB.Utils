@@ -8,7 +8,7 @@
 #include <mutex>
 #include <thread>
 
-class tBoard : public utils::port_serial::tPortSerialAsync<>
+class tBoard : public utils::port::serial::tPortSerialAsync<>
 {
 	std::vector<std::uint8_t> m_DataReceived;
 	mutable std::mutex m_Mtx;
@@ -37,14 +37,14 @@ protected:
 	}
 };
 
-using tBoardOneWire = utils::port_serial::tPortOneWireSync;
+using tBoardOneWire = utils::port::serial::tPortOneWireSync;
 
 namespace utils
 {
 
 void UnitTest_PortSerial()
 {
-	std::cout << "\n""utils::port_serial::tPortSerial" << std::endl;
+	std::cout << "\n""utils::port::serial::tPortSerial" << std::endl;
 
 	using namespace std::chrono_literals;
 
