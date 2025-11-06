@@ -42,7 +42,7 @@ std::string ToString(const tROM& rom)
 
 void UnitTest_DALLAS()
 {
-	std::cout << "\n""utils::port_serial::tPortSerial" << std::endl;
+	std::cout << "\n""utils::port::serial::tPortSerial" << std::endl;
 
 	using namespace std::chrono_literals;
 

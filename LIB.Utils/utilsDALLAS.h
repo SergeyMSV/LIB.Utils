@@ -31,7 +31,7 @@ enum class tFamilyCode : std::uint8_t
 	DS18B20 = 0x28, // Thermometer
 };
 
-using tBoardOneWire = utils::port_serial::tPortOneWireSync; // [TBD] put in libConfig
+using tBoardOneWire = utils::port::serial::tPortOneWireSync; // [TBD] put in libConfig
 
 struct tID
 {
