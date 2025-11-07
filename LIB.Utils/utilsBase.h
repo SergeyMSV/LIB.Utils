@@ -1,14 +1,13 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// utilsBase.h
+// utilsBase
 // 2014-09-24
-// Standard ISO/IEC 114882, C++17
+// C++17
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <libConfig.h>
+
 #include <cassert>
-#include <cctype>
-#include <cstdint>
-#include <cstdlib>
 #include <cstring>
 
 #include <algorithm>
@@ -18,10 +17,12 @@
 namespace utils
 {
 
+#ifdef LIB_UTILS_BASE_DEPRECATED
 typedef std::vector<std::uint8_t> tVectorUInt8;
+#endif // LIB_UTILS_BASE_DEPRECATED
 
 template<typename T>
-typename std::enable_if<std::is_trivially_copyable<T>::value, void>::type Append(tVectorUInt8& dst, const T& value)
+typename std::enable_if<std::is_trivially_copyable<T>::value, void>::type Append(std::vector<std::uint8_t>& dst, const T& value)
 {
 	const std::uint8_t* Begin = reinterpret_cast<const std::uint8_t*>(&value);
 
@@ -29,17 +30,18 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, void>::type Append
 }
 
 template<typename T>
-typename std::enable_if<std::is_trivially_copyable<T>::value, tVectorUInt8>::type ToVector(const T& value)
+typename std::vector<std::uint8_t> ToVector(const T& value)
 {
-	tVectorUInt8 Data;
-
-	Data.reserve(sizeof(value));
+	static_assert(std::is_trivially_copyable_v<T>, "Type of the argument must be trivially copyable.");
 
 	const std::uint8_t* Begin = reinterpret_cast<const std::uint8_t*>(&value);
+	return std::vector<std::uint8_t>(Begin, Begin + sizeof(value));
+}
 
-	Data.insert(Data.end(), Begin, Begin + sizeof(value));
-
-	return Data;
+template<>
+inline std::vector<std::uint8_t> ToVector<std::string>(const std::string& value)
+{
+	return std::vector<std::uint8_t>(value.begin(), value.end());
 }
 
 template<typename T, typename Iterator>
@@ -142,6 +144,7 @@ typename std::enable_if<std::is_trivially_copyable<T>::value, T>::type Reverse(T
 	return value;
 }
 
+#ifdef LIB_UTILS_BASE_DEPRECATED
 class tEmptyAble
 {
 protected:
@@ -200,5 +203,5 @@ enum class tExitCode : int // DEPRECATED, use from utilsExits.h
 	EX_CONFIG = 78,		// configuration error
 	EX__MAX = 78,		// maximum listed value
 };
-
+#endif // LIB_UTILS_BASE_DEPRECATED
 }
