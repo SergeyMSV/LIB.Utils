@@ -8,6 +8,7 @@
 #include <libConfig.h>
 
 #include <cassert>
+#include <cstring>
 
 #include <algorithm>
 #include <string>
