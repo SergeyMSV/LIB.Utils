@@ -5,7 +5,7 @@
 
 namespace utils
 {
-namespace MIFARE
+namespace mifare
 {
 
 template <class T>
