@@ -9,7 +9,7 @@
 namespace utils
 {
 
-using namespace MIFARE;
+using namespace mifare;
 
 void UnitTest_MIFARE_Classic_Access(bool resultInDetail);
 void UnitTest_MIFARE_Classic_Key();
@@ -18,7 +18,7 @@ void UnitTest_MIFARE_Classic_Sector(bool resultInDetail);
 
 void UnitTest_MIFARE_Classic()
 {
-	std::cout << "\n""utils::MIFARE::classic\n";
+	std::cout << "\n""utils::mifare::classic\n";
 //Sector:  0
 // d0 f9 aa 1b  98 08 04 00  62 63 64 65  66 67 68 69    00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00
 // 00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00    00 00 00 00  00 00 ff 07  80 69 ff ff  ff ff ff ff
@@ -410,7 +410,7 @@ void UnitTest_MIFARE_Classic_Key()
 	std::cout << "\n";
 }
 
-namespace MIFARE
+namespace mifare
 {
 namespace mad
 {
@@ -610,7 +610,7 @@ void UnitTest_MIFARE_Classic_Sector(bool resultInDetail)
 
 void UnitTest_MIFARE_Ultralight()
 {
-	std::cout << "\n""utils::MIFARE::ultralight\n";
+	std::cout << "\n""utils::mifare::ultralight\n";
 
 	// {"sak": "00", "uid" : "04d2ea998c0280", "payload" : "04d2eab4998c028097480203fffffeff32333435363738393a3b3c3d3e3f404115ac1e000b00000042434445464748494a4b4c4d4e4f50515253545556575859"}
 
@@ -626,7 +626,7 @@ void UnitTest_MIFARE_Ultralight()
 		Card.SetBlock(2, Data2);
 		Card.SetBlock(3, Data3);
 		std::cout << Card.ToJSON() << '\n';
-		MIFARE::tLock Lock = Card.GetLock();
+		mifare::tLock Lock = Card.GetLock();
 		std::size_t UserMemAvailSize = Card.GetUserMemoryUnlockedSize();
 		bool Result =
 			Lock.Value == 0x0302 &&
