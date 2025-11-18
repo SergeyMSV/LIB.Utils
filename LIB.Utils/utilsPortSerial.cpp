@@ -170,9 +170,9 @@ std::vector<std::uint8_t> tPortOneWireSync::BitToByte(const std::vector<std::uin
 {
 	std::vector<std::uint8_t> DataBytes;
 	std::uint8_t Byte = 0;
-	for (int i = 0; i < data.size(); ++i)
+	for (std::size_t i = 0; i < data.size(); ++i)
 	{
-		int bitIdx = i % 8;
+		std::uint8_t bitIdx = i % 8;
 		Byte |= BitToByte(data[i]) << bitIdx;
 
 		if (bitIdx == 7)
