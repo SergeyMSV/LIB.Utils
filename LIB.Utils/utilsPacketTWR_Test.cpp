@@ -50,6 +50,8 @@ void UnitTest_PacketTWR()
 	//dispPack(tPacketRsp::Make_GPIO_GetState(packet::twr::tMsgStatus::NotSupported, packet::twr::tEndpoint::GPIO_03, true).ToVector());
 	dispPack(tPacketCmd::Make_GPIO_SetState(packet::twr::tEndpoint::GPIO_03, true).ToVector());
 	//dispPack(tPacketRsp::Make_GPIO_SetState(packet::twr::tMsgStatus::NotSupported, packet::twr::tEndpoint::GPIO_03).ToVector());
+	dispPack(tPacketCmd::Make_SPI_Open(packet::twr::tEndpoint::SPI0_CS0).ToVector());
+	dispPack(tPacketCmd::Make_SPI_Close(packet::twr::tEndpoint::SPI0_CS0).ToVector());
 	dispPack(tPacketCmd::Make_SPI_Request(packet::twr::tEndpoint::SPI0_CS0, { 0x31,0x32,0x33,0x34 }).ToVector());
 	//dispPack(tPacketRsp::Make_SPI_Request(packet::twr::tMsgStatus::NotSupported, packet::twr::tEndpoint::SPI0_CS0, { 0x41,0x42,0x43,0x44 }).ToVector());
 	dispPack(tPacketCmd::Make_SPI_GetSettings(packet::twr::tEndpoint::SPI0_CS0).ToVector());
