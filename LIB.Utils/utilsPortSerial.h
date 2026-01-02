@@ -136,7 +136,7 @@ private:
     }
 
 protected:
-    virtual void OnReceived(std::vector<std::uint8_t>& data) = 0;
+    virtual void OnReceived(const std::vector<std::uint8_t>& data) = 0;
 
 	void Send()
 	{
@@ -168,7 +168,7 @@ class tPortOneWireSync
 		void ResetReceived();
 
 	protected:
-		void OnReceived(std::vector<std::uint8_t>& data) override;
+		void OnReceived(const std::vector<std::uint8_t>& data) override;
 	};
 
 	struct tGuardBR
