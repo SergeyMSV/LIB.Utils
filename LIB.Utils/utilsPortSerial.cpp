@@ -65,16 +65,6 @@ tPortOneWireSync::tPortOneWireSync(boost::asio::io_context& io, const std::strin
 	: m_Port(io, id, ToBaudRate(speed), tCharSize(8), tStopBits::one, tParity::none, tFlowControl::none)
 {}
 
-bool tPortOneWireSync::IsReady()
-{
-	return m_Port.IsReady();
-}
-
-boost::system::error_code tPortOneWireSync::GetError()
-{
-	return m_Port.GetError();
-}
-
 tPortOneWireSync::tStatus tPortOneWireSync::Reset()
 {
 	m_Port.ResetReceived();

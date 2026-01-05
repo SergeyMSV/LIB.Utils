@@ -65,12 +65,17 @@ public:
 		m_Port.close();
 	}
 
-	bool IsReady()
+	void Close()
+	{
+		m_Port.close();
+	}
+
+	bool IsReady() const
 	{
 		return !m_ErrorCode;
 	}
 
-	boost::system::error_code GetError()
+	boost::system::error_code GetError() const
 	{
 		return m_ErrorCode;
 	}
@@ -204,8 +209,9 @@ public:
 	tPortOneWireSync() = delete;
 	tPortOneWireSync(boost::asio::io_context& io, const std::string& id, tSpeed speed = tSpeed::Norm);
 
-	bool IsReady();
-	boost::system::error_code GetError();
+	void Close() { m_Port.Close(); }
+	bool IsReady() const { return m_Port.IsReady(); }
+	boost::system::error_code GetError() const { return m_Port.GetError(); }
 
 	tStatus Reset();
 	std::vector<std::uint8_t> Transaction(std::vector<std::uint8_t> tx, std::size_t rxSize);
