@@ -113,14 +113,18 @@ void UnitTest_PortSerial()
 			tTimePoint TimeStart = tClock::now();
 			std::cout << "ReadROM\n";
 			std::vector<std::uint8_t> Rsp = Port.Transaction({ 0x33 }, 8);
-			std::uint8_t CRC = utils::crc::CRC08_DALLAS(Rsp.data(), Rsp.size() - 1);
-			bool Result =
-				Rsp.size() == 8 &&
-				Rsp[Rsp.size() - 1] == CRC;
-			if (Result)
+			bool Result = false;
+			if (!Rsp.empty())
 			{
-				std::vector<std::uint8_t> SN(Rsp.rbegin() + 1, Rsp.rend() - 1);
-				std::cout << "Family Code: 0x" << std::setfill('0') << std::setw(2) << std::hex << (int)Rsp[0] << "; SN: " << utils::test::ToStringHEX(SN, true) << '\n';
+				std::uint8_t CRC = utils::crc::CRC08_DALLAS(Rsp.data(), Rsp.size() - 1);
+				Result =
+					Rsp.size() == 8 &&
+					Rsp[Rsp.size() - 1] == CRC;
+				if (Result)
+				{
+					std::vector<std::uint8_t> SN(Rsp.rbegin() + 1, Rsp.rend() - 1);
+					std::cout << "Family Code: 0x" << std::setfill('0') << std::setw(2) << std::hex << (int)Rsp[0] << "; SN: " << utils::test::ToStringHEX(SN, true) << '\n';
+				}
 			}
 			test::RESULT("OneWire: DS1990A/DS18B20 ReadROM (0x33) (" + std::to_string(GetDuration<ttime_ms>(TimeStart, tClock::now())) + " ms)", Result);
 		}
