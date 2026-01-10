@@ -34,7 +34,7 @@ struct tPayloadGGA
 	typedef type::tTime<TimeSizeFract> time_type;
 	typedef type::tLatitude<LatitudeSizeFract> latitude_type;
 	typedef type::tLongitude<LongitudeSizeFract> longitude_type;
-	typedef type::tFloatUnit<AltitudeIntSize, AltitudeFactSize> altitude_type;
+	typedef type::tAltitude altitude_type;
 	typedef type::tFloatUnit<GeoidalSeparationIntSize, GeoidalSeparationFactSize> geoidal_separation_type;
 
 	Type::tOptional<gnss_type> GNSS;
