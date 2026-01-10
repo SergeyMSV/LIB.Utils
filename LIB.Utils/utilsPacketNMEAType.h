@@ -439,6 +439,9 @@ using tFloat2x0 = tFloat<2, 0>; // Its integer part is not of fixed size.
 using tFloat3x0 = tFloat<3, 0>; // Its integer part is not of fixed size.
 using tFloat4x0 = tFloat<4, 0>; // Its integer part is not of fixed size.
 using tFloat4x2 = tFloat<4, 2>;
+
+using tAltitude = tFloat<1, 0>; // MTK, AXN_1.30
+using tAltitude = tFloat<1, 5>; // SiRF, GSU-7x
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*template <std::size_t SizeInt, std::size_t SizeFract>
 class tFloatUnit

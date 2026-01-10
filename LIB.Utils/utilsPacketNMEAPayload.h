@@ -30,12 +30,12 @@ template
 >
 struct tPayloadGGA
 {
-	typedef Type::tGNSS gnss_type;
-	typedef Type::tTime<TimeSizeFract> time_type;
-	typedef Type::tLatitude<LatitudeSizeFract> latitude_type;
-	typedef Type::tLongitude<LongitudeSizeFract> longitude_type;
-	typedef Type::tFloatUnit<AltitudeIntSize, AltitudeFactSize> altitude_type;
-	typedef Type::tFloatUnit<GeoidalSeparationIntSize, GeoidalSeparationFactSize> geoidal_separation_type;
+	typedef type::tGNSS gnss_type;
+	typedef type::tTime<TimeSizeFract> time_type;
+	typedef type::tLatitude<LatitudeSizeFract> latitude_type;
+	typedef type::tLongitude<LongitudeSizeFract> longitude_type;
+	typedef type::tFloatUnit<AltitudeIntSize, AltitudeFactSize> altitude_type;
+	typedef type::tFloatUnit<GeoidalSeparationIntSize, GeoidalSeparationFactSize> geoidal_separation_type;
 
 	Type::tOptional<gnss_type> GNSS;
 	time_type Time;
