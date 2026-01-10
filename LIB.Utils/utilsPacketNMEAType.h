@@ -435,6 +435,8 @@ public:
 
 template <> class tFloat<0, 0>; // Such an object cannot be created.
 
+// 0 for integer part stands for any quantity of digits in this part.
+
 using tFloat0x2 = tFloat<2, 0>; // 4.56		Its integer part is not of fixed size.
 using tFloat0x3 = tFloat<3, 0>; // 4.567	Its integer part is not of fixed size.
 using tFloat0x4 = tFloat<4, 0>; // 4.5736	Its integer part is not of fixed size.
@@ -443,7 +445,7 @@ using tFloat2x4 = tFloat<4, 2>; // 12.3456
 using tFloat0x1 = tFloat<1, 0>; // 0.0		Altitude MTK, AXN_1.30
 using tFloat5x1 = tFloat<1, 5>; // 00000.0	Altitude SiRF, GSU-7x
 
-using tAltitude = tFloat0x1
+using tAltitude = tFloat0x1;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*template <std::size_t SizeInt, std::size_t SizeFract>

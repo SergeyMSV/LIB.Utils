@@ -240,6 +240,7 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tFloat5x1>("tFloat5x1", "");
 	UnitTest_PacketNMEAType_Test<tFloat5x1>("00000.0", "tFloat5x1 00000.0", "00000.0");
 	UnitTest_PacketNMEAType_Test<tFloat5x1>("12345.6", "tFloat5x1 12345.678", "12345.6");
+	UnitTest_PacketNMEAType_Test<tFloat5x1>("00001.6", "tFloat5x1 00001.6", "00001.6");
 	UnitTest_PacketNMEAType_Test<tFloat5x1>(0, "tFloat5x1 0", "00000.0");
 	UnitTest_PacketNMEAType_Test<tFloat5x1>(12345.6111, "tFloat5x1 12345.6", "12345.6");
 
