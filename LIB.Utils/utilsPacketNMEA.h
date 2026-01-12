@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacketNMEA
 // 2019-01-31
-// Standard ISO/IEC 114882, C++14
+// C++14
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -26,14 +26,14 @@ struct tFormat
 	enum : std::uint8_t { STX = stx, CTX = '*' };
 
 protected:
-	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	static std::vector<std::uint8_t> TestPacket(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		std::size_t Size = std::distance(cbegin, cend);
 
 		if (Size >= GetSize(0) && *cbegin == STX)
 		{
-			const tVectorUInt8::const_iterator Begin = cbegin + 1;
-			const tVectorUInt8::const_iterator End = std::find(Begin, cend, CTX);
+			const std::vector<std::uint8_t>::const_iterator Begin = cbegin + 1;
+			const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, cend, CTX);
 
 			if (End != cend)
 			{
@@ -41,20 +41,20 @@ protected:
 
 				if (Size >= GetSize(DataSize) && VerifyCRC(Begin, DataSize))
 				{
-					return tVectorUInt8(cbegin, cbegin + GetSize(DataSize));
+					return std::vector<std::uint8_t>(cbegin, cbegin + GetSize(DataSize));
 				}
 			}
 		}
 
-		return tVectorUInt8();
+		return std::vector<std::uint8_t>();
 	}
 
-	static bool TryParse(const tVectorUInt8& packetVector, TPayload& payload)
+	static bool TryParse(const std::vector<std::uint8_t>& packetVector, TPayload& payload)
 	{
 		if (packetVector.size() >= GetSize(0) && packetVector[0] == STX)
 		{
-			const tVectorUInt8::const_iterator Begin = packetVector.cbegin() + 1;
-			const tVectorUInt8::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
+			const std::vector<std::uint8_t>::const_iterator Begin = packetVector.cbegin() + 1;
+			const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
 
 			if (End != packetVector.cend())
 			{
@@ -74,7 +74,7 @@ protected:
 
 	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 6; };//$*xx\xd\xa
 
-	static void Append(tVectorUInt8& dst, const TPayload& payload)
+	static void Append(std::vector<std::uint8_t>& dst, const TPayload& payload)
 	{
 		dst.reserve(GetSize(payload.size()));
 
@@ -100,11 +100,11 @@ protected:
 	}
 
 private:
-	static bool VerifyCRC(tVectorUInt8::const_iterator begin, std::size_t crcDataSize)
+	static bool VerifyCRC(std::vector<std::uint8_t>::const_iterator begin, std::size_t crcDataSize)
 	{
 		const std::uint8_t CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
 
-		const tVectorUInt8::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
+		const std::vector<std::uint8_t>::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
 
 		const std::uint8_t CRCReceived = utils::Read<std::uint8_t>(CRCBegin, CRCBegin + 2, utils::tRadix::hex);
 
@@ -202,7 +202,7 @@ struct tPayloadCommon
 		:Value(value)
 	{}
 
-	tPayloadCommon(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadCommon(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		AppendData(cbegin, cend);
 	}
@@ -275,7 +275,7 @@ struct tPayloadString
 		:Value(value)
 	{}
 
-	tPayloadString(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadString(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		Value.insert(Value.end(), cbegin, cend);
 	}
