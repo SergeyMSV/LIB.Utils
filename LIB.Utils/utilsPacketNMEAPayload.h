@@ -30,31 +30,24 @@ template
 >
 struct tPayloadGGA
 {
-	typedef type::tGNSS gnss_type;
-	typedef TTime time_type;
-	typedef TLatitude latitude_type;
-	typedef TLongitude longitude_type;
-	typedef TAltitude altitude_type;
-	typedef TGeoidalSeparation geoidal_separation_type;
-
-	std::optional<gnss_type> GNSS;
-	time_type Time;
-	latitude_type Latitude;
-	longitude_type Longitude;
-	altitude_type Altitude;
-	geoidal_separation_type GeoidalSeparation;
+	std::optional<type::tGNSS> GNSS;
+	TTime Time;
+	TLatitude Latitude;
+	TLongitude Longitude;
+	TAltitude Altitude;
+	TGeoidalSeparation GeoidalSeparation;
 
 	tPayloadGGA() = default;
 	explicit tPayloadGGA(const tPayloadCommon::value_type& val)
 	{
 		if(Try(val))
 		{
-			GNSS = gnss_type::Parse(val[0]);
-			Time = time_type(val[1]);
-			Latitude = latitude_type(val[2], val[3]);
-			Longitude = longitude_type(val[4], val[5]);
-			Altitude = altitude_type(val[9],val[10]);
-			GeoidalSeparation = geoidal_separation_type(val[11], val[12]);
+			GNSS = type::tGNSS::Parse(val[0]);
+			Time = TTime(val[1]);
+			Latitude = TLatitude(val[2], val[3]);
+			Longitude = TLongitude(val[4], val[5]);
+			Altitude = TAltitude(val[9],val[10]);
+			GeoidalSeparation = TGeoidalSeparation(val[11], val[12]);
 		}
 	}
 
