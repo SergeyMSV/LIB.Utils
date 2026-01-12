@@ -73,6 +73,8 @@ void UnitTest_PacketNMEAPayload()
 		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n'; // C++14
 	}
 
+	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
 
