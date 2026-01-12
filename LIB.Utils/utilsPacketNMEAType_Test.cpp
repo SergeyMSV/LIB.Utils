@@ -10,7 +10,7 @@ namespace utils
 
 using namespace utils::packet::nmea::type;
 
-//#define SHOW_RESULTS
+#define SHOW_RESULTS
 
 template <class T>
 void UnitTest_PacketNMEAType_Test(const std::string& msg, const std::string& res)
@@ -46,6 +46,16 @@ void UnitTest_PacketNMEAType_Test(TArg arg, const std::string& msg,  const std::
 
 template <class T, class TArg>
 void UnitTest_PacketNMEAType_Test(TArg arg1, TArg arg2, const std::string& msg, const std::string& res)
+{
+	T A(arg1, arg2);
+#ifdef SHOW_RESULTS
+	std::cout << A.ToString() << '\n';
+#endif // SHOW_RESULTS
+	utils::test::RESULT(msg, A.ToString() == res);
+}
+
+template <class T, class TArg1, class TArg2>
+void UnitTest_PacketNMEAType_Test(TArg1 arg1, TArg2 arg2, const std::string& msg, const std::string& res)
 {
 	T A(arg1, arg2);
 #ifdef SHOW_RESULTS
@@ -246,12 +256,20 @@ void UnitTest_PacketNMEAType()
 
 /*	UnitTest_PacketNMEAType_Test<tSatellite>();
 	UnitTest_PacketNMEAType_Test<tSatellite>(12, 34, 56, 78);
-	UnitTest_PacketNMEAType_Test<tSatellite>("23", "38", "230", "44");
+	UnitTest_PacketNMEAType_Test<tSatellite>("23", "38", "230", "44");*/
 
-	UnitTest_PacketNMEAType_Test<tFloatUnit<2, 4>>();
-	UnitTest_PacketNMEAType_Test<tFloatUnit<2, 4>>(0, 'G');
-	UnitTest_PacketNMEAType_Test<tFloatUnit<2, 4>>("54.5736", "R");
-	UnitTest_PacketNMEAType_Test<tFloatUnit<2, 4>>(27.384, 'S');*/
+	//UnitTest_PacketNMEAType_Test<tFloatUnit<2, 4>>();
+	//UnitTest_PacketNMEAType_Test<tFloatUnit<4, 2>>(0, 'G');
+	// 
+	UnitTest_PacketNMEAType_Test<tFloatUnit<4, 2>>("12.3456", "R", "tFloatUnit2x4 12.3456,R", "12.3456,R");
+	//UnitTest_PacketNMEAType_Test<tFloatUnit<4, 2>>("312.3456", "R", "tFloatUnit2x4 12.3456,R", "312.3456,R"); // Parse ERR
+	//UnitTest_PacketNMEAType_Test<tFloatUnit<4, 2>>("2.3456", "R", "tFloatUnit2x4 12.3456,R", "2.3456,R"); // Parse ERR
+	// 
+	UnitTest_PacketNMEAType_Test<tFloatUnit<4, 2>>(12.3456, 'W', "tFloatUnit2x4 12.3456,W", "12.3456,W");
+	UnitTest_PacketNMEAType_Test<tFloatUnit<4, 2>>(1.3, 'W', "tFloatUnit2x4 01.3000,W", "01.3000,W");
+	//UnitTest_PacketNMEAType_Test<tFloatUnit<4, 0>>(1.3, 'W', "tFloatUnit0x4 1.3000,W", "1.3000,W"); // ?
+	// 
+	//UnitTest_PacketNMEAType_Test<tFloatUnit<2, 4>>(27.384, 'S');
 
 	std::cout << std::endl;
 }

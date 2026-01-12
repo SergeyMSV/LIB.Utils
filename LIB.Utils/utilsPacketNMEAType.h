@@ -81,6 +81,8 @@ struct tNumberFixedItem
 	tNumberFixedItem(std::uint32_t value, std::uint32_t size, bool fract) : Value(value), Size(size), Fractional(fract) {}
 };
 
+std::ostream& operator<<(std::ostream& out, const tNumberFixedItem& value);
+
 template <std::uint32_t... ints>
 class tNumberFixed
 {
@@ -95,7 +97,7 @@ public:
 		if (values.size() != GetValuesStringSize())
 			return;
 		int PartIndex = -1;
-		std::uint32_t Position = values.size();
+		std::size_t Position = values.size();
 		if (((!Parse(values, ++PartIndex, ints, Position)) || ...))
 			m_Parts.clear(); // That means that the values haven't been parsed due to wrong format or something like that.
 	}
@@ -143,7 +145,7 @@ protected:
 	}
 
 private:
-	bool Parse(const std::string& values, int partIndex, int size, std::uint32_t& position)
+	bool Parse(const std::string& values, int partIndex, int size, std::size_t& position)
 	{
 		if (!partIndex)
 			return ParseFract(values, size, position);
@@ -155,7 +157,7 @@ private:
 		return true;
 	}
 
-	bool ParseFract(const std::string& values, int size, std::uint32_t& position)
+	bool ParseFract(const std::string& values, int size, std::size_t& position)
 	{
 		if (!size)
 			return true;
@@ -166,7 +168,7 @@ private:
 		if (FractSize != size)
 			return false;
 		m_Parts.emplace_back(strtoul(values.substr(DotPos + 1).c_str(), nullptr, 10), size, true);
-		position = static_cast<std::uint32_t>(DotPos);
+		position = DotPos;
 		return true;
 	}
 
@@ -183,8 +185,6 @@ private:
 		size += !position && sizePart > 0 ? sizePart + 1 : sizePart;
 	}
 };
-
-std::ostream& operator<<(std::ostream& out, const tNumberFixedItem& value);
 
 std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::uint32_t precision);
 }
@@ -230,7 +230,7 @@ public:
 		std::vector<std::uint32_t> Items;
 		if (Precision)
 		{
-			std::uint32_t SecFract = (second - Sec) * std::pow(10, Precision);
+			std::uint32_t SecFract = static_cast<std::uint32_t>((second - Sec) * std::pow(10, Precision));
 			Items.push_back(SecFract);
 		}
 		Items.push_back(Sec);
@@ -303,8 +303,18 @@ public:
 	std::string ToString() const
 	{
 		if (this->empty())
-			return ",";
+			return ","; // [TBD] 0000.00,N or ,N ?
 		return tBase::ToString() + ',' + (m_Negative ? Negative : Positive);
+	}
+
+	std::string ToStringValue() const
+	{
+		return tBase::ToString();
+	}
+
+	std::string ToStringHemisphere() const
+	{
+		return std::string(1, m_Negative ? Negative : Positive);
 	}
 
 private:
@@ -421,7 +431,7 @@ public:
 
 	double GetValue() const { return m_Value.value_or(0); }
 
-	std::string ToString()
+	std::string ToString() const
 	{
 		if (empty())
 			return {};
@@ -448,46 +458,55 @@ using tFloat5x1 = tFloat<1, 5>; // 00000.0	Altitude SiRF, GSU-7x
 using tAltitude = tFloat0x1;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/*template <std::size_t SizeInt, std::size_t SizeFract>
+template <std::uint32_t Precision, std::size_t Size>
 class tFloatUnit
 {
-	typedef tFloat<SizeInt, SizeFract> value_type;
-
-	static const std::size_t SizeValue = SizeInt + SizeFract + 1;
+	using tValue = tFloat<Precision, Size>;
 
 public:
-	value_type Value;
-	char Unit = 0;
+	tValue m_Value; // optional inside
+	char m_Unit = 0;
 
 	tFloatUnit() = default;
-	tFloatUnit(double val, char unit) :Value(val), Unit(unit) {}
-
-	static tOptional<tFloatUnit> Parse(const std::string& val, const std::string& valSign)
+	tFloatUnit(double value, char unit) :m_Value(value), m_Unit(unit) {}
+	explicit tFloatUnit(const std::string& value, const std::string& unit)
+		:m_Value(value)
 	{
-		if (val.size() != SizeValue || valSign.size() != 1)
-			return {};
-		auto Value = value_type::Parse(val);
-		if (!Value.has_value())
-			return {};
-		return tFloatUnit(Value->Value, valSign[0]);
+		if (m_Value.empty() || unit.size() != 1)
+		{
+			this->clear();
+			return;
+		}
+		m_Unit = unit[0];
 	}
 
-	std::string ToStringValue() const
+	void clear()
 	{
-		return Value.ToString();
+		m_Value.clear();
+		m_Unit = 0;
 	}
+
+	bool empty() const { return !m_Value.has_value(); }
+
+	std::string ToStringValue() const { return m_Value.ToString(); }
 
 	std::string ToStringUnit() const
 	{
-		return std::string(1, Unit);
+		return std::string(1, m_Unit);
 	}
 
 	std::string ToString() const
 	{
 		return ToStringValue() + ',' + ToStringUnit();
 	}
-	static std::string ToStringEmpty() { return ","; }
-};*/
+	// [TBD] what is EMPTY !!!!
+	// [TBD] what is EMPTY !!!!
+	// $GNGGA,172904.087,,,,,0,0,,,M,,M,,*50
+	// $GPGGA,000124.168,3600.0000,N,13600.0000,E,0,00,99.9,00000.0,M,0000.0,M,000.0,0000*43
+	// 
+	// ",M" vs. "0000.0,M"
+	//static std::string ToStringEmpty() { return ","; }
+};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tModeIndicator
 {
