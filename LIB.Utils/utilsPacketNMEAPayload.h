@@ -16,28 +16,28 @@ namespace packet
 {
 namespace nmea
 {
+namespace base
+{
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template
 <
 	std::size_t FieldQty,
-	int TimeSizeFract,
-	int LatitudeSizeFract,
-	int LongitudeSizeFract,
-	int AltitudeIntSize,
-	int AltitudeFactSize,
-	int GeoidalSeparationIntSize,
-	int GeoidalSeparationFactSize
+	typename TTime,
+	typename TLatitude,
+	typename TLongitude,
+	typename TAltitude,
+	typename TGeoidalSeparation
 >
 struct tPayloadGGA
 {
 	typedef type::tGNSS gnss_type;
-	typedef type::tTime<TimeSizeFract> time_type;
-	typedef type::tLatitude<LatitudeSizeFract> latitude_type;
-	typedef type::tLongitude<LongitudeSizeFract> longitude_type;
-	typedef type::tAltitude altitude_type;
-	typedef type::tFloatUnit<GeoidalSeparationIntSize, GeoidalSeparationFactSize> geoidal_separation_type;
+	typedef TTime time_type;
+	typedef TLatitude latitude_type;
+	typedef TLongitude longitude_type;
+	typedef TAltitude altitude_type;
+	typedef TGeoidalSeparation geoidal_separation_type;
 
-	Type::tOptional<gnss_type> GNSS;
+	std::optional<gnss_type> GNSS;
 	time_type Time;
 	latitude_type Latitude;
 	longitude_type Longitude;
@@ -89,7 +89,7 @@ struct tPayloadGGA
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadGSV
+/*struct tPayloadGSV
 {
 	typedef Type::tGNSS gnss_type;
 	typedef Type::tUInt<std::uint8_t, 1> counter_type;
@@ -221,7 +221,52 @@ struct tPayloadRMC
 
 		return Data;
 	}
-};
+};*/
+///////////////////////////////////////////////////////////////////////////////////////////////////
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+namespace sirf_gsu_7x_www
+{
+	// Not valid
+	// $GPGGA,000000.000,0000.0000,N,00000.0000,E,0,00,99.9,00000.0,M,0000.0,M,000.0,0000*??
+	// $GPRMC,000000.000,V,0000.0000,N,00000.0000,E,9999.99,999.99,000000,,*??
+	// 
+	// Valid
+	// $GPGGA,000000.000,0000.0000,N,00000.0000,E,1,12,00.1,00123.4,M,0012.3,M,000.0,0000*??
+	// $GPRMC,000000.000,A,0000.0000,N,00000.0000,E,0012.34,123.45,000000,,*??
+	// 
+	// $GPGSV,3,1,12,01,01,001,,02,02,002,,03,03,003,,04,04,004,*??
+
+	using tTime = type::tTime<3>;					// 000000.000
+	using tDate = type::tDate;
+	using tLatitude = type::tLongitude<4>;			// 0000.0000
+	using tLongitude = type::tLongitude<4>;			// 00000.0000
+	using tAltitude = type::tFloat<1, 5>;			// 00000.0
+	using tGeoidalSeparation = type::tFloat<1, 4>;	// 0000.0
+
+	using tPayloadGGA = base::tPayloadGGA <14, tTime, tLatitude, tLongitude, tAltitude, tGeoidalSeparation>;
+}
+namespace sirf_gsu_7x
+{
+	// Not valid
+	// $GPGGA,000000.000,0000.0000,N,00000.0000,E,0,00,99.9,00000.0,M,0000.0,M,000.0,0000*??
+	// $GPRMC,000000.000,V,0000.0000,N,00000.0000,E,9999.99,999.99,000000,,*??
+	// 
+	// Valid
+	// $GPGGA,000000.000,0000.0000,N,00000.0000,E,1,12,00.1,00123.4,M,0012.3,M,000.0,0000*??
+	// $GPRMC,000000.000,A,0000.0000,N,00000.0000,E,0012.34,123.45,000000,,*??
+	// 
+	// $GPGSV,3,1,12,01,01,001,,02,02,002,,03,03,003,,04,04,004,*??
+
+	using tTime = type::tTime<3>;					// 000000.000
+	using tDate = type::tDate;
+	using tLatitude = type::tLongitude<4>;			// 0000.0000
+	using tLongitude = type::tLongitude<4>;			// 00000.0000
+	using tAltitude = type::tFloat<1, 5>;			// 00000.0
+	using tGeoidalSeparation = type::tFloat<1, 4>;	// 0000.0
+
+	using tPayloadGGA = base::tPayloadGGA <14, tTime, tLatitude, tLongitude, tAltitude, tGeoidalSeparation>;
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 }

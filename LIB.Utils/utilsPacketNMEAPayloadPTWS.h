@@ -15,7 +15,7 @@ namespace packet
 namespace nmea
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPTWS_JAM_SIGNAL_VAL
+/*struct tPayloadPTWS_JAM_SIGNAL_VAL
 {
 	typedef Type::tUInt<std::uint8_t, 0> index_type;
 	typedef Type::tFloat<0, 6> frequency_type;
@@ -132,7 +132,7 @@ struct tPayloadPTWS_VERSION_VAL
 
 		return Data;
 	}
-};
+};*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 }

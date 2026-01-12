@@ -70,13 +70,16 @@ void UnitTest_PacketNMEAPayload()
 
 		tVectorUInt8 RawPacket = Packet.ToVector();
 
-		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n';//C++14
+		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n'; // C++14
 	}
 
-	UnitTest_PacketNMEAPayload<tPayloadGGA<15, 3, 4, 4, 5, 2, 3, 2>>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s);//C++14
-	UnitTest_PacketNMEAPayload<tPayloadGGA<15, 0, 4, 4, 5, 2, 3, 2>>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
 
-	UnitTest_PacketNMEAPayload<tPayloadGSV>("$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa"s);
+	//UnitTest_PacketNMEAPayload<base::tPayloadGGA<15, 3, 4, 4, 5, 2, 3, 2>>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s);//C++14
+	//UnitTest_PacketNMEAPayload<base::tPayloadGGA<15, 0, 4, 4, 5, 2, 3, 2>>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
+
+	/*UnitTest_PacketNMEAPayload<tPayloadGSV>("$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa"s);
 	UnitTest_PacketNMEAPayload<tPayloadGSV>("$GPGSV,3,2,10,10,07,189,,05,05,220,,09,34,274,42,18,25,309,44*72\xd\xa"s);
 	UnitTest_PacketNMEAPayload<tPayloadGSV>("$GPGSV,3,3,10,26,82,187,47,28,43,056,46*77\xd\xa"s);
 
@@ -128,7 +131,7 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL());
 	UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL(12, 1575.000002));
 	UnitTest_PacketNMEAPayload<tPayloadPTWS_JAM_SIGNAL_VAL>("$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa"s);
-
+	*/
 
 	std::cout << std::endl;
 }
