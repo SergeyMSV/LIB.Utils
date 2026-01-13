@@ -9,34 +9,43 @@
 #include <iostream>
 #include <iomanip>
 
+#define SHOW_RESULTS
+
 namespace utils
 {
 
 template<class TPayload, class TArg>
-void UnitTest_PacketNMEAPayload(const TArg& msg)
+void UnitTest_PacketNMEAPayload(const std::string& name, const TArg& msg)
 {
 	typedef utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon> tPacketNMEA;
 
-	tVectorUInt8 DataVector(msg.cbegin(), msg.cend());//C++14
+	std::vector<std::uint8_t> DataVector(msg.cbegin(), msg.cend());
+	const std::string PacketNew(DataVector.cbegin(), DataVector.cend());
 
-	tPacketNMEA Packet;
+	tPacketNMEA PacketFound;
+	tPacketNMEA::Find(DataVector, PacketFound);
+	const std::vector<std::uint8_t> PacketFoundVec = PacketFound.ToVector();
+	const std::string PacketFoundStr(PacketFoundVec.cbegin(), PacketFoundVec.cend());
 
-	bool Result = tPacketNMEA::Find(DataVector, Packet);
+	utils::packet::nmea::tPayloadCommon::value_type PacketFoundData = PacketFound.GetPayloadValue();
+	TPayload Val(PacketFoundData);
 
-	utils::packet::nmea::tPayloadCommon::value_type PacketData = Packet.GetPayloadValue();
+	//if (Val.GNSS.Value == TPayload::gnss_type::tGNSS_State::UNKNOWN) // Parsed!!
+	//	return;
 
-	TPayload Val(PacketData);
+	const utils::packet::nmea::tPayloadCommon::value_type PacketData1 = Val.GetPayload();
 
-	//if (Val.GNSS.Value != TPayload::gnss_type::tGNSS_State::UNKNOWN)//Parsed!!
-	{
-		utils::packet::nmea::tPayloadCommon::value_type PacketData1 = Val.GetPayload();
+	tPacketNMEA Packet2(PacketData1);
 
-		tPacketNMEA Packet2(PacketData1);
+	std::vector<std::uint8_t> PacketRaw = Packet2.ToVector();
+	std::string PacketRes(PacketRaw.cbegin(), PacketRaw.cend());
 
-		tVectorUInt8 RawPacket = Packet2.ToVector();
-
-		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n';//C++14
-	}
+#ifdef SHOW_RESULTS
+	std::cout << "Pack         " << PacketNew;
+	std::cout << "Pack found:  " << PacketFoundStr;
+	std::cout << "Pack result: " << PacketRes;
+#endif // SHOW_RESULTS
+	utils::test::RESULT(name, PacketNew == PacketRes);
 }
 
 template<class TPayload>
@@ -48,7 +57,7 @@ void UnitTest_PacketNMEAPayload(const TPayload& val)
 
 	tPacketNMEA Packet(PacketData);
 
-	tVectorUInt8 RawPacket = Packet.ToVector();
+	std::vector<std::uint8_t> RawPacket = Packet.ToVector();
 
 	UnitTest_PacketNMEAPayload<TPayload>(RawPacket);
 }
@@ -67,16 +76,25 @@ void UnitTest_PacketNMEAPayload()
 
 	{
 		tPacketNMEA Packet;
-
-		tVectorUInt8 RawPacket = Packet.ToVector();
-
-		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n'; // C++14
+		std::vector<std::uint8_t> RawPacket = Packet.ToVector();
+		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n';
 	}
 
-	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
-	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
-	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
-	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 1", "$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 2", "$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
+	//UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
+	//UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
+
+	/*
+		// [TBD] what is EMPTY !!!!
+	// [TBD] what is EMPTY !!!!
+	// $GNGGA,172904.087,,,,,0,0,,,M,,M,,*50
+	// $GPGGA,000124.168,3600.0000,N,13600.0000,E,0,00,99.9,00000.0,M,0000.0,M,000.0,0000*43
+	// 
+	// ",M" vs. "0000.0,M"
+	//static std::string ToStringEmpty() { return ","; }
+	*/
+
 
 	//UnitTest_PacketNMEAPayload<base::tPayloadGGA<15, 3, 4, 4, 5, 2, 3, 2>>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s);//C++14
 	//UnitTest_PacketNMEAPayload<base::tPayloadGGA<15, 0, 4, 4, 5, 2, 3, 2>>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);

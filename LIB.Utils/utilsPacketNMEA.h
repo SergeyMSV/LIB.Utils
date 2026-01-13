@@ -30,46 +30,38 @@ protected:
 	{
 		std::size_t Size = std::distance(cbegin, cend);
 
-		if (Size >= GetSize(0) && *cbegin == STX)
-		{
-			const std::vector<std::uint8_t>::const_iterator Begin = cbegin + 1;
-			const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, cend, CTX);
+		if (Size < GetSize(0) || *cbegin != STX)
+			return {};
 
-			if (End != cend)
-			{
-				const std::size_t DataSize = std::distance(Begin, End);
+		const std::vector<std::uint8_t>::const_iterator Begin = cbegin + 1;
+		const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, cend, CTX);
+		if (End == cend)
+			return {};
 
-				if (Size >= GetSize(DataSize) && VerifyCRC(Begin, DataSize))
-				{
-					return std::vector<std::uint8_t>(cbegin, cbegin + GetSize(DataSize));
-				}
-			}
-		}
+		const std::size_t DataSize = std::distance(Begin, End);
+		if (Size < GetSize(DataSize) || !VerifyCRC(Begin, DataSize))
+			return {};
 
-		return std::vector<std::uint8_t>();
+		return std::vector<std::uint8_t>(cbegin, cbegin + GetSize(DataSize));
 	}
 
 	static bool TryParse(const std::vector<std::uint8_t>& packetVector, TPayload& payload)
 	{
-		if (packetVector.size() >= GetSize(0) && packetVector[0] == STX)
-		{
-			const std::vector<std::uint8_t>::const_iterator Begin = packetVector.cbegin() + 1;
-			const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
+		if (packetVector.size() < GetSize(0) || packetVector[0] != STX)
+			return false;
 
-			if (End != packetVector.cend())
-			{
-				const std::size_t DataSize = std::distance(Begin, End);
+		const std::vector<std::uint8_t>::const_iterator Begin = packetVector.cbegin() + 1;
+		const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
+		if (End == packetVector.cend())
+			return false;
 
-				if (packetVector.size() == GetSize(DataSize) && VerifyCRC(Begin, DataSize))
-				{
-					payload = TPayload(Begin, End);
+		const std::size_t DataSize = std::distance(Begin, End);
 
-					return true;
-				}
-			}
-		}
+		if (packetVector.size() != GetSize(DataSize) || !VerifyCRC(Begin, DataSize))
+			return false;
 
-		return false;
+		payload = TPayload(Begin, End);
+		return true;
 	}
 
 	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 6; };//$*xx\xd\xa
@@ -132,16 +124,16 @@ struct tPayloadCommon
 		tIterator() = delete;
 		tIterator(const tPayloadCommon* obj, bool begin) :m_pObj(obj), m_DataSize(m_pObj->size())
 		{
-			if (m_DataSize > 0 && m_pObj->Value[0].size() > 0)
+			if (!m_DataSize || !m_pObj->Value[0].size())
+				return;
+
+			if (begin)
 			{
-				if (begin)
-				{
-					m_DataPtr = &m_pObj->Value[0][0];
-				}
-				else
-				{
-					m_DataIndex = m_DataSize;
-				}
+				m_DataPtr = &m_pObj->Value[0][0];
+			}
+			else
+			{
+				m_DataIndex = m_DataSize;
 			}
 		}
 
@@ -149,9 +141,7 @@ struct tPayloadCommon
 		tIterator& operator ++ ()
 		{
 			if (m_DataIndex < m_DataSize)
-			{
 				++m_DataIndex;
-			}
 
 			std::size_t DataIndex = m_DataIndex;
 
@@ -221,10 +211,8 @@ struct tPayloadCommon
 			Size += i.size();
 		}
 
-		if (Value.size() > 0)//that's for ','
-		{
+		if (Value.size() > 0) // that's for ','
 			Size += Value.size() - 1;
-		}
 
 		return Size;
 	}

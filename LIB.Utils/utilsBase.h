@@ -18,7 +18,7 @@ namespace utils
 {
 
 #ifdef LIB_UTILS_BASE_DEPRECATED
-typedef std::vector<std::uint8_t> tVectorUInt8;
+typedef std::vector<std::uint8_t> std::vector<std::uint8_t>;
 #endif // LIB_UTILS_BASE_DEPRECATED
 
 template<typename T>

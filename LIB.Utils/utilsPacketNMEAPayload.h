@@ -24,7 +24,7 @@ template
 	typename TLatitude,
 	typename TLongitude,
 	typename TAltitude,
-	typename TGeoidalSeparation
+	typename TGeoidSeparation
 >
 struct tPayloadGGA
 {
@@ -32,8 +32,10 @@ struct tPayloadGGA
 	TTime Time;
 	TLatitude Latitude;
 	TLongitude Longitude;
+	std::uint8_t FS = 0; // Position Fix Indicator, 1 digit 
+	std::uint8_t NoSV = 0; // Satellites Used, Range 0 to 12 
 	TAltitude Altitude;
-	TGeoidalSeparation GeoidalSeparation;
+	TGeoidSeparation GeoidalSeparation;
 
 	tPayloadGGA() = default;
 	explicit tPayloadGGA(const tPayloadCommon::value_type& val)
@@ -44,8 +46,10 @@ struct tPayloadGGA
 		Time = TTime(val[1]);
 		Latitude = TLatitude(val[2], val[3]);
 		Longitude = TLongitude(val[4], val[5]);
+		FS = std::atoi(val[6].c_str());
+		NoSV = std::atoi(val[7].c_str());
 		Altitude = TAltitude(val[9], val[10]);
-		GeoidalSeparation = TGeoidalSeparation(val[11], val[12]);
+		GeoidalSeparation = TGeoidSeparation(val[11], val[12]);
 	}
 
 	static const char* GetID() { return "GGA"; }
@@ -65,8 +69,8 @@ struct tPayloadGGA
 		Data.push_back(Latitude.ToStringHemisphere());
 		Data.push_back(Longitude.ToStringValue());
 		Data.push_back(Longitude.ToStringHemisphere());
-		Data.push_back("");
-		Data.push_back("");
+		Data.push_back(std::to_string(FS));
+		Data.push_back(std::to_string(NoSV));
 		Data.push_back("");
 		Data.push_back(Altitude.ToStringValue());
 		Data.push_back(Altitude.ToStringUnit());
@@ -268,9 +272,9 @@ namespace mtk_axn_3_8_eb800a
 	using tLatitude = type::tLongitude<6>;				// 0000.0000
 	using tLongitude = type::tLongitude<6>;				// 00000.0000
 	using tAltitude = type::tFloatUnit<3, 0>;			// 000.000		??? [TBD]
-	using tGeoidalSeparation = type::tFloatUnit<1, 4>;	// 0000.0
+	using tGeoidSeparation = type::tFloatUnit<1, 4>;	// 0000.0
 
-	using tPayloadGGA = base::tPayloadGGA <14, tTime, tLatitude, tLongitude, tAltitude, tGeoidalSeparation>;
+	using tPayloadGGA = base::tPayloadGGA <15, tTime, tLatitude, tLongitude, tAltitude, tGeoidSeparation>;
 }
 //namespace mtk_axn_3_10
 //{
@@ -294,9 +298,9 @@ namespace sirf_gsu_7x
 	using tLatitude = type::tLongitude<4>;				// 0000.0000
 	using tLongitude = type::tLongitude<4>;				// 00000.0000
 	using tAltitude = type::tFloatUnit<1, 5>;			// 00000.0
-	using tGeoidalSeparation = type::tFloatUnit<1, 4>;	// 0000.0
+	using tGeoidSeparation = type::tFloatUnit<1, 4>;	// 0000.0
 
-	using tPayloadGGA = base::tPayloadGGA <14, tTime, tLatitude, tLongitude, tAltitude, tGeoidalSeparation>;
+	using tPayloadGGA = base::tPayloadGGA <15, tTime, tLatitude, tLongitude, tAltitude, tGeoidSeparation>;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
