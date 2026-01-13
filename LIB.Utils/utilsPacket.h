@@ -53,16 +53,13 @@ public:
 
 			if (PacketVector.size() > 0)
 			{
-				if (TFormat<TPayload>::TryParse(PacketVector, packet))
-				{
-					std::size_t EraseSize = std::distance(receivedData.cbegin(), Begin);
+				if (!TFormat<TPayload>::TryParse(PacketVector, packet))
+					continue;
 
-					EraseSize += PacketVector.size();
-
-					receivedData.erase(receivedData.begin(), receivedData.begin() + EraseSize);
-
-					return PacketVector.size();
-				}
+				std::size_t EraseSize = std::distance(receivedData.cbegin(), Begin);
+				EraseSize += PacketVector.size();
+				receivedData.erase(receivedData.begin(), receivedData.begin() + EraseSize);
+				return PacketVector.size();
 			}
 
 			Begin++;
@@ -114,10 +111,7 @@ struct tPayload
 		tIterator& operator ++ ()
 		{
 			if (m_DataIndex < m_DataSize)
-			{
 				++m_DataIndex;
-			}
-
 			return *this;
 		}
 
