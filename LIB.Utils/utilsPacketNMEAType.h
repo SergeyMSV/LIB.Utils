@@ -260,24 +260,22 @@ class tGeoDegree : public hidden::tNumberFixed<Precision, 2, SizeDeg>
 {
 	using tBase = hidden::tNumberFixed<Precision, 2, SizeDeg>;
 
-	bool m_Negative;
+	bool m_Negative = false;
 
 	explicit tGeoDegree(std::vector<std::uint32_t>& values, bool negative) : tBase(values), m_Negative(negative) {}
 
 public:
 	tGeoDegree() = default;
 	explicit tGeoDegree(const std::string& values, const std::string& sign)
-		: tBase(values)
+		:tBase(values)
 	{
-		if (sign.size() != 1 || (sign[0] != Negative && sign[0] != Positive))
+		if (!IsValid(GetDegree()) || sign.size() != 1 || (sign[0] != Negative && sign[0] != Positive))
 		{
 			this->clear();
+			m_Negative = false;
 			return;
 		}
 		m_Negative = sign[0] == Negative;
-
-		if (!IsValid(GetDegree()))
-			this->clear();
 	}
 	explicit tGeoDegree(double degree)
 	{
@@ -314,6 +312,8 @@ public:
 
 	std::string ToStringHemisphere() const
 	{
+		if (this->empty())
+			return {};
 		return std::string(1, m_Negative ? Negative : Positive);
 	}
 
@@ -472,40 +472,16 @@ public:
 	explicit tFloatUnit(const std::string& value, const std::string& unit)
 		:m_Value(value)
 	{
-		if (m_Value.empty() || unit.size() != 1)
-		{
-			this->clear();
-			return;
-		}
-		m_Unit = unit[0];
+		if (unit.size() == 1)
+			m_Unit = unit[0];
 	}
-
-	void clear()
-	{
-		m_Value.clear();
-		m_Unit = 0;
-	}
-
-	bool empty() const { return !m_Value.has_value(); }
 
 	std::string ToStringValue() const { return m_Value.ToString(); }
-
-	std::string ToStringUnit() const
-	{
-		return std::string(1, m_Unit);
-	}
-
+	std::string ToStringUnit() const { return std::string(1, m_Unit); }
 	std::string ToString() const
 	{
 		return ToStringValue() + ',' + ToStringUnit();
 	}
-	// [TBD] what is EMPTY !!!!
-	// [TBD] what is EMPTY !!!!
-	// $GNGGA,172904.087,,,,,0,0,,,M,,M,,*50
-	// $GPGGA,000124.168,3600.0000,N,13600.0000,E,0,00,99.9,00000.0,M,0000.0,M,000.0,0000*43
-	// 
-	// ",M" vs. "0000.0,M"
-	//static std::string ToStringEmpty() { return ","; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tModeIndicator

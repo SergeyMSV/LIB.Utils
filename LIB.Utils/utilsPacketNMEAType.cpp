@@ -11,7 +11,7 @@ namespace type
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tGNSS::tGNSS(const std::string& val)
 {
-	if (val.size() != 2 || val[0] != 'G')
+	if (val.size() < 2 || val[0] != 'G')
 		return;
 
 	switch (val[1])
