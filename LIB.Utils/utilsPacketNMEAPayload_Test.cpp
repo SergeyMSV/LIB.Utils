@@ -79,9 +79,21 @@ void UnitTest_PacketNMEAPayload()
 		std::vector<std::uint8_t> RawPacket = Packet.ToVector();
 		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n';
 	}
+	/*
+	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 1",	"$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 2",	"$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 3",	"$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,,280.7,M,14.5,M,,*42\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 4", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,0.00,280.7,M,14.5,M,,*5C\xd\xa"s);
 
-	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 1", "$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
-	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 2", "$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 1",	"$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 2",	"$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 3",	"$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,,280.701,M,14.501,M,,*42\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 3", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,0.00,280.701,M,14.501,M,,*5C\xd\xa"s);
+	*/
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 1", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,,00280.7,M,0014.5,M,,*72\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 2", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,0014.5,M,,*6C\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 3", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,0014.5,M,000.0,0000*42\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 4", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,-0014.5,M,000.0,0000*6F\xd\xa"s);
 	//UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
 	//UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
 

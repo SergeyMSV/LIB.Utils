@@ -23,19 +23,26 @@ template
 	typename TTime,
 	typename TLatitude,
 	typename TLongitude,
+	typename TSatUsed,
+	typename THDOP,
 	typename TAltitude,
-	typename TGeoidSeparation
+	typename TGeoidSeparation,
+	typename TDiffAge,
+	typename TDiffStation
 >
-struct tPayloadGGA
+struct tPayloadGGA							// Global Positioning System Fix Data
 {
 	type::tGNSS GNSS;
-	TTime Time;
+	TTime Time;								// UTC Time
 	TLatitude Latitude;
 	TLongitude Longitude;
-	std::uint8_t FS = 0; // Position Fix Indicator, 1 digit 
-	std::uint8_t NoSV = 0; // Satellites Used, Range 0 to 12 
-	TAltitude Altitude;
-	TGeoidSeparation GeoidalSeparation;
+	std::uint8_t FS = 0;					// Position Fix Indicator, 1 digit 
+	TSatUsed NoSV = TSatUsed(0);			// Satellites Used
+	THDOP HDOP;								// Horizontal Dilution of Precision 
+	TAltitude Altitude;						// Altitude re: mean-sea-level (geoid), meters
+	TGeoidSeparation GeoidalSeparation;		// Geoidal Separation: the difference between the WGS-84 earth ellipsoid surface and mean-sea-level (geoid) surface, "-" = mean-sea-level surface below WGS - 84 ellipsoid surface.
+	TDiffAge DiffAge;						// Age of Differential Corrections
+	TDiffStation DiffStation;				// Diff. Reference Station ID
 
 	tPayloadGGA() = default;
 	explicit tPayloadGGA(const tPayloadCommon::value_type& val)
@@ -47,7 +54,8 @@ struct tPayloadGGA
 		Latitude = TLatitude(val[2], val[3]);
 		Longitude = TLongitude(val[4], val[5]);
 		FS = std::atoi(val[6].c_str());
-		NoSV = std::atoi(val[7].c_str());
+		NoSV = TSatUsed(val[7]);
+		HDOP = THDOP(val[8]);
 		Altitude = TAltitude(val[9], val[10]);
 		GeoidalSeparation = TGeoidSeparation(val[11], val[12]);
 	}
@@ -70,8 +78,8 @@ struct tPayloadGGA
 		Data.push_back(Longitude.ToStringValue());
 		Data.push_back(Longitude.ToStringHemisphere());
 		Data.push_back(std::to_string(FS));
-		Data.push_back(std::to_string(NoSV));
-		Data.push_back("");
+		Data.push_back(NoSV.ToString());
+		Data.push_back(HDOP.ToString());
 		Data.push_back(Altitude.ToStringValue());
 		Data.push_back(Altitude.ToStringUnit());
 		Data.push_back(GeoidalSeparation.ToStringValue());
@@ -219,7 +227,7 @@ struct tPayloadRMC
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-namespace mtk_axn_1_30 // PMTK705,AXN_1.30,5023,EB500,1.0
+namespace mtk_axn_1_30_eb500 // PMTK705,AXN_1.30,5023,EB500,1.0
 {
 	// Not valid
 	// $GPGGA,000000.000,0000.0000,N,00000.0000,E,0,0,,1.0,M,10.0,M,,*??
@@ -230,10 +238,24 @@ namespace mtk_axn_1_30 // PMTK705,AXN_1.30,5023,EB500,1.0
 	// $GPRMC,000000.000,A,0000.0000,N,00000.0000,E,123.00,123.00,000000,,,D*??
 	//
 	// $GPGSV,4,1,13,01,01,001,,02,02,002,22,03,33,003,33,04,04,004,*??
+	using tTime = type::tTime<3>;						// 000000.000
+	using tDate = type::tDate;
+	using tLatitude = type::tLatitude<4>;				// 0000.0000
+	using tLongitude = type::tLongitude<4>;				// 00000.0000
+	using tSatUsed = type::tUInt<2>;					// 0 - 99
+	using tHDOP = type::tFloat<2, 0>;					// ?.00
+	using tAltitude = type::tFloatUnit<1, 0>;			// ?.0
+	using tGeoidSeparation = type::tFloatUnit<1, 0>;	// ?.0
 
+	//using tPayloadGGA = base::tPayloadGGA <15, tTime, tLatitude, tLongitude, tSatUsed, tHDOP, tAltitude, tGeoidSeparation>;
 }
 //namespace mtk_axn_1_80
 //{
+//}
+//namespace mtk_axn_telit_jupiter
+//{
+// 
+// using tDiffStation = type::tUIntFixed<4>;			// 0000-1023
 //}
 //namespace mtk_axn_3_8//4
 //{
@@ -267,14 +289,23 @@ namespace mtk_axn_3_8_eb800a
 	// $GLGSV,2,1,05,65,65,065,65,66,66,066,66,67,67,067,,68,68,068,68*??
 	// $GLGSV,2,2,05,69,69,069,69*??
 
+
 	using tTime = type::tTime<3>;						// 000000.000
 	using tDate = type::tDate;
-	using tLatitude = type::tLongitude<6>;				// 0000.0000
-	using tLongitude = type::tLongitude<6>;				// 00000.0000
-	using tAltitude = type::tFloatUnit<3, 0>;			// 000.000		??? [TBD]
-	using tGeoidSeparation = type::tFloatUnit<1, 4>;	// 0000.0
+	using tLatitude = type::tLatitude<6>;				// 0000.000000
+	using tLongitude = type::tLongitude<6>;				// 00000.000000
+	using tSatUsed = type::tUInt<2>;					// 0 - 99
+	using tHDOP = type::tFloat<2, 0>;					// ?.00
+	using tAltitude = type::tFloatUnit<3, 0>;			// ?.000
+	using tGeoidSeparation = type::tFloatUnit<3, 0>;	// ?.000
+	using tDiffAge = type::tFloat<1, 3>;				// 000.0
+	using tDiffStation = type::tUIntFixed<4>;			// 0000	
 
-	using tPayloadGGA = base::tPayloadGGA <15, tTime, tLatitude, tLongitude, tAltitude, tGeoidSeparation>;
+	//using tDiffAge = type::tFloat<1, 3>;				// 000.0
+	//using tDiffStation = type::tUInt<4>;				// 0000				[TBD] Verify format.
+	//using tSatUsed = type::tUInt<2>;					// 0 - 99
+
+	//using tPayloadGGA = base::tPayloadGGA <15, tTime, tLatitude, tLongitude, tSatUsed, tHDOP, tAltitude, tGeoidSeparation>;
 }
 //namespace mtk_axn_3_10
 //{
@@ -295,12 +326,16 @@ namespace sirf_gsu_7x
 
 	using tTime = type::tTime<3>;						// 000000.000
 	using tDate = type::tDate;
-	using tLatitude = type::tLongitude<4>;				// 0000.0000
+	using tLatitude = type::tLatitude<4>;				// 0000.0000
 	using tLongitude = type::tLongitude<4>;				// 00000.0000
+	using tSatUsed = type::tUIntFixed<2>;				// 00
+	using tHDOP = type::tFloat<1, 2>;					// 00.0
 	using tAltitude = type::tFloatUnit<1, 5>;			// 00000.0
 	using tGeoidSeparation = type::tFloatUnit<1, 4>;	// 0000.0
+	using tDiffAge = type::tFloat<1, 3>;				// 000.0
+	using tDiffStation = type::tUIntFixed<4>;			// 0000
 
-	using tPayloadGGA = base::tPayloadGGA <15, tTime, tLatitude, tLongitude, tAltitude, tGeoidSeparation>;
+	using tPayloadGGA = base::tPayloadGGA <15, tTime, tLatitude, tLongitude, tSatUsed, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
