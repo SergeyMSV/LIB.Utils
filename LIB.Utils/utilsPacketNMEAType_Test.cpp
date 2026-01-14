@@ -10,7 +10,7 @@ namespace utils
 
 using namespace utils::packet::nmea::type;
 
-#define SHOW_RESULTS
+//#define SHOW_RESULTS
 
 template <class T>
 void UnitTest_PacketNMEAType_Test(const std::string& msg, const std::string& res)
@@ -202,30 +202,37 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tLongitude6>("12345.678901", "E", "tLongitude6 12345.678901,E", "12345.678901,E");
 	UnitTest_PacketNMEAType_Test<tLongitude6>(123.4567834, "tLongitude6 231.4567834", "12327.407004,E");
 
+	UnitTest_PacketNMEAType_Test<tUIntFixed1>("tUIntFixed1 empty", "");
+	UnitTest_PacketNMEAType_Test<tUIntFixed1>("0", "tUIntFixed1 0", "0");
+	UnitTest_PacketNMEAType_Test<tUIntFixed1>("4", "tUIntFixed1 4", "4");
+	UnitTest_PacketNMEAType_Test<tUIntFixed1>(0, "tUIntFixed1 0", "0");
+	UnitTest_PacketNMEAType_Test<tUIntFixed1>(4, "tUIntFixed1 4", "4");
+	UnitTest_PacketNMEAType_Test<tUIntFixed1>(12283, "tUIntFixed1 12283", "12283"); // That is not a very good thing.
+
+	UnitTest_PacketNMEAType_Test<tUIntFixed2>("tUIntFixed2 empty", "");
+	UnitTest_PacketNMEAType_Test<tUIntFixed2>("00", "tUIntFixed2 00", "00");
+	UnitTest_PacketNMEAType_Test<tUIntFixed2>("45", "tUIntFixed2 45", "45");
+	UnitTest_PacketNMEAType_Test<tUIntFixed2>(0, "tUIntFixed2 0", "00");
+	UnitTest_PacketNMEAType_Test<tUIntFixed2>(45, "tUIntFixed2 45", "45");
+
+	UnitTest_PacketNMEAType_Test<tUIntFixed3>("tUIntFixed3 empty", "");
+	UnitTest_PacketNMEAType_Test<tUIntFixed3>("000", "tUIntFixed3 000", "000");
+	UnitTest_PacketNMEAType_Test<tUIntFixed3>("456", "tUIntFixed3 456", "456");
+	UnitTest_PacketNMEAType_Test<tUIntFixed3>(0, "tUIntFixed3 0", "000");
+	UnitTest_PacketNMEAType_Test<tUIntFixed3>(456, "tUIntFixed3 456", "456");
+	
+	UnitTest_PacketNMEAType_Test<tUIntFixed4>("tUIntFixed4 empty", "");
+	UnitTest_PacketNMEAType_Test<tUIntFixed4>("0000", "tUIntFixed4 0000", "0000");
+	UnitTest_PacketNMEAType_Test<tUIntFixed4>("4567", "tUIntFixed4 4567", "4567");
+	UnitTest_PacketNMEAType_Test<tUIntFixed4>(0, "tUIntFixed4 0", "0000");
+	UnitTest_PacketNMEAType_Test<tUIntFixed4>(4567, "tUIntFixed4 4567", "4567");
+
 	UnitTest_PacketNMEAType_Test<tUInt1>("tUInt1 empty", "");
 	UnitTest_PacketNMEAType_Test<tUInt1>("0", "tUInt1 0", "0");
-	UnitTest_PacketNMEAType_Test<tUInt1>("4", "tUInt1 4", "4");
+	UnitTest_PacketNMEAType_Test<tUInt1>("5", "tUInt1 5", "5");
+	//UnitTest_PacketNMEAType_Test<tUInt1>("10", "tUInt1 10", "10"); // err
 	UnitTest_PacketNMEAType_Test<tUInt1>(0, "tUInt1 0", "0");
-	UnitTest_PacketNMEAType_Test<tUInt1>(4, "tUInt1 4", "4");
-	UnitTest_PacketNMEAType_Test<tUInt1>(12283, "tUInt1 12283", "12283"); // That is not a very good thing.
-
-	UnitTest_PacketNMEAType_Test<tUInt2>("tUInt2 empty", "");
-	UnitTest_PacketNMEAType_Test<tUInt2>("00", "tUInt2 00", "00");
-	UnitTest_PacketNMEAType_Test<tUInt2>("45", "tUInt2 45", "45");
-	UnitTest_PacketNMEAType_Test<tUInt2>(0, "tUInt2 0", "00");
-	UnitTest_PacketNMEAType_Test<tUInt2>(45, "tUInt2 45", "45");
-
-	UnitTest_PacketNMEAType_Test<tUInt3>("tUInt3 empty", "");
-	UnitTest_PacketNMEAType_Test<tUInt3>("000", "tUInt3 000", "000");
-	UnitTest_PacketNMEAType_Test<tUInt3>("456", "tUInt3 456", "456");
-	UnitTest_PacketNMEAType_Test<tUInt3>(0, "tUInt3 0", "000");
-	UnitTest_PacketNMEAType_Test<tUInt3>(456, "tUInt3 456", "456");
-	
-	UnitTest_PacketNMEAType_Test<tUInt4>("tUInt4 empty", "");
-	UnitTest_PacketNMEAType_Test<tUInt4>("0000", "tUInt4 0000", "0000");
-	UnitTest_PacketNMEAType_Test<tUInt4>("4567", "tUInt4 4567", "4567");
-	UnitTest_PacketNMEAType_Test<tUInt4>(0, "tUInt4 0", "0000");
-	UnitTest_PacketNMEAType_Test<tUInt4>(4567, "tUInt4 4567", "4567");
+	//UnitTest_PacketNMEAType_Test<tUInt1>(4567, "tUInt1 4567", "4567"); // err
 
 	UnitTest_PacketNMEAType_Test<tFloat0x2>("tFloat0x2", "");
 	UnitTest_PacketNMEAType_Test<tFloat0x2>(0, "tFloat0x2 0", "0.00");

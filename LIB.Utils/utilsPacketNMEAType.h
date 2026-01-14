@@ -187,6 +187,7 @@ private:
 };
 
 std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::uint32_t precision);
+int ÑountDigits(std::uint32_t num);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class tDate : public hidden::tNumberFixed<0, 2, 2, 2>
@@ -358,29 +359,69 @@ using tLatitude6 = tLatitude<6>;
 using tLongitude6 = tLongitude<6>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Size>
-class tUInt : public hidden::tNumberFixed<0, Size>
+class tUIntFixed : public hidden::tNumberFixed<0, Size>
 {
 	using tBase = hidden::tNumberFixed<0, Size>;
 
-	explicit tUInt(std::vector<std::uint32_t>& values) : tBase(values) {}
+	explicit tUIntFixed(std::vector<std::uint32_t>& values) : tBase(values) {}
 
 public:
-	tUInt() = default;
-	explicit tUInt(const std::string& values) : tBase(values) {}
-	explicit tUInt(std::uint32_t value)
+	tUIntFixed() = default;
+	explicit tUIntFixed(const std::string& values) : tBase(values) {}
+	explicit tUIntFixed(std::uint32_t value)
 	{
 		std::vector<std::uint32_t> Items;
 		Items.push_back(value);
-		*this = tUInt(Items);
+		*this = tUIntFixed(Items);
 	}
 
 	std::uint8_t GetValue() const { return (*this)[1]; }
 };
 
-using tUInt1 = tUInt<1>;
-using tUInt2 = tUInt<2>;
-using tUInt3 = tUInt<3>;
-using tUInt4 = tUInt<4>;
+using tUIntFixed1 = tUIntFixed<1>; // 0
+using tUIntFixed2 = tUIntFixed<2>; // 00
+using tUIntFixed3 = tUIntFixed<3>; // 000
+using tUIntFixed4 = tUIntFixed<4>; // 0000
+
+template <std::size_t SizeMax>
+class tUInt // It can consist of any quantity of digits from 1 upto Size.
+{
+	std::optional<std::uint32_t> m_Value;
+
+public:
+	tUInt() = default;
+	explicit tUInt(const std::string& values)
+	{
+		if (values.empty() || values.size() > SizeMax)
+			return;
+		m_Value = std::strtol(values.c_str(), nullptr, 10);
+	}
+	explicit tUInt(std::uint32_t value)
+	{
+		if (hidden::ÑountDigits(value) > SizeMax)
+			return;
+		m_Value = value;
+	}
+
+	void clear() { m_Value.reset(); }
+	bool empty() const { return !m_Value.has_value(); }
+
+	std::uint32_t GetValue() const { return m_Value.value_or(0); }
+
+	std::string ToString() const
+	{
+		if (empty())
+			return {};
+		return std::to_string(GetValue());
+	}
+};
+
+template <> class tUInt<0>; // Such an object cannot be created.
+
+using tUInt1 = tUInt<1>; // from 0 upto 9
+using tUInt2 = tUInt<2>; // from 0 upto 99
+using tUInt3 = tUInt<3>; // from 0 upto 999
+using tUInt4 = tUInt<4>; // from 0 upto 9999
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::uint32_t Precision, std::size_t Size>
 class tFloat : public hidden::tNumberFixed<Precision, Size>

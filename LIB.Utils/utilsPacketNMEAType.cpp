@@ -79,6 +79,17 @@ std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::uint32_t 
 	return { ValInt, ValFract };
 }
 
+int ÑountDigits(std::uint32_t num)
+{
+	int Count = 0;
+	while (num != 0)
+	{
+		num /= 10;
+		++Count;
+	}
+	return Count;
+}
+
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tDate::tDate(const std::string& values) : tBase(values)
