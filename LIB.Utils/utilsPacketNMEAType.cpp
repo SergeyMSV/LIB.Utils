@@ -18,7 +18,7 @@ tGNSS::tGNSS(const std::string& val)
 	{
 	case 'P': Value = tGNSS_State::GPS; break;
 	case 'L': Value = tGNSS_State::GLONASS; break;
-	case 'N': Value = tGNSS_State::GPS_GLONASS; break;
+	case 'N': Value = tGNSS_State::GlobalNavigation; break;
 	}	
 }
 
@@ -28,7 +28,7 @@ std::string tGNSS::ToString() const
 	{
 	case tGNSS_State::GPS: return "GP";
 	case tGNSS_State::GLONASS: return "GL";
-	case tGNSS_State::GPS_GLONASS: return "GN";
+	case tGNSS_State::GlobalNavigation: return "GN";
 	default: return "--";
 	}
 }
@@ -50,7 +50,7 @@ std::string tValid::ToString() const
 	return "";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-namespace hidden
+/*namespace hidden
 {
 
 std::ostream& operator<<(std::ostream& out, const tNumberFixedItem& value)
@@ -79,7 +79,7 @@ std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::uint32_t 
 	return { ValInt, ValFract };
 }
 
-int ÑountDigits(std::uint32_t num)
+int CountDigits(std::uint32_t num)
 {
 	int Count = 0;
 	while (num != 0)
