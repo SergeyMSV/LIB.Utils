@@ -156,12 +156,12 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tFloatFixed<2,4>>(-12.3456,    "tFloatFixed<2,4> -12.3456", "-12.3456");
 	UnitTest_PacketNMEAType_Test<tFloatFixed<2,4>>(-1.3456,     "tFloatFixed<2,4> -1.3456", "-01.3456");
 
-/*	UnitTest_PacketNMEAType_Test<tFloatFixed5x1>(            "tFloatFixed5x1", "");
-	UnitTest_PacketNMEAType_Test<tFloatFixed5x1>("00000.0",  "tFloatFixed5x1 00000.0", "00000.0");
-	UnitTest_PacketNMEAType_Test<tFloatFixed5x1>("12345.6",  "tFloatFixed5x1 12345.678", "12345.6");
-	UnitTest_PacketNMEAType_Test<tFloatFixed5x1>("00001.6",  "tFloatFixed5x1 00001.6", "00001.6");
-	UnitTest_PacketNMEAType_Test<tFloatFixed5x1>(0,          "tFloatFixed5x1 0", "00000.0");
-	UnitTest_PacketNMEAType_Test<tFloatFixed5x1>(12345.6111, "tFloatFixed5x1 12345.6", "12345.6");*/
+	UnitTest_PacketNMEAType_Test<tFloatFixed<5,1>>(            "tFloatFixed<5,1>",           "");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<5,1>>("00000.0",  "tFloatFixed<5,1> 00000.0",   "00000.0");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<5,1>>("12345.6",  "tFloatFixed<5,1> 12345.678", "12345.6");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<5,1>>("00001.6",  "tFloatFixed<5,1> 00001.6",   "00001.6");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<5,1>>(0,          "tFloatFixed<5,1> 0",         "00000.0");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<5,1>>(12345.6111, "tFloatFixed<5,1> 12345.6",   "12345.6");
 
 /*
 	using tNumberFixed_6_2_3 = hidden::tNumberFixed<6, 2, 3>;

@@ -283,72 +283,46 @@ std::ostream& operator<<(std::ostream& out, const tSigned<T>& value)
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/*template <std::size_t SizeInt, std::uint32_t Precision>
-class tFloatFixed
-{
-	using tValue = tFloatFixed<Size, Precision>;
-
-	template<std::size_t S, std::uint32_t P>
-	friend std::ostream& operator<<(std::ostream& out, const tFloatFixed<S, P>& value);
-
-	tValue m_Value;
-	bool m_Negative = false;
-
-public:
-	tFloatFixed() = default;
-	explicit tFloatFixed(std::string value)
-	{
-		if (value.size() == tValue::SizeFull + 1 && value[0] == '-')
-		{
-			m_Negative = true;
-			m_Value = tValue(value.c_str() + 1);
-		}
-		else
-		{
-			m_Value = tValue(value);
-		}
-	}
-	explicit tFloatFixed(std::int32_t value)
-	{
-		m_Value = tValue(value);
-		if (!m_Value.IsEmpty())
-			m_Negative = value < 0;
-	}
-
-	bool IsEmpty() const { return m_Value.IsEmpty(); }
-
-	std::int32_t GetValue() const { return m_Value.GetValue() * (m_Negative ? -1 : 1); }
-
-	std::string ToString() const
-	{
-		std::stringstream SStr;
-		SStr << *this;
-		return SStr.str();
-	}
-};
-
-template <std::size_t SizeInt, std::uint32_t Precision>
-std::ostream& operator<<(std::ostream& out, const tFloatFixed<Size, Precision>& value)
-{
-	if (value.IsEmpty())
-		return out;
-	if (value.m_Negative)
-		out << '-';
-	out << value.m_Value;
-	return out;
-}*/
-///////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Size>
 using tIntFixed = tSigned<tUIntFixed<Size>>;
-
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeInt, std::uint32_t Precision>
 using tFloatFixed = tSigned<tUFloatFixed<SizeInt, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+class tDate
+{
+	tUIntFixed<2> m_Day;
+	tUIntFixed<2> m_Month;
+	tUIntFixed<2> m_Year;
 
+public:
+	tDate() = default;
+	tDate(const std::string& value)
+	{
+	}
+	tDate(std::uint32_t value)
+	{
+		// linux time
+	}
+};
+
+template<std::uint32_t Precision>
+class tTime
+{
+	tUIntFixed<2> m_Hour;
+	tUIntFixed<2> m_Mimute;
+	tUFloatFixed<2, Precision> m_Second;
+
+public:
+	tTime() = default;
+	tTime(const std::string& value)
+	{
+	}
+	tTime(std::uint32_t value)
+	{
+		// linux time
+	}
+};
 
 
 
