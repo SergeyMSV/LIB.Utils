@@ -28,8 +28,15 @@ namespace nmea
 namespace type
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+namespace hidden
+{
 std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::size_t precision);
 double MakeDouble(std::int32_t valueInt, std::int32_t valueFract, std::size_t precision);
+int CountDigits(std::int32_t num);
+bool IsInteger(const std::string& value);
+bool CheckSignedIntFixed(const std::string& value, std::size_t size);
+bool CheckSignedInt(const std::string& value, std::size_t sizeMax);
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 enum class tGNSS_State : std::uint8_t // It's like bitfield.
 {
@@ -94,18 +101,13 @@ public:
 	tIntFixed() = default;
 	explicit tIntFixed(const std::string& value)
 	{
-		if (value.size() != Size && (value.size() != Size + 1 || value[0] != '-'))
+		if (!hidden::CheckSignedIntFixed(value, Size))
 			return;
-		for (std::size_t i = value.size() - Size; i < value.size(); ++i)
-		{
-			if (!std::isdigit(static_cast<unsigned char>(value[i])))
-				return;
-		}
 		m_Value = std::strtol(value.c_str(), nullptr, 10);
 	}
 	explicit tIntFixed(std::int32_t value)
 	{
-		if (CountDigits(value) > Size)
+		if (hidden::CountDigits(value) > Size)
 			return;
 		m_Value = value;
 	}
@@ -121,18 +123,6 @@ public:
 		std::stringstream SStr;
 		SStr << *this;
 		return SStr.str();
-	}
-
-protected:
-	static int CountDigits(std::int32_t num)
-	{
-		int Count = 0;
-		while (num != 0)
-		{
-			num /= 10;
-			++Count;
-		}
-		return Count;
 	}
 };
 
@@ -163,7 +153,7 @@ public:
 	tUnsigned() = default;
 	explicit tUnsigned(std::string value)
 	{
-		if (value.size() != T::GetSize())
+		if (value.empty() || value[0] == '-')
 			return;
 		m_Value = T(value);
 	}
@@ -213,8 +203,6 @@ public:
 	tFloatFixed() = default;
 	explicit tFloatFixed(std::string value)
 	{
-		if (value.size() != Size && (value.size() != Size + 1 || value[0] != '-'))
-			return;
 		const std::size_t DotPos = value.find('.');
 		if (DotPos == std::string::npos || value.size() - DotPos != Precision + 1)
 			return;
@@ -224,7 +212,7 @@ public:
 	}
 	explicit tFloatFixed(double value)
 	{
-		std::pair<std::int32_t, std::int32_t> Data = SplitDouble(std::abs(value), Precision);
+		std::pair<std::int32_t, std::int32_t> Data = hidden::SplitDouble(std::abs(value), Precision);
 		if (value < 0)
 			Data.first *= -1;
 		m_ValueInt = tValueInt(Data.first);
@@ -235,8 +223,9 @@ public:
 	bool IsEmpty() const { return m_ValueInt.IsEmpty() || m_ValueFract.IsEmpty(); }
 
 	static constexpr std::size_t GetSize() { return Size; }
+	static bool CheckSize(std::size_t size) { return size == Size; }
 
-	double GetValue() const { return MakeDouble(m_ValueInt.GetValue(), m_ValueFract.GetValue(), Precision); }
+	double GetValue() const { return hidden::MakeDouble(m_ValueInt.GetValue(), m_ValueFract.GetValue(), Precision); }
 
 	std::string ToString() const
 	{
@@ -267,6 +256,59 @@ std::ostream& operator<<(std::ostream& out, const tFloatFixed<SizeInt, Precision
 template <std::size_t SizeInt, std::size_t Precision>
 using tUFloatFixed = tUnsigned<tFloatFixed<SizeInt, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t SizeMax>
+class tInt // It can consist of any quantity of digits from 1 upto Size.
+{
+	template <std::size_t S>
+	friend std::ostream& operator<<(std::ostream& out, const tInt<S>& value);
+
+	std::optional<std::int32_t> m_Value;
+
+public:
+	using value_type = std::int32_t;
+
+	tInt() = default;
+	explicit tInt(const std::string& value)
+	{
+		if (!hidden::CheckSignedInt(value, SizeMax))
+			return;
+		m_Value = std::strtol(value.c_str(), nullptr, 10);
+	}
+	explicit tInt(std::uint32_t value)
+	{
+		if (hidden::CountDigits(value) > SizeMax)
+			return;
+		m_Value = value;
+	}
+
+	bool IsEmpty() const { return !m_Value.has_value(); }
+
+	static constexpr std::size_t GetSize() { return SizeMax; }
+
+	std::int32_t GetValue() const { return m_Value.value_or(0); }
+
+	std::string ToString() const
+	{
+		std::stringstream SStr;
+		SStr << *this;
+		return SStr.str();
+	}
+};
+
+template <> class tInt<0>; // Such an object cannot be created.
+
+template <std::size_t SizeMax>
+std::ostream& operator<<(std::ostream& out, const tInt<SizeMax>& value)
+{
+	if (value.IsEmpty())
+		return out;
+	out << *value.m_Value;
+	return out;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t SizeMax>
+using tUInt = tUnsigned<tInt<SizeMax>>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename T, std::size_t Precision>
 class tPrecisionFixed
 {
@@ -277,7 +319,7 @@ class tPrecisionFixed
 	template<typename U, std::size_t P>
 	friend std::ostream& operator<<(std::ostream& out, const tPrecisionFixed<U, P>& value);
 
-	std::int32_t m_ValueInt = 0;
+	T m_ValueInt;
 	tValueFract m_ValueFract;
 
 public:
@@ -288,38 +330,44 @@ public:
 	{
 		if (value.size() < SizeMin)
 			return;
-		if (std::is_unsigned<T>::value && value[0] == '-')
-			return;
 		const std::size_t DotPos = value.find('.');
 		if (DotPos == std::string::npos || value.size() - DotPos != Precision + 1)
 			return;
 		std::string ValIntStr = value.substr(0, DotPos);
-		m_ValueInt = std::strtol(ValIntStr.c_str(), nullptr, 10);
+		m_ValueInt = T(ValIntStr);
 		m_ValueFract = tValueFract(value.substr(DotPos + 1));
+		CheckValues();
 	}
 	explicit tPrecisionFixed(double value)
 	{
-		if (std::is_unsigned<T>::value && value < 0)
-			return;
-		std::pair<std::int32_t, std::int32_t> Data = SplitDouble(std::abs(value), Precision);
+		std::pair<std::int32_t, std::int32_t> Data = hidden::SplitDouble(std::abs(value), Precision);
 		if (value < 0)
 			Data.first *= -1;
-		m_ValueInt = Data.first;
+		m_ValueInt = T(Data.first);
 		m_ValueFract = tValueFract(Data.second);
+		CheckValues();
 	}
 
-	bool IsEmpty() const { return m_ValueFract.IsEmpty(); }
+	bool IsEmpty() const { return m_ValueInt.IsEmpty() || m_ValueFract.IsEmpty(); }
 
 	static constexpr std::size_t GetSize() { return SizeMin; }
-	static std::size_t CheckSize(std::size_t size) { return size <= SizeMin; }
+	static bool CheckSize(std::size_t size) { return size <= SizeMin; }
 
-	double GetValue() const { return MakeDouble(m_ValueInt, m_ValueFract.GetValue(), Precision); }
+	double GetValue() const { return hidden::MakeDouble(m_ValueInt.GetValue(), m_ValueFract.GetValue(), Precision); }
 
 	std::string ToString() const
 	{
 		std::stringstream SStr;
 		SStr << *this;
 		return SStr.str();
+	}
+private:
+	void CheckValues()
+	{
+		if (!IsEmpty())
+			return;
+		m_ValueInt = T();
+		m_ValueFract = tValueFract();
 	}
 };
 
@@ -333,10 +381,10 @@ std::ostream& operator<<(std::ostream& out, const tPrecisionFixed<T, Precision>&
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t Precision>
-using tFloatPrecisionFixed = tPrecisionFixed<std::int32_t, Precision>;
+using tFloatPrecisionFixed = tPrecisionFixed<tInt<6>, Precision>; // [#] MaxInt = 6
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t Precision>
-using tUFloatPrecisionFixed = tPrecisionFixed<std::uint32_t, Precision>;
+using tUFloatPrecisionFixed = tPrecisionFixed<tUInt<6>, Precision>; // [#] MaxInt = 6
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename T>
 class tUnit
@@ -388,7 +436,7 @@ public:
 	{
 		if (IsEmpty())
 			return {};
-		return m_Unit;
+		return std::string(1, m_Unit);
 	}
 };
 
@@ -400,6 +448,12 @@ std::ostream& operator<<(std::ostream& out, const tUnit<T>& value)
 		out << value.m_Unit;
 	return out;
 }
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<std::size_t SizeInt, std::size_t Precision>
+using tFloatFixedUnit = tUnit<tFloatFixed<SizeInt, Precision>>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<std::size_t SizeInt, std::size_t Precision>
+using tUFloatFixedUnit = tUnit<tUFloatFixed<SizeInt, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t Precision>
 using tFloatPrecisionFixedUnit = tUnit<tFloatPrecisionFixed<Precision>>;
@@ -531,7 +585,7 @@ using tTime = typename tTimeHelper<Precision>::type;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // The valid range of latitude in degrees is - 90 and +90 for the southern and northern hemisphere, respectively.
 // Longitude is in the range - 180 and +180 specifying coordinates west and east of the Prime Meridian, respectively.For reference,
-// the Equator has a latitude of 0°, the North pole has a latitude of 90° north(written 90° N or +90°), and the South pole has a latitude of - 90°.
+// the Equator has a latitude of 0ï¿½, the North pole has a latitude of 90ï¿½ north(written 90ï¿½ N or +90ï¿½), and the South pole has a latitude of - 90ï¿½.
 template <std::size_t SizeDeg, std::size_t Precision>
 class tGeoDegree
 {
@@ -601,7 +655,7 @@ public:
 	{
 		if (IsEmpty())
 			return {};
-		return m_Negative ? SignNegative : SignPositive;
+		return std::string(1, m_Negative ? SignNegative : SignPositive);
 	}
 
 private:
@@ -819,7 +873,7 @@ using tTime3 = tTime<3>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // The valid range of latitude in degrees is - 90 and +90 for the southern and northern hemisphere, respectively.
 // Longitude is in the range - 180 and +180 specifying coordinates west and east of the Prime Meridian, respectively.For reference,
-// the Equator has a latitude of 0°, the North pole has a latitude of 90° north(written 90° N or +90°), and the South pole has a latitude of - 90°.
+// the Equator has a latitude of 0ï¿½, the North pole has a latitude of 90ï¿½ north(written 90ï¿½ N or +90ï¿½), and the South pole has a latitude of - 90ï¿½.
 template <std::uint32_t SizeDeg, std::uint32_t Precision, char Positive, char Negative, int MaxAbs>
 class tGeoDegree : public hidden::tNumberFixed<Precision, 2, SizeDeg>
 {
@@ -934,7 +988,7 @@ public:
 	explicit tUIntFixed(const std::string& values) : tBase(values) {}
 	explicit tUIntFixed(std::uint32_t value)
 	{
-		if (hidden::ÑountDigits(value) > Size)
+		if (hidden::ï¿½ountDigits(value) > Size)
 			return;
 		std::vector<std::uint32_t> Items;
 		Items.push_back(value);
@@ -964,7 +1018,7 @@ public:
 	}
 	explicit tUInt(std::uint32_t value)
 	{
-		if (hidden::ÑountDigits(value) > SizeMax)
+		if (hidden::ï¿½ountDigits(value) > SizeMax)
 			return;
 		m_Value = value;
 	}

@@ -9,6 +9,8 @@ namespace nmea
 namespace type
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+namespace hidden
+{
 std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::size_t precision)
 {
 	const std::uint32_t Mult = static_cast<std::uint32_t>(std::pow(10, precision));
@@ -17,6 +19,7 @@ std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::size_t pr
 	const std::uint32_t ValFract = static_cast<std::uint32_t>(Temp - ValInt * Mult);
 	return { ValInt, ValFract };
 }
+
 double MakeDouble(std::int32_t valueInt, std::int32_t valueFract, std::size_t precision)
 {
 	const std::uint32_t Mult = static_cast<std::uint32_t>(std::pow(10, precision));
@@ -24,6 +27,57 @@ double MakeDouble(std::int32_t valueInt, std::int32_t valueFract, std::size_t pr
 	if (valueInt < 0)
 		Val *= -1;
 	return Val;
+}
+
+int CountDigits(std::int32_t num)
+{
+	int Count = 0;
+	while (num != 0)
+	{
+		num /= 10;
+		++Count;
+	}
+	return Count;
+}
+
+bool IsInteger(const std::string& value)
+{
+	if (value.empty())
+		return false;
+	std::string::const_iterator Begin = value.cbegin();
+	std::string::const_iterator End = value.cend();
+	if (*Begin == '-')
+		++Begin;
+	for (std::string::const_iterator i = Begin; i != End; ++i)
+	{
+		if (!std::isdigit(static_cast<unsigned char>(*i)))
+			return false;
+	}
+	return true;
+}
+
+bool CheckSignedIntFixed(const std::string& value, std::size_t size)
+{
+	if (value.empty())
+		return false;
+	if (value[0] == '-' && value.size() != size + 1)
+		return false;
+	if (value[0] != '-' && value.size() != size)
+		return false;
+	return hidden::IsInteger(value);
+}
+
+bool CheckSignedInt(const std::string& value, std::size_t sizeMax)
+{
+	if (value.empty())
+		return false;
+	if (value[0] == '-' && value.size() > sizeMax + 1)
+		return false;
+	if (value[0] != '-' && value.size() > sizeMax)
+		return false;
+	return hidden::IsInteger(value);
+}
+
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tGNSS::tGNSS(const std::string& val)
@@ -89,6 +143,7 @@ tDate::tDate(std::int8_t year, std::int8_t month, std::int8_t day)
 	m_Month = tValue(month);
 	m_Day = tValue(day);
 }
+
 tDate::tDate(std::time_t value)
 {
 	tm DateTime{};
