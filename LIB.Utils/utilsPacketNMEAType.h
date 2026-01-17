@@ -380,11 +380,11 @@ std::ostream& operator<<(std::ostream& out, const tPrecisionFixed<T, Precision>&
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t Precision>
-using tFloatPrecisionFixed = tPrecisionFixed<tInt<6>, Precision>; // [#] MaxInt = 6
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tFloatPrecisionFixed = tPrecisionFixed<tInt<SizeIntMax>, Precision>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t Precision>
-using tUFloatPrecisionFixed = tPrecisionFixed<tUInt<6>, Precision>; // [#] MaxInt = 6
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tUFloatPrecisionFixed = tPrecisionFixed<tUInt<SizeIntMax>, Precision>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename T>
 class tUnit
@@ -455,11 +455,11 @@ using tFloatFixedUnit = tUnit<tFloatFixed<SizeInt, Precision>>;
 template<std::size_t SizeInt, std::size_t Precision>
 using tUFloatFixedUnit = tUnit<tUFloatFixed<SizeInt, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t Precision>
-using tFloatPrecisionFixedUnit = tUnit<tFloatPrecisionFixed<Precision>>;
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tFloatPrecisionFixedUnit = tUnit<tFloatPrecisionFixed<SizeIntMax, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template<std::size_t Precision>
-using tUFloatPrecisionFixedUnit = tUnit<tUFloatPrecisionFixed<Precision>>;
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tUFloatPrecisionFixedUnit = tUnit<tUFloatPrecisionFixed<SizeIntMax, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class tDate
 {
