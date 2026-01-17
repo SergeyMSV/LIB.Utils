@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacketNMEAType
-// 2020-01-27
+// 2020-01-27, 2026-01-17 refact.
 // C++17
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
@@ -17,6 +17,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <ctime>
 
 namespace utils
 {
@@ -26,6 +27,9 @@ namespace nmea
 {
 namespace type
 {
+///////////////////////////////////////////////////////////////////////////////////////////////////
+std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::size_t precision);
+double MakeDouble(std::int32_t valueInt, std::int32_t valueFract, std::size_t precision);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 enum class tGNSS_State : std::uint8_t // It's like bitfield.
 {
@@ -77,31 +81,30 @@ public:
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Size>
-class tUIntFixed
+class tIntFixed
 {
 	template<std::size_t S>
-	friend std::ostream& operator<<(std::ostream& out, const tUIntFixed<S>& value);
+	friend std::ostream& operator<<(std::ostream& out, const tIntFixed<S>& value);
 
 	std::optional<std::int32_t> m_Value;
 
 public:
 	using value_type = std::int32_t;
 
-	tUIntFixed() = default;
-	explicit tUIntFixed(const std::string& value)
+	tIntFixed() = default;
+	explicit tIntFixed(const std::string& value)
 	{
-		if (value.size() != Size)
+		if (value.size() != Size && (value.size() != Size + 1 || value[0] != '-'))
 			return;
-		for (char i : value)
+		for (std::size_t i = value.size() - Size; i < value.size(); ++i)
 		{
-			if (!std::isdigit(static_cast<unsigned char>(i)))
+			if (!std::isdigit(static_cast<unsigned char>(value[i])))
 				return;
 		}
 		m_Value = std::strtol(value.c_str(), nullptr, 10);
 	}
-	explicit tUIntFixed(std::int32_t value)
+	explicit tIntFixed(std::int32_t value)
 	{
-		value = std::abs(value);
 		if (CountDigits(value) > Size)
 			return;
 		m_Value = value;
@@ -109,7 +112,7 @@ public:
 
 	bool IsEmpty() const { return !m_Value.has_value(); }
 
-	static std::size_t GetSize() { return Size; }
+	static constexpr std::size_t GetSize() { return Size; }
 
 	std::int32_t GetValue() const { return m_Value.value_or(0); }
 
@@ -134,24 +137,72 @@ protected:
 };
 
 template<std::size_t Size>
-std::ostream& operator<<(std::ostream& out, const tUIntFixed<Size>& value)
+std::ostream& operator<<(std::ostream& out, const tIntFixed<Size>& value)
 {
 	if (value.IsEmpty())
 		return out;
-	out << std::setfill('0') << std::setw(Size) << value.GetValue();
+	std::int32_t Val = value.GetValue();
+	if (Val < 0)
+		out << '-';
+	out << std::setfill('0') << std::setw(Size) << std::abs(Val);
+	//out << std::setfill('0') << std::setw(Size) << value.GetValue(); // 0000-1.34
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeInt, std::uint32_t Precision>
-class tUFloatFixed
+template <typename T>
+class tUnsigned
 {
-	static constexpr std::size_t SizeFull = SizeInt + 1 + Precision;
+	template<typename S>
+	friend std::ostream& operator<<(std::ostream& out, const tUnsigned<S>& value);
 
-	using tValueInt = tUIntFixed<SizeInt>;
+	T m_Value;
+
+public:
+	using TValue = typename T::value_type;
+
+	tUnsigned() = default;
+	explicit tUnsigned(std::string value)
+	{
+		if (value.size() != T::GetSize())
+			return;
+		m_Value = T(value);
+	}
+	explicit tUnsigned(TValue value)
+	{
+		if (value < 0)
+			return;
+		m_Value = T(value);
+	}
+
+	bool IsEmpty() const { return m_Value.IsEmpty(); }
+
+	static constexpr std::size_t GetSize() { return T::GetSize(); }
+
+	TValue GetValue() const { return m_Value.GetValue(); }
+
+	std::string ToString() const { return m_Value.ToString(); }
+};
+
+template<typename T>
+std::ostream& operator<<(std::ostream& out, const tUnsigned<T>& value)
+{
+	out << value.m_Value;
+	return out;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t Size>
+using tUIntFixed = tUnsigned<tIntFixed<Size>>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t SizeInt, std::size_t Precision>
+class tFloatFixed
+{
+	static constexpr std::size_t Size = SizeInt + 1 + Precision;
+
+	using tValueInt = tIntFixed<SizeInt>;
 	using tValueFract = tUIntFixed<Precision>; // Fractional
 
-	template<std::size_t S, std::uint32_t P>
-	friend std::ostream& operator<<(std::ostream& out, const tUFloatFixed<S, P>& value);
+	template<std::size_t S, std::size_t P>
+	friend std::ostream& operator<<(std::ostream& out, const tFloatFixed<S, P>& value);
 
 	tValueInt m_ValueInt;
 	tValueFract m_ValueFract;
@@ -159,22 +210,23 @@ class tUFloatFixed
 public:
 	using value_type = double;
 
-	tUFloatFixed() = default;
-	explicit tUFloatFixed(std::string value)
+	tFloatFixed() = default;
+	explicit tFloatFixed(std::string value)
 	{
-		if (value.size() != SizeFull)
+		if (value.size() != Size && (value.size() != Size + 1 || value[0] != '-'))
 			return;
 		const std::size_t DotPos = value.find('.');
-		if (DotPos == std::string::npos || DotPos != SizeInt)
+		if (DotPos == std::string::npos || value.size() - DotPos != Precision + 1)
 			return;
 		m_ValueInt = tValueInt(value.substr(0, DotPos));
 		m_ValueFract = tValueFract(value.substr(DotPos + 1));
 		CheckValues();
 	}
-	explicit tUFloatFixed(double value)
+	explicit tFloatFixed(double value)
 	{
-		value = std::abs(value);
-		std::pair<std::int32_t, std::int32_t> Data = SplitDouble(value, Precision);
+		std::pair<std::int32_t, std::int32_t> Data = SplitDouble(std::abs(value), Precision);
+		if (value < 0)
+			Data.first *= -1;
 		m_ValueInt = tValueInt(Data.first);
 		m_ValueFract = tValueFract(Data.second);
 		CheckValues();
@@ -182,7 +234,7 @@ public:
 
 	bool IsEmpty() const { return m_ValueInt.IsEmpty() || m_ValueFract.IsEmpty(); }
 
-	static std::size_t GetSize() { return SizeFull; }
+	static constexpr std::size_t GetSize() { return Size; }
 
 	double GetValue() const { return MakeDouble(m_ValueInt.GetValue(), m_ValueFract.GetValue(), Precision); }
 
@@ -196,31 +248,15 @@ public:
 private:
 	void CheckValues()
 	{
-		if (IsEmpty())
-		{
-			m_ValueInt = tValueInt();
-			m_ValueFract = tValueFract();
-		}
-	}
-
-	static std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::uint32_t precision)
-	{
-		const std::uint32_t Mult = static_cast<std::uint32_t>(std::pow(10, precision));
-		const double Temp = std::round(value * Mult);
-		const std::uint32_t ValInt = static_cast<std::uint32_t>(Temp / Mult);
-		const std::uint32_t ValFract = static_cast<std::uint32_t>(Temp - ValInt * Mult);
-		return { ValInt, ValFract };
-	}
-	static double MakeDouble(std::int32_t valueInt, std::int32_t valueFract, std::uint32_t precision)
-	{
-		const std::uint32_t Mult = static_cast<std::uint32_t>(std::pow(10, precision));
-		double Val = static_cast<double>(valueFract) / Mult + valueInt;
-		return Val;
+		if (!IsEmpty())
+			return;
+		m_ValueInt = tValueInt();
+		m_ValueFract = tValueFract();
 	}
 };
 
-template <std::size_t SizeInt, std::uint32_t Precision>
-std::ostream& operator<<(std::ostream& out, const tUFloatFixed<SizeInt, Precision>& value)
+template <std::size_t SizeInt, std::size_t Precision>
+std::ostream& operator<<(std::ostream& out, const tFloatFixed<SizeInt, Precision>& value)
 {
 	if (value.IsEmpty())
 		return out;
@@ -228,41 +264,56 @@ std::ostream& operator<<(std::ostream& out, const tUFloatFixed<SizeInt, Precisio
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <typename T>
-class tSigned
+template <std::size_t SizeInt, std::size_t Precision>
+using tUFloatFixed = tUnsigned<tFloatFixed<SizeInt, Precision>>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename T, std::size_t Precision>
+class tPrecisionFixed
 {
-	template<typename S>
-	friend std::ostream& operator<<(std::ostream& out, const tSigned<S>& value);
+	static constexpr std::size_t SizeMin = 2 + Precision; // 2 stands for "0."
 
-	T m_Value;
-	bool m_Negative = false;
+	using tValueFract = tUIntFixed<Precision>;
+
+	template<typename U, std::size_t P>
+	friend std::ostream& operator<<(std::ostream& out, const tPrecisionFixed<U, P>& value);
+
+	std::int32_t m_ValueInt = 0;
+	tValueFract m_ValueFract;
 
 public:
-	using TValue = typename T::value_type;
+	using value_type = double;
 
-	tSigned() = default;
-	explicit tSigned(std::string value)
+	tPrecisionFixed() = default;
+	explicit tPrecisionFixed(std::string value)
 	{
-		if (value.size() == T::GetSize() + 1 && value[0] == '-')
-		{
-			m_Negative = true;
-			m_Value = T(value.c_str() + 1);
-		}
-		else if (value.size() == T::GetSize())
-		{
-			m_Value = T(value);
-		}
+		if (value.size() < SizeMin)
+			return;
+		if (std::is_unsigned<T>::value && value[0] == '-')
+			return;
+		const std::size_t DotPos = value.find('.');
+		if (DotPos == std::string::npos || value.size() - DotPos != Precision + 1)
+			return;
+		std::string ValIntStr = value.substr(0, DotPos);
+		m_ValueInt = std::strtol(ValIntStr.c_str(), nullptr, 10);
+		m_ValueFract = tValueFract(value.substr(DotPos + 1));
 	}
-	explicit tSigned(TValue value)
+	explicit tPrecisionFixed(double value)
 	{
-		m_Value = T(value);
-		if (!m_Value.IsEmpty())
-			m_Negative = value < 0;
+		if (std::is_unsigned<T>::value && value < 0)
+			return;
+		std::pair<std::int32_t, std::int32_t> Data = SplitDouble(std::abs(value), Precision);
+		if (value < 0)
+			Data.first *= -1;
+		m_ValueInt = Data.first;
+		m_ValueFract = tValueFract(Data.second);
 	}
 
-	bool IsEmpty() const { return m_Value.IsEmpty(); }
+	bool IsEmpty() const { return m_ValueFract.IsEmpty(); }
 
-	TValue GetValue() const { return m_Value.GetValue() * (m_Negative ? -1 : 1); }
+	static constexpr std::size_t GetSize() { return SizeMin; }
+	static std::size_t CheckSize(std::size_t size) { return size <= SizeMin; }
+
+	double GetValue() const { return MakeDouble(m_ValueInt, m_ValueFract.GetValue(), Precision); }
 
 	std::string ToString() const
 	{
@@ -272,57 +323,311 @@ public:
 	}
 };
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const tSigned<T>& value)
+template<typename T, std::size_t Precision>
+std::ostream& operator<<(std::ostream& out, const tPrecisionFixed<T, Precision>& value)
 {
 	if (value.IsEmpty())
 		return out;
-	if (value.m_Negative)
-		out << '-';
-	out << value.m_Value;
+	out << value.m_ValueInt << '.' << value.m_ValueFract;
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t Size>
-using tIntFixed = tSigned<tUIntFixed<Size>>;
+template<std::size_t Precision>
+using tFloatPrecisionFixed = tPrecisionFixed<std::int32_t, Precision>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <std::size_t SizeInt, std::uint32_t Precision>
-using tFloatFixed = tSigned<tUFloatFixed<SizeInt, Precision>>;
+template<std::size_t Precision>
+using tUFloatPrecisionFixed = tPrecisionFixed<std::uint32_t, Precision>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename T>
+class tUnit
+{
+	template<typename U>
+	friend std::ostream& operator<<(std::ostream& out, const tUnit<U>& value);
+
+	T m_Value;
+	char m_Unit = 0;
+
+public:
+	using TValue = typename T::value_type;
+
+	tUnit() = default;
+	tUnit(const std::string& value, const std::string& unit)
+	{
+		if (T::CheckSize(value.size()) || unit.size() != 1)
+			return;
+		m_Unit = unit[0];
+		m_Value = T(value);
+	}
+	tUnit(TValue value, char unit)
+	{
+		m_Value = T(value);
+		m_Unit = unit;
+	}
+
+	bool IsEmpty() const { return m_Value.IsEmpty() || !m_Unit; }
+
+	static constexpr std::size_t GetSize() { return 0; }
+
+	double GetValue() const { return m_Value.GetValue(); }
+
+	std::string ToString() const
+	{
+		std::stringstream SStr;
+		SStr << *this;
+		return SStr.str();
+	}
+
+	std::string ToStringValue() const
+	{
+		std::stringstream SStr;
+		SStr << m_Value;
+		return SStr.str();
+	}
+
+	std::string ToStringUnit() const
+	{
+		if (IsEmpty())
+			return {};
+		return m_Unit;
+	}
+};
+
+template<typename T>
+std::ostream& operator<<(std::ostream& out, const tUnit<T>& value)
+{
+	out << value.m_Value << ',';
+	if (value.m_Unit)
+		out << value.m_Unit;
+	return out;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<std::size_t Precision>
+using tFloatPrecisionFixedUnit = tUnit<tFloatPrecisionFixed<Precision>>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<std::size_t Precision>
+using tUFloatPrecisionFixedUnit = tUnit<tUFloatPrecisionFixed<Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class tDate
 {
-	tUIntFixed<2> m_Day;
-	tUIntFixed<2> m_Month;
-	tUIntFixed<2> m_Year;
+	using tValue = tUIntFixed<2>;
+
+	friend std::ostream& operator<<(std::ostream& out, const tDate& value);
+
+	tValue m_Day;
+	tValue m_Month;
+	tValue m_Year;
 
 public:
 	tDate() = default;
-	tDate(const std::string& value)
-	{
-	}
-	tDate(std::uint32_t value)
-	{
-		// linux time
-	}
+	tDate(const std::string& value);
+	explicit tDate(std::int8_t year, std::int8_t month, std::int8_t day);
+	explicit tDate(std::time_t value);
+
+	bool IsEmpty() const { return m_Day.IsEmpty() || m_Month.IsEmpty() || m_Year.IsEmpty(); }
+
+	std::time_t GetValue() const;
+
+	std::uint8_t GetYear() const { return static_cast<std::uint8_t>(m_Day.GetValue()); }
+	std::uint8_t GetMonth() const { return static_cast<std::uint8_t>(m_Month.GetValue()); }
+	std::uint8_t GetDay() const { return static_cast<std::uint8_t>(m_Year.GetValue()); }
+
+	std::string ToString() const;
+
+private:
+	static bool IsValid(std::uint8_t year, std::uint8_t month, std::uint8_t day) { return year < 100 && month > 0 && month <= 12 && day > 0 && day <= 31; }
 };
 
-template<std::uint32_t Precision>
-class tTime
+std::ostream& operator<<(std::ostream& out, const tDate& value);
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename TSecond>
+class tTimeBase
 {
-	tUIntFixed<2> m_Hour;
-	tUIntFixed<2> m_Mimute;
-	tUFloatFixed<2, Precision> m_Second;
+	using tValue = tUIntFixed<2>;
+
+	template<typename S>
+	friend std::ostream& operator<<(std::ostream& out, const tTimeBase<S>& value);
+
+	tValue m_Hour;
+	tValue m_Minute;
+	TSecond m_Second;
 
 public:
-	tTime() = default;
-	tTime(const std::string& value)
+	tTimeBase() = default;
+	explicit tTimeBase(const std::string& value)
 	{
+		if (value.size() != 4 + TSecond::GetSize())
+			return;
+		m_Hour = tValue(value.substr(0, 2));
+		m_Minute = tValue(value.substr(2, 2));
+		m_Second = TSecond(value.substr(4));
+		if (IsValid(m_Hour.GetValue(), m_Minute.GetValue(), static_cast<std::uint8_t>(m_Second.GetValue())))
+			return;
+		m_Hour = tValue();
+		m_Minute = tValue();
+		m_Second = TSecond();
 	}
-	tTime(std::uint32_t value)
+	explicit tTimeBase(std::uint8_t hour, std::uint8_t minute, double second)
 	{
-		// linux time
+		if (!IsValid(hour, minute, static_cast<std::uint8_t>(second)))
+			return;
+		m_Hour = tValue(hour);
+		m_Minute = tValue(minute);
+		m_Second = TSecond(second);
 	}
+	explicit tTimeBase(std::time_t value)
+	{
+		m_Hour = tValue(value / 3600);
+		value -= m_Hour.GetValue() * 3600;
+		m_Minute = tValue(value / 60);
+		value -= m_Minute.GetValue() * 60;
+		m_Second = TSecond(value);
+	}
+
+	bool IsEmpty() const { return m_Hour.IsEmpty() || m_Minute.IsEmpty() || m_Second.IsEmpty(); }
+
+	std::time_t GetValue() const
+	{
+		return m_Hour.GetValue() * 3600 + m_Minute.GetValue() * 60 + static_cast<std::time_t>(m_Second.GetValue());
+	}
+
+	std::uint8_t GetHour() const { return static_cast<std::uint8_t>(m_Hour.GetValue()); }
+	std::uint8_t GetMinute() const { return static_cast<std::uint8_t>(m_Minute.GetValue()); }
+	double GetSecond() const { return m_Second.GetValue(); }
+
+	std::string ToString() const
+	{
+		std::stringstream SStr;
+		SStr << *this;
+		return SStr.str();
+	}
+
+private:
+	static bool IsValid(std::uint8_t hour, std::uint8_t minute, std::uint8_t second) { return hour < 24 && minute < 60 && second < 60; }
 };
+
+template <typename TSecond>
+std::ostream& operator<<(std::ostream& out, const tTimeBase<TSecond>& value)
+{
+	if (value.IsEmpty())
+		return out;
+	out << value.m_Hour << value.m_Minute << value.m_Second;
+	return out;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<std::size_t Precision>
+struct tTimeHelper
+{
+	using type = tTimeBase<tUFloatFixed<2, Precision>>;
+};
+
+template<>
+struct tTimeHelper<0>
+{
+	using type = tTimeBase<tUIntFixed<2>>;
+};
+
+template<std::size_t Precision>
+using tTime = typename tTimeHelper<Precision>::type;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+// The valid range of latitude in degrees is - 90 and +90 for the southern and northern hemisphere, respectively.
+// Longitude is in the range - 180 and +180 specifying coordinates west and east of the Prime Meridian, respectively.For reference,
+// the Equator has a latitude of 0°, the North pole has a latitude of 90° north(written 90° N or +90°), and the South pole has a latitude of - 90°.
+template <std::size_t SizeDeg, std::size_t Precision>
+class tGeoDegree
+{
+	using tDegree = tUIntFixed<SizeDeg>;
+	using tMinute = tUFloatFixed<2, Precision>;
+
+	static constexpr std::size_t Size = tDegree::GetSize() + tMinute::GetSize();
+	static constexpr int MaxAbs = SizeDeg == 3 ? 180 : 90;
+
+	template<std::size_t S, std::size_t P>
+	friend std::ostream& operator<<(std::ostream& out, const tGeoDegree<S, P>& value);
+
+	tDegree m_Deg;
+	tMinute m_Min;
+	bool m_Negative = false;
+
+public:
+	static constexpr char SignNegative = SizeDeg == 3 ? 'W' : 'S';
+	static constexpr char SignPositive = SizeDeg == 3 ? 'E' : 'N';
+
+	tGeoDegree() = default;
+	tGeoDegree(const std::string& value, const std::string& sign)
+	{
+		if (value.size() != Size || sign.size() != 1 || (sign[0] != SignNegative && sign[0] != SignPositive))
+			return;
+		m_Negative = sign[0] == SignNegative;
+		m_Deg = tDegree(value.substr(0, SizeDeg));
+		m_Min = tMinute(value.substr(SizeDeg));
+		if (IsValid(GetValue()))
+			return;
+		m_Deg = tDegree();
+		m_Min = tMinute();
+	}
+	explicit tGeoDegree(double degree)
+	{
+		if (!IsValid(degree))
+			return;
+		m_Negative = degree < 0;
+		degree = std::abs(degree);
+		m_Deg = tDegree(static_cast<std::int32_t>(degree));
+		degree -= static_cast<std::int32_t>(degree);
+		degree *= 60;
+		m_Min = tMinute(degree);
+	}
+
+	bool IsEmpty() const { return m_Deg.IsEmpty() || m_Min.IsEmpty(); }
+
+	static constexpr std::size_t GetSize() { return Size; }
+
+	double GetValue() const { return m_Deg.GetValue() + m_Min.GetValue() / 60; }
+
+	std::string ToString() const
+	{
+		std::stringstream SStr;
+		SStr << *this;
+		return SStr.str();
+	}
+
+	std::string ToStringValue() const
+	{
+		std::stringstream SStr;
+		SStr << m_Deg << m_Min;
+		return SStr.str();
+	}
+
+	std::string ToStringHemisphere() const
+	{
+		if (IsEmpty())
+			return {};
+		return m_Negative ? SignNegative : SignPositive;
+	}
+
+private:
+	static bool IsValid(double value) { return value >= -MaxAbs && value <= MaxAbs; }
+};
+
+template <std::size_t SizeDeg, std::size_t Precision>
+std::ostream& operator<<(std::ostream& out, const tGeoDegree<SizeDeg, Precision>& value)
+{
+	using tDeg = tGeoDegree<SizeDeg, Precision>;
+
+	if (value.IsEmpty())
+	{
+		out << ',';
+		return out;
+	}
+	out << value.m_Deg << value.m_Min << ',' << (value.m_Negative ? tDeg::SignNegative : tDeg::SignPositive);
+	return out;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t Precision>
+using tLatitude = tGeoDegree<2, Precision>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <std::size_t Precision>
+using tLongitude = tGeoDegree<3, Precision>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 

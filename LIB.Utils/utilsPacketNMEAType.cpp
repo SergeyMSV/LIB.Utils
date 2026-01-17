@@ -9,6 +9,23 @@ namespace nmea
 namespace type
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::size_t precision)
+{
+	const std::uint32_t Mult = static_cast<std::uint32_t>(std::pow(10, precision));
+	const double Temp = std::round(value * Mult);
+	const std::uint32_t ValInt = static_cast<std::uint32_t>(Temp / Mult);
+	const std::uint32_t ValFract = static_cast<std::uint32_t>(Temp - ValInt * Mult);
+	return { ValInt, ValFract };
+}
+double MakeDouble(std::int32_t valueInt, std::int32_t valueFract, std::size_t precision)
+{
+	const std::uint32_t Mult = static_cast<std::uint32_t>(std::pow(10, precision));
+	double Val = static_cast<double>(valueFract) / Mult + std::abs(valueInt);
+	if (valueInt < 0)
+		Val *= -1;
+	return Val;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
 tGNSS::tGNSS(const std::string& val)
 {
 	if (val.size() < 2 || val[0] != 'G')
@@ -50,66 +67,72 @@ std::string tValid::ToString() const
 	return "";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/*namespace hidden
+tDate::tDate(const std::string& value)
 {
-
-std::ostream& operator<<(std::ostream& out, const tNumberFixedItem& value)
-{
-	if (value.Fractional)
-	{
-		out << '.';
-		std::string ValueStr = std::to_string(value.Value);
-		if (ValueStr.size() > value.Size)
-		{
-			ValueStr.resize(value.Size);
-			out << ValueStr;
-			return out;
-		}
-	}
-	out << std::setfill('0') << std::setw(value.Size) << value.Value;
-	return out;
-}
-
-std::pair<std::uint32_t, std::uint32_t> SplitDouble(double value, std::uint32_t precision)
-{
-	const std::uint32_t Mult = static_cast<std::uint32_t>(std::pow(10, precision));
-	const double Temp = std::round(value * Mult);
-	const std::uint32_t ValInt = static_cast<std::uint32_t>(Temp / Mult);
-	const std::uint32_t ValFract = static_cast<std::uint32_t>(Temp - ValInt * Mult);
-	return { ValInt, ValFract };
-}
-
-int CountDigits(std::uint32_t num)
-{
-	int Count = 0;
-	while (num != 0)
-	{
-		num /= 10;
-		++Count;
-	}
-	return Count;
-}
-
-}
-///////////////////////////////////////////////////////////////////////////////////////////////////
-tDate::tDate(const std::string& values) : tBase(values)
-{
-	if (!IsValid((*this)[0], (*this)[1], (*this)[2]))
-		clear();
+	if (value.size() != 6)
+		return;
+	m_Day = tValue(value.substr(0, 2));
+	m_Month = tValue(value.substr(2, 2));
+	m_Year = tValue(value.substr(4));
+	if (IsValid(m_Year.GetValue(), m_Month.GetValue(), m_Day.GetValue()))
+		return;
+	m_Day = tValue();
+	m_Month = tValue();
+	m_Year = tValue();
 }
 
 tDate::tDate(std::int8_t year, std::int8_t month, std::int8_t day)
 {
 	if (!IsValid(year, month, day))
 		return;
-	std::vector<std::uint32_t> Items;
-	Items.push_back(year);
-	Items.push_back(month);
-	Items.push_back(day);
-	*this = tDate(Items);
+	m_Year = tValue(year);
+	m_Month = tValue(month);
+	m_Day = tValue(day);
+}
+tDate::tDate(std::time_t value)
+{
+	tm DateTime{};
+#ifdef _WIN32
+	localtime_s(&DateTime, &value);
+#else // _WIN32
+	localtime_r(&value, &DateTime);
+#endif // _WIN32
+	if (DateTime.tm_year > 100)
+		DateTime.tm_year -= 100; // tm_year is from 1900
+	m_Year = tValue(DateTime.tm_year);
+	m_Month = tValue(DateTime.tm_mon + 1);
+	m_Day = tValue(DateTime.tm_mday);
+}
+
+std::time_t tDate::GetValue() const
+{
+	if (IsEmpty())
+		return {};
+	tm DateTime{};
+	DateTime.tm_year = m_Year.GetValue();
+	if (DateTime.tm_year < 90) // since 1990
+		DateTime.tm_year += 100; // tm_year is from 1900
+	DateTime.tm_mon = m_Month.GetValue() - 1;
+	DateTime.tm_mday = m_Day.GetValue();
+	return mktime(&DateTime);
+}
+
+std::string tDate::ToString() const
+{
+	std::stringstream SStr;
+	SStr << *this;
+	return SStr.str();
+}
+
+std::ostream& operator<<(std::ostream& out, const tDate& value)
+{
+	if (value.IsEmpty())
+		return out;
+	out << value.m_Day << value.m_Month << value.m_Year;
+	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tModeIndicator::tModeIndicator(const std::string& val)
+/*tModeIndicator::tModeIndicator(const std::string& val)
 {
 	if (val.size() == 1 && val[0] >= 'A' && val[0] <= 'Z')
 		Value = val[0];
