@@ -238,14 +238,14 @@ namespace mtk_axn_1_30_eb500 // PMTK705,AXN_1.30,5023,EB500,1.0
 	// $GPRMC,000000.000,A,0000.0000,N,00000.0000,E,123.00,123.00,000000,,,D*??
 	//
 	// $GPGSV,4,1,13,01,01,001,,02,02,002,22,03,33,003,33,04,04,004,*??
-	using tTime = type::tTime<3>;						// 000000.000
+	using tTime = type::tTime<3>;								// 000000.000
 	using tDate = type::tDate;
-	using tLatitude = type::tLatitude<4>;				// 0000.0000
-	using tLongitude = type::tLongitude<4>;				// 00000.0000
-	using tSatUsed = type::tUInt<2>;					// 0 - 99
-	using tHDOP = type::tFloat<2, 0>;					// ?.00
-	using tAltitude = type::tFloatUnit<1, 0>;			// ?.0
-	using tGeoidSeparation = type::tFloatUnit<1, 0>;	// ?.0
+	using tLatitude = type::tLatitude<4>;						// 0000.0000
+	using tLongitude = type::tLongitude<4>;						// 00000.0000
+	using tSatUsed = type::tUInt<2>;							// 0 - 99
+	using tHDOP = type::tFloatPrecisionFixed<2>;				// ?.00
+	using tAltitude = type::tFloatPrecisionFixedUnit<1>;		// ?.0
+	using tGeoidSeparation = type::tFloatPrecisionFixedUnit<1>;	// ?.0
 
 	//using tPayloadGGA = base::tPayloadGGA <15, tTime, tLatitude, tLongitude, tSatUsed, tHDOP, tAltitude, tGeoidSeparation>;
 }
@@ -290,16 +290,16 @@ namespace mtk_axn_3_8_eb800a
 	// $GLGSV,2,2,05,69,69,069,69*??
 
 
-	using tTime = type::tTime<3>;						// 000000.000
+	using tTime = type::tTime<3>;									// 000000.000
 	using tDate = type::tDate;
-	using tLatitude = type::tLatitude<6>;				// 0000.000000
-	using tLongitude = type::tLongitude<6>;				// 00000.000000
-	using tSatUsed = type::tUInt<2>;					// 0 - 99
-	using tHDOP = type::tFloat<2, 0>;					// ?.00
-	using tAltitude = type::tFloatUnit<3, 0>;			// ?.000
-	using tGeoidSeparation = type::tFloatUnit<3, 0>;	// ?.000
-	using tDiffAge = type::tFloat<1, 3>;				// 000.0
-	using tDiffStation = type::tUIntFixed<4>;			// 0000	
+	using tLatitude = type::tLatitude<6>;							// 0000.000000
+	using tLongitude = type::tLongitude<6>;							// 00000.000000
+	using tSatUsed = type::tUInt<2>;								// 0 - 99
+	using tHDOP = type::tFloatPrecisionFixed<2>;					// ?.00
+	using tAltitude = type::tFloatPrecisionFixedUnit<3>;			// ?.000
+	using tGeoidSeparation = type::tFloatPrecisionFixedUnit<3>;		// ?.000
+	using tDiffAge = type::tFloatFixed<3, 1>;						// 000.0
+	using tDiffStation = type::tUIntFixed<4>;						// 0000	
 
 	//using tDiffAge = type::tFloat<1, 3>;				// 000.0
 	//using tDiffStation = type::tUInt<4>;				// 0000				[TBD] Verify format.
@@ -324,16 +324,16 @@ namespace sirf_gsu_7x
 	// 
 	// $GPGSV,3,1,12,01,01,001,,02,02,002,,03,03,003,,04,04,004,*??
 
-	using tTime = type::tTime<3>;						// 000000.000
+	using tTime = type::tTime<3>;							// 000000.000
 	using tDate = type::tDate;
-	using tLatitude = type::tLatitude<4>;				// 0000.0000
-	using tLongitude = type::tLongitude<4>;				// 00000.0000
-	using tSatUsed = type::tUIntFixed<2>;				// 00
-	using tHDOP = type::tFloat<1, 2>;					// 00.0
-	using tAltitude = type::tFloatUnit<1, 5>;			// 00000.0
-	using tGeoidSeparation = type::tFloatUnit<1, 4>;	// 0000.0
-	using tDiffAge = type::tFloat<1, 3>;				// 000.0
-	using tDiffStation = type::tUIntFixed<4>;			// 0000
+	using tLatitude = type::tLatitude<4>;					// 0000.0000
+	using tLongitude = type::tLongitude<4>;					// 00000.0000
+	using tSatUsed = type::tUIntFixed<2>;					// 00
+	using tHDOP = type::tFloatFixed<2, 1>;					// 00.0
+	using tAltitude = type::tFloatFixedUnit<5, 1>;			// 00000.0
+	using tGeoidSeparation = type::tFloatFixedUnit<4, 1>;	// 0000.0
+	using tDiffAge = type::tFloatFixed<3, 1>;				// 000.0
+	using tDiffStation = type::tUIntFixed<4>;				// 0000
 
 	using tPayloadGGA = base::tPayloadGGA <15, tTime, tLatitude, tLongitude, tSatUsed, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 }
