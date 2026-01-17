@@ -223,7 +223,6 @@ public:
 	bool IsEmpty() const { return m_ValueInt.IsEmpty() || m_ValueFract.IsEmpty(); }
 
 	static constexpr std::size_t GetSize() { return Size; }
-	static bool CheckSize(std::size_t size) { return size == Size; }
 
 	double GetValue() const { return hidden::MakeDouble(m_ValueInt.GetValue(), m_ValueFract.GetValue(), Precision); }
 
@@ -351,7 +350,6 @@ public:
 	bool IsEmpty() const { return m_ValueInt.IsEmpty() || m_ValueFract.IsEmpty(); }
 
 	static constexpr std::size_t GetSize() { return SizeMin; }
-	static bool CheckSize(std::size_t size) { return size <= SizeMin; }
 
 	double GetValue() const { return hidden::MakeDouble(m_ValueInt.GetValue(), m_ValueFract.GetValue(), Precision); }
 
@@ -401,10 +399,12 @@ public:
 	tUnit() = default;
 	tUnit(const std::string& value, const std::string& unit)
 	{
-		if (T::CheckSize(value.size()) || unit.size() != 1)
+		if (unit.size() != 1)
+			return;
+		m_Value = T(value);
+		if (m_Value.IsEmpty())
 			return;
 		m_Unit = unit[0];
-		m_Value = T(value);
 	}
 	tUnit(TValue value, char unit)
 	{

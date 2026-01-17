@@ -303,26 +303,26 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixed<5,2>>(-10.3456,      "tFloatPrecisionFixed<5,2> -10.35",    "-10.35");
 	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixed<5,2>>("12345.67",    "tFloatPrecisionFixed<5,2> 12345.67",  "12345.67");
 	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixed<5,2>>("-12345.67",   "tFloatPrecisionFixed<5,2> -12345.67", "-12345.67");
-	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixed<5, 2>>("1234599.67", "tFloatPrecisionFixed<5,2> 1234599.67", ""); // ERR
+	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixed<5,2>>("1234599.67",  "tFloatPrecisionFixed<5,2> 1234599.67", ""); // ERR
 	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixed<5,2>>(123.4567834,   "tFloatPrecisionFixed<5,2> 123.46",    "123.46");
 
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>(             "tFloatPrecisionFixed<2> empty",     "");
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>(0,           "tFloatPrecisionFixed<2> 0.00",      "0.00");
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>(-10.3456,    "tFloatPrecisionFixed<2> 0.00",      "");
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>("12345.67",  "tFloatPrecisionFixed<2> 12345.67",  "12345.67");
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>("-12345.67", "tFloatPrecisionFixed<2> 12345.67",  "");
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>(123.4567834, "tFloatPrecisionFixed<2> 231.46",    "123.46");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>(             "tFloatPrecisionFixed<5,2> empty",     "");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>(0,           "tFloatPrecisionFixed<5,2> 0.00",      "0.00");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>(-10.3456,    "tFloatPrecisionFixed<5,2> 0.00",      "");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>("12345.67",  "tFloatPrecisionFixed<5,2> 12345.67",  "12345.67");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>("-12345.67", "tFloatPrecisionFixed<5,2> 12345.67",  "");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixed<5,2>>(123.4567834, "tFloatPrecisionFixed<5,2> 231.46",    "123.46");
 
-	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixedUnit<5,4>>("12.3456", "R", "tFloatPrecisionFixedUnit<4> 12.3456,R",  "12.3456,R");
-	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixedUnit<5,4>>(12.3456, 'W',   "tFloatPrecisionFixedUnit<4> 12.3456,W",  "12.3456,W");
-	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixedUnit<5,4>>(-12.3456, 'W',  "tFloatPrecisionFixedUnit<4> -12.3456,W", "-12.3456,W");
-	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixedUnit<5,4>>(1.3, 'W',       "tFloatPrecisionFixedUnit<4> 1.3000,W",   "1.3000,W");
+	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixedUnit<5,4>>("12.3456", "R", "tFloatPrecisionFixedUnit<5,4> 12.3456,R",  "12.3456,R");
+	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixedUnit<5,4>>(12.3456, 'W',   "tFloatPrecisionFixedUnit<5,4> 12.3456,W",  "12.3456,W");
+	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixedUnit<5,4>>(-12.3456, 'W',  "tFloatPrecisionFixedUnit<5,4> -12.3456,W", "-12.3456,W");
+	UnitTest_PacketNMEAType_Test<tFloatPrecisionFixedUnit<5,4>>(1.3, 'W',       "tFloatPrecisionFixedUnit<5,4> 1.3000,W",   "1.3000,W");
 
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>("12.3456", "R", "tFloatPrecisionFixedUnit<4> 12.3456,R", "12.3456,R");
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>(12.3456, 'W',   "tFloatPrecisionFixedUnit<4> 12.3456,W", "12.3456,W");
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>(-12.3456, 'W',  "tFloatPrecisionFixedUnit<4> -12.3456,W", ",W");
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>(-12.3456, 0,    "tFloatPrecisionFixedUnit<4> -12.3456,W", ",");
-	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>(1.3, 'W',       "tFloatPrecisionFixedUnit<4> 1.3000,W",   "1.3000,W");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>("12.3456", "R", "tFloatPrecisionFixedUnit<5,4> 12.3456,R", "12.3456,R");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>(12.3456, 'W',   "tFloatPrecisionFixedUnit<5,4> 12.3456,W", "12.3456,W");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>(-12.3456, 'W',  "tFloatPrecisionFixedUnit<5,4> -12.3456,W", ",W");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>(-12.3456, 0,    "tFloatPrecisionFixedUnit<5,4> -12.3456,W", ",");
+	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5,4>>(1.3, 'W',       "tFloatPrecisionFixedUnit<5,4> 1.3000,W",   "1.3000,W");
 
 /*
 	using tNumberFixed_6_2_3 = hidden::tNumberFixed<6, 2, 3>;
