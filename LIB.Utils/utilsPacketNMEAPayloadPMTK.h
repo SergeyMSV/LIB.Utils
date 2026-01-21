@@ -1,18 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// utilsPacketNMEAPayloadPMTK.h
+// utilsPacketNMEAPayloadPMTK
 // 2020-02-07
-// Standard ISO/IEC 114882, C++11
+// C++17
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "utilsBase.h"
 #include "utilsPacketNMEA.h"
 #include "utilsPacketNMEAType.h"
 
 namespace utils
 {
-	namespace packet_NMEA
-	{
+namespace packet
+{
+namespace nmea
+{
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 namespace hidden
 {
@@ -38,8 +39,8 @@ struct tPayloadPMTK001
 	{
 		if (Try(val))
 		{
-			CMD = command_type(val[1]);
-			Status = status_type(val[2]);
+			CMD = command_type::Parse(val[1]);
+			Status = status_type::Parse(val[2]);
 		}
 	}
 
@@ -135,7 +136,7 @@ struct tPayloadPMTK010
 	{
 		if (Try(val))
 		{
-			Status = status_type(val[1]);
+			Status = status_type::Parse(val[1]);
 		}
 	}
 
@@ -488,5 +489,6 @@ struct tPayloadPMTK705
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-	}
+}
+}
 }

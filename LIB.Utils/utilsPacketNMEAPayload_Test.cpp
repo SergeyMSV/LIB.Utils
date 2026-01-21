@@ -4,7 +4,6 @@
 #include "utilsPacketNMEAPayloadPMTK.h"
 #include "utilsPacketNMEAPayloadPTWS.h"
 
-#include "utilsBase.h"
 #include "utilsTest.h"
 
 #include <iostream>
@@ -16,7 +15,7 @@ namespace utils
 template<class TPayload, class TArg>
 void UnitTest_PacketNMEAPayload(const TArg& msg)
 {
-	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadCommon> tPacketNMEA;
+	typedef utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon> tPacketNMEA;
 
 	tVectorUInt8 DataVector(msg.cbegin(), msg.cend());//C++14
 
@@ -24,13 +23,13 @@ void UnitTest_PacketNMEAPayload(const TArg& msg)
 
 	bool Result = tPacketNMEA::Find(DataVector, Packet);
 
-	utils::packet_NMEA::tPayloadCommon::value_type PacketData = Packet.GetPayloadValue();
+	utils::packet::nmea::tPayloadCommon::value_type PacketData = Packet.GetPayloadValue();
 
 	TPayload Val(PacketData);
 
 	//if (Val.GNSS.Value != TPayload::gnss_type::tGNSS_State::UNKNOWN)//Parsed!!
 	{
-		utils::packet_NMEA::tPayloadCommon::value_type PacketData1 = Val.GetPayload();
+		utils::packet::nmea::tPayloadCommon::value_type PacketData1 = Val.GetPayload();
 
 		tPacketNMEA Packet2(PacketData1);
 
@@ -43,9 +42,9 @@ void UnitTest_PacketNMEAPayload(const TArg& msg)
 template<class TPayload>
 void UnitTest_PacketNMEAPayload(const TPayload& val)
 {
-	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadCommon> tPacketNMEA;
+	typedef utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon> tPacketNMEA;
 
-	utils::packet_NMEA::tPayloadCommon::value_type PacketData = val.GetPayload();
+	utils::packet::nmea::tPayloadCommon::value_type PacketData = val.GetPayload();
 
 	tPacketNMEA Packet(PacketData);
 
@@ -56,13 +55,15 @@ void UnitTest_PacketNMEAPayload(const TPayload& val)
 
 void UnitTest_PacketNMEAPayload()
 {
-	std::cout << "\n""utils::packet_NMEA::Payload\n";
+	std::cout << "\n""utils::packet::nmea::Payload\n";
 
 	using namespace std::string_literals;
 
-	using namespace utils::packet_NMEA;
+	using namespace utils::packet::nmea;
 
-	typedef utils::packet::tPacket<utils::packet_NMEA::tFormatNMEA, utils::packet_NMEA::tPayloadCommon> tPacketNMEA;
+	//utils::packet::nmea::Type::
+
+	typedef utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon> tPacketNMEA;
 
 	{
 		tPacketNMEA Packet;
