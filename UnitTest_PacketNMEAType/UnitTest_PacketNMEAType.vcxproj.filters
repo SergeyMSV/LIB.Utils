@@ -20,9 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
-    <ClInclude Include="..\Lib.Utils\utilsBase.h">
-      <Filter>Lib.Utils</Filter>
-    </ClInclude>
     <ClInclude Include="libConfig.h" />
     <ClInclude Include="..\Lib.Utils\utilsTest.h">
       <Filter>Lib.Utils</Filter>
