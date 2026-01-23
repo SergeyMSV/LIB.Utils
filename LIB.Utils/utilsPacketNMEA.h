@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacketNMEA
 // 2019-01-31
-// Standard ISO/IEC 114882, C++14
+// C++14
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -26,55 +26,47 @@ struct tFormat
 	enum : std::uint8_t { STX = stx, CTX = '*' };
 
 protected:
-	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	static std::vector<std::uint8_t> TestPacket(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		std::size_t Size = std::distance(cbegin, cend);
 
-		if (Size >= GetSize(0) && *cbegin == STX)
-		{
-			const tVectorUInt8::const_iterator Begin = cbegin + 1;
-			const tVectorUInt8::const_iterator End = std::find(Begin, cend, CTX);
+		if (Size < GetSize(0) || *cbegin != STX)
+			return {};
 
-			if (End != cend)
-			{
-				const std::size_t DataSize = std::distance(Begin, End);
+		const std::vector<std::uint8_t>::const_iterator Begin = cbegin + 1;
+		const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, cend, CTX);
+		if (End == cend)
+			return {};
 
-				if (Size >= GetSize(DataSize) && VerifyCRC(Begin, DataSize))
-				{
-					return tVectorUInt8(cbegin, cbegin + GetSize(DataSize));
-				}
-			}
-		}
+		const std::size_t DataSize = std::distance(Begin, End);
+		if (Size < GetSize(DataSize) || !VerifyCRC(Begin, DataSize))
+			return {};
 
-		return tVectorUInt8();
+		return std::vector<std::uint8_t>(cbegin, cbegin + GetSize(DataSize));
 	}
 
-	static bool TryParse(const tVectorUInt8& packetVector, TPayload& payload)
+	static bool TryParse(const std::vector<std::uint8_t>& packetVector, TPayload& payload)
 	{
-		if (packetVector.size() >= GetSize(0) && packetVector[0] == STX)
-		{
-			const tVectorUInt8::const_iterator Begin = packetVector.cbegin() + 1;
-			const tVectorUInt8::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
+		if (packetVector.size() < GetSize(0) || packetVector[0] != STX)
+			return false;
 
-			if (End != packetVector.cend())
-			{
-				const std::size_t DataSize = std::distance(Begin, End);
+		const std::vector<std::uint8_t>::const_iterator Begin = packetVector.cbegin() + 1;
+		const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
+		if (End == packetVector.cend())
+			return false;
 
-				if (packetVector.size() == GetSize(DataSize) && VerifyCRC(Begin, DataSize))
-				{
-					payload = TPayload(Begin, End);
+		const std::size_t DataSize = std::distance(Begin, End);
 
-					return true;
-				}
-			}
-		}
+		if (packetVector.size() != GetSize(DataSize) || !VerifyCRC(Begin, DataSize))
+			return false;
 
-		return false;
+		payload = TPayload(Begin, End);
+		return true;
 	}
 
-	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 6; };//$*xx\xd\xa
+	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 6; }; // $*xx\xd\xa
 
-	static void Append(tVectorUInt8& dst, const TPayload& payload)
+	static void Append(std::vector<std::uint8_t>& dst, const TPayload& payload)
 	{
 		dst.reserve(GetSize(payload.size()));
 
@@ -89,22 +81,22 @@ protected:
 
 		dst.push_back(CTX);
 
-		std::stringstream SStream;
+		std::stringstream SStr;
 
-		SStream << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << static_cast<uint16_t>(CRC);
-		SStream << "\xd\xa";
+		SStr << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << static_cast<uint16_t>(CRC);
+		SStr << "\xd\xa";
 
-		const std::string EndStr = SStream.str();
+		const std::string EndStr = SStr.str();
 
 		dst.insert(dst.end(), EndStr.cbegin(), EndStr.cend());
 	}
 
 private:
-	static bool VerifyCRC(tVectorUInt8::const_iterator begin, std::size_t crcDataSize)
+	static bool VerifyCRC(std::vector<std::uint8_t>::const_iterator begin, std::size_t crcDataSize)
 	{
 		const std::uint8_t CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
 
-		const tVectorUInt8::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
+		const std::vector<std::uint8_t>::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
 
 		const std::uint8_t CRCReceived = utils::Read<std::uint8_t>(CRCBegin, CRCBegin + 2, utils::tRadix::hex);
 
@@ -132,16 +124,16 @@ struct tPayloadCommon
 		tIterator() = delete;
 		tIterator(const tPayloadCommon* obj, bool begin) :m_pObj(obj), m_DataSize(m_pObj->size())
 		{
-			if (m_DataSize > 0 && m_pObj->Value[0].size() > 0)
+			if (!m_DataSize || !m_pObj->Value[0].size())
+				return;
+
+			if (begin)
 			{
-				if (begin)
-				{
-					m_DataPtr = &m_pObj->Value[0][0];
-				}
-				else
-				{
-					m_DataIndex = m_DataSize;
-				}
+				m_DataPtr = &m_pObj->Value[0][0];
+			}
+			else
+			{
+				m_DataIndex = m_DataSize;
 			}
 		}
 
@@ -149,9 +141,7 @@ struct tPayloadCommon
 		tIterator& operator ++ ()
 		{
 			if (m_DataIndex < m_DataSize)
-			{
 				++m_DataIndex;
-			}
 
 			std::size_t DataIndex = m_DataIndex;
 
@@ -202,7 +192,7 @@ struct tPayloadCommon
 		:Value(value)
 	{}
 
-	tPayloadCommon(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadCommon(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		AppendData(cbegin, cend);
 	}
@@ -221,10 +211,8 @@ struct tPayloadCommon
 			Size += i.size();
 		}
 
-		if (Value.size() > 0)//that's for ','
-		{
+		if (Value.size() > 0) // that's for ','
 			Size += Value.size() - 1;
-		}
 
 		return Size;
 	}
@@ -243,22 +231,22 @@ private:
 	template <class It>
 	void AppendData(It begin, It end)
 	{
-		std::string LocalString;
+		std::string Str;
 
 		for (It i = begin; i != end; ++i)
 		{
 			if (*i == ',')
 			{
-				Value.push_back(LocalString);
-				LocalString.clear();
+				Value.push_back(Str);
+				Str.clear();
 			}
 			else
 			{
-				LocalString.push_back(static_cast<char>(*i));
+				Str.push_back(static_cast<char>(*i));
 			}
 		}
 
-		Value.push_back(LocalString);
+		Value.push_back(Str);
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -275,7 +263,7 @@ struct tPayloadString
 		:Value(value)
 	{}
 
-	tPayloadString(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadString(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		Value.insert(Value.end(), cbegin, cend);
 	}
