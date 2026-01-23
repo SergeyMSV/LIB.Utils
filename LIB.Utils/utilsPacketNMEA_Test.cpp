@@ -9,9 +9,9 @@ namespace utils
 
 void UnitTest_PacketNMEA()
 {
-	std::cout << "\n""utils::packet_NMEA\n";
+	std::cout << "\n""utils::packet::nmea\n";
 
-	using tPacketNMEA = packet::tPacket<packet_NMEA::tFormatNMEA, packet_NMEA::tPayloadCommon>;
+	using tPacketNMEA = packet::tPacket<packet::nmea::tFormatNMEA, packet::nmea::tPayloadCommon>;
 
 	UnitTest_Packet_Find<tPacketNMEA>("Parse CRC: Just a packet",
 		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa",
@@ -56,9 +56,9 @@ void UnitTest_PacketNMEA()
 	UnitTest_Packet_Make("Parse CRC: Make MYRMC 2",
 		tPacketNMEA(std::vector<std::string>{ "MYRMC", "PartA", "PartB", "PartC" }));
 
-	std::cout << "\n""utils::packet_NMEA::tPayloadString\n";
+	std::cout << "\n""utils::packet::nmea::tPayloadString\n";
 
-	using tPacketNMEA2 = packet::tPacket<packet_NMEA::tFormatNMEA, packet_NMEA::tPayloadString>;
+	using tPacketNMEA2 = packet::tPacket<packet::nmea::tFormatNMEA, packet::nmea::tPayloadString>;
 
 	UnitTest_Packet_Find<tPacketNMEA2>("Parse CRC: Just a packet",
 		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa",
@@ -106,7 +106,7 @@ void UnitTest_PacketNMEA()
 
 	std::cout << "\n""tPacketNMEABin\n";
 
-	using tPacketNMEABin = packet::tPacket<packet_NMEA::tFormatNMEABin, packet_NMEA::tPayloadCommon>;
+	using tPacketNMEABin = packet::tPacket<packet::nmea::tFormatNMEABin, packet::nmea::tPayloadCommon>;
 
 	UnitTest_Packet_Parse("Parse CRC: Just a encapsulation packet",
 		"!AIVDM,1,1,,1,1P000Oh1IT1svTP2r:43grwb05q4,0*01\xd\xa",
