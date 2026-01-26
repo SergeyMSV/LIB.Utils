@@ -14,7 +14,76 @@ namespace packet
 {
 namespace nmea
 {
+namespace telit
+{
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+//template
+//<
+//	typename TTime,
+//	typename TLatitude,
+//	typename TLongitude,
+//	typename TSatQty,
+//	typename THDOP,
+//	typename TAltitude,
+//	typename TGeoidSeparation,
+//	typename TDiffAge,
+//	typename TDiffStation
+//>
+struct tPayloadPTWS_JAM_SIGNAL_VAL
+{
+	/*type::tGNSS GNSS;
+	TTime Time;								// UTC Time
+	TLatitude Latitude;
+	TLongitude Longitude;
+	std::uint8_t FS = 0;					// Position Fix Indicator, 1 digit 
+	TSatQty SatUsed = TSatQty(0);			// Satellites Used
+	THDOP HDOP;								// Horizontal Dilution of Precision 
+	TAltitude Altitude;						// Altitude re: mean-sea-level (geoid), meters
+	TGeoidSeparation GeoidalSeparation;		// Geoidal Separation: the difference between the WGS-84 earth ellipsoid surface and mean-sea-level (geoid) surface, "-" = mean-sea-level surface below WGS - 84 ellipsoid surface.
+	TDiffAge DiffAge;						// Age of Differential Corrections
+	TDiffStation DiffStation;				// Diff. Reference Station ID
+
+	tPayloadGGA() = default;
+	explicit tPayloadGGA(const tPayloadCommon::value_type& val)
+	{
+		if (val.size() != 15 || val[0].size() < 3 || std::strcmp(&val[0][2], GetID()))
+			return;
+		GNSS = type::tGNSS(val[0]);
+		Time = TTime(val[1]);
+		Latitude = TLatitude(val[2], val[3]);
+		Longitude = TLongitude(val[4], val[5]);
+		FS = std::atoi(val[6].c_str());
+		SatUsed = TSatQty(val[7]);
+		HDOP = THDOP(val[8]);
+		Altitude = TAltitude(val[9], val[10]);
+		GeoidalSeparation = TGeoidSeparation(val[11], val[12]);
+		DiffAge = TDiffAge(val[13]);
+		DiffStation = TDiffStation(val[14]);
+	}
+
+	static const char* GetID() { return "GGA"; }
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data;
+		Data.push_back(GNSS.ToString() + GetID());
+		Data.push_back(Time.ToString());
+		Data.push_back(Latitude.ToStringValue());
+		Data.push_back(Latitude.ToStringHemisphere());
+		Data.push_back(Longitude.ToStringValue());
+		Data.push_back(Longitude.ToStringHemisphere());
+		Data.push_back(std::to_string(FS));
+		Data.push_back(SatUsed.ToString());
+		Data.push_back(HDOP.ToString());
+		Data.push_back(Altitude.ToStringValue());
+		Data.push_back(Altitude.ToStringUnit());
+		Data.push_back(GeoidalSeparation.ToStringValue());
+		Data.push_back(GeoidalSeparation.ToStringUnit());
+		Data.push_back(DiffAge.ToString());
+		Data.push_back(DiffStation.ToString());
+		return Data;
+	}*/
+};
 /*struct tPayloadPTWS_JAM_SIGNAL_VAL
 {
 	typedef Type::tUInt<std::uint8_t, 0> index_type;
@@ -134,6 +203,7 @@ struct tPayloadPTWS_VERSION_VAL
 	}
 };*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+}
 }
 }
 }
