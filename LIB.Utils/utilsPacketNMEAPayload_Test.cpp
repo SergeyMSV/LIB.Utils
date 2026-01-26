@@ -139,9 +139,12 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadRMC>("sirf_gsu_7x RMC 4", "$GPRMC,123456.789,A,1122.3344,N,01122.3344,E,0052.58,132.68,180109,,*37\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadRMC>("sirf_gsu_7x RMC 5", "$GPRMC,123456.789,A,1122.3344,N,12233.4455,E,0052.58,132.68,180109,,*36\xd\xa"s);
 
-	
-	
-		
+	std::cout << '\n';
+
+	UnitTest_PacketNMEAPayload<telit::tPayloadPTWS_JAM_SIGNAL_VAL>("telit PTWS JAM 1", "$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa"s);
+	UnitTest_PacketNMEAPayload<telit::tPayloadPTWS_JAM_SIGNAL_VAL>("telit PTWS JAM 2", "$PTWS,JAM,SIGNAL,VAL,INDEX,18,FREQ,1574.990234*54\xd\xa"s);
+	UnitTest_PacketNMEAPayload<telit::tPayloadPTWS_VERSION_VAL>("telit PTWS VERSION 1", "$PTWS,VERSION,VAL,v13-2.2.0-STD-3.8.13-N96-B2*3F\xd\xa"s);
+
 	/*
 		// [TBD] what is EMPTY !!!!
 	// [TBD] what is EMPTY !!!!
@@ -202,13 +205,13 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload(tPayloadPMTK705("AXN_3.84_3333_15071800", "0000","","1.0"));
 	UnitTest_PacketNMEAPayload(tPayloadPMTK705("AXN_3.84_3333_15071800", "0000", "la-la", "1.0"));
 
-	UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_GET());
-	UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_VAL());
-	UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_VAL("M33-asdfasdf.fff.df"));
+	//UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_GET());
+	//UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_VAL());
+	//UnitTest_PacketNMEAPayload(tPayloadPTWS_VERSION_VAL("M33-asdfasdf.fff.df"));
 
-	UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL());
-	UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL(12, 1575.000002));
-	UnitTest_PacketNMEAPayload<tPayloadPTWS_JAM_SIGNAL_VAL>("$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa"s);
+	//UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL());
+	//UnitTest_PacketNMEAPayload(tPayloadPTWS_JAM_SIGNAL_VAL(12, 1575.000002));
+	//UnitTest_PacketNMEAPayload<tPayloadPTWS_JAM_SIGNAL_VAL>("$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa"s);
 	*/
 
 	std::cout << std::endl;

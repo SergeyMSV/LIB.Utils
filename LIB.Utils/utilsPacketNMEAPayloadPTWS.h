@@ -29,98 +29,44 @@ namespace telit
 //	typename TDiffAge,
 //	typename TDiffStation
 //>
+
+	
+//$GNRMC,235953.800,V,,,,,0.00,0.00,050180,,,N*5C
+//$GNVTG,0.00,T,,M,0.00,N,0.00,K,N*2C
+//$PTWS,JAM,SIGNAL,VAL,INDEX,7,FREQ,1575.453369*60
+//$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1575.197876*67
+//$PTWS,JAM,SIGNAL,VAL,INDEX,9,FREQ,1575.260742*65
+//$PTWS,JAM,SIGNAL,VAL,INDEX,10,FREQ,1575.130615*58
+//$PTWS,JAM,SIGNAL,VAL,INDEX,11,FREQ,1575.385498*52
+
+
 struct tPayloadPTWS_JAM_SIGNAL_VAL
 {
-	/*type::tGNSS GNSS;
-	TTime Time;								// UTC Time
-	TLatitude Latitude;
-	TLongitude Longitude;
-	std::uint8_t FS = 0;					// Position Fix Indicator, 1 digit 
-	TSatQty SatUsed = TSatQty(0);			// Satellites Used
-	THDOP HDOP;								// Horizontal Dilution of Precision 
-	TAltitude Altitude;						// Altitude re: mean-sea-level (geoid), meters
-	TGeoidSeparation GeoidalSeparation;		// Geoidal Separation: the difference between the WGS-84 earth ellipsoid surface and mean-sea-level (geoid) surface, "-" = mean-sea-level surface below WGS - 84 ellipsoid surface.
-	TDiffAge DiffAge;						// Age of Differential Corrections
-	TDiffStation DiffStation;				// Diff. Reference Station ID
+	using tIndex = type::tUInt<2>;
+	using tFrequency = type::tFloatPrecisionFixed<4, 6>;
 
-	tPayloadGGA() = default;
-	explicit tPayloadGGA(const tPayloadCommon::value_type& val)
-	{
-		if (val.size() != 15 || val[0].size() < 3 || std::strcmp(&val[0][2], GetID()))
-			return;
-		GNSS = type::tGNSS(val[0]);
-		Time = TTime(val[1]);
-		Latitude = TLatitude(val[2], val[3]);
-		Longitude = TLongitude(val[4], val[5]);
-		FS = std::atoi(val[6].c_str());
-		SatUsed = TSatQty(val[7]);
-		HDOP = THDOP(val[8]);
-		Altitude = TAltitude(val[9], val[10]);
-		GeoidalSeparation = TGeoidSeparation(val[11], val[12]);
-		DiffAge = TDiffAge(val[13]);
-		DiffStation = TDiffStation(val[14]);
-	}
-
-	static const char* GetID() { return "GGA"; }
-
-	tPayloadCommon::value_type GetPayload() const
-	{
-		tPayloadCommon::value_type Data;
-		Data.push_back(GNSS.ToString() + GetID());
-		Data.push_back(Time.ToString());
-		Data.push_back(Latitude.ToStringValue());
-		Data.push_back(Latitude.ToStringHemisphere());
-		Data.push_back(Longitude.ToStringValue());
-		Data.push_back(Longitude.ToStringHemisphere());
-		Data.push_back(std::to_string(FS));
-		Data.push_back(SatUsed.ToString());
-		Data.push_back(HDOP.ToString());
-		Data.push_back(Altitude.ToStringValue());
-		Data.push_back(Altitude.ToStringUnit());
-		Data.push_back(GeoidalSeparation.ToStringValue());
-		Data.push_back(GeoidalSeparation.ToStringUnit());
-		Data.push_back(DiffAge.ToString());
-		Data.push_back(DiffStation.ToString());
-		return Data;
-	}*/
-};
-/*struct tPayloadPTWS_JAM_SIGNAL_VAL
-{
-	typedef Type::tUInt<std::uint8_t, 0> index_type;
-	typedef Type::tFloat<0, 6> frequency_type;
-
-	index_type Index;
-	frequency_type Frequency;
+	tIndex Index;
+	tFrequency Frequency;
 
 	tPayloadPTWS_JAM_SIGNAL_VAL() = default;
-	explicit tPayloadPTWS_JAM_SIGNAL_VAL(std::uint8_t index, double frequency)
+	tPayloadPTWS_JAM_SIGNAL_VAL(std::uint8_t index, double frequency)
 		:Index(index), Frequency(frequency)
-	{}
+	{
+	}
 	explicit tPayloadPTWS_JAM_SIGNAL_VAL(const tPayloadCommon::value_type& val)
 	{
-		if (Try(val))
-		{
-			Index = index_type(val[5]);
-			Frequency = frequency_type(val[7]);
-		}
+		if (val.size() != 8 || val[0] != GetID() || val[1] != "JAM" || val[2] != "SIGNAL" || val[3] != "VAL" || val[4] != "INDEX" || val[6] != "FREQ")
+			return;
+		Index = tIndex(val[5]);
+		Frequency = tFrequency(val[7]);
 	}
 
-	static bool Try(const tPayloadCommon::value_type& val)
-	{
-		return val.size() == 8 &&
-			!std::strcmp(val[0].c_str(), "PTWS") &&
-			!std::strcmp(val[1].c_str(), "JAM") &&
-			!std::strcmp(val[2].c_str(), "SIGNAL") &&
-			!std::strcmp(val[3].c_str(), "VAL") &&
-			!std::strcmp(val[4].c_str(), "INDEX") &&
-			!std::strcmp(val[6].c_str(), "FREQ");
-	}
+	static const char* GetID() { return "PTWS"; }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
-
-		Data.push_back("PTWS");
+		Data.push_back(GetID());
 		Data.push_back("JAM");
 		Data.push_back("SIGNAL");
 		Data.push_back("VAL");
@@ -128,7 +74,6 @@ struct tPayloadPTWS_JAM_SIGNAL_VAL
 		Data.push_back(Index.ToString());
 		Data.push_back("FREQ");
 		Data.push_back(Frequency.ToString());
-
 		return Data;
 	}
 };
@@ -136,27 +81,19 @@ struct tPayloadPTWS_JAM_SIGNAL_VAL
 struct tPayloadPTWS_VERSION_GET
 {
 	tPayloadPTWS_VERSION_GET() = default;
-	explicit tPayloadPTWS_VERSION_GET(const tPayloadCommon::value_type& val)
-	{
-		//if (Try(val))
-		//{
+	//explicit tPayloadPTWS_VERSION_GET(const tPayloadCommon::value_type& val)
+	//{
+	//	if (val.size() != 3 || val[0] != GetID() || val[1] != "VERSION" || val[2] != "GET")
+	//		return;
+	//}
 
-		//}
-	}
-
-	static bool Try(const tPayloadCommon::value_type& val)
-	{
-		return val.size() == 3 &&
-			!std::strcmp(val[0].c_str(), "PTWS") &&
-			!std::strcmp(val[1].c_str(), "VERSION") &&
-			!std::strcmp(val[2].c_str(), "GET");
-	}
+	static const char* GetID() { return "PTWS"; }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
 
-		Data.push_back("PTWS");
+		Data.push_back(GetID());
 		Data.push_back("VERSION");
 		Data.push_back("GET");
 
@@ -166,42 +103,33 @@ struct tPayloadPTWS_VERSION_GET
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadPTWS_VERSION_VAL
 {
-	typedef std::string version_type;
+	using tVersion = std::string;
 
-	version_type Version;
+	tVersion Version;
 
 	tPayloadPTWS_VERSION_VAL() = default;
-	explicit tPayloadPTWS_VERSION_VAL(version_type version)
+	explicit tPayloadPTWS_VERSION_VAL(tVersion version)
 		:Version(version)
 	{}
 	explicit tPayloadPTWS_VERSION_VAL(const tPayloadCommon::value_type& val)
 	{
-		if (Try(val))
-		{
-			Version = val[3];
-		}
+		if (val.size() != 4 || val[0] != GetID() || val[1] != "VERSION" || val[2] != "VAL")
+			return;
+		Version = val[3];
 	}
 
-	static bool Try(const tPayloadCommon::value_type& val)
-	{
-		return val.size() == 4 &&
-			!std::strcmp(val[0].c_str(), "PTWS") &&
-			!std::strcmp(val[1].c_str(), "VERSION") &&
-			!std::strcmp(val[2].c_str(), "VAL");
-	}
+	static const char* GetID() { return "PTWS"; }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
-
-		Data.push_back("PTWS");
+		Data.push_back(GetID());
 		Data.push_back("VERSION");
 		Data.push_back("VAL");
 		Data.push_back(Version);
-
 		return Data;
 	}
-};*/
+};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 }

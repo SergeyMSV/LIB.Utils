@@ -193,12 +193,6 @@ struct tPayloadRMC12						// Recommended Minimum Specific GNSS Data
 
 	static const char* GetID() { return "RMC"; }
 
-	static bool Try(const tPayloadCommon::value_type& val)
-	{
-		return val.size() >= 12 && val[0].size() > 3 && !std::strcmp(&val[0][2], GetID())
-			&& val[10].empty() && val[11].empty(); // 10 and 11 stand for Magnetic variation (not supported by receiver)
-	}
-
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
