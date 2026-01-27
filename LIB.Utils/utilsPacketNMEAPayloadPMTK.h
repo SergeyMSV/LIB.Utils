@@ -14,56 +14,108 @@ namespace packet
 {
 namespace nmea
 {
+namespace mtk
+{
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-namespace hidden
+struct tPayloadTEST
 {
+	bool Parsed = false;
 
-struct tPayloadPMTK001
-{
-	enum class tStatus : std::uint8_t
+	tPayloadTEST() = default;
+	explicit tPayloadTEST(const tPayloadCommon::value_type& val)
 	{
-		InvalidCommand = 0,//0 = Invalid command / packet
-		UnsupportedCommand,//1 = Unsupported command / packet type
-		Failed,//2 = Valid command / packet, but action failed.
-		Succeeded,//3 = Valid command / packet, and action succeeded
-	};
-
-	typedef Type::tUInt<std::uint16_t, 3> command_type;
-	typedef Type::tUInt<tStatus, 1> status_type;
-
-	command_type CMD;
-	status_type Status;
-
-	tPayloadPMTK001() = default;
-	explicit tPayloadPMTK001(const tPayloadCommon::value_type& val)
-	{
-		if (Try(val))
-		{
-			CMD = command_type::Parse(val[1]);
-			Status = status_type::Parse(val[2]);
-		}
+		if (val.size() != 1 || val[0] != GetID())
+			return;
+		Parsed = true;
 	}
 
-	static const char* GetID() { return "PMTK001"; }
-
-	static bool Try(const tPayloadCommon::value_type& val)
-	{
-		return val.size() >= 3 && !std::strcmp(val[0].c_str(), GetID());
-	}
+	static const char* GetID() { return "PMTK000"; }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
-
 		Data.push_back(GetID());
-		Data.push_back(CMD.ToString());
-		Data.push_back(Status.ToString());
+		return Data;
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct tPayloadACK
+{
+	enum class tStatus : std::uint8_t
+	{
+		InvalidCommand,			// 0 = Invalid command / packet
+		UnsupportedCommand,		// 1 = Unsupported command / packet type
+		Failed,					// 2 = Valid command / packet, but action failed.
+		Succeeded,				// 3 = Valid command / packet, and action succeeded
+	};
 
+	using tCmd = type::tUIntFixed<3>;
+	using tFlag = type::tUIntFixed<1>;
+
+	tCmd Cmd;
+	tFlag Status;
+
+	tPayloadACK() = default;
+	explicit tPayloadACK(const tPayloadCommon::value_type& val)
+	{
+		if (val.size() != 3 && val[0] != GetID())
+			return;
+		Cmd = tCmd(val[1]);
+		Status = tFlag(val[2]);
+		
+	}
+
+	static const char* GetID() { return "PMTK001"; }
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data;
+		Data.push_back(GetID());
+		Data.push_back(Cmd.ToString());
+		Data.push_back(Status.ToString());
+		return Data;
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct tPayloadACK_GNSS_SEARCH_MODE
+{
+	enum class tStatus : std::uint8_t
+	{
+		InvalidCommand,			// 0 = Invalid command / packet
+		UnsupportedCommand,		// 1 = Unsupported command / packet type
+		Failed,					// 2 = Valid command / packet, but action failed.
+		Succeeded,				// 3 = Valid command / packet, and action succeeded
+	};
+
+	using tCmd = type::tUIntFixed<3>;
+	using tFlag = type::tUIntFixed<1>;
+
+	tCmd Cmd;
+	tFlag Status;
+
+	tPayloadACK_GNSS_SEARCH_MODE() = default;
+	explicit tPayloadACK_GNSS_SEARCH_MODE(const tPayloadCommon::value_type& val)
+	{
+		if (val.size() != 3 && val[0] != GetID())
+			return;
+		Cmd = tCmd(val[1]);
+		Status = tFlag(val[2]);
+
+	}
+
+	static const char* GetID() { return "PMTK001"; }
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data;
+		Data.push_back(GetID());
+		Data.push_back(Cmd.ToString());
+		Data.push_back(Status.ToString());
 		return Data;
 	}
 };
 
-}
+/*
 
 template <int CmdID>
 struct tPayloadPMTK001 : public hidden::tPayloadPMTK001
@@ -487,8 +539,9 @@ struct tPayloadPMTK705
 
 		return Data;
 	}
-};
+};*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+}
 }
 }
 }
