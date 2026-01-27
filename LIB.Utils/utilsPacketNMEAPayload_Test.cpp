@@ -80,32 +80,32 @@ void UnitTest_PacketNMEAPayload()
 		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n';
 	}
 	
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGGA>("mtk_axn_1_30_eb500 GGA 1",	"$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGGA>("mtk_axn_1_30_eb500 GGA 2",	"$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"s); // C++14
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGGA>("mtk_axn_1_30_eb500 GGA 3",	"$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,,280.7,M,14.5,M,,*42\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGGA>("mtk_axn_1_30_eb500 GGA 4", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,0.00,280.7,M,14.5,M,,*5C\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 1",	"$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 2",	"$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 3",	"$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,,280.7,M,14.5,M,,*42\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 4", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,0.00,280.7,M,14.5,M,,*5C\xd\xa"s);
 
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 2", "$GPGSV,3,2,10,10,07,189,,05,05,220,,09,34,274,42,18,25,309,44*72\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 3", "$GPGSV,3,3,10,26,82,187,47,28,43,056,46*77\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 4", "$GPGSV,4,1,13,28,59,070,15,13,52,205,30,15,49,261,21,17,43,151,*71\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 5", "$GPGSV,4,2,13,24,26,290,,19,26,168,16,30,23,113,16,11,19,050,29*70\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 6", "$GPGSV,4,3,13,01,15,065,18,18,13,311,10,10,10,342,14,20,03,255,*79\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 7", "$GPGSV,4,4,13,08,01,029,*49\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 8", "$GLGSV,3,1,09,75,74,051,,84,40,051,,85,39,123,,66,37,279,*68\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 9", "$GLGSV,3,2,09,74,23,089,,67,22,338,,65,12,223,,83,05,008,*62\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 10", "$GLGSV,3,3,09,86,03,164,*52\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadGSV>("mtk_axn_1_30_eb500 GSV 20", "$GPGSV,1,1,00*79\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 2", "$GPGSV,3,2,10,10,07,189,,05,05,220,,09,34,274,42,18,25,309,44*72\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 3", "$GPGSV,3,3,10,26,82,187,47,28,43,056,46*77\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 4", "$GPGSV,4,1,13,28,59,070,15,13,52,205,30,15,49,261,21,17,43,151,*71\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 5", "$GPGSV,4,2,13,24,26,290,,19,26,168,16,30,23,113,16,11,19,050,29*70\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 6", "$GPGSV,4,3,13,01,15,065,18,18,13,311,10,10,10,342,14,20,03,255,*79\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 7", "$GPGSV,4,4,13,08,01,029,*49\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 8", "$GLGSV,3,1,09,75,74,051,,84,40,051,,85,39,123,,66,37,279,*68\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 9", "$GLGSV,3,2,09,74,23,089,,67,22,338,,65,12,223,,83,05,008,*62\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 10", "$GLGSV,3,3,09,86,03,164,*52\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGSV>("mtk_eb500 GSV 20", "$GPGSV,1,1,00*79\xd\xa"s);
 
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadRMC>("mtk_axn_1_30_eb500 RMC 1", "$GPRMC,032306.037,V,8960.0000,N,00000.0000,E,0.00,0.00,060180,,,N*7E\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_1_30_eb500::tPayloadRMC>("mtk_axn_1_30_eb500 RMC 2", "$GPRMC,191709.000,A,1122.3344,N,01122.3344,E,0.01,53.59,080417,,,D*5D\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadRMC>("mtk_eb500 RMC 1", "$GPRMC,032306.037,V,8960.0000,N,00000.0000,E,0.00,0.00,060180,,,N*7E\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadRMC>("mtk_eb500 RMC 2", "$GPRMC,191709.000,A,1122.3344,N,01122.3344,E,0.01,53.59,080417,,,D*5D\xd\xa"s);
 
 	std::cout << '\n';
 
-	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 1",	"$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
-	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 2",	"$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"s); // C++14
-	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 3",	"$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,,280.701,M,14.501,M,,*42\xd\xa"s);
-	UnitTest_PacketNMEAPayload<mtk_axn_3_8_eb800a::tPayloadGGA>("mtk_axn_3_8_eb800a GGA 3", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,0.00,280.701,M,14.501,M,,*5C\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb800a::tPayloadGGA>("mtk_eb800a GGA 1",	"$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_eb800a::tPayloadGGA>("mtk_eb800a GGA 2",	"$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_eb800a::tPayloadGGA>("mtk_eb800a GGA 3",	"$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,,280.701,M,14.501,M,,*42\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb800a::tPayloadGGA>("mtk_eb800a GGA 3", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,0.00,280.701,M,14.501,M,,*5C\xd\xa"s);
 
 	std::cout << '\n';
 
@@ -141,9 +141,12 @@ void UnitTest_PacketNMEAPayload()
 
 	std::cout << '\n';
 
-	UnitTest_PacketNMEAPayload<telit::tPayloadPTWS_JAM_SIGNAL_VAL>("telit PTWS JAM 1", "$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa"s);
-	UnitTest_PacketNMEAPayload<telit::tPayloadPTWS_JAM_SIGNAL_VAL>("telit PTWS JAM 2", "$PTWS,JAM,SIGNAL,VAL,INDEX,18,FREQ,1574.990234*54\xd\xa"s);
-	UnitTest_PacketNMEAPayload<telit::tPayloadPTWS_VERSION_VAL>("telit PTWS VERSION 1", "$PTWS,VERSION,VAL,v13-2.2.0-STD-3.8.13-N96-B2*3F\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk::tPayloadTEST>("mtk TEST 1", "$PMTK000*32\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk::tPayloadACK>("mtk ACK  1", "$PMTK001,604,3*32\xd\xa"s);
+
+	UnitTest_PacketNMEAPayload<telit::tPayloadJAM_SIGNAL_VAL>("telit JAM 1", "$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa"s);
+	UnitTest_PacketNMEAPayload<telit::tPayloadJAM_SIGNAL_VAL>("telit JAM 2", "$PTWS,JAM,SIGNAL,VAL,INDEX,18,FREQ,1574.990234*54\xd\xa"s);
+	UnitTest_PacketNMEAPayload<telit::tPayloadVERSION_VAL>("telit VERSION 1", "$PTWS,VERSION,VAL,v13-2.2.0-STD-3.8.13-N96-B2*3F\xd\xa"s);
 
 	/*
 		// [TBD] what is EMPTY !!!!

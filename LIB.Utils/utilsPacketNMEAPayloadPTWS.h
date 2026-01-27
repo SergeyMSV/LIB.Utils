@@ -17,30 +17,14 @@ namespace nmea
 namespace telit
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-//template
-//<
-//	typename TTime,
-//	typename TLatitude,
-//	typename TLongitude,
-//	typename TSatQty,
-//	typename THDOP,
-//	typename TAltitude,
-//	typename TGeoidSeparation,
-//	typename TDiffAge,
-//	typename TDiffStation
-//>
-
 	
-//$GNRMC,235953.800,V,,,,,0.00,0.00,050180,,,N*5C
-//$GNVTG,0.00,T,,M,0.00,N,0.00,K,N*2C
 //$PTWS,JAM,SIGNAL,VAL,INDEX,7,FREQ,1575.453369*60
 //$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1575.197876*67
 //$PTWS,JAM,SIGNAL,VAL,INDEX,9,FREQ,1575.260742*65
 //$PTWS,JAM,SIGNAL,VAL,INDEX,10,FREQ,1575.130615*58
 //$PTWS,JAM,SIGNAL,VAL,INDEX,11,FREQ,1575.385498*52
 
-
-struct tPayloadPTWS_JAM_SIGNAL_VAL
+struct tPayloadJAM_SIGNAL_VAL
 {
 	using tIndex = type::tUInt<2>;
 	using tFrequency = type::tFloatPrecisionFixed<4, 6>;
@@ -48,25 +32,23 @@ struct tPayloadPTWS_JAM_SIGNAL_VAL
 	tIndex Index;
 	tFrequency Frequency;
 
-	tPayloadPTWS_JAM_SIGNAL_VAL() = default;
-	tPayloadPTWS_JAM_SIGNAL_VAL(std::uint8_t index, double frequency)
+	tPayloadJAM_SIGNAL_VAL() = default;
+	tPayloadJAM_SIGNAL_VAL(std::uint8_t index, double frequency)
 		:Index(index), Frequency(frequency)
 	{
 	}
-	explicit tPayloadPTWS_JAM_SIGNAL_VAL(const tPayloadCommon::value_type& val)
+	explicit tPayloadJAM_SIGNAL_VAL(const tPayloadCommon::value_type& val)
 	{
-		if (val.size() != 8 || val[0] != GetID() || val[1] != "JAM" || val[2] != "SIGNAL" || val[3] != "VAL" || val[4] != "INDEX" || val[6] != "FREQ")
+		if (val.size() != 8 || val[0] != "PTWS" || val[1] != "JAM" || val[2] != "SIGNAL" || val[3] != "VAL" || val[4] != "INDEX" || val[6] != "FREQ")
 			return;
 		Index = tIndex(val[5]);
 		Frequency = tFrequency(val[7]);
 	}
 
-	static const char* GetID() { return "PTWS"; }
-
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
-		Data.push_back(GetID());
+		Data.push_back("PTWS");
 		Data.push_back("JAM");
 		Data.push_back("SIGNAL");
 		Data.push_back("VAL");
@@ -78,22 +60,20 @@ struct tPayloadPTWS_JAM_SIGNAL_VAL
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPTWS_VERSION_GET
+struct tPayloadVERSION_GET
 {
-	tPayloadPTWS_VERSION_GET() = default;
-	//explicit tPayloadPTWS_VERSION_GET(const tPayloadCommon::value_type& val)
+	tPayloadVERSION_GET() = default;
+	//explicit tPayloadVERSION_GET(const tPayloadCommon::value_type& val)
 	//{
-	//	if (val.size() != 3 || val[0] != GetID() || val[1] != "VERSION" || val[2] != "GET")
+	//	if (val.size() != 3 || val[0] != "PTWS" || val[1] != "VERSION" || val[2] != "GET")
 	//		return;
 	//}
-
-	static const char* GetID() { return "PTWS"; }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
 
-		Data.push_back(GetID());
+		Data.push_back("PTWS");
 		Data.push_back("VERSION");
 		Data.push_back("GET");
 
@@ -101,29 +81,27 @@ struct tPayloadPTWS_VERSION_GET
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPTWS_VERSION_VAL
+struct tPayloadVERSION_VAL
 {
 	using tVersion = std::string;
 
 	tVersion Version;
 
-	tPayloadPTWS_VERSION_VAL() = default;
-	explicit tPayloadPTWS_VERSION_VAL(tVersion version)
+	tPayloadVERSION_VAL() = default;
+	explicit tPayloadVERSION_VAL(tVersion version)
 		:Version(version)
 	{}
-	explicit tPayloadPTWS_VERSION_VAL(const tPayloadCommon::value_type& val)
+	explicit tPayloadVERSION_VAL(const tPayloadCommon::value_type& val)
 	{
-		if (val.size() != 4 || val[0] != GetID() || val[1] != "VERSION" || val[2] != "VAL")
+		if (val.size() != 4 || val[0] != "PTWS" || val[1] != "VERSION" || val[2] != "VAL")
 			return;
 		Version = val[3];
 	}
 
-	static const char* GetID() { return "PTWS"; }
-
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
-		Data.push_back(GetID());
+		Data.push_back("PTWS");
 		Data.push_back("VERSION");
 		Data.push_back("VAL");
 		Data.push_back(Version);

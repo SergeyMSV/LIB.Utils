@@ -262,7 +262,7 @@ namespace generic
 	using tPayloadGSV = base::tPayloadGSV<tMsgQty, tMsgNum, tSatInViewQty, tSVID, tElevation, tAzimuth, tSNR>;
 }
 
-namespace mtk_axn_1_30_eb500 // PMTK705,AXN_1.30,5023,EB500,1.0
+namespace mtk_eb500 // MT3329	AXN_1.30
 {
 	// Not valid
 	// $GPGGA,000000.000,0000.0000,N,00000.0000,E,0,0,,1.0,M,10.0,M,,*??
@@ -293,30 +293,8 @@ namespace mtk_axn_1_30_eb500 // PMTK705,AXN_1.30,5023,EB500,1.0
 	
 	using tPayloadRMC = base::tPayloadRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 }
-//namespace mtk_axn_1_80
-//{
-//}
-//namespace mtk_axn_telit_jupiter
-//{
-// 
-// using tDiffStation = type::tUIntFixed<4>;			// 0000-1023
-//}
-//namespace mtk_axn_3_8//4
-//{
-//	// ---- Not valid
-//	// ---- $GNGGA,000000.000,,,,,0,0,,,M,,M,,*50
-//	// ---- $GNRMC,000000.000,V,,,,,0.00,0.00,120180,,,N*5F
-//	// ---- 
-//	// ---- Valid
-//	// ---- $GNGGA,000000.000,0000.0000,N,00000.0000,E,0,0,0.00,000.0,M,00.0,M,,*??
-//	// ---- $GNRMC,000000.000,A,0000.0000,N,00000.0000,E,0.00,12.34,000000,,,A*??
-//	// ---- 
-//	// ---- $GPGSV,2,1,06,01,11,111,11,02,22,222,22,03,33,333,33,04,44,444,44*??
-//	// ---- $GPGSV,2,2,06,09,99,999,,10,10,110,*??
-//	// ---- $GLGSV,1,1,03,01,11,111,11,02,11,222,22,03,33,333,*??
-//}
 
-namespace mtk_axn_3_8_eb800a
+namespace mtk_eb800a // MT3339	AXN_3.8
 {
 	// $GNGGA,235949.799,,,,,0,0,,,M,,M,,*51
 	// $GPGSV,1,1,04,01,,,44,02,,,30,03,,,45,17,,,38*72
@@ -359,7 +337,7 @@ namespace mtk_axn_3_8_eb800a
 // 
 // 
 //}
-namespace mtk_sc872_a
+namespace mtk_sc872_a // MT3333	AXN_3.84
 {
 	// $GNGGA,235949.799,,,,,0,0,,,M,,M,,*51
 	// $GPGSV,1,1,04,01,,,44,02,,,30,03,,,45,17,,,38*72
