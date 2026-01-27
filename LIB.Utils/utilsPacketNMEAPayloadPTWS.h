@@ -14,43 +14,40 @@ namespace packet
 {
 namespace nmea
 {
-///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPTWS_JAM_SIGNAL_VAL
+namespace telit
 {
-	typedef Type::tUInt<std::uint8_t, 0> index_type;
-	typedef Type::tFloat<0, 6> frequency_type;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+	
+//$PTWS,JAM,SIGNAL,VAL,INDEX,7,FREQ,1575.453369*60
+//$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1575.197876*67
+//$PTWS,JAM,SIGNAL,VAL,INDEX,9,FREQ,1575.260742*65
+//$PTWS,JAM,SIGNAL,VAL,INDEX,10,FREQ,1575.130615*58
+//$PTWS,JAM,SIGNAL,VAL,INDEX,11,FREQ,1575.385498*52
 
-	index_type Index;
-	frequency_type Frequency;
+struct tPayloadJAM_SIGNAL_VAL
+{
+	using tIndex = type::tUInt<2>;
+	using tFrequency = type::tFloatPrecisionFixed<4, 6>;
 
-	tPayloadPTWS_JAM_SIGNAL_VAL() = default;
-	explicit tPayloadPTWS_JAM_SIGNAL_VAL(std::uint8_t index, double frequency)
+	tIndex Index;
+	tFrequency Frequency;
+
+	tPayloadJAM_SIGNAL_VAL() = default;
+	tPayloadJAM_SIGNAL_VAL(std::uint8_t index, double frequency)
 		:Index(index), Frequency(frequency)
-	{}
-	explicit tPayloadPTWS_JAM_SIGNAL_VAL(const tPayloadCommon::value_type& val)
 	{
-		if (Try(val))
-		{
-			Index = index_type(val[5]);
-			Frequency = frequency_type(val[7]);
-		}
 	}
-
-	static bool Try(const tPayloadCommon::value_type& val)
+	explicit tPayloadJAM_SIGNAL_VAL(const tPayloadCommon::value_type& val)
 	{
-		return val.size() == 8 &&
-			!std::strcmp(val[0].c_str(), "PTWS") &&
-			!std::strcmp(val[1].c_str(), "JAM") &&
-			!std::strcmp(val[2].c_str(), "SIGNAL") &&
-			!std::strcmp(val[3].c_str(), "VAL") &&
-			!std::strcmp(val[4].c_str(), "INDEX") &&
-			!std::strcmp(val[6].c_str(), "FREQ");
+		if (val.size() != 8 || val[0] != "PTWS" || val[1] != "JAM" || val[2] != "SIGNAL" || val[3] != "VAL" || val[4] != "INDEX" || val[6] != "FREQ")
+			return;
+		Index = tIndex(val[5]);
+		Frequency = tFrequency(val[7]);
 	}
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
-
 		Data.push_back("PTWS");
 		Data.push_back("JAM");
 		Data.push_back("SIGNAL");
@@ -59,29 +56,18 @@ struct tPayloadPTWS_JAM_SIGNAL_VAL
 		Data.push_back(Index.ToString());
 		Data.push_back("FREQ");
 		Data.push_back(Frequency.ToString());
-
 		return Data;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPTWS_VERSION_GET
+struct tPayloadVERSION_GET
 {
-	tPayloadPTWS_VERSION_GET() = default;
-	explicit tPayloadPTWS_VERSION_GET(const tPayloadCommon::value_type& val)
-	{
-		//if (Try(val))
-		//{
-
-		//}
-	}
-
-	static bool Try(const tPayloadCommon::value_type& val)
-	{
-		return val.size() == 3 &&
-			!std::strcmp(val[0].c_str(), "PTWS") &&
-			!std::strcmp(val[1].c_str(), "VERSION") &&
-			!std::strcmp(val[2].c_str(), "GET");
-	}
+	tPayloadVERSION_GET() = default;
+	//explicit tPayloadVERSION_GET(const tPayloadCommon::value_type& val)
+	//{
+	//	if (val.size() != 3 || val[0] != "PTWS" || val[1] != "VERSION" || val[2] != "GET")
+	//		return;
+	//}
 
 	tPayloadCommon::value_type GetPayload() const
 	{
@@ -95,45 +81,35 @@ struct tPayloadPTWS_VERSION_GET
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPTWS_VERSION_VAL
+struct tPayloadVERSION_VAL
 {
-	typedef std::string version_type;
+	using tVersion = std::string;
 
-	version_type Version;
+	tVersion Version;
 
-	tPayloadPTWS_VERSION_VAL() = default;
-	explicit tPayloadPTWS_VERSION_VAL(version_type version)
+	tPayloadVERSION_VAL() = default;
+	explicit tPayloadVERSION_VAL(tVersion version)
 		:Version(version)
 	{}
-	explicit tPayloadPTWS_VERSION_VAL(const tPayloadCommon::value_type& val)
+	explicit tPayloadVERSION_VAL(const tPayloadCommon::value_type& val)
 	{
-		if (Try(val))
-		{
-			Version = val[3];
-		}
-	}
-
-	static bool Try(const tPayloadCommon::value_type& val)
-	{
-		return val.size() == 4 &&
-			!std::strcmp(val[0].c_str(), "PTWS") &&
-			!std::strcmp(val[1].c_str(), "VERSION") &&
-			!std::strcmp(val[2].c_str(), "VAL");
+		if (val.size() != 4 || val[0] != "PTWS" || val[1] != "VERSION" || val[2] != "VAL")
+			return;
+		Version = val[3];
 	}
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
-
 		Data.push_back("PTWS");
 		Data.push_back("VERSION");
 		Data.push_back("VAL");
 		Data.push_back(Version);
-
 		return Data;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+}
 }
 }
 }
