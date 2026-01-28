@@ -112,7 +112,7 @@ std::string tGNSS::ToString() const
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tValid::tValid(const std::string& val)
 {
-	if (val.size() != 1 || val[0] != 'A' && val[0] != 'V')
+	if (val.size() != 1 || (val[0] != 'A' && val[0] != 'V'))
 		return;
 	*this = tValid(val[0] == 'A' ? true : false);
 	SetVerified();
@@ -137,12 +137,7 @@ tDate::tDate(const std::string& value)
 	m_Month = tValue(value.substr(2, 2));
 	m_Year = tValue(value.substr(4));
 	if (!IsValid(m_Year.GetValue(), m_Month.GetValue(), m_Day.GetValue()))
-	{
-		m_Day = tValue();
-		m_Month = tValue();
-		m_Year = tValue();
 		return;
-	}
 	SetVerified(m_Day.IsVerified() && m_Month.IsVerified() && m_Year.IsVerified());
 }
 
@@ -169,6 +164,7 @@ tDate::tDate(std::time_t value)
 	m_Year = tValue(DateTime.tm_year);
 	m_Month = tValue(DateTime.tm_mon + 1);
 	m_Day = tValue(DateTime.tm_mday);
+	SetVerified(m_Day.IsVerified() && m_Month.IsVerified() && m_Year.IsVerified());
 }
 
 std::time_t tDate::GetValue() const

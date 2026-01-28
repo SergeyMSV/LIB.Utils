@@ -45,6 +45,7 @@ class tTypeVerified
 
 public:
 	tTypeVerified() = default;
+	explicit tTypeVerified(bool verified) :m_Verified(verified) {}
 
 	bool IsVerified() const { return m_Verified; }
 
@@ -68,7 +69,7 @@ struct tGNSS : public tTypeVerified
 {
 	tGNSS_State Value = tGNSS_State::None;
 
-	tGNSS() = default;
+	tGNSS() :tTypeVerified(true) {}
 	explicit tGNSS(tGNSS_State val) : Value(val) { SetVerified(); }
 	explicit tGNSS(const std::string& val);
 
@@ -91,7 +92,7 @@ class tValid : public tTypeVerified
 	tValidity Value = tValidity::None;
 
 public:
-	tValid() = default;
+	tValid() :tTypeVerified(true) {}
 	explicit tValid(bool val) : Value(val ? tValidity::Valid : tValidity::NotValid) { SetVerified(); }
 	explicit tValid(const std::string& val);
 
@@ -113,7 +114,7 @@ class tIntFixed : public tTypeVerified
 public:
 	using value_type = std::int32_t;
 
-	tIntFixed() = default;
+	tIntFixed() :tTypeVerified(true) {}
 	explicit tIntFixed(const std::string& value)
 	{
 		if (!hidden::CheckSignedIntFixed(value, Size))
@@ -167,7 +168,7 @@ class tUnsigned : public tTypeVerified
 public:
 	using value_type = typename T::value_type;
 
-	tUnsigned() = default;
+	tUnsigned() :tTypeVerified(true) {}
 	explicit tUnsigned(std::string value)
 	{
 		if (value.empty() || value[0] == '-')
@@ -219,7 +220,7 @@ class tFloatFixed : public tTypeVerified
 public:
 	using value_type = double;
 
-	tFloatFixed() = default;
+	tFloatFixed() :tTypeVerified(true) {}
 	explicit tFloatFixed(std::string value)
 	{
 		const std::size_t DotPos = value.find('.');
@@ -227,7 +228,7 @@ public:
 			return;
 		m_ValueInt = tValueInt(value.substr(0, DotPos));
 		m_ValueFract = tValueFract(value.substr(DotPos + 1));
-		CheckValues();
+		SetVerified(m_ValueInt.IsVerified() && m_ValueFract.IsVerified());
 	}
 	explicit tFloatFixed(double value)
 	{
@@ -236,7 +237,7 @@ public:
 			Data.first *= -1;
 		m_ValueInt = tValueInt(Data.first);
 		m_ValueFract = tValueFract(Data.second);
-		CheckValues();
+		SetVerified(m_ValueInt.IsVerified() && m_ValueFract.IsVerified());
 	}
 
 	bool IsEmpty() const { return m_ValueInt.IsEmpty() || m_ValueFract.IsEmpty(); }
@@ -250,16 +251,6 @@ public:
 		std::stringstream SStr;
 		SStr << *this;
 		return SStr.str();
-	}
-
-private:
-	void CheckValues()
-	{
-		if (!IsEmpty())
-			return;
-		m_ValueInt = tValueInt();
-		m_ValueFract = tValueFract();
-		SetVerified(m_ValueInt.IsVerified() && m_ValueFract.IsVerified());
 	}
 };
 
@@ -286,7 +277,7 @@ class tInt : public tTypeVerified // It can consist of any quantity of digits fr
 public:
 	using value_type = std::int32_t;
 
-	tInt() = default;
+	tInt() :tTypeVerified(true) {}
 	explicit tInt(const std::string& value)
 	{
 		if (!hidden::CheckSignedInt(value, SizeMax))
@@ -346,7 +337,7 @@ class tPrecisionFixed : public tTypeVerified
 public:
 	using value_type = double;
 
-	tPrecisionFixed() = default;
+	tPrecisionFixed() :tTypeVerified(true) {}
 	explicit tPrecisionFixed(std::string value)
 	{
 		if (value.size() < SizeMin)
@@ -357,7 +348,7 @@ public:
 		std::string ValIntStr = value.substr(0, DotPos);
 		m_ValueInt = T(ValIntStr);
 		m_ValueFract = tValueFract(value.substr(DotPos + 1));
-		CheckValues();
+		SetVerified(m_ValueInt.IsVerified() && m_ValueFract.IsVerified());
 	}
 	explicit tPrecisionFixed(double value)
 	{
@@ -366,7 +357,7 @@ public:
 			Data.first *= -1;
 		m_ValueInt = T(Data.first);
 		m_ValueFract = tValueFract(Data.second);
-		CheckValues();
+		SetVerified(m_ValueInt.IsVerified() && m_ValueFract.IsVerified());
 	}
 
 	bool IsEmpty() const { return m_ValueInt.IsEmpty() || m_ValueFract.IsEmpty(); }
@@ -380,15 +371,6 @@ public:
 		std::stringstream SStr;
 		SStr << *this;
 		return SStr.str();
-	}
-private:
-	void CheckValues()
-	{
-		if (!IsEmpty())
-			return;
-		m_ValueInt = T();
-		m_ValueFract = tValueFract();
-		SetVerified(m_ValueInt.IsVerified() && m_ValueFract.IsVerified());
 	}
 };
 
@@ -419,7 +401,7 @@ class tUnit : public tTypeVerified
 public:
 	using TValue = typename T::value_type;
 
-	tUnit() = default;
+	tUnit() :tTypeVerified(true) {}
 	tUnit(const std::string& value, const std::string& unit)
 	{
 		if (unit.size() != 1)
@@ -495,7 +477,7 @@ class tDate : public tTypeVerified
 	tValue m_Year;
 
 public:
-	tDate() = default;
+	tDate() :tTypeVerified(true) {}
 	explicit tDate(const std::string& value);
 	tDate(std::int8_t year, std::int8_t month, std::int8_t day);
 	explicit tDate(std::time_t value);
@@ -529,7 +511,7 @@ class tTimeBase : public tTypeVerified
 	TSecond m_Second;
 
 public:
-	tTimeBase() = default;
+	tTimeBase() :tTypeVerified(true) {}
 	explicit tTimeBase(const std::string& value)
 	{
 		if (value.size() != 4 + TSecond::GetSize())
@@ -538,12 +520,7 @@ public:
 		m_Minute = tValue(value.substr(2, 2));
 		m_Second = TSecond(value.substr(4));
 		if (!IsValid(m_Hour.GetValue(), m_Minute.GetValue(), static_cast<std::uint8_t>(m_Second.GetValue())))
-		{
-			m_Hour = tValue();
-			m_Minute = tValue();
-			m_Second = TSecond();
 			return;
-		}
 		SetVerified(m_Hour.IsVerified() && m_Minute.IsVerified() && m_Second.IsVerified());
 	}
 	tTimeBase(std::uint8_t hour, std::uint8_t minute, double second)
@@ -562,6 +539,7 @@ public:
 		m_Minute = tValue(value / 60);
 		value -= m_Minute.GetValue() * 60;
 		m_Second = TSecond(value);
+		SetVerified(m_Hour.IsVerified() && m_Minute.IsVerified() && m_Second.IsVerified());
 	}
 
 	bool IsEmpty() const { return m_Hour.IsEmpty() || m_Minute.IsEmpty() || m_Second.IsEmpty(); }
@@ -633,7 +611,7 @@ public:
 	static constexpr char SignNegative = SizeDeg == 3 ? 'W' : 'S';
 	static constexpr char SignPositive = SizeDeg == 3 ? 'E' : 'N';
 
-	tGeoDegree() = default;
+	tGeoDegree() :tTypeVerified(true) {}
 	tGeoDegree(const std::string& value, const std::string& sign)
 	{
 		if (value.size() != Size || sign.size() != 1 || (sign[0] != SignNegative && sign[0] != SignPositive))
@@ -717,7 +695,7 @@ struct tMode : public tTypeVerified
 {
 	char Value = 0;
 
-	tMode() = default;
+	tMode() :tTypeVerified(true) {}
 	explicit tMode(const std::string& val);
 
 	bool IsEmpty() const { return Value == 0; }
