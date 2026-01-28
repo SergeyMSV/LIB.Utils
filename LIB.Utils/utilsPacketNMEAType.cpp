@@ -95,7 +95,8 @@ tGNSS::tGNSS(const std::string& val)
 	case 'P': Value = tGNSS_State::GPS; break;
 	case 'L': Value = tGNSS_State::GLONASS; break;
 	case 'N': Value = tGNSS_State::GlobalNavigation; break;
-	}	
+	}
+	SetVerified();
 }
 
 std::string tGNSS::ToString() const
@@ -111,8 +112,10 @@ std::string tGNSS::ToString() const
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tValid::tValid(const std::string& val)
 {
-	if (val.size() == 1 && (val[0] == 'A' || val[0] == 'V'))
-		*this = tValid(val[0] == 'A' ? true : false);
+	if (val.size() != 1 || val[0] != 'A' && val[0] != 'V')
+		return;
+	*this = tValid(val[0] == 'A' ? true : false);
+	SetVerified();
 }
 
 std::string tValid::ToString() const
@@ -198,8 +201,10 @@ std::ostream& operator<<(std::ostream& out, const tDate& value)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tMode::tMode(const std::string& val)
 {
-	if (val.size() == 1 && val[0] >= 'A' && val[0] <= 'Z')
-		Value = val[0];
+	if (val.size() != 1 || val[0] < 'A' || val[0] > 'Z')
+		return;
+	Value = val[0];
+	SetVerified();
 }
 
 std::string tMode::ToString() const

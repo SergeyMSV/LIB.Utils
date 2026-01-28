@@ -19,7 +19,7 @@ void UnitTest_PacketNMEAType_Test(const std::string& msg, const std::string& res
 #ifdef SHOW_RESULTS
 	std::cout << A.ToString() << " --> " << A.GetValue() << '\n';
 #endif // SHOW_RESULTS
-	utils::test::RESULT(msg, A.ToString() == res);
+	utils::test::RESULT(msg, A.IsVerified() && A.ToString() == res);
 }
 
 template <class T, class TArg>
@@ -32,7 +32,7 @@ void UnitTest_PacketNMEAType_Test(TArg arg, const std::string& msg,  const std::
 #ifdef SHOW_RESULTS
 		std::cout << A.ToString() << " --> " << A.GetValue() << '\n';
 #endif // SHOW_RESULTS
-		utils::test::RESULT(msg, A.ToString() == res);
+		utils::test::RESULT(msg, A.IsVerified() && A.ToString() == res);
 	}
 	else
 	{
@@ -40,7 +40,7 @@ void UnitTest_PacketNMEAType_Test(TArg arg, const std::string& msg,  const std::
 #ifdef SHOW_RESULTS
 		std::cout << A.ToString() << " --> " << A.GetValue() << '\n';
 #endif // SHOW_RESULTS
-		utils::test::RESULT(msg, A.ToString() == res);
+		utils::test::RESULT(msg, A.IsVerified() && A.ToString() == res);
 	}
 }
 
@@ -51,7 +51,7 @@ void UnitTest_PacketNMEAType_Test(TArg arg1, TArg arg2, const std::string& msg, 
 #ifdef SHOW_RESULTS
 	std::cout << A.ToString() << '\n';
 #endif // SHOW_RESULTS
-	utils::test::RESULT(msg, A.ToString() == res);
+	utils::test::RESULT(msg, A.IsVerified() && A.ToString() == res);
 }
 
 template <class T, class TArg1, class TArg2>
@@ -61,7 +61,7 @@ void UnitTest_PacketNMEAType_Test(TArg1 arg1, TArg2 arg2, const std::string& msg
 #ifdef SHOW_RESULTS
 	std::cout << A.ToString() << " --> " << A.GetValue() << '\n';
 #endif // SHOW_RESULTS
-	utils::test::RESULT(msg, A.ToString() == res);
+	utils::test::RESULT(msg, A.IsVerified() && A.ToString() == res);
 }
 
 template <class T, class TArg1, class TArg2, class TArg3>
@@ -71,7 +71,7 @@ void UnitTest_PacketNMEAType_Test(TArg1 arg1, TArg2 arg2, TArg3 arg3, const std:
 #ifdef SHOW_RESULTS
 	std::cout << A.ToString() << " --> " << A.GetValue() << '\n';
 #endif // SHOW_RESULTS
-	utils::test::RESULT(msg, A.ToString() == res);
+	utils::test::RESULT(msg, A.IsVerified() && A.ToString() == res);
 }
 
 void UnitTest_PacketNMEAType()

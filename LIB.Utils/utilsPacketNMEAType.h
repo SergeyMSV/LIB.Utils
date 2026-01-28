@@ -39,55 +39,6 @@ bool CheckSignedInt(const std::string& value, std::size_t sizeMax);
 bool IsChar(char ch);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-enum class tGNSS_State : std::uint8_t // It's like bitfield.
-{
-	None = 0,
-	GPS = 1,			// GP	0000'0001
-	GLONASS,			// GL	0000'0010
-	//Galileo,			// GA
-	//QZSS				// GQ
-	//BeiDou			// BD
-	GlobalNavigation,	// GN	0000'0011		If a solution is obtained and combined from multiple systems.
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tGNSS
-{
-	tGNSS_State Value = tGNSS_State::None;
-
-	tGNSS() = default;
-	explicit tGNSS(tGNSS_State val) : Value(val) {}
-	explicit tGNSS(const std::string& val);
-
-	bool IsEmpty() const { return Value == tGNSS_State::None; }
-
-	int GetValue() const { return static_cast<int>(Value); }
-
-	std::string ToString() const;
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////
-class tValid
-{
-	enum class tValidity
-	{
-		None = 0,
-		Valid,
-		NotValid,
-	};
-
-	tValidity Value = tValidity::None;
-
-public:
-	tValid() = default;
-	explicit tValid(bool val) : Value(val ? tValidity::Valid : tValidity::NotValid) {}
-	explicit tValid(const std::string& val);
-
-	bool IsEmpty() const { return Value == tValidity::None; }
-
-	int GetValue() const { return static_cast<int>(Value); }
-
-	std::string ToString() const;
-};
-///////////////////////////////////////////////////////////////////////////////////////////////////
 class tTypeVerified
 {
 	bool m_Verified = false;
@@ -100,6 +51,55 @@ public:
 protected:
 	void SetVerified(bool verified) { m_Verified = verified; }
 	void SetVerified() { m_Verified = true; }
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+enum class tGNSS_State : std::uint8_t // It's like bitfield.
+{
+	None = 0,
+	GPS = 1,			// GP	0000'0001
+	GLONASS,			// GL	0000'0010
+	//Galileo,			// GA
+	//QZSS				// GQ
+	//BeiDou			// BD
+	GlobalNavigation,	// GN	0000'0011		If a solution is obtained and combined from multiple systems.
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct tGNSS : public tTypeVerified
+{
+	tGNSS_State Value = tGNSS_State::None;
+
+	tGNSS() = default;
+	explicit tGNSS(tGNSS_State val) : Value(val) { SetVerified(); }
+	explicit tGNSS(const std::string& val);
+
+	bool IsEmpty() const { return Value == tGNSS_State::None; }
+
+	int GetValue() const { return static_cast<int>(Value); }
+
+	std::string ToString() const;
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+class tValid : public tTypeVerified
+{
+	enum class tValidity
+	{
+		None = 0,
+		Valid,
+		NotValid,
+	};
+
+	tValidity Value = tValidity::None;
+
+public:
+	tValid() = default;
+	explicit tValid(bool val) : Value(val ? tValidity::Valid : tValidity::NotValid) { SetVerified(); }
+	explicit tValid(const std::string& val);
+
+	bool IsEmpty() const { return Value == tValidity::None; }
+
+	int GetValue() const { return static_cast<int>(Value); }
+
+	std::string ToString() const;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Size>
@@ -713,7 +713,7 @@ using tLatitude = tGeoDegree<2, Precision>;
 template <std::size_t Precision>
 using tLongitude = tGeoDegree<3, Precision>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tMode
+struct tMode : public tTypeVerified
 {
 	char Value = 0;
 
