@@ -88,8 +88,22 @@ public:
 	std::string ToString() const;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+class tTypeVerified
+{
+	bool m_Verified = false;
+
+public:
+	tTypeVerified() = default;
+
+	bool IsVerified() const { return m_Verified; }
+
+protected:
+	void SetVerified(bool verified) { m_Verified = verified; }
+	void SetVerified() { m_Verified = true; }
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Size>
-class tIntFixed
+class tIntFixed : public tTypeVerified
 {
 	template<std::size_t S>
 	friend std::ostream& operator<<(std::ostream& out, const tIntFixed<S>& value);
@@ -105,12 +119,14 @@ public:
 		if (!hidden::CheckSignedIntFixed(value, Size))
 			return;
 		m_Value = std::strtol(value.c_str(), nullptr, 10);
+		SetVerified();
 	}
 	explicit tIntFixed(std::int32_t value)
 	{
 		if (hidden::CountDigits(value) > Size)
 			return;
 		m_Value = value;
+		SetVerified();
 	}
 
 	bool IsEmpty() const { return !m_Value.has_value(); }
@@ -141,7 +157,7 @@ std::ostream& operator<<(std::ostream& out, const tIntFixed<Size>& value)
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename T>
-class tUnsigned
+class tUnsigned : public tTypeVerified
 {
 	template<typename S>
 	friend std::ostream& operator<<(std::ostream& out, const tUnsigned<S>& value);
@@ -157,12 +173,14 @@ public:
 		if (value.empty() || value[0] == '-')
 			return;
 		m_Value = T(value);
+		SetVerified(m_Value.IsVerified());
 	}
 	explicit tUnsigned(value_type value)
 	{
 		if (value < 0)
 			return;
 		m_Value = T(value);
+		SetVerified(m_Value.IsVerified());
 	}
 
 	bool IsEmpty() const { return m_Value.IsEmpty(); }
@@ -185,7 +203,7 @@ template <std::size_t Size>
 using tUIntFixed = tUnsigned<tIntFixed<Size>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeInt, std::size_t Precision>
-class tFloatFixed
+class tFloatFixed : public tTypeVerified
 {
 	static constexpr std::size_t Size = SizeInt + 1 + Precision;
 
@@ -241,6 +259,7 @@ private:
 			return;
 		m_ValueInt = tValueInt();
 		m_ValueFract = tValueFract();
+		SetVerified(m_ValueInt.IsVerified() && m_ValueFract.IsVerified());
 	}
 };
 
@@ -257,7 +276,7 @@ template <std::size_t SizeInt, std::size_t Precision>
 using tUFloatFixed = tUnsigned<tFloatFixed<SizeInt, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeMax>
-class tInt // It can consist of any quantity of digits from 1 upto Size.
+class tInt : public tTypeVerified // It can consist of any quantity of digits from 1 upto Size.
 {
 	template <std::size_t S>
 	friend std::ostream& operator<<(std::ostream& out, const tInt<S>& value);
@@ -273,12 +292,14 @@ public:
 		if (!hidden::CheckSignedInt(value, SizeMax))
 			return;
 		m_Value = std::strtol(value.c_str(), nullptr, 10);
+		SetVerified();
 	}
 	explicit tInt(std::uint32_t value)
 	{
 		if (hidden::CountDigits(value) > SizeMax)
 			return;
 		m_Value = value;
+		SetVerified();
 	}
 
 	bool IsEmpty() const { return !m_Value.has_value(); }
@@ -310,7 +331,7 @@ template <std::size_t SizeMax>
 using tUInt = tUnsigned<tInt<SizeMax>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename T, std::size_t Precision>
-class tPrecisionFixed
+class tPrecisionFixed : public tTypeVerified
 {
 	static constexpr std::size_t SizeMin = 2 + Precision; // 2 stands for "0."
 
@@ -367,6 +388,7 @@ private:
 			return;
 		m_ValueInt = T();
 		m_ValueFract = tValueFract();
+		SetVerified(m_ValueInt.IsVerified() && m_ValueFract.IsVerified());
 	}
 };
 
@@ -386,7 +408,7 @@ template<std::size_t SizeIntMax, std::size_t Precision>
 using tUFloatPrecisionFixed = tPrecisionFixed<tUInt<SizeIntMax>, Precision>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename T>
-class tUnit
+class tUnit : public tTypeVerified
 {
 	template<typename U>
 	friend std::ostream& operator<<(std::ostream& out, const tUnit<U>& value);
@@ -404,11 +426,13 @@ public:
 			return;
 		m_Unit = unit[0]; // It should be parsed in any case even if Value is null.
 		m_Value = T(value);
+		SetVerified(m_Unit && m_Value.IsVerified());
 	}
 	tUnit(TValue value, char unit)
 	{
 		m_Value = T(value);
 		m_Unit = unit;
+		SetVerified(m_Unit && m_Value.IsVerified());
 	}
 
 	bool IsEmpty() const { return m_Value.IsEmpty() || !hidden::IsChar(m_Unit); }
@@ -460,7 +484,7 @@ using tFloatPrecisionFixedUnit = tUnit<tFloatPrecisionFixed<SizeIntMax, Precisio
 template<std::size_t SizeIntMax, std::size_t Precision>
 using tUFloatPrecisionFixedUnit = tUnit<tUFloatPrecisionFixed<SizeIntMax, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class tDate
+class tDate : public tTypeVerified
 {
 	using tValue = tUIntFixed<2>;
 
@@ -493,7 +517,7 @@ private:
 std::ostream& operator<<(std::ostream& out, const tDate& value);
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename TSecond>
-class tTimeBase
+class tTimeBase : public tTypeVerified
 {
 	using tValue = tUIntFixed<2>;
 
@@ -513,11 +537,14 @@ public:
 		m_Hour = tValue(value.substr(0, 2));
 		m_Minute = tValue(value.substr(2, 2));
 		m_Second = TSecond(value.substr(4));
-		if (IsValid(m_Hour.GetValue(), m_Minute.GetValue(), static_cast<std::uint8_t>(m_Second.GetValue())))
+		if (!IsValid(m_Hour.GetValue(), m_Minute.GetValue(), static_cast<std::uint8_t>(m_Second.GetValue())))
+		{
+			m_Hour = tValue();
+			m_Minute = tValue();
+			m_Second = TSecond();
 			return;
-		m_Hour = tValue();
-		m_Minute = tValue();
-		m_Second = TSecond();
+		}
+		SetVerified(m_Hour.IsVerified() && m_Minute.IsVerified() && m_Second.IsVerified());
 	}
 	tTimeBase(std::uint8_t hour, std::uint8_t minute, double second)
 	{
@@ -526,6 +553,7 @@ public:
 		m_Hour = tValue(hour);
 		m_Minute = tValue(minute);
 		m_Second = TSecond(static_cast<typename TSecond::value_type>(second));
+		SetVerified(m_Hour.IsVerified() && m_Minute.IsVerified() && m_Second.IsVerified());
 	}
 	explicit tTimeBase(std::uint32_t value) // value is in seconds
 	{
@@ -586,7 +614,7 @@ using tTime = typename tTimeHelper<Precision>::type;
 // Longitude is in the range -180 and +180 specifying coordinates west and east of the Prime Meridian, respectively.For reference,
 // the Equator has a latitude of 0, the North pole has a latitude of 90 north(written 90 N or +90), and the South pole has a latitude of -90.
 template <std::size_t SizeDeg, std::size_t Precision>
-class tGeoDegree
+class tGeoDegree : public tTypeVerified
 {
 	using tDegree = tUIntFixed<SizeDeg>;
 	using tMinute = tUFloatFixed<2, Precision>;
@@ -613,10 +641,13 @@ public:
 		m_Negative = sign[0] == SignNegative;
 		m_Deg = tDegree(value.substr(0, SizeDeg));
 		m_Min = tMinute(value.substr(SizeDeg));
-		if (IsValid(GetValue()))
+		if (!IsValid(GetValue()))
+		{
+			m_Deg = tDegree();
+			m_Min = tMinute();
 			return;
-		m_Deg = tDegree();
-		m_Min = tMinute();
+		}
+		SetVerified(m_Deg.IsVerified() && m_Min.IsVerified());
 	}
 	explicit tGeoDegree(double degree)
 	{
@@ -628,6 +659,7 @@ public:
 		degree -= static_cast<std::int32_t>(degree);
 		degree *= 60;
 		m_Min = tMinute(degree);
+		SetVerified(m_Deg.IsVerified() && m_Min.IsVerified());
 	}
 
 	bool IsEmpty() const { return m_Deg.IsEmpty() || m_Min.IsEmpty(); }

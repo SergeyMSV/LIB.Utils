@@ -133,11 +133,14 @@ tDate::tDate(const std::string& value)
 	m_Day = tValue(value.substr(0, 2));
 	m_Month = tValue(value.substr(2, 2));
 	m_Year = tValue(value.substr(4));
-	if (IsValid(m_Year.GetValue(), m_Month.GetValue(), m_Day.GetValue()))
+	if (!IsValid(m_Year.GetValue(), m_Month.GetValue(), m_Day.GetValue()))
+	{
+		m_Day = tValue();
+		m_Month = tValue();
+		m_Year = tValue();
 		return;
-	m_Day = tValue();
-	m_Month = tValue();
-	m_Year = tValue();
+	}
+	SetVerified(m_Day.IsVerified() && m_Month.IsVerified() && m_Year.IsVerified());
 }
 
 tDate::tDate(std::int8_t year, std::int8_t month, std::int8_t day)
@@ -147,6 +150,7 @@ tDate::tDate(std::int8_t year, std::int8_t month, std::int8_t day)
 	m_Year = tValue(year);
 	m_Month = tValue(month);
 	m_Day = tValue(day);
+	SetVerified(m_Day.IsVerified() && m_Month.IsVerified() && m_Year.IsVerified());
 }
 
 tDate::tDate(std::time_t value)
