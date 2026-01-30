@@ -85,17 +85,20 @@ bool IsChar(char ch)
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tGNSS::tGNSS(const std::string& val)
+tGNSS::tGNSS(const std::string& value)
 {
-	if (val.size() < 2 || val[0] != 'G')
+	if (value.size() < 2 || value[0] != 'G')
+	{
+		SetVerified(false);
 		return;
-
-	switch (val[1])
+	}
+	switch (value[1])
 	{
 	case 'P': Value = tGNSS_State::GPS; break;
 	case 'L': Value = tGNSS_State::GLONASS; break;
 	case 'N': Value = tGNSS_State::GlobalNavigation; break;
-	}	
+	default: SetVerified(false); return;
+	}
 }
 
 std::string tGNSS::ToString() const
@@ -109,41 +112,46 @@ std::string tGNSS::ToString() const
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tValid::tValid(const std::string& val)
+tStatus::tStatus(const std::string& value)
 {
-	if (val.size() == 1 && (val[0] == 'A' || val[0] == 'V'))
-		*this = tValid(val[0] == 'A' ? true : false);
+	if (value.size() != 1 || (value[0] != 'A' && value[0] != 'V'))
+	{
+		SetVerified(false);
+		return;
+	}
+	Value = value[0] == 'A' ? true : false;
 }
 
-std::string tValid::ToString() const
+std::string tStatus::ToString() const
 {
-	switch (Value)
-	{
-	case tValidity::None: break;
-	case tValidity::Valid: return "A";
-	case tValidity::NotValid: return "V";
-	}
-	return "";
+	if (!Value.has_value())
+		return "";
+	return *Value ? "A" : "V";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 tDate::tDate(const std::string& value)
 {
-	if (value.size() != 6)
+	if (value.empty())
 		return;
+	if (value.size() != 6)
+	{
+		ClearVerified();
+		return;
+	}
 	m_Day = tValue(value.substr(0, 2));
 	m_Month = tValue(value.substr(2, 2));
 	m_Year = tValue(value.substr(4));
-	if (IsValid(m_Year.GetValue(), m_Month.GetValue(), m_Day.GetValue()))
-		return;
-	m_Day = tValue();
-	m_Month = tValue();
-	m_Year = tValue();
+	if (!IsValid(m_Year.GetValue(), m_Month.GetValue(), m_Day.GetValue()))
+		ClearVerified();
 }
 
 tDate::tDate(std::int8_t year, std::int8_t month, std::int8_t day)
 {
 	if (!IsValid(year, month, day))
+	{
+		ClearVerified();
 		return;
+	}
 	m_Year = tValue(year);
 	m_Month = tValue(month);
 	m_Day = tValue(day);
@@ -184,6 +192,13 @@ std::string tDate::ToString() const
 	return SStr.str();
 }
 
+void tDate::ClearVerified()
+{
+	m_Year = tValue(tTypeVerified::tStatus::False);
+	m_Month = tValue(tTypeVerified::tStatus::False);
+	m_Month = tValue(tTypeVerified::tStatus::False);
+}
+
 std::ostream& operator<<(std::ostream& out, const tDate& value)
 {
 	if (value.IsEmpty())
@@ -192,10 +207,16 @@ std::ostream& operator<<(std::ostream& out, const tDate& value)
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tMode::tMode(const std::string& val)
+tMode::tMode(const std::string& value)
 {
-	if (val.size() == 1 && val[0] >= 'A' && val[0] <= 'Z')
-		Value = val[0];
+	if (value.empty())
+		return;
+	if (value.size() != 1 || value[0] < 'A' || value[0] > 'Z')
+	{
+		SetVerified(false);
+		return;
+	}
+	m_Mode = value[0];
 }
 
 std::string tMode::ToString() const
@@ -207,7 +228,7 @@ std::string tMode::ToString() const
 
 std::string tMode::ToStringEx() const
 {
-	switch (Value)
+	switch (m_Mode)
 	{
 	case 'A': return "Autonomous";
 	case 'D': return "Differential";
@@ -223,7 +244,7 @@ std::ostream& operator<<(std::ostream& out, const tMode& value)
 {
 	if (value.IsEmpty())
 		return out;
-	out << value.Value;
+	out << value.GetValue();
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
