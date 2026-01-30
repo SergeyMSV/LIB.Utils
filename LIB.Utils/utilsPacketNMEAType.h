@@ -19,7 +19,7 @@
 #include <cstring>
 #include <ctime>
 
-#include <iostream> // [TBD][TEST] REMOVE IT
+//#include <iostream> // [TBD][TEST] REMOVE IT
 
 namespace utils
 {
@@ -67,7 +67,7 @@ bool IsVerified(const T& ... value)
 		{
 			if (!verif)
 				Verified = false;
-std::cout << "****** << " << (verif ? "T" : "F") << '\n'; // [TBD][TEST] REMOVE IT
+//std::cout << "****** << " << (verif ? "T" : "F") << '\n'; // [TBD][TEST] REMOVE IT
 			return Verified;
 		};
 	(fn(value.IsVerified()) && ...);
@@ -99,6 +99,8 @@ public:
 	value_type GetValue() const { return m_Value.GetValue(); }
 
 	std::string ToString() const { return m_Value.ToString(); }
+	std::string ToStringValue() const { return m_Value.ToStringValue(); } // [TBD] That is not perfect.
+	std::string ToStringHemisphere() const { return m_Value.ToStringHemisphere(); } // [TBD] That is not perfect.
 };
 
 template<typename T>
@@ -210,6 +212,9 @@ std::ostream& operator<<(std::ostream& out, const tIntFixed<Size>& value)
 	//out << std::setfill('0') << std::setw(Size) << value.GetValue(); // 0000-1.34
 	return out;
 }
+
+template <std::size_t Size>
+using tIntFixedNoNull = tTypeNoNull<tIntFixed<Size>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename T>
 class tUnsigned
@@ -265,6 +270,9 @@ std::ostream& operator<<(std::ostream& out, const tUnsigned<T>& value)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Size>
 using tUIntFixed = tUnsigned<tIntFixed<Size>>;
+
+template <std::size_t Size>
+using tUIntFixedNoNull = tTypeNoNull<tUIntFixed<Size>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeInt, std::size_t Precision>
 class tFloatFixed
@@ -326,9 +334,15 @@ std::ostream& operator<<(std::ostream& out, const tFloatFixed<SizeInt, Precision
 	out << value.m_ValueInt << '.' << value.m_ValueFract;
 	return out;
 }
+
+template <std::size_t SizeInt, std::size_t Precision>
+using tFloatFixedNoNull = tTypeNoNull<tFloatFixed<SizeInt, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeInt, std::size_t Precision>
 using tUFloatFixed = tUnsigned<tFloatFixed<SizeInt, Precision>>;
+
+template <std::size_t SizeInt, std::size_t Precision>
+using tUFloatFixedNoNull = tTypeNoNull<tUFloatFixed<SizeInt, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeMax>
 class tInt : public tTypeVerified // It can consist of any quantity of digits from 1 upto Size.
@@ -387,9 +401,15 @@ std::ostream& operator<<(std::ostream& out, const tInt<SizeMax>& value)
 	out << *value.m_Value;
 	return out;
 }
+
+template <std::size_t SizeMax>
+using tIntNoNull = tTypeNoNull<tInt<SizeMax>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeMax>
 using tUInt = tUnsigned<tInt<SizeMax>>;
+
+template <std::size_t SizeMax>
+using tUIntNoNull = tTypeNoNull<tUInt<SizeMax>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename T, std::size_t Precision>
 class tPrecisionFixed
@@ -455,9 +475,15 @@ std::ostream& operator<<(std::ostream& out, const tPrecisionFixed<T, Precision>&
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeIntMax, std::size_t Precision>
 using tFloatPrecisionFixed = tPrecisionFixed<tInt<SizeIntMax>, Precision>;
+
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tFloatPrecisionFixedNoNull = tTypeNoNull<tFloatPrecisionFixed<SizeIntMax, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeIntMax, std::size_t Precision>
 using tUFloatPrecisionFixed = tPrecisionFixed<tUInt<SizeIntMax>, Precision>;
+
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tUFloatPrecisionFixedNoNull = tTypeNoNull<tUFloatPrecisionFixed<SizeIntMax, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename T>
 class tUnit
@@ -544,24 +570,51 @@ public:
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeInt, std::size_t Precision>
 using tFloatFixedUnit = tUnit<tFloatFixed<SizeInt, Precision>>;
-///////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<std::size_t SizeInt, std::size_t Precision>
 using tFloatFixedUnitNoNull = tUnitNoNull<tFloatFixed<SizeInt, Precision>>;
+
+template<std::size_t SizeInt, std::size_t Precision>
+using tFloatFixedNoNullUnit = tUnit<tTypeNoNull<tFloatFixed<SizeInt, Precision>>>;
+
+template<std::size_t SizeInt, std::size_t Precision>
+using tFloatFixedNoNullUnitNoNull = tUnitNoNull<tTypeNoNull<tFloatFixed<SizeInt, Precision>>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeInt, std::size_t Precision>
-using tFloatFixedUnitNoNull = tUnitNoNull<tFloatFixed<SizeInt, Precision>>;
-///////////////////////////////////////////////////////////////////////////////////////////////////
+using tUFloatFixedUnit = tUnit<tUFloatFixed<SizeInt, Precision>>;
+
+template<std::size_t SizeInt, std::size_t Precision>
+using tUFloatFixedUnitNoNull = tUnitNoNull<tUFloatFixed<SizeInt, Precision>>;
+
 template<std::size_t SizeInt, std::size_t Precision>
 using tUFloatFixedNoNullUnit = tUnit<tTypeNoNull<tUFloatFixed<SizeInt, Precision>>>;
-///////////////////////////////////////////////////////////////////////////////////////////////////
+
 template<std::size_t SizeInt, std::size_t Precision>
 using tUFloatFixedNoNullUnitNoNull = tUnitNoNull<tTypeNoNull<tUFloatFixed<SizeInt, Precision>>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeIntMax, std::size_t Precision>
 using tFloatPrecisionFixedUnit = tUnit<tFloatPrecisionFixed<SizeIntMax, Precision>>;
+
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tFloatPrecisionFixedUnitNoNull = tUnitNoNull<tFloatPrecisionFixedUnit<SizeIntMax, Precision>>;
+
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tFloatPrecisionFixedNoNullUnit = tUnit<tTypeNoNull<tFloatPrecisionFixedUnit<SizeIntMax, Precision>>>;
+
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tFloatPrecisionFixedNoNullUnitNoNull = tUnitNoNull<tTypeNoNull<tFloatPrecisionFixedUnit<SizeIntMax, Precision>>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeIntMax, std::size_t Precision>
 using tUFloatPrecisionFixedUnit = tUnit<tUFloatPrecisionFixed<SizeIntMax, Precision>>;
+
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tUFloatPrecisionFixedUnitNoNull = tUnitNoNull<tUFloatPrecisionFixedUnit<SizeIntMax, Precision>>;
+
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tUFloatPrecisionFixedNoNullUnit = tUnit<tTypeNoNull<tUFloatPrecisionFixedUnit<SizeIntMax, Precision>>>;
+
+template<std::size_t SizeIntMax, std::size_t Precision>
+using tUFloatPrecisionFixedNoNullUnitNoNull = tUnitNoNull<tTypeNoNull<tUFloatPrecisionFixedUnit<SizeIntMax, Precision>>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class tDate
 {
@@ -600,6 +653,8 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& out, const tDate& value);
+
+using tDateNoNull = tTypeNoNull<tDate>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename TSecond>
 class tTimeBase
@@ -706,6 +761,9 @@ struct tTimeHelper<0>
 
 template<std::size_t Precision>
 using tTime = typename tTimeHelper<Precision>::type;
+
+template<std::size_t Precision>
+using tTimeNoNull = tTypeNoNull<tTime<Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // The valid range of latitude in degrees is -90 and +90 for the southern and northern hemisphere, respectively.
 // Longitude is in the range -180 and +180 specifying coordinates west and east of the Prime Meridian, respectively.For reference,
@@ -817,9 +875,15 @@ std::ostream& operator<<(std::ostream& out, const tGeoDegree<SizeDeg, Precision>
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Precision>
 using tLatitude = tGeoDegree<2, Precision>;
+
+template <std::size_t Precision>
+using tLatitudeNoNull = tTypeNoNull<tLatitude<Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Precision>
 using tLongitude = tGeoDegree<3, Precision>;
+
+template <std::size_t Precision>
+using tLongitudeNoNull = tTypeNoNull<tLongitude<Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tMode : public tTypeVerified
 {
