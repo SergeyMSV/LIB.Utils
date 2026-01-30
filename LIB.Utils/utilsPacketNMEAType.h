@@ -19,6 +19,8 @@
 #include <cstring>
 #include <ctime>
 
+#include <iostream> // [TBD][TEST] REMOVE IT
+
 namespace utils
 {
 namespace packet
@@ -39,6 +41,73 @@ bool CheckSignedInt(const std::string& value, std::size_t sizeMax);
 bool IsChar(char ch);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+class tTypeVerified
+{
+	bool m_Verified = true;
+
+public:
+	enum class tStatus { False, True, };
+
+	tTypeVerified() = default;
+	explicit tTypeVerified(bool verified) :m_Verified(verified) {}
+	explicit tTypeVerified(tStatus verified) :m_Verified(verified == tStatus::True) {}
+
+	bool IsVerified() const { return m_Verified; }
+
+protected:
+	void SetVerified(bool verified) { m_Verified = verified; }
+	void SetVerified() { m_Verified = true; } // [TBD] REMOVE IT 
+};
+
+template<typename ... T>
+bool IsVerified(const T& ... value)
+{
+	int Verified = true;
+	auto fn = [&Verified](bool verif)
+		{
+			if (!verif)
+				Verified = false;
+std::cout << "****** << " << (verif ? "T" : "F") << '\n'; // [TBD][TEST] REMOVE IT
+			return Verified;
+		};
+	(fn(value.IsVerified()) && ...);
+	return Verified;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename T>
+class tTypeNoNull
+{
+	template<typename S>
+	friend std::ostream& operator<<(std::ostream& out, const tTypeNoNull<S>& value);
+
+	T m_Value;
+
+public:
+	using value_type = typename T::value_type;
+
+	tTypeNoNull() = default;
+	explicit tTypeNoNull(const std::string& value) :m_Value(value) {}
+	tTypeNoNull(const std::string& value, const std::string& sign) :m_Value(value, sign) {}
+	explicit tTypeNoNull(value_type value) :m_Value(value) {}
+
+	bool IsVerified() const { return m_Value.IsVerified() && !m_Value.IsEmpty(); }
+
+	bool IsEmpty() const { return m_Value.IsEmpty(); }
+
+	static constexpr std::size_t GetSize() { return T::GetSize(); }
+
+	value_type GetValue() const { return m_Value.GetValue(); }
+
+	std::string ToString() const { return m_Value.ToString(); }
+};
+
+template<typename T>
+std::ostream& operator<<(std::ostream& out, const tTypeNoNull<T>& value)
+{
+	out << value.m_Value;
+	return out;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
 enum class tGNSS_State : std::uint8_t // It's like bitfield.
 {
 	None = 0,
@@ -50,12 +119,12 @@ enum class tGNSS_State : std::uint8_t // It's like bitfield.
 	GlobalNavigation,	// GN	0000'0011		If a solution is obtained and combined from multiple systems.
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tGNSS
+struct tGNSS : public tTypeVerified
 {
 	tGNSS_State Value = tGNSS_State::None;
 
-	tGNSS() = default;
-	explicit tGNSS(tGNSS_State val) : Value(val) {}
+	tGNSS() :tTypeVerified(false) {}
+	explicit tGNSS(tGNSS_State val) : Value(val) { SetVerified(); }
 	explicit tGNSS(const std::string& val);
 
 	bool IsEmpty() const { return Value == tGNSS_State::None; }
@@ -65,31 +134,24 @@ struct tGNSS
 	std::string ToString() const;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class tValid
+class tValid : public tTypeVerified
 {
-	enum class tValidity
-	{
-		None = 0,
-		Valid,
-		NotValid,
-	};
-
-	tValidity Value = tValidity::None;
+	std::optional<bool> Value;
 
 public:
-	tValid() = default;
-	explicit tValid(bool val) : Value(val ? tValidity::Valid : tValidity::NotValid) {}
+	tValid() :tTypeVerified(false) {}
+	explicit tValid(bool val) : Value(val) { SetVerified(); }
 	explicit tValid(const std::string& val);
 
-	bool IsEmpty() const { return Value == tValidity::None; }
+	bool IsEmpty() const { return Value.has_value(); }
 
-	int GetValue() const { return static_cast<int>(Value); }
+	int GetValue() const { return static_cast<int>(Value.value_or(false)); }
 
 	std::string ToString() const;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Size>
-class tIntFixed
+class tIntFixed : public tTypeVerified
 {
 	template<std::size_t S>
 	friend std::ostream& operator<<(std::ostream& out, const tIntFixed<S>& value);
@@ -100,16 +162,25 @@ public:
 	using value_type = std::int32_t;
 
 	tIntFixed() = default;
+	explicit tIntFixed(tTypeVerified::tStatus verified) :tTypeVerified(verified) {}
 	explicit tIntFixed(const std::string& value)
 	{
-		if (!hidden::CheckSignedIntFixed(value, Size))
+		if (value.empty())
 			return;
+		if (!hidden::CheckSignedIntFixed(value, Size))
+		{
+			SetVerified(false);
+			return;
+		}
 		m_Value = std::strtol(value.c_str(), nullptr, 10);
 	}
 	explicit tIntFixed(std::int32_t value)
 	{
 		if (hidden::CountDigits(value) > Size)
+		{
+			SetVerified(false);
 			return;
+		}
 		m_Value = value;
 	}
 
@@ -152,18 +223,29 @@ public:
 	using value_type = typename T::value_type;
 
 	tUnsigned() = default;
-	explicit tUnsigned(std::string value)
+	explicit tUnsigned(tTypeVerified::tStatus verified) :m_Value(verified) {}
+	explicit tUnsigned(const std::string& value)
 	{
-		if (value.empty() || value[0] == '-')
+		if (value.empty())
 			return;
+		if (value[0] == '-')
+		{
+			m_Value = T(tTypeVerified::tStatus::False);
+			return;
+		}
 		m_Value = T(value);
 	}
 	explicit tUnsigned(value_type value)
 	{
 		if (value < 0)
+		{
+			m_Value = T(tTypeVerified::tStatus::False);
 			return;
+		}
 		m_Value = T(value);
 	}
+
+	bool IsVerified() const { return m_Value.IsVerified(); }
 
 	bool IsEmpty() const { return m_Value.IsEmpty(); }
 
@@ -202,14 +284,14 @@ public:
 	using value_type = double;
 
 	tFloatFixed() = default;
-	explicit tFloatFixed(std::string value)
+	explicit tFloatFixed(tTypeVerified::tStatus verified) :m_ValueInt(verified), m_ValueFract(verified) {}
+	explicit tFloatFixed(const std::string& value)
 	{
 		const std::size_t DotPos = value.find('.');
 		if (DotPos == std::string::npos || value.size() - DotPos != Precision + 1)
 			return;
 		m_ValueInt = tValueInt(value.substr(0, DotPos));
 		m_ValueFract = tValueFract(value.substr(DotPos + 1));
-		CheckValues();
 	}
 	explicit tFloatFixed(double value)
 	{
@@ -218,8 +300,9 @@ public:
 			Data.first *= -1;
 		m_ValueInt = tValueInt(Data.first);
 		m_ValueFract = tValueFract(Data.second);
-		CheckValues();
 	}
+
+	bool IsVerified() const { return m_ValueInt.IsVerified() && m_ValueFract.IsVerified(); }
 
 	bool IsEmpty() const { return m_ValueInt.IsEmpty() || m_ValueFract.IsEmpty(); }
 
@@ -232,15 +315,6 @@ public:
 		std::stringstream SStr;
 		SStr << *this;
 		return SStr.str();
-	}
-
-private:
-	void CheckValues()
-	{
-		if (!IsEmpty())
-			return;
-		m_ValueInt = tValueInt();
-		m_ValueFract = tValueFract();
 	}
 };
 
@@ -257,7 +331,7 @@ template <std::size_t SizeInt, std::size_t Precision>
 using tUFloatFixed = tUnsigned<tFloatFixed<SizeInt, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t SizeMax>
-class tInt // It can consist of any quantity of digits from 1 upto Size.
+class tInt : public tTypeVerified // It can consist of any quantity of digits from 1 upto Size.
 {
 	template <std::size_t S>
 	friend std::ostream& operator<<(std::ostream& out, const tInt<S>& value);
@@ -268,17 +342,25 @@ public:
 	using value_type = std::int32_t;
 
 	tInt() = default;
+	explicit tInt(tTypeVerified::tStatus verified) :tTypeVerified(verified) {}
 	explicit tInt(const std::string& value)
 	{
 		if (!hidden::CheckSignedInt(value, SizeMax))
+		{
+			SetVerified(false);
 			return;
+		}
 		m_Value = std::strtol(value.c_str(), nullptr, 10);
 	}
 	explicit tInt(std::uint32_t value)
 	{
 		if (hidden::CountDigits(value) > SizeMax)
+		{
+			SetVerified(false);
 			return;
+		}
 		m_Value = value;
+		SetVerified();
 	}
 
 	bool IsEmpty() const { return !m_Value.has_value(); }
@@ -326,7 +408,7 @@ public:
 	using value_type = double;
 
 	tPrecisionFixed() = default;
-	explicit tPrecisionFixed(std::string value)
+	explicit tPrecisionFixed(const std::string& value)
 	{
 		if (value.size() < SizeMin)
 			return;
@@ -336,7 +418,6 @@ public:
 		std::string ValIntStr = value.substr(0, DotPos);
 		m_ValueInt = T(ValIntStr);
 		m_ValueFract = tValueFract(value.substr(DotPos + 1));
-		CheckValues();
 	}
 	explicit tPrecisionFixed(double value)
 	{
@@ -345,8 +426,9 @@ public:
 			Data.first *= -1;
 		m_ValueInt = T(Data.first);
 		m_ValueFract = tValueFract(Data.second);
-		CheckValues();
 	}
+
+	bool IsVerified() const { return m_ValueInt.IsVerified() && m_ValueFract.IsVerified(); }
 
 	bool IsEmpty() const { return m_ValueInt.IsEmpty() || m_ValueFract.IsEmpty(); }
 
@@ -359,14 +441,6 @@ public:
 		std::stringstream SStr;
 		SStr << *this;
 		return SStr.str();
-	}
-private:
-	void CheckValues()
-	{
-		if (!IsEmpty())
-			return;
-		m_ValueInt = T();
-		m_ValueFract = tValueFract();
 	}
 };
 
@@ -391,31 +465,34 @@ class tUnit
 	template<typename U>
 	friend std::ostream& operator<<(std::ostream& out, const tUnit<U>& value);
 
+protected:
 	T m_Value;
 	char m_Unit = 0;
 
 public:
-	using TValue = typename T::value_type;
+	using value_type = typename T::value_type;
 
 	tUnit() = default;
 	tUnit(const std::string& value, const std::string& unit)
 	{
-		if (unit.size() != 1)
-			return;
-		m_Unit = unit[0]; // It should be parsed in any case even if Value is null.
 		m_Value = T(value);
+		if (unit.size() == 1 && hidden::IsChar(unit[0]))
+			m_Unit = unit[0]; // It should be parsed in any case even if Value is null.
 	}
-	tUnit(TValue value, char unit)
+	tUnit(value_type value, char unit)
 	{
 		m_Value = T(value);
-		m_Unit = unit;
+		if (hidden::IsChar(unit))
+			m_Unit = unit;
 	}
 
-	bool IsEmpty() const { return m_Value.IsEmpty() || !hidden::IsChar(m_Unit); }
+	bool IsVerified() const { return m_Value.IsVerified() && (!m_Unit || hidden::IsChar(m_Unit)); }
+
+	bool IsEmpty() const { return m_Value.IsEmpty() && !hidden::IsChar(m_Unit); }
 
 	static constexpr std::size_t GetSize() { return 0; }
 
-	double GetValue() const { return m_Value.GetValue(); }
+	value_type GetValue() const { return m_Value.GetValue(); }
 
 	std::string ToString() const
 	{
@@ -448,11 +525,37 @@ std::ostream& operator<<(std::ostream& out, const tUnit<T>& value)
 	return out;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename T>
+class tUnitNoNull : public tUnit<T>
+{
+	using tBase = tUnit<T>;
+
+public:
+	using value_type = typename T::value_type;
+
+	tUnitNoNull() = default;
+	tUnitNoNull(const std::string& value, const std::string& unit) :tBase(value, unit) {}
+	tUnitNoNull(value_type value, char unit) :tBase(value, unit) {}
+
+	bool IsVerified() const { return this->m_Value.IsVerified() && hidden::IsChar(this->m_Unit); }
+
+	bool IsEmpty() const { return this->m_Value.IsEmpty(); }
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeInt, std::size_t Precision>
 using tFloatFixedUnit = tUnit<tFloatFixed<SizeInt, Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeInt, std::size_t Precision>
-using tUFloatFixedUnit = tUnit<tUFloatFixed<SizeInt, Precision>>;
+using tFloatFixedUnitNoNull = tUnitNoNull<tFloatFixed<SizeInt, Precision>>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<std::size_t SizeInt, std::size_t Precision>
+using tFloatFixedUnitNoNull = tUnitNoNull<tFloatFixed<SizeInt, Precision>>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<std::size_t SizeInt, std::size_t Precision>
+using tUFloatFixedNoNullUnit = tUnit<tTypeNoNull<tUFloatFixed<SizeInt, Precision>>>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template<std::size_t SizeInt, std::size_t Precision>
+using tUFloatFixedNoNullUnitNoNull = tUnitNoNull<tTypeNoNull<tUFloatFixed<SizeInt, Precision>>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeIntMax, std::size_t Precision>
 using tFloatPrecisionFixedUnit = tUnit<tFloatPrecisionFixed<SizeIntMax, Precision>>;
@@ -471,10 +574,15 @@ class tDate
 	tValue m_Year;
 
 public:
+	using value_type = typename tValue::value_type;
+
 	tDate() = default;
+	explicit tDate(tTypeVerified::tStatus verified) :m_Day(verified), m_Month(verified), m_Year(verified) {}
 	explicit tDate(const std::string& value);
 	tDate(std::int8_t year, std::int8_t month, std::int8_t day);
 	explicit tDate(std::time_t value);
+
+	bool IsVerified() const { return m_Day.IsVerified() && m_Month.IsVerified() && m_Year.IsVerified(); }
 
 	bool IsEmpty() const { return m_Day.IsEmpty() || m_Month.IsEmpty() || m_Year.IsEmpty(); }
 
@@ -487,6 +595,7 @@ public:
 	std::string ToString() const;
 
 private:
+	void ClearVerified();
 	static bool IsValid(std::uint8_t year, std::uint8_t month, std::uint8_t day) { return year < 100 && month > 0 && month <= 12 && day > 0 && day <= 31; }
 };
 
@@ -505,29 +614,37 @@ class tTimeBase
 	TSecond m_Second;
 
 public:
+	using value_type = std::uint32_t;
+
 	tTimeBase() = default;
+	explicit tTimeBase(tTypeVerified::tStatus verified) :m_Hour(verified), m_Minute(verified), m_Second(verified) {}
 	explicit tTimeBase(const std::string& value)
 	{
-		if (value.size() != 4 + TSecond::GetSize())
+		if (value.empty())
 			return;
+		if (value.size() != 4 + TSecond::GetSize())
+		{
+			ClearVerified();
+			return;
+		}
 		m_Hour = tValue(value.substr(0, 2));
 		m_Minute = tValue(value.substr(2, 2));
 		m_Second = TSecond(value.substr(4));
-		if (IsValid(m_Hour.GetValue(), m_Minute.GetValue(), static_cast<std::uint8_t>(m_Second.GetValue())))
-			return;
-		m_Hour = tValue();
-		m_Minute = tValue();
-		m_Second = TSecond();
+		if (!IsValid(m_Hour.GetValue(), m_Minute.GetValue(), static_cast<std::uint8_t>(m_Second.GetValue())))
+			ClearVerified();
 	}
 	tTimeBase(std::uint8_t hour, std::uint8_t minute, double second)
 	{
 		if (!IsValid(hour, minute, static_cast<std::uint8_t>(second)))
+		{
+			ClearVerified();
 			return;
+		}
 		m_Hour = tValue(hour);
 		m_Minute = tValue(minute);
 		m_Second = TSecond(static_cast<typename TSecond::value_type>(second));
 	}
-	explicit tTimeBase(std::uint32_t value) // value is in seconds
+	explicit tTimeBase(value_type value) // value is in seconds
 	{
 		m_Hour = tValue(value / 3600);
 		value -= m_Hour.GetValue() * 3600;
@@ -536,9 +653,11 @@ public:
 		m_Second = TSecond(value);
 	}
 
+	bool IsVerified() const { return m_Hour.IsVerified() && m_Minute.IsVerified() && m_Second.IsVerified(); }
+
 	bool IsEmpty() const { return m_Hour.IsEmpty() || m_Minute.IsEmpty() || m_Second.IsEmpty(); }
 
-	std::uint32_t GetValue() const // in seconds
+	value_type GetValue() const // in seconds
 	{
 		return m_Hour.GetValue() * 3600 + m_Minute.GetValue() * 60 + static_cast<std::uint32_t>(m_Second.GetValue());
 	}
@@ -555,6 +674,12 @@ public:
 	}
 
 private:
+	void ClearVerified()
+	{
+		m_Hour = tValue(tTypeVerified::tStatus::False);
+		m_Minute = tValue(tTypeVerified::tStatus::False);
+		m_Second = TSecond(tTypeVerified::tStatus::False);
+	}
 	static bool IsValid(std::uint8_t hour, std::uint8_t minute, std::uint8_t second) { return hour < 24 && minute < 60 && second < 60; }
 };
 
@@ -602,26 +727,34 @@ class tGeoDegree
 	bool m_Negative = false;
 
 public:
+	using value_type = double;
+
 	static constexpr char SignNegative = SizeDeg == 3 ? 'W' : 'S';
 	static constexpr char SignPositive = SizeDeg == 3 ? 'E' : 'N';
 
 	tGeoDegree() = default;
 	tGeoDegree(const std::string& value, const std::string& sign)
 	{
-		if (value.size() != Size || sign.size() != 1 || (sign[0] != SignNegative && sign[0] != SignPositive))
+		if (value.empty() && sign.empty())
 			return;
+		if (value.size() != Size || sign.size() != 1 || (sign[0] != SignNegative && sign[0] != SignPositive))
+		{
+			ClearVerified();
+			return;
+		}
 		m_Negative = sign[0] == SignNegative;
 		m_Deg = tDegree(value.substr(0, SizeDeg));
 		m_Min = tMinute(value.substr(SizeDeg));
-		if (IsValid(GetValue()))
-			return;
-		m_Deg = tDegree();
-		m_Min = tMinute();
+		if (!IsValid(GetValue()))
+			ClearVerified();
 	}
-	explicit tGeoDegree(double degree)
+	explicit tGeoDegree(value_type degree)
 	{
 		if (!IsValid(degree))
+		{
+			ClearVerified();
 			return;
+		}
 		m_Negative = degree < 0;
 		degree = std::abs(degree);
 		m_Deg = tDegree(static_cast<std::int32_t>(degree));
@@ -630,11 +763,13 @@ public:
 		m_Min = tMinute(degree);
 	}
 
+	bool IsVerified() const { return m_Deg.IsVerified() && m_Min.IsVerified(); }
+
 	bool IsEmpty() const { return m_Deg.IsEmpty() || m_Min.IsEmpty(); }
 
 	static constexpr std::size_t GetSize() { return Size; }
 
-	double GetValue() const { return m_Deg.GetValue() + m_Min.GetValue() / 60; }
+	value_type GetValue() const { return m_Deg.GetValue() + m_Min.GetValue() / 60; }
 
 	std::string ToString() const
 	{
@@ -658,6 +793,11 @@ public:
 	}
 
 private:
+	void ClearVerified()
+	{
+		m_Deg = tDegree(tTypeVerified::tStatus::False);
+		m_Min = tMinute(tTypeVerified::tStatus::False);
+	}
 	static bool IsValid(double value) { return value >= -MaxAbs && value <= MaxAbs; }
 };
 
@@ -681,7 +821,7 @@ using tLatitude = tGeoDegree<2, Precision>;
 template <std::size_t Precision>
 using tLongitude = tGeoDegree<3, Precision>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tMode
+struct tMode : public tTypeVerified
 {
 	char Value = 0;
 
