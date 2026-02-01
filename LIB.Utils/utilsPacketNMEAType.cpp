@@ -112,17 +112,17 @@ std::string tGNSS::ToString() const
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-tValid::tValid(const std::string& val)
+tStatus::tStatus(const std::string& val)
 {
 	if (val.size() != 1 || (val[0] != 'A' && val[0] != 'V'))
 	{
 		SetVerified(false);
 		return;
 	}
-	*this = tValid(val[0] == 'A' ? true : false);
+	Value = val[0] == 'A' ? true : false;
 }
 
-std::string tValid::ToString() const
+std::string tStatus::ToString() const
 {
 	if (!Value.has_value())
 		return "";

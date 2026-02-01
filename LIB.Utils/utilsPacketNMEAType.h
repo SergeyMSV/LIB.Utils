@@ -56,7 +56,6 @@ public:
 
 protected:
 	void SetVerified(bool verified) { m_Verified = verified; }
-	void SetVerified() { m_Verified = true; } // [TBD] REMOVE IT 
 };
 
 template<typename ... T>
@@ -126,7 +125,7 @@ struct tGNSS : public tTypeVerified
 	tGNSS_State Value = tGNSS_State::None;
 
 	tGNSS() :tTypeVerified(false) {}
-	explicit tGNSS(tGNSS_State val) : Value(val) { SetVerified(); }
+	explicit tGNSS(tGNSS_State val) : Value(val) {}
 	explicit tGNSS(const std::string& val);
 
 	bool IsEmpty() const { return Value == tGNSS_State::None; }
@@ -136,21 +135,25 @@ struct tGNSS : public tTypeVerified
 	std::string ToString() const;
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class tValid : public tTypeVerified
+class tStatus : public tTypeVerified
 {
 	std::optional<bool> Value;
 
 public:
-	tValid() :tTypeVerified(false) {}
-	explicit tValid(bool val) : Value(val) { SetVerified(); }
-	explicit tValid(const std::string& val);
+	using value_type = bool;
 
-	bool IsEmpty() const { return Value.has_value(); }
+	tStatus() :tTypeVerified(false) {}
+	explicit tStatus(value_type val) : Value(val) {}
+	explicit tStatus(const std::string& val);
 
-	int GetValue() const { return static_cast<int>(Value.value_or(false)); }
+	bool IsEmpty() const { return !Value.has_value(); }
+
+	value_type GetValue() const { return Value.value_or(false); }
 
 	std::string ToString() const;
 };
+
+using tStatusNoNull = type::tTypeNoNull<tStatus>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <std::size_t Size>
 class tIntFixed : public tTypeVerified
@@ -374,7 +377,6 @@ public:
 			return;
 		}
 		m_Value = value;
-		SetVerified();
 	}
 
 	bool IsEmpty() const { return !m_Value.has_value(); }

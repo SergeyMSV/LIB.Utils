@@ -151,13 +151,13 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_TestERR<tGNSS>("", "tGNSS parse nothing");
 	UnitTest_PacketNMEAType_TestERR<tGNSS>("GR", "tGNSS parse GR");
 
-	UnitTest_PacketNMEAType_Test<tValid>(true, "tValid true", "A");
-	UnitTest_PacketNMEAType_Test<tValid>(false, "tValid false", "V");
-	UnitTest_PacketNMEAType_Test<tValid>("A", "tValid parse A", "A");
-	UnitTest_PacketNMEAType_Test<tValid>("V", "tValid parse V", "V");
-	UnitTest_PacketNMEAType_TestERR<tValid>("tValid empty");
-	UnitTest_PacketNMEAType_TestERR<tValid>("", "tValid parse empty");
-	UnitTest_PacketNMEAType_TestERR<tValid>("R", "tValid parse R");
+	UnitTest_PacketNMEAType_Test<tStatus>(true, "tValid true", "A");
+	UnitTest_PacketNMEAType_Test<tStatus>(false, "tValid false", "V");
+	UnitTest_PacketNMEAType_Test<tStatus>("A", "tValid parse A", "A");
+	UnitTest_PacketNMEAType_Test<tStatus>("V", "tValid parse V", "V");
+	UnitTest_PacketNMEAType_TestERR<tStatus>("tValid empty");
+	UnitTest_PacketNMEAType_TestERR<tStatus>("", "tValid parse empty");
+	UnitTest_PacketNMEAType_TestERR<tStatus>("R", "tValid parse R");
 
 	UnitTest_PacketNMEAType_Test<tIntFixed<1>>(       "tIntFixed<1> empty 1", "");
 	UnitTest_PacketNMEAType_Test<tIntFixed<1>>("",    "tIntFixed<1> empty 2", "");
