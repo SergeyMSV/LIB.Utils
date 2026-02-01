@@ -469,6 +469,9 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_TestERR<tTypeNoNull<tFloatPrecisionFixedUnit<5, 2>>>("tTypeNoNull<tFloatPrecisionFixedUnit<5, 2>> empty 1");
 	UnitTest_PacketNMEAType_TestERR<tTypeNoNull<tFloatPrecisionFixedUnit<5, 2>>>("", "", "tTypeNoNull<tFloatPrecisionFixedUnit<5, 2>> empty 2");
 
+	UnitTest_PacketNMEAType_TestERR<tFloatPrecisionFixedUnitNoNull<5, 2>>("tFloatPrecisionFixedUnitNoNull<5, 2> empty 1");
+	UnitTest_PacketNMEAType_TestERR<tFloatPrecisionFixedUnitNoNull<5, 2>>("", "", "tFloatPrecisionFixedUnitNoNull<5, 2> empty 2");
+	
 	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5, 4>>(        "tUFloatPrecisionFixedUnit<5,4> empty 1", ",");
 	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5, 4>>("", "", "tUFloatPrecisionFixedUnit<5,4> empty 2", ",");
 	UnitTest_PacketNMEAType_Test<tUFloatPrecisionFixedUnit<5, 4>>("", "R", "tUFloatPrecisionFixedUnit<5,4> ,R", ",R");
@@ -481,9 +484,16 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_TestERR<tTypeNoNull<tUFloatPrecisionFixedUnit<5, 2>>>("tTypeNoNull<tUFloatPrecisionFixedUnit<5, 2>> empty 1");
 	UnitTest_PacketNMEAType_TestERR<tTypeNoNull<tUFloatPrecisionFixedUnit<5, 2>>>("", "", "tTypeNoNull<tUFloatPrecisionFixedUnit<5, 2>> empty 2");
 
-	UnitTest_PacketNMEAType_Test<tMode>("A", "tMode 3", "A");
-	UnitTest_PacketNMEAType_TestERR<tMode>("", "tMode 1");
-	UnitTest_PacketNMEAType_TestERR<tMode>("AS", "tMode 2");
+	UnitTest_PacketNMEAType_TestERR<tUFloatPrecisionFixedUnitNoNull<5, 2>>("tFloatPrecisionFixedUnitNoNull<5, 2> empty 1");
+	UnitTest_PacketNMEAType_TestERR<tUFloatPrecisionFixedUnitNoNull<5, 2>>("", "", "tFloatPrecisionFixedUnitNoNull<5, 2> empty 2");
+
+	UnitTest_PacketNMEAType_Test<tMode>(     "tMode empty 1", "");
+	UnitTest_PacketNMEAType_Test<tMode>("",  "tMode empty 2", "");
+	UnitTest_PacketNMEAType_Test<tMode>("A", "tMode 1", "A");
+	UnitTest_PacketNMEAType_TestERR<tMode>("AS", "tMode 3");
+
+	UnitTest_PacketNMEAType_Test<tModeNoNull>("A", "tModeNoNull 1", "A");
+	UnitTest_PacketNMEAType_TestERR<tModeNoNull>("", "tModeNoNull 2");
 
 	std::cout << std::endl;
 }

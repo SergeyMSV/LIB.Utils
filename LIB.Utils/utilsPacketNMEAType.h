@@ -125,8 +125,8 @@ struct tGNSS : public tTypeVerified
 	tGNSS_State Value = tGNSS_State::None;
 
 	tGNSS() :tTypeVerified(false) {}
-	explicit tGNSS(tGNSS_State val) : Value(val) {}
-	explicit tGNSS(const std::string& val);
+	explicit tGNSS(tGNSS_State value) : Value(value) {}
+	explicit tGNSS(const std::string& value);
 
 	bool IsEmpty() const { return Value == tGNSS_State::None; }
 
@@ -143,8 +143,8 @@ public:
 	using value_type = bool;
 
 	tStatus() :tTypeVerified(false) {}
-	explicit tStatus(value_type val) : Value(val) {}
-	explicit tStatus(const std::string& val);
+	explicit tStatus(value_type value) : Value(value) {}
+	explicit tStatus(const std::string& value);
 
 	bool IsEmpty() const { return !Value.has_value(); }
 
@@ -598,25 +598,25 @@ template<std::size_t SizeIntMax, std::size_t Precision>
 using tFloatPrecisionFixedUnit = tUnit<tFloatPrecisionFixed<SizeIntMax, Precision>>;
 
 template<std::size_t SizeIntMax, std::size_t Precision>
-using tFloatPrecisionFixedUnitNoNull = tUnitNoNull<tFloatPrecisionFixedUnit<SizeIntMax, Precision>>;
+using tFloatPrecisionFixedUnitNoNull = tUnitNoNull<tFloatPrecisionFixed<SizeIntMax, Precision>>;
 
 template<std::size_t SizeIntMax, std::size_t Precision>
-using tFloatPrecisionFixedNoNullUnit = tUnit<tTypeNoNull<tFloatPrecisionFixedUnit<SizeIntMax, Precision>>>;
+using tFloatPrecisionFixedNoNullUnit = tUnit<tTypeNoNull<tFloatPrecisionFixed<SizeIntMax, Precision>>>;
 
 template<std::size_t SizeIntMax, std::size_t Precision>
-using tFloatPrecisionFixedNoNullUnitNoNull = tUnitNoNull<tTypeNoNull<tFloatPrecisionFixedUnit<SizeIntMax, Precision>>>;
+using tFloatPrecisionFixedNoNullUnitNoNull = tUnitNoNull<tTypeNoNull<tFloatPrecisionFixed<SizeIntMax, Precision>>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<std::size_t SizeIntMax, std::size_t Precision>
 using tUFloatPrecisionFixedUnit = tUnit<tUFloatPrecisionFixed<SizeIntMax, Precision>>;
 
 template<std::size_t SizeIntMax, std::size_t Precision>
-using tUFloatPrecisionFixedUnitNoNull = tUnitNoNull<tUFloatPrecisionFixedUnit<SizeIntMax, Precision>>;
+using tUFloatPrecisionFixedUnitNoNull = tUnitNoNull<tUFloatPrecisionFixed<SizeIntMax, Precision>>;
 
 template<std::size_t SizeIntMax, std::size_t Precision>
-using tUFloatPrecisionFixedNoNullUnit = tUnit<tTypeNoNull<tUFloatPrecisionFixedUnit<SizeIntMax, Precision>>>;
+using tUFloatPrecisionFixedNoNullUnit = tUnit<tTypeNoNull<tUFloatPrecisionFixed<SizeIntMax, Precision>>>;
 
 template<std::size_t SizeIntMax, std::size_t Precision>
-using tUFloatPrecisionFixedNoNullUnitNoNull = tUnitNoNull<tTypeNoNull<tUFloatPrecisionFixedUnit<SizeIntMax, Precision>>>;
+using tUFloatPrecisionFixedNoNullUnitNoNull = tUnitNoNull<tTypeNoNull<tUFloatPrecisionFixed<SizeIntMax, Precision>>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class tDate
 {
@@ -887,22 +887,27 @@ using tLongitude = tGeoDegree<3, Precision>;
 template <std::size_t Precision>
 using tLongitudeNoNull = tTypeNoNull<tLongitude<Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tMode : public tTypeVerified
+class tMode : public tTypeVerified
 {
-	char Value = 0;
+	char m_Mode = 0;
+
+public:
+	using value_type = char;
 
 	tMode() = default;
-	explicit tMode(const std::string& val);
+	explicit tMode(const std::string& value);
 
-	bool IsEmpty() const { return Value == 0; }
+	bool IsEmpty() const { return m_Mode == 0; }
 
-	char GetValue() const { return Value; }
+	value_type GetValue() const { return m_Mode; }
 
 	std::string ToString() const;
 	std::string ToStringEx() const;
 };
 
 std::ostream& operator<<(std::ostream& out, const tMode& value);
+
+using tModeNoNull = type::tTypeNoNull<tMode>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 }
