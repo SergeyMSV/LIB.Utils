@@ -45,6 +45,8 @@ struct tPayloadJAM_SIGNAL_VAL
 		Frequency = tFrequency(val[7]);
 	}
 
+	bool IsVerified() const { return type::IsVerified(Index, Frequency); }
+
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
@@ -68,6 +70,8 @@ struct tPayloadVERSION_GET
 	//	if (val.size() != 3 || val[0] != "PTWS" || val[1] != "VERSION" || val[2] != "GET")
 	//		return;
 	//}
+
+	bool IsVerified() const { return true; }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
@@ -97,6 +101,8 @@ struct tPayloadVERSION_VAL
 			return;
 		Version = val[3];
 	}
+
+	bool IsVerified() const { return !Version.empty(); }
 
 	tPayloadCommon::value_type GetPayload() const
 	{

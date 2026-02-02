@@ -31,6 +31,8 @@ struct tPayloadTEST
 
 	static const char* GetID() { return "PMTK000"; }
 
+	bool IsVerified() const { return Parsed; }
+
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
@@ -66,6 +68,8 @@ struct tPayloadACK
 	}
 
 	static const char* GetID() { return "PMTK001"; }
+
+	bool IsVerified() const { return type::IsVerified(Cmd, Status); }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
@@ -104,6 +108,8 @@ struct tPayloadACK_GNSS_SEARCH_MODE
 	}
 
 	static const char* GetID() { return "PMTK001"; }
+
+	bool IsVerified() const { return type::IsVerified(Cmd, Status); }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
