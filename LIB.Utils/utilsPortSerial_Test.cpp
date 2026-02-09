@@ -56,7 +56,7 @@ void UnitTest_PortSerial()
 
 		tBoard Port(ioc, PortID);
 
-		std::thread Thread_IO([&ioc]() { ioc.run(); });
+		std::thread Thread_ioc([&ioc]() { ioc.run(); });
 
 		Port.Send(Data);
 		std::this_thread::sleep_for(1s);
@@ -68,7 +68,7 @@ void UnitTest_PortSerial()
 
 		ioc.stop();
 
-		Thread_IO.join();
+		Thread_ioc.join();
 	}
 
 	{ // Time scale
@@ -81,7 +81,7 @@ void UnitTest_PortSerial()
 		boost::asio::io_context ioc;
 		const std::string PortID = "COM4";
 		tBoardOneWire Port(ioc, PortID, tBoardOneWire::tSpeed::Norm);// tBoardOneWire::tSpeed::Fast);
-		std::thread Thread_IO([&ioc]() { ioc.run(); });
+		std::thread Thread_ioc([&ioc]() { ioc.run(); });
 
 		//std::vector<std::uint8_t> Rsp = Port.Transaction({ 0x81, 0xFF }, 0);
 		//std::vector<std::uint8_t> Rsp = Port.Transaction({ 0x7E, 0x7E }, 0);
@@ -128,7 +128,7 @@ void UnitTest_PortSerial()
 
 		ioc.stop();
 
-		Thread_IO.join();
+		Thread_ioc.join();
 	}
 
 	std::cout << std::endl;
