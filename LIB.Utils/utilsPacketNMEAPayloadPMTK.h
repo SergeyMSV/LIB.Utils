@@ -17,16 +17,13 @@ namespace nmea
 namespace mtk
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadTEST
+struct tPayloadTEST : public type::tTypeVerified
 {
-	bool Parsed = false;
-
 	tPayloadTEST() = default;
 	explicit tPayloadTEST(const tPayloadCommon::value_type& val)
 	{
 		if (val.size() != 1 || val[0] != GetID())
-			return;
-		Parsed = true;
+			SetVerified(false);
 	}
 
 	static const char* GetID() { return "PMTK000"; }
@@ -39,7 +36,7 @@ struct tPayloadTEST
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadACK
+struct tPayloadACK : public type::tTypeVerified
 {
 	enum class tStatus : std::uint8_t
 	{
@@ -59,13 +56,17 @@ struct tPayloadACK
 	explicit tPayloadACK(const tPayloadCommon::value_type& val)
 	{
 		if (val.size() != 3 && val[0] != GetID())
+		{
+			SetVerified(false);
 			return;
+		}
 		Cmd = tCmd(val[1]);
 		Status = tFlag(val[2]);
-		
 	}
 
 	static const char* GetID() { return "PMTK001"; }
+
+	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(Cmd, Status); }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
@@ -77,7 +78,7 @@ struct tPayloadACK
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadACK_GNSS_SEARCH_MODE
+struct tPayloadACK_GNSS_SEARCH_MODE : public type::tTypeVerified
 {
 	enum class tStatus : std::uint8_t
 	{
@@ -97,13 +98,18 @@ struct tPayloadACK_GNSS_SEARCH_MODE
 	explicit tPayloadACK_GNSS_SEARCH_MODE(const tPayloadCommon::value_type& val)
 	{
 		if (val.size() != 3 && val[0] != GetID())
+		{
+			SetVerified(false);
 			return;
+		}
 		Cmd = tCmd(val[1]);
 		Status = tFlag(val[2]);
 
 	}
 
 	static const char* GetID() { return "PMTK001"; }
+
+	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(Cmd, Status); }
 
 	tPayloadCommon::value_type GetPayload() const
 	{

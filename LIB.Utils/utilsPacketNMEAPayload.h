@@ -29,17 +29,19 @@ template
 	typename TDiffAge,
 	typename TDiffStation
 >
-struct tPayloadGGA							// Global Positioning System Fix Data
+struct tPayloadGGA : public type::tTypeVerified	// Global Positioning System Fix Data
 {
+	using tFS = type::tUIntFixedNoNull<1>;
+
 	type::tGNSS GNSS;
 	TTime Time;								// UTC Time
 	TLatitude Latitude;
 	TLongitude Longitude;
-	std::uint8_t FS = 0;					// Position Fix Indicator, 1 digit 
+	tFS FS = tFS(0);						// Position Fix Indicator, 1 digit 
 	TSatQty SatUsed = TSatQty(0);			// Satellites Used
 	THDOP HDOP;								// Horizontal Dilution of Precision 
 	TAltitude Altitude;						// Altitude re: mean-sea-level (geoid), meters
-	TGeoidSeparation GeoidalSeparation;		// Geoidal Separation: the difference between the WGS-84 earth ellipsoid surface and mean-sea-level (geoid) surface, "-" = mean-sea-level surface below WGS - 84 ellipsoid surface.
+	TGeoidSeparation GeoidSeparation;		// Geoidal Separation: the difference between the WGS-84 earth ellipsoid surface and mean-sea-level (geoid) surface, "-" = mean-sea-level surface below WGS - 84 ellipsoid surface.
 	TDiffAge DiffAge;						// Age of Differential Corrections
 	TDiffStation DiffStation;				// Diff. Reference Station ID
 
@@ -47,40 +49,133 @@ struct tPayloadGGA							// Global Positioning System Fix Data
 	explicit tPayloadGGA(const tPayloadCommon::value_type& val)
 	{
 		if (val.size() != 15 || val[0].size() < 3 || std::strcmp(&val[0][2], GetID()))
+		{
+			SetVerified(false);
 			return;
+		}
 		GNSS = type::tGNSS(val[0]);
 		Time = TTime(val[1]);
 		Latitude = TLatitude(val[2], val[3]);
 		Longitude = TLongitude(val[4], val[5]);
-		FS = std::atoi(val[6].c_str());
+		FS = tFS(val[6]);
 		SatUsed = TSatQty(val[7]);
 		HDOP = THDOP(val[8]);
 		Altitude = TAltitude(val[9], val[10]);
-		GeoidalSeparation = TGeoidSeparation(val[11], val[12]);
+		GeoidSeparation = TGeoidSeparation(val[11], val[12]);
 		DiffAge = TDiffAge(val[13]);
 		DiffStation = TDiffStation(val[14]);
 	}
 
 	static const char* GetID() { return "GGA"; }
 
+	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(GNSS, Time, Latitude, Longitude, FS, SatUsed, HDOP, Altitude, GeoidSeparation, DiffAge, DiffStation); }
+
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
+		if (!IsVerified())
+			return Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(Time.ToString());
 		Data.push_back(Latitude.ToStringValue());
 		Data.push_back(Latitude.ToStringHemisphere());
 		Data.push_back(Longitude.ToStringValue());
 		Data.push_back(Longitude.ToStringHemisphere());
-		Data.push_back(std::to_string(FS));
+		Data.push_back(FS.ToString());
 		Data.push_back(SatUsed.ToString());
 		Data.push_back(HDOP.ToString());
 		Data.push_back(Altitude.ToStringValue());
 		Data.push_back(Altitude.ToStringUnit());
-		Data.push_back(GeoidalSeparation.ToStringValue());
-		Data.push_back(GeoidalSeparation.ToStringUnit());
+		Data.push_back(GeoidSeparation.ToStringValue());
+		Data.push_back(GeoidSeparation.ToStringUnit());
 		Data.push_back(DiffAge.ToString());
 		Data.push_back(DiffStation.ToString());
+		return Data;
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template
+<
+	typename TLatitude,
+	typename TLongitude,
+	typename TTime
+>
+struct tPayloadGLL7 : public type::tTypeVerified	// Geographic Position - Latitude/Longitude
+{
+	type::tGNSS GNSS;
+	TLatitude Latitude;
+	TLongitude Longitude;
+	TTime Time;								// UTC Time
+	type::tStatusNoNull Status;				// A = Data valid, V = Navigation receiver warning
+
+	tPayloadGLL7() = default;
+	explicit tPayloadGLL7(const tPayloadCommon::value_type& val)
+	{
+		if (val.size() < 7 || val[0].size() < 3 || std::strcmp(&val[0][2], GetID()))
+		{
+			SetVerified(false);
+			return;
+		}
+		GNSS = type::tGNSS(val[0]);
+		Latitude = TLatitude(val[1], val[2]);
+		Longitude = TLongitude(val[3], val[4]);
+		Time = TTime(val[5]);
+		Status = type::tStatusNoNull(val[6]);
+	}
+
+	static const char* GetID() { return "GLL"; }
+
+	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(GNSS, Latitude, Longitude, Time, Status); }
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data;
+		if (!IsVerified())
+			return Data;
+		Data.push_back(GNSS.ToString() + GetID());
+		Data.push_back(Latitude.ToStringValue());
+		Data.push_back(Latitude.ToStringHemisphere());
+		Data.push_back(Longitude.ToStringValue());
+		Data.push_back(Longitude.ToStringHemisphere());
+		Data.push_back(Time.ToString());
+		Data.push_back(Status.ToString());
+		return Data;
+	}
+};
+
+template
+<
+	typename TLatitude,
+	typename TLongitude,
+	typename TTime,
+	typename TMode
+>
+struct tPayloadGLL8 : public tPayloadGLL7<TLatitude, TLongitude, TTime>
+{
+	using tBase = tPayloadGLL7<TLatitude, TLongitude, TTime>;
+
+	TMode Mode;								// Positioning system Mode Indicator
+
+	tPayloadGLL8() = default;
+	explicit tPayloadGLL8(const tPayloadCommon::value_type& val)
+		:tBase(val)
+	{
+		if (val.size() != 8)
+		{
+			tBase::SetVerified(false);
+			return;
+		}
+		Mode = TMode(val[7]);
+	}
+
+	bool IsVerified() const { return tBase::IsVerified() && type::IsVerified(Mode); }
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data = tBase::GetPayload();
+		if (!IsVerified())
+			return Data;
+		Data.push_back(Mode.ToString());
 		return Data;
 	}
 };
@@ -95,7 +190,7 @@ template
 	typename TAzimuth,
 	typename TSNR
 >
-struct tPayloadGSV							// GNSS Satellites in View
+struct tPayloadGSV : public type::tTypeVerified	// GNSS Satellites in View
 {
 	type::tGNSS GNSS;
 	TMsgQty MsgQty;							// Total number of messages, 1 to 9
@@ -115,7 +210,10 @@ struct tPayloadGSV							// GNSS Satellites in View
 	explicit tPayloadGSV(const tPayloadCommon::value_type& val)
 	{
 		if (val.size() < 4 || val[0].size() < 3 || std::strcmp(&val[0][2], GetID()))
+		{
+			SetVerified(false);
 			return;
+		}
 		GNSS = type::tGNSS(val[0]);
 		MsgQty = TMsgQty(val[1]);
 		MsgNum = TMsgNum(val[2]);
@@ -135,9 +233,23 @@ struct tPayloadGSV							// GNSS Satellites in View
 
 	static const char* GetID() { return "GSV"; }
 
+	bool IsVerified() const
+	{
+		if (!type::tTypeVerified::IsVerified())
+			return false;
+		bool Verified = type::IsVerified(GNSS, MsgQty, MsgNum, SatInView);
+		for (auto& i : Sats)
+		{
+			Verified = type::IsVerified(i.SVID, i.Elevation, i.Azimuth, i.SNR);
+		}
+		return Verified;
+	}
+
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
+		if (!IsVerified())
+			return Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(MsgQty.ToString());
 		Data.push_back(MsgNum.ToString());
@@ -162,11 +274,11 @@ template
 	typename TCourse,
 	typename TDate
 >
-struct tPayloadRMC12						// Recommended Minimum Specific GNSS Data
+struct tPayloadRMC12 : public type::tTypeVerified	// Recommended Minimum Specific GNSS Data
 {
 	type::tGNSS GNSS;
 	TTime Time;								// UTC Time
-	char Status = 0;						// A = Data valid, V = Navigation receiver warning
+	type::tStatusNoNull Status;				// A = Data valid, V = Navigation receiver warning
 	TLatitude Latitude;
 	TLongitude Longitude;
 	TSpeed Speed;							// Speed Over Ground, knots
@@ -179,11 +291,13 @@ struct tPayloadRMC12						// Recommended Minimum Specific GNSS Data
 		if (val.size() < 12 ||
 			val[0].size() < 3 || std::strcmp(&val[0][2], GetID())
 			|| !val[10].empty() || !val[11].empty()) // 10 and 11 stand for Magnetic variation (not supported by receiver))
+		{
+			SetVerified(false);
 			return;
+		}
 		GNSS = type::tGNSS(val[0]);
 		Time = TTime(val[1]);
-		if (val[2].size() == 1 && (val[2] == "A" || val[2] == "V"))
-			Status = val[2][0];
+		Status = type::tStatusNoNull(val[2]);
 		Latitude = TLatitude(val[3], val[4]);
 		Longitude = TLongitude(val[5], val[6]);
 		Speed = TSpeed(val[7]);
@@ -193,13 +307,16 @@ struct tPayloadRMC12						// Recommended Minimum Specific GNSS Data
 
 	static const char* GetID() { return "RMC"; }
 
+	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(GNSS, Time, Status, Latitude, Longitude, Speed, Course, Date); }
+
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data;
-
+		if (!IsVerified())
+			return Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(Time.ToString());
-		Data.push_back(Status ? std::string(1, Status) : "");
+		Data.push_back(Status.ToString());
 		Data.push_back(Latitude.ToStringValue());
 		Data.push_back(Latitude.ToStringHemisphere());
 		Data.push_back(Longitude.ToStringValue());
@@ -209,7 +326,6 @@ struct tPayloadRMC12						// Recommended Minimum Specific GNSS Data
 		Data.push_back(Date.ToString());
 		Data.push_back("");
 		Data.push_back("");
-
 		return Data;
 	}
 };
@@ -235,29 +351,186 @@ struct tPayloadRMC13 : public tPayloadRMC12<TTime, TLatitude, TLongitude, TSpeed
 		:tBase(val)
 	{
 		if (val.size() != 13)
+		{
+			tBase::SetVerified(false);
 			return;
+		}
 		Mode = TMode(val[12]);
 	}
+
+	bool IsVerified() const { return tBase::IsVerified() && type::IsVerified(Mode); }
 
 	tPayloadCommon::value_type GetPayload() const
 	{
 		tPayloadCommon::value_type Data = tBase::GetPayload();
+		if (!IsVerified())
+			return Data;
 		Data.push_back(Mode.ToString());
+		return Data;
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template
+<
+	typename TCourse,
+	typename TSpeed
+>
+struct tPayloadVTG9 : public type::tTypeVerified	// Course Over Ground and Ground Speed
+{
+	type::tGNSS GNSS;
+	TCourse Course;							// Course Over Ground, degrees
+	TSpeed Speed;							// Speed Over Ground, knots
+	TSpeed SpeedKmH;						// Speed Over Ground, km/h
+
+	tPayloadVTG9() = default;
+	explicit tPayloadVTG9(const tPayloadCommon::value_type& val)
+	{
+		if (val.size() < 9 || val[0].size() < 3 || std::strcmp(&val[0][2], GetID()) ||
+			val[2] != "T" || val[3] != "" || val[4] != "M" || val[6] != "N" || val[8] != "K")
+		{
+			SetVerified(false);
+			return;
+		}
+		GNSS = type::tGNSS(val[0]);
+		Course = TCourse(val[1]);
+		Speed = TSpeed(val[5]);
+		SpeedKmH = TSpeed(val[7]);
+	}
+
+	static const char* GetID() { return "VTG"; }
+
+	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(GNSS, Course, Speed, SpeedKmH); }
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data;
+		if (!IsVerified())
+			return Data;
+		Data.push_back(GNSS.ToString() + GetID());
+		Data.push_back(Course.ToString());
+		Data.push_back("T");
+		Data.push_back("");
+		Data.push_back("M");
+		Data.push_back(Speed.ToString());
+		Data.push_back("N");
+		Data.push_back(SpeedKmH.ToString());
+		Data.push_back("K");
+		return Data;
+	}
+};
+
+template
+<
+	typename TCourse,
+	typename TSpeed,
+	typename TMode
+>
+struct tPayloadVTG10 : public tPayloadVTG9<TSpeed, TCourse>
+{
+	using tBase = tPayloadVTG9<TSpeed, TCourse>;
+
+	TMode Mode;								// Positioning system Mode Indicator
+
+	tPayloadVTG10() = default;
+	explicit tPayloadVTG10(const tPayloadCommon::value_type& val)
+		:tBase(val)
+	{
+		if (val.size() != 10)
+		{
+			tBase::SetVerified(false);
+			return;
+		}
+		Mode = TMode(val[9]);
+	}
+
+	bool IsVerified() const { return tBase::IsVerified() && type::IsVerified(Mode); }
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data = tBase::GetPayload();
+		if (!IsVerified())
+			return Data;
+		Data.push_back(Mode.ToString());
+		return Data;
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template
+<
+	typename TTime,
+	typename TDay,
+	typename TMonth,
+	typename TYear,
+	typename TLocalZoneHours,
+	typename TLocalZoneMinutes
+>
+struct tPayloadZDA : public type::tTypeVerified	// Time & Date
+{
+	type::tGNSS GNSS;
+	TTime Time;								// UTC Time
+	TDay Day;								// Day, 01 to 31
+	TMonth Month;							// Month, 01 to 12
+	TYear Year;								// Year, (for MTK 3333 from 1980 to 2079)
+	TLocalZoneHours LocalZoneHours;			// Offset from UTC, 00 to ±13 hrs
+	TLocalZoneMinutes LocalZoneMinutes;		// Offset from UTC, 00 to +59
+
+	tPayloadZDA() = default;
+	explicit tPayloadZDA(const tPayloadCommon::value_type& val)
+	{
+		if (val.size() != 7 || val[0].size() < 3 || std::strcmp(&val[0][2], GetID()))
+		{
+			SetVerified(false);
+			return;
+		}
+		GNSS = type::tGNSS(val[0]);
+		Time = TTime(val[1]);
+		Day = TDay(val[2]);
+		Month = TMonth(val[3]);
+		Year = TYear(val[4]);
+		LocalZoneHours = TLocalZoneHours(val[5]);
+		LocalZoneMinutes = TLocalZoneMinutes(val[6]);
+	}
+
+	static const char* GetID() { return "ZDA"; }
+
+	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(GNSS, Time, Day, Month, Year, LocalZoneHours, LocalZoneMinutes); }
+
+	tPayloadCommon::value_type GetPayload() const
+	{
+		tPayloadCommon::value_type Data;
+		if (!IsVerified())
+			return Data;
+		Data.push_back(GNSS.ToString() + GetID());
+		Data.push_back(Time.ToString());
+		Data.push_back(Day.ToString());
+		Data.push_back(Month.ToString());
+		Data.push_back(Year.ToString());
+		Data.push_back(LocalZoneHours.ToString());
+		Data.push_back(LocalZoneMinutes.ToString());
 		return Data;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+template<typename T, typename TArg>
+std::optional<T> Parse(const TArg& value)
+{
+	T Pack = T(value);
+	if (!Pack.IsVerified())
+		return {};
+	return Pack;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
 namespace generic
 {
-	using tMsgQty = type::tUIntFixed<1>;						// 0		Total number of messages, 1 to 9
-	using tMsgNum = type::tUIntFixed<1>;						// 0		Message number, 1 to 9
-	using tSatInViewQty = type::tUIntFixed<2>;					// 00 - 99
-	using tSVID = type::tUIntFixed<2>;							// 00		SV ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
-	using tElevation = type::tUIntFixed<2>;						// 00		Degree (Maximum 90)
-	using tAzimuth = type::tUIntFixed<3>;						// 000		Degree (Range 0 to 359)
-	using tSNR = type::tUIntFixed<2>;							// 00		SNR (C/No) 00-99 dB-Hz, null when not tracking
+	using tMsgQty = type::tUIntFixedNoNull<1>;						// 0		Total number of messages, 1 to 9
+	using tMsgNum = type::tUIntFixedNoNull<1>;						// 0		Message number, 1 to 9
+	using tSatInViewQty = type::tUIntFixedNoNull<2>;				// 00 - 99
+	using tSVID = type::tUIntFixedNoNull<2>;						// 00		SV ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
+	using tElevation = type::tUIntFixedNoNull<2>;					// 00		Degree (Maximum 90)
+	using tAzimuth = type::tUIntFixedNoNull<3>;						// 000		Degree (Range 0 to 359)
+	using tSNR = type::tUIntFixed<2>;								// 00		SNR (C/No) 00-99 dB-Hz, null when not tracking
 
 	using tPayloadGSV = base::tPayloadGSV<tMsgQty, tMsgNum, tSatInViewQty, tSVID, tElevation, tAzimuth, tSNR>;
 }
@@ -272,20 +545,21 @@ namespace mtk_eb500 // MT3329	AXN_1.30
 	// $GPGGA,000000.000,0000.0000,N,00000.0000,E,0,0,1.23,123.4,M,12.3,M,0000,0000*??
 	// $GPRMC,000000.000,A,0000.0000,N,00000.0000,E,123.00,123.00,000000,,,D*??
 	//
+	// $GPGSV,1,1,00*79
 	// $GPGSV,4,1,13,01,01,001,,02,02,002,22,03,33,003,33,04,04,004,*??
-	using tTime = type::tTime<3>;									// 000000.000
-	using tDate = type::tDate;
-	using tLatitude = type::tLatitude<4>;							// 0000.0000
-	using tLongitude = type::tLongitude<4>;							// 00000.0000
-	using tSatQty = type::tUInt<2>;									// 0 - 99
-	using tHDOP = type::tFloatPrecisionFixed<2, 2>;					// ?.00
-	using tAltitude = type::tFloatPrecisionFixedUnit<5, 1>;			// ?.0
-	using tGeoidSeparation = type::tFloatPrecisionFixedUnit<4, 1>;	// ?.0
-	using tDiffAge = type::tFloatPrecisionFixed<3, 1>;				// 0.0 - 999.9				[?]
-	using tDiffStation = type::tUIntFixed<4>;						// 0000 - 9999
-	using tSpeed = type::tFloatPrecisionFixed<4, 2>;				// 0.00 - 9999.99
-	using tCourse = type::tFloatPrecisionFixed<3, 2>;				// 0.00 - 999.99
-	using tMode = type::tMode;										// A
+	using tTime = type::tTimeNoNull<3>;										// 000000.000
+	using tDate = type::tDateNoNull;
+	using tLatitude = type::tLatitudeNoNull<4>;								// 0000.0000,?
+	using tLongitude = type::tLongitudeNoNull<4>;							// 00000.0000,?
+	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
+	using tHDOP = type::tFloatPrecisionFixed<2, 2>;							// ?.00
+	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 1>;			// ?.0,M			[?] tFloatPrecisionFixed maybe NoNull too
+	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 1>;	// ?.0,M			[?] tFloatPrecisionFixed maybe NoNull too
+	using tDiffAge = type::tFloatPrecisionFixed<3, 1>;						// 0.0 - 999.9				[?]
+	using tDiffStation = type::tUIntFixed<4>;								// 0000 - 9999
+	using tSpeed = type::tFloatPrecisionFixedNoNull<4, 2>;					// 0.00 - 9999.99
+	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;					// 0.00 - 999.99
+	using tMode = type::tModeNoNull;										// A
 
 	using tPayloadGGA = base::tPayloadGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 
@@ -311,26 +585,29 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 	// $GLGSV,2,1,05,65,65,065,65,66,66,066,66,67,67,067,,68,68,068,68*??
 	// $GLGSV,2,2,05,69,69,069,69*??
 
-
-	using tTime = type::tTime<3>;									// 000000.000
-	using tDate = type::tDate;
-	using tLatitude = type::tLatitude<6>;							// 0000.000000
-	using tLongitude = type::tLongitude<6>;							// 00000.000000
-	using tSatQty = type::tUInt<2>;									// 0 - 99
-	using tHDOP = type::tFloatPrecisionFixed<2, 2>;					// ?.00
-	using tAltitude = type::tFloatPrecisionFixedUnit<5, 3>;			// ?.000
-	using tGeoidSeparation = type::tFloatPrecisionFixedUnit<4, 3>;	// ?.000
-	using tDiffAge = type::tFloatPrecisionFixed<3, 1>;				// 0.0 - 999.9			[?]
-	using tDiffStation = type::tUIntFixed<4>;						// 0000 - 9999
-	using tSpeed = type::tFloatPrecisionFixed<4, 2>;				// 0.00 - 9999.99
-	using tCourse = type::tFloatPrecisionFixed<3, 2>;				// 0.00 - 999.99
-	using tMode = type::tMode;										// A
+	using tTime = type::tTimeNoNull<3>;										// 000000.000
+	using tDate = type::tDateNoNull;
+	using tLatitude = type::tLatitude<6>;									// 0000.000000,?
+	using tLongitude = type::tLongitude<6>;									// 00000.000000,?
+	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
+	using tHDOP = type::tFloatPrecisionFixed<2, 2>;							// ?.00
+	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 3>;			// ?.000,M
+	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 3>;	// ?.000,M
+	using tDiffAge = type::tFloatPrecisionFixed<3, 1>;						// 0.0 - 999.9			[?]
+	using tDiffStation = type::tUIntFixed<4>;								// 0000 - 9999
+	using tSpeed = type::tFloatPrecisionFixedNoNull<4, 2>;					// 0.00 - 9999.99
+	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;					// 0.00 - 999.99
+	using tMode = type::tModeNoNull;										// A
 
 	using tPayloadGGA = base::tPayloadGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+
+	using tPayloadGLL = base::tPayloadGLL8<tLatitude, tLongitude, tTime, tMode>;
 
 	using tPayloadGSV = generic::tPayloadGSV;
 
 	using tPayloadRMC = base::tPayloadRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
+
+	using tPayloadVTG = base::tPayloadVTG10<tCourse, tSpeed, tMode>;
 }
 //namespace mtk_axn_3_10
 //{
@@ -354,20 +631,37 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	// $GLGSV,2,1,05,65,65,065,65,66,66,066,66,67,67,067,,68,68,068,68*??
 	// $GLGSV,2,2,05,69,69,069,69*??
 
+	//$GNRMC,000015.799,V,,,,,0.00,0.00,060180,,,N*5F
+	//$GNVTG,0.00,T,,M,0.00,N,0.00,K,N*2C
+	//$PTWS,JAM,SIGNAL,VAL,INDEX,9,FREQ,1575.135010*66
+	//$PTWS,JAM,SIGNAL,VAL,INDEX,10,FREQ,1575.264771*59
+	//$GNGGA,000016.799,,,,,0,0,,,M,,M,,*56
+	//$GPGSA,A,1,,,,,,,,,,,,,,,*1E
+	//$GLGSA,A,1,,,,,,,,,,,,,,,*02
+	//$GPGSV,1,1,00*79
+	//$GLGSV,1,1,00*65
+	//$GNRMC,000016.799,V,,,,,0.00,0.00,060180,,,N*5C
+	//$GNVTG,0.00,T,,M,0.00,N,0.00,K,N*2C
+	//$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1575.198853*6F
+	//$PTWS,JAM,SIGNAL,VAL,INDEX,9,FREQ,1575.133911*68
+	//$PTWS,JAM,SIGNAL,VAL,INDEX,10,FREQ,1575.264771*59
+	//$GNGGA,000017.799,,,,,0,0,,,M,,M,,*57
+	//$GPGSA,A,1,,,,,,,,,,,,,,,*1E
+	//$GLGSA,A,1,,,,,,,,,,,,,,,*02
 
-	using tTime = type::tTime<3>;									// 000000.000
-	using tDate = type::tDate;
-	using tLatitude = type::tLatitude<4>;							// 0000.0000
-	using tLongitude = type::tLongitude<4>;							// 00000.0000
-	using tSatQty = type::tUInt<2>;									// 0 - 99
-	using tHDOP = type::tFloatPrecisionFixed<2, 2>;					// ?.00
-	using tAltitude = type::tFloatPrecisionFixedUnit<5, 1>;			// ?.0
-	using tGeoidSeparation = type::tFloatPrecisionFixedUnit<4, 1>;	// ?.0
-	using tDiffAge = type::tFloatPrecisionFixed<3, 1>;				// 0.0 - 999.9			[?]
-	using tDiffStation = type::tUIntFixed<4>;						// 0000 - 9999
-	using tSpeed = type::tFloatPrecisionFixed<4, 2>;				// 0.00 - 9999.99
-	using tCourse = type::tFloatPrecisionFixed<3, 2>;				// 0.00 - 999.99
-	using tMode = type::tMode;										// A
+	using tTime = type::tTimeNoNull<3>;										// 000000.000
+	using tDate = type::tDateNoNull;
+	using tLatitude = type::tLatitude<4>;									// 0000.0000,?
+	using tLongitude = type::tLongitude<4>;									// 00000.0000,?
+	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
+	using tHDOP = type::tFloatPrecisionFixed<2, 2>;							// ?.00
+	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 1>;			// ?.0,M
+	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 1>;	// ?.0,M
+	using tDiffAge = type::tFloatPrecisionFixed<3, 1>;						// 0.0 - 999.9			[?]
+	using tDiffStation = type::tUIntFixed<4>;								// 0000 - 9999
+	using tSpeed = type::tFloatPrecisionFixedNoNull<4, 2>;					// 0.00 - 9999.99
+	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;					// 0.00 - 999.99
+	using tMode = type::tModeNoNull;										// A
 
 	using tPayloadGGA = base::tPayloadGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 
@@ -388,24 +682,36 @@ namespace sirf_gsu_7x
 	// 
 	// $GPGSV,3,1,12,01,01,001,,02,02,002,,03,03,003,,04,04,004,*??
 
-	using tTime = type::tTime<3>;									// 000000.000
-	using tDate = type::tDate;
-	using tLatitude = type::tLatitude<4>;							// 0000.0000
-	using tLongitude = type::tLongitude<4>;							// 00000.0000
-	using tSatQty = type::tUIntFixed<2>;							// 00
-	using tHDOP = type::tFloatFixed<2, 1>;							// 00.0
-	using tAltitude = type::tFloatFixedUnit<5, 1>;					// 00000.0
-	using tGeoidSeparation = type::tFloatFixedUnit<4, 1>;			// 0000.0
-	using tDiffAge = type::tFloatFixed<3, 1>;						// 000.0
-	using tDiffStation = type::tUIntFixed<4>;						// 0000
-	using tSpeed = type::tFloatFixed<4, 2>;							// 9999.99
-	using tCourse = type::tFloatFixed<3, 2>;						// 999.99
+	using tTime = type::tTimeNoNull<3>;									// 000000.000
+	using tDate = type::tDateNoNull;
+	using tLatitude = type::tLatitudeNoNull<4>;							// 0000.0000,?
+	using tLongitude = type::tLongitudeNoNull<4>;						// 00000.0000,?
+	using tSatQty = type::tUIntFixedNoNull<2>;							// 00
+	using tHDOP = type::tFloatFixedNoNull<2, 1>;						// 00.0
+	using tAltitude = type::tFloatFixedNoNullUnitNoNull<5, 1>;			// 00000.0,M		-0014.2,M
+	using tGeoidSeparation = type::tFloatFixedNoNullUnitNoNull<4, 1>;	// 0000.0,M
+	using tDiffAge = type::tFloatFixedNoNull<3, 1>;						// 000.0
+	using tDiffStation = type::tUIntFixedNoNull<4>;						// 0000
+	using tSpeed = type::tFloatFixedNoNull<4, 2>;						// 9999.99
+	using tCourse = type::tFloatFixedNoNull<3, 2>;						// 999.99
+	using tDay = type::tUIntFixedNoNull<2>;								// 00
+	using tMonth = type::tUIntFixedNoNull<2>;							// 00
+	using tYear = type::tUIntFixedNoNull<4>;							// 1980
+	using tLocalZoneHours = type::tIntFixed<2>;							// 00 to ±13 hrs
+	using tLocalZoneMinutes = type::tUIntFixed<2>;						// 00 to +59
+	
 
 	using tPayloadGGA = base::tPayloadGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+
+	using tPayloadGLL = base::tPayloadGLL7<tLatitude, tLongitude, tTime>;
 
 	using tPayloadGSV = generic::tPayloadGSV;
 
 	using tPayloadRMC = base::tPayloadRMC12<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate>;
+
+	using tPayloadVTG = base::tPayloadVTG9<tCourse, tSpeed>;
+
+	using tPayloadZDA = base::tPayloadZDA<tTime, tDay, tMonth, tYear, tLocalZoneHours, tLocalZoneMinutes>;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }

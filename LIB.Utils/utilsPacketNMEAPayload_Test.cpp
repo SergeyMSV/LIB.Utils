@@ -9,7 +9,7 @@
 #include <iostream>
 #include <iomanip>
 
-#define SHOW_RESULTS
+//#define SHOW_RESULTS
 
 namespace utils
 {
@@ -17,7 +17,7 @@ namespace utils
 template<class TPayload, class TArg>
 void UnitTest_PacketNMEAPayload(const std::string& name, const TArg& msg)
 {
-	typedef utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon> tPacketNMEA;
+	using tPacketNMEA = utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon>;
 
 	std::vector<std::uint8_t> DataVector(msg.cbegin(), msg.cend());
 	const std::string PacketNew(DataVector.cbegin(), DataVector.cend());
@@ -28,12 +28,12 @@ void UnitTest_PacketNMEAPayload(const std::string& name, const TArg& msg)
 	const std::string PacketFoundStr(PacketFoundVec.cbegin(), PacketFoundVec.cend());
 
 	utils::packet::nmea::tPayloadCommon::value_type PacketFoundData = PacketFound.GetPayloadValue();
-	TPayload Val(PacketFoundData);
+	TPayload PayloadParsed(PacketFoundData);
 
-	//if (Val.GNSS.Value == TPayload::gnss_type::tGNSS_State::UNKNOWN) // Parsed!!
+	//if (PayloadParsed.GNSS.Value == TPayload::gnss_type::tGNSS_State::UNKNOWN) // Parsed!!
 	//	return;
 
-	const utils::packet::nmea::tPayloadCommon::value_type PacketData1 = Val.GetPayload();
+	const utils::packet::nmea::tPayloadCommon::value_type PacketData1 = PayloadParsed.GetPayload();
 
 	tPacketNMEA Packet2(PacketData1);
 
@@ -45,21 +45,30 @@ void UnitTest_PacketNMEAPayload(const std::string& name, const TArg& msg)
 	std::cout << "Pack found:  " << PacketFoundStr;
 	std::cout << "Pack result: " << PacketRes;
 #endif // SHOW_RESULTS
-	utils::test::RESULT(name, PacketNew == PacketRes);
+	utils::test::RESULT(name, PayloadParsed.IsVerified() && PacketNew == PacketRes);
 }
 
-template<class TPayload>
-void UnitTest_PacketNMEAPayload(const TPayload& val)
+template<class TPayload, class TArg>
+void UnitTest_PacketNMEAPayloadERR(const std::string& name, const TArg& msg)
 {
-	typedef utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon> tPacketNMEA;
+	using tPacketNMEA = utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon>;
 
-	utils::packet::nmea::tPayloadCommon::value_type PacketData = val.GetPayload();
+	std::vector<std::uint8_t> DataVector(msg.cbegin(), msg.cend());
+	const std::string PacketNew(DataVector.cbegin(), DataVector.cend());
 
-	tPacketNMEA Packet(PacketData);
+	tPacketNMEA PacketFound;
+	tPacketNMEA::Find(DataVector, PacketFound);
+	const std::vector<std::uint8_t> PacketFoundVec = PacketFound.ToVector();
+	const std::string PacketFoundStr(PacketFoundVec.cbegin(), PacketFoundVec.cend());
 
-	std::vector<std::uint8_t> RawPacket = Packet.ToVector();
+	utils::packet::nmea::tPayloadCommon::value_type PacketFoundData = PacketFound.GetPayloadValue();
+	TPayload PayloadParsed(PacketFoundData);
 
-	UnitTest_PacketNMEAPayload<TPayload>(RawPacket);
+#ifdef SHOW_RESULTS
+	std::cout << "Pack         " << PacketNew;
+	std::cout << "Pack found:  " << PacketFoundStr;
+#endif // SHOW_RESULTS
+	utils::test::RESULT("ERR " + name, !PayloadParsed.IsVerified());
 }
 
 void UnitTest_PacketNMEAPayload()
@@ -80,8 +89,16 @@ void UnitTest_PacketNMEAPayload()
 		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n';
 	}
 	
-	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 1",	"$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
-	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 2",	"$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"s); // C++14
+	std::cout << '\n';
+
+	UnitTest_PacketNMEAPayload<generic::tPayloadGSV>("generic GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa"s);
+
+	UnitTest_PacketNMEAPayloadERR<generic::tPayloadGSV>("generic GSV wrong 1", "$GPGSQ,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa"s);
+
+	std::cout << '\n';
+
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 1",	"$GNGGA,172905.087,0000.0000,N,00000.0000,E,0,0,,,M,,M,,*6A\xd\xa"s); // C++14
+	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 2",	"$GNGGA,172905.087,0000.0000,N,00000.0000,E,0,10,,,M,,M,,*5B\xd\xa"s); // C++14
 	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 3",	"$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,,280.7,M,14.5,M,,*42\xd\xa"s);
 	UnitTest_PacketNMEAPayload<mtk_eb500::tPayloadGGA>("mtk_eb500 GGA 4", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,0.00,280.7,M,14.5,M,,*5C\xd\xa"s);
 
@@ -107,6 +124,11 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload<mtk_eb800a::tPayloadGGA>("mtk_eb800a GGA 3",	"$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,,280.701,M,14.501,M,,*42\xd\xa"s);
 	UnitTest_PacketNMEAPayload<mtk_eb800a::tPayloadGGA>("mtk_eb800a GGA 3", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,0.00,280.701,M,14.501,M,,*5C\xd\xa"s);
 
+	UnitTest_PacketNMEAPayload<mtk_eb800a::tPayloadGLL>("mtk_eb800a GLL 1", "$GNGLL,1234.556677,N,12233.445566,E,123456.000,A,A*45\xd\xa"s);
+
+	UnitTest_PacketNMEAPayload<mtk_eb800a::tPayloadVTG>("mtk_eb800a VTG 1", "$GNVTG,62.90,T,,M,0.00,N,0.00,K,N*11\xd\xa"s);
+	UnitTest_PacketNMEAPayload<mtk_eb800a::tPayloadVTG>("mtk_eb800a VTG 2", "$GPVTG,62.90,T,,M,0.07,N,0.12,K,A*04\xd\xa"s);
+
 	std::cout << '\n';
 
 	// The parsers shall not cause an error.
@@ -114,13 +136,26 @@ void UnitTest_PacketNMEAPayload()
 	//UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 1", "$GPG,000124.168,0000.0000,N,00000.0000,E,6,02,,00280.7,M,0014.5,M,,*74\xd\xa"s);
 	//UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 1", "$GPGG,000124.168,0000.0000,N,00000.0000,E,6,02,,00280.7,M,0014.5,M,,*33\xd\xa"s);
 
-	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 1", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,,00280.7,M,0014.5,M,,*72\xd\xa"s);
-	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 2", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,0014.5,M,,*6C\xd\xa"s);
-	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 2", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,-0014.5,M,,*41\xd\xa"s);
+	
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 2", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,0014.5,M,000.0,0000*42\xd\xa"s);
+	
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 2", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,-0014.5,M,000.0,0000*6F\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 3", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,0014.5,M,000.0,0000*42\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 4", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,-0014.5,M,000.0,0000*6F\xd\xa"s);
-	//UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s); // C++14
+
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 10", "$GPGGA,000124.168,3600.0000,N,13600.0000,E,0,00,99.9,00000.0,M,0000.0,M,000.0,0000*43\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 11", "$GPGGA,132652.908,1122.3344,N,12233.4455,E,0,00,99.9,00176.1,M,0014.4,M,000.0,0000*4B\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 12", "$GPGGA,112531.000,1122.3344,N,12233.4455,E,1,12,00.7,00639.3,M,0014.3,M,000.0,0000*4B\xd\xa"s);
+	
+	// ERRs
+	UnitTest_PacketNMEAPayloadERR<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 2", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,,00.0,00280.7,M,0014.5,M,000.0,0000*40\xd\xa"s); // ERR
+	UnitTest_PacketNMEAPayloadERR<sirf_gsu_7x::tPayloadGGA>("sirf_gsu_7x GGA 1", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,,00280.7,M,0014.5,M,000.0,0000*5C\xd\xa"s); // ERR
+	//UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"s);
 	//UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGGA>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa"s);
+
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGLL>("sirf_gsu_7x GLL 1", "$GPGLL,3600.0000,N,13600.0000,E,000124.168,V*2A\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGLL>("sirf_gsu_7x GLL 2", "$GPGLL,1122.3344,N,12233.4455,E,132652.908,V*22\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGLL>("sirf_gsu_7x GLL 3", "$GPGLL,1122.3344,N,12233.4455,E,112531.000,A*30\xd\xa"s);
 
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGSV>("sirf_gsu_7x GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGSV>("sirf_gsu_7x GSV 2", "$GPGSV,3,2,10,10,07,189,,05,05,220,,09,34,274,42,18,25,309,44*72\xd\xa"s);
@@ -138,6 +173,15 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadRMC>("sirf_gsu_7x RMC 3", "$GPRMC,123456.789,V,1122.3344,N,12233.4455,E,9999.99,999.99,180109,,*2C\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadRMC>("sirf_gsu_7x RMC 4", "$GPRMC,123456.789,A,1122.3344,N,01122.3344,E,0052.58,132.68,180109,,*37\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadRMC>("sirf_gsu_7x RMC 5", "$GPRMC,123456.789,A,1122.3344,N,12233.4455,E,0052.58,132.68,180109,,*36\xd\xa"s);
+
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadVTG>("sirf_gsu_7x VTG 1", "$GPVTG,999.99,T,,M,9999.99,N,9999.99,K*59\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadVTG>("sirf_gsu_7x VTG 2", "$GPVTG,132.68,T,,M,0052.58,N,0097.38,K*51\xd\xa"s);
+
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadZDA>("sirf_gsu_7x ZDA 1", "$GPZDA,000125.168,25,01,2009,,*52\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadZDA>("sirf_gsu_7x ZDA 2", "$GPZDA,000125.168,25,01,2009,00,00*52\xd\xa"s); // last two fields are not supported
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadZDA>("sirf_gsu_7x ZDA 3", "$GPZDA,000125.168,25,01,2009,-13,59*71\xd\xa"s); // last two fields are not supported
+
+	
 
 	std::cout << '\n';
 
