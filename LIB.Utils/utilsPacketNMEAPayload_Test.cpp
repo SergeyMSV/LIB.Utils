@@ -157,6 +157,12 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGLL>("sirf_gsu_7x GLL 2", "$GPGLL,1122.3344,N,12233.4455,E,132652.908,V*22\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGLL>("sirf_gsu_7x GLL 3", "$GPGLL,1122.3344,N,12233.4455,E,112531.000,A*30\xd\xa"s);
 
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGSA>("sirf_gsu_7x GSA 1", "$GPGSA,A,1,,,,,,,,,,,,,99.9,99.9,99.9*09\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGSA>("sirf_gsu_7x GSA 2", "$GPGSA,A,3,07,30,21,09,20,05,27,16,04,13,08,14,01.3,00.7,01.0*06\xd\xa"s);
+	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGSA>("sirf_gsu_7x GSA 3", "$GPGSA,A,3,23,29,07,08,09,18,26,28,,,,,12.3,45.6,78.9*08\xd\xa"s);
+	UnitTest_PacketNMEAPayloadERR<sirf_gsu_7x::tPayloadGSA>("sirf_gsu_7x GSA 10", "$GPGSA,A,8,07,30,21,09,20,05,27,16,04,13,08,14,01.3,00.7,01.0*0D\xd\xa"s);
+	UnitTest_PacketNMEAPayloadERR<sirf_gsu_7x::tPayloadGSA>("sirf_gsu_7x GSA 11", "$GPGSA,R,3,07,30,21,09,20,05,27,16,04,13,08,14,01.3,00.7,01.0*15\xd\xa"s);
+
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGSV>("sirf_gsu_7x GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGSV>("sirf_gsu_7x GSV 2", "$GPGSV,3,2,10,10,07,189,,05,05,220,,09,34,274,42,18,25,309,44*72\xd\xa"s);
 	UnitTest_PacketNMEAPayload<sirf_gsu_7x::tPayloadGSV>("sirf_gsu_7x GSV 3", "$GPGSV,3,3,10,26,82,187,47,28,43,056,46*77\xd\xa"s);
