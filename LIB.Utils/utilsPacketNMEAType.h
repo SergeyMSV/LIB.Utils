@@ -889,7 +889,7 @@ using tLongitudeNoNull = tTypeNoNull<tLongitude<Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 class tMode : public tTypeVerified
 {
-	char m_Mode = 0;
+	char m_Value = 0;
 
 public:
 	using value_type = char;
@@ -897,9 +897,9 @@ public:
 	tMode() = default;
 	explicit tMode(const std::string& value);
 
-	bool IsEmpty() const { return m_Mode == 0; }
+	bool IsEmpty() const { return m_Value == 0; }
 
-	value_type GetValue() const { return m_Mode; }
+	value_type GetValue() const { return m_Value; }
 
 	std::string ToString() const;
 	std::string ToStringEx() const;
@@ -908,6 +908,33 @@ public:
 std::ostream& operator<<(std::ostream& out, const tMode& value);
 
 using tModeNoNull = type::tTypeNoNull<tMode>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+class tQuality : public tTypeVerified
+{
+	using tValue = tUIntFixed<1>;
+
+	tValue m_Value;
+
+public:
+	using value_type = std::uint32_t;
+
+	tQuality() = default;
+	explicit tQuality(const std::string& value);
+	explicit tQuality(value_type value);
+
+	bool IsVerified() const { return tTypeVerified::IsVerified() && m_Value.IsVerified(); }
+
+	bool IsEmpty() const { return m_Value.IsEmpty(); }
+
+	value_type GetValue() const { return m_Value.GetValue(); }
+
+	std::string ToString() const;
+	std::string ToStringEx() const;
+};
+
+std::ostream& operator<<(std::ostream& out, const tQuality& value);
+
+using tQualityNoNull = type::tTypeNoNull<tQuality>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 }

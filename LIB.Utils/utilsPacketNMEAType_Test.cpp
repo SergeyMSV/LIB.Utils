@@ -495,6 +495,18 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tModeNoNull>("A", "tModeNoNull 1", "A");
 	UnitTest_PacketNMEAType_TestERR<tModeNoNull>("", "tModeNoNull 2");
 
+	UnitTest_PacketNMEAType_Test<tQuality>(     "tQuality empty 1", "");
+	UnitTest_PacketNMEAType_Test<tQuality>("",  "tQuality empty 2", "");
+	UnitTest_PacketNMEAType_Test<tQuality>("1", "tQuality 1", "1");
+	UnitTest_PacketNMEAType_Test<tQuality>("8", "tQuality 2", "8");
+	UnitTest_PacketNMEAType_TestERR<tQuality>("9", "tQuality 1");
+	
+	UnitTest_PacketNMEAType_Test<tQualityNoNull>("1", "tQualityNoNull 1", "1");
+	UnitTest_PacketNMEAType_Test<tQualityNoNull>("8", "tQualityNoNull 2", "8");
+	UnitTest_PacketNMEAType_TestERR<tQualityNoNull>(     "tQualityNoNull empty 1");
+	UnitTest_PacketNMEAType_TestERR<tQualityNoNull>("",  "tQualityNoNull empty 2");
+	UnitTest_PacketNMEAType_TestERR<tQualityNoNull>("9", "tQualityNoNull 1");
+
 	std::cout << std::endl;
 }
 

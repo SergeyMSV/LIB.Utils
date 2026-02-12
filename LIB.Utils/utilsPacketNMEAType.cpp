@@ -216,7 +216,7 @@ tMode::tMode(const std::string& value)
 		SetVerified(false);
 		return;
 	}
-	m_Mode = value[0];
+	m_Value = value[0];
 }
 
 std::string tMode::ToString() const
@@ -228,7 +228,7 @@ std::string tMode::ToString() const
 
 std::string tMode::ToStringEx() const
 {
-	switch (m_Mode)
+	switch (m_Value)
 	{
 	case 'A': return "Autonomous";
 	case 'D': return "Differential";
@@ -241,6 +241,62 @@ std::string tMode::ToStringEx() const
 }
 
 std::ostream& operator<<(std::ostream& out, const tMode& value)
+{
+	if (value.IsEmpty())
+		return out;
+	out << value.GetValue();
+	return out;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+tQuality::tQuality(const std::string& value)
+{
+	if (value.empty())
+		return;
+	if (value.size() != 1 || value[0] < '0' || value[0] > '8')
+	{
+		SetVerified(false);
+		return;
+	}
+	m_Value = tValue(value);
+}
+
+tQuality::tQuality(value_type value)
+{
+	if (value > 8)
+	{
+		SetVerified(false);
+		return;
+	}
+	m_Value = tValue(value);
+}
+
+std::string tQuality::ToString() const
+{
+	std::stringstream SStr;
+	SStr << *this;
+	return SStr.str();
+}
+
+std::string tQuality::ToStringEx() const
+{
+	if (!IsVerified())
+		return "";
+	switch (m_Value.GetValue())
+	{
+	case 0: return "Not valid";
+	case 1: return "GPS SPS";
+	case 2: return "Differential GPS, SPS";
+	case 3: return "GPS PPS";
+	case 4: return "Real Time Kinematic";
+	case 5: return "Float RTK";
+	case 6: return "Estimated";
+	case 7: return "Manual input";
+	case 8: return "Simulator";
+	}
+	return "";
+}
+
+std::ostream& operator<<(std::ostream& out, const tQuality& value)
 {
 	if (value.IsEmpty())
 		return out;
