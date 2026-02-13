@@ -581,6 +581,19 @@ struct tContentZDA : public type::tTypeVerified	// Time & Date
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+class tDataSet : type::tTypeVerified
+{
+public:
+	tDataSet() :tTypeVerified(false) {}
+
+	std::optional<std::time_t> GetUTC() { return {}; }
+	std::optional<std::pair<double, double>> GetPosition() { return {}; }
+	std::optional<double> GetSpeed() { return {}; }
+	std::optional<double> GetCourse() { return {}; }
+	//..
+	//..
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template<typename T, typename TArg>
