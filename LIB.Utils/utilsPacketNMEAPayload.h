@@ -148,7 +148,7 @@ template
 	typename TTime,
 	typename TMode
 >
-struct tPayloadGLL8 : public tPayloadGLL7<TLatitude, TLongitude, TTime>
+struct tPayloadGLL8 : public tPayloadGLL7<TLatitude, TLongitude, TTime> // NMEA version 2.3 and later
 {
 	using tBase = tPayloadGLL7<TLatitude, TLongitude, TTime>;
 
@@ -410,7 +410,7 @@ template
 	typename TDate,
 	typename TMode
 >
-struct tPayloadRMC13 : public tPayloadRMC12<TTime, TLatitude, TLongitude, TSpeed, TCourse, TDate>
+struct tPayloadRMC13 : public tPayloadRMC12<TTime, TLatitude, TLongitude, TSpeed, TCourse, TDate> // NMEA version 2.3 and later
 {
 	using tBase = tPayloadRMC12<TTime, TLatitude, TLongitude, TSpeed, TCourse, TDate>;
 
