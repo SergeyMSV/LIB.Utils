@@ -289,7 +289,7 @@ std::string tQuality::ToStringEx() const
 	case 3: return "GPS PPS";
 	case 4: return "Real Time Kinematic";
 	case 5: return "Float RTK";
-	case 6: return "Estimated";
+	case 6: return "Estimated";					// NMEA version 2.3 and later (Dead Reckoning)
 	case 7: return "Manual input";
 	case 8: return "Simulator";
 	}

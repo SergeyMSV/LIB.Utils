@@ -887,7 +887,7 @@ using tLongitude = tGeoDegree<3, Precision>;
 template <std::size_t Precision>
 using tLongitudeNoNull = tTypeNoNull<tLongitude<Precision>>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-class tMode : public tTypeVerified
+class tMode : public tTypeVerified // NMEA version 2.3 and later
 {
 	char m_Value = 0;
 
