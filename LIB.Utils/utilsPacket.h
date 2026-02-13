@@ -38,11 +38,11 @@ public:
 		TPayload::Value = payloadValue;
 	}
 
-	static std::size_t Find(std::vector<std::uint8_t>& receivedData, tPacket& packet)
+	static std::size_t Find(std::vector<std::uint8_t>& receivedData, tPacket& packet) // DEPRECATED
 	{
 		std::vector<std::uint8_t>::const_iterator Begin = receivedData.cbegin();
 
-		for (;;)
+		while (true)
 		{
 			Begin = std::find(Begin, receivedData.cend(), TFormat<TPayload>::STX);
 
@@ -51,18 +51,19 @@ public:
 
 			std::vector<std::uint8_t> PacketVector = TFormat<TPayload>::TestPacket(Begin, receivedData.cend());
 
-			if (PacketVector.size() > 0)
+			if (PacketVector.empty())
 			{
-				if (!TFormat<TPayload>::TryParse(PacketVector, packet))
-					continue;
-
-				std::size_t EraseSize = std::distance(receivedData.cbegin(), Begin);
-				EraseSize += PacketVector.size();
-				receivedData.erase(receivedData.begin(), receivedData.begin() + EraseSize);
-				return PacketVector.size();
+				Begin++;
+				continue;
 			}
 
-			Begin++;
+			if (!TFormat<TPayload>::TryParse(PacketVector, packet))
+				continue;
+
+			std::size_t EraseSize = std::distance(receivedData.cbegin(), Begin);
+			EraseSize += PacketVector.size();
+			receivedData.erase(receivedData.begin(), receivedData.begin() + EraseSize);
+			return PacketVector.size();
 		}
 
 		return 0;
