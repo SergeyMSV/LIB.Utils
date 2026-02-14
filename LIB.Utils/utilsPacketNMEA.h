@@ -105,7 +105,7 @@ private:
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <class TPayload> struct tFormatNMEA : public tFormat<TPayload, '$'> { };
-template <class TPayload> struct tFormatNMEABin : public tFormat<TPayload, '!'> { };
+template <class TPayload> struct tFormatNMEAAIS : public tFormat<TPayload, '!'> { }; // AIS - Automatic Identification System
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadCommon
 {

@@ -103,14 +103,13 @@ void UnitTest_PacketNMEA()
 	UnitTest_Packet_Make("Parse CRC: Make MYRMC 2",
 		tPacketNMEA2("MYRMC,Test_1,Test_2,Test_3"));
 
+	std::cout << "\n""Packet NMEA AIS\n";
 
-	std::cout << "\n""tPacketNMEABin\n";
-
-	using tPacketNMEABin = packet::tPacket<packet::nmea::tFormatNMEABin, packet::nmea::tPayloadCommon>;
+	using tPacketNMEAAIS = packet::tPacket<packet::nmea::tFormatNMEAAIS, packet::nmea::tPayloadCommon>;
 
 	UnitTest_Packet_Parse("Parse CRC: Just a encapsulation packet",
 		"!AIVDM,1,1,,1,1P000Oh1IT1svTP2r:43grwb05q4,0*01\xd\xa",
-		tPacketNMEABin(std::vector<std::string>{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" }));
+		tPacketNMEAAIS(std::vector<std::string>{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" }));
 
 	//CRC matches by chance
 	//UnitTest_Packet_Parse<tPacketNMEABin>("Parse CRC: Rubbish & encapsulation packet",
@@ -118,12 +117,12 @@ void UnitTest_PacketNMEA()
 	//	{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" });
 
 	//Added '5' into the header
-	UnitTest_Packet_Parse<tPacketNMEABin>("Parse CRC: Rubbish & encapsulation packet",
+	UnitTest_Packet_Parse<tPacketNMEAAIS>("Parse CRC: Rubbish & encapsulation packet",
 		"!AIVDM!AIVDM!AIV5DM!AIVDM!AIVDM,1,1,,1,1P000Oh1IT1svTP2r:43grwb05q4,0*01\xd\xa,081,36*7F\xd\xa",
-		tPacketNMEABin(std::vector<std::string>{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" }));
+		tPacketNMEAAIS(std::vector<std::string>{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" }));
 
-	UnitTest_Packet_Make<tPacketNMEABin>("Parse CRC: Make MYRMC 3 encapsulation packet",
-		tPacketNMEABin(std::vector<std::string>{ "MYRMC", "PartA", "PartB", "PartC" }));
+	UnitTest_Packet_Make<tPacketNMEAAIS>("Parse CRC: Make MYRMC 3 encapsulation packet",
+		tPacketNMEAAIS(std::vector<std::string>{ "MYRMC", "PartA", "PartB", "PartC" }));
 
 	std::cout << std::endl;
 }
