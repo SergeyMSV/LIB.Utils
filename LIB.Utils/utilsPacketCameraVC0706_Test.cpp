@@ -12,17 +12,16 @@ bool UnitTest_Packet_ParseA(const std::vector<std::uint8_t>& data, utils::packet
 
 	responseStatus = tMsgStatus::None;
 
-	tPacketRet Rsp;
-	if (tPacketRet::Find(packetData, Rsp) > 0)
-	{
-		responseStatus = Rsp.GetMsgStatus();
-		if (responseStatus != tMsgStatus::None)
-			return false;
+	std::optional<tPacketRet> PacketOpt = tPacketRet::Find(packetData);
+	if (!PacketOpt.has_value())
+		return false;
 
-		tPacketRet::Parse(Rsp, response);
-		return true;
-	}
-	return false;
+	responseStatus = PacketOpt->GetMsgStatus();
+	if (responseStatus != tMsgStatus::None)
+		return false;
+
+	tPacketRet::Parse(*PacketOpt, response);
+	return true;
 }
 
 namespace utils
@@ -51,6 +50,11 @@ void UnitTest_PacketCameraVC0706()
 					  0x56, 0x21, 0x11, 0x0B, 'V', 'C', '0', '7', '0', '3', ' ', '1', '.', '0', '0',
 					  0x56, 0x21, 0x11 },
 		std::vector<std::uint8_t>{ 0x56, 0x21, 0x11, 0x0B, 'V', 'C', '0', '7', '0', '3', ' ', '1', '.', '0', '0' });
+
+	UnitTest_Packet_Find<tPacketCmd>("tPacketCmd, Find: Just a packet 5 parts",
+		std::vector<std::uint8_t>{ 0x56, 0x00, 0x11, 0x0B, 'V', 'C', '0', '7'},
+		std::vector<std::uint8_t>{  '0', '3', ' ', '1', '.', '0', '0' },
+		std::vector<std::uint8_t>{ 0x56, 0x00, 0x11, 0x0B, 'V', 'C', '0', '7', '0', '3', ' ', '1', '.', '0', '0' });
 
 	UnitTest_Packet_Find<tPacketCmd>("tPacketCmd, Find: it can be an error, but it may not cause an exception 1 ",
 		std::vector<std::uint8_t>{ 0x56, 0x21, 0x11,
