@@ -144,6 +144,40 @@ private:
 template <class TPayload> struct tFormatNMEA : public tFormat<TPayload, '$'> { };
 template <class TPayload> struct tFormatNMEAAIS : public tFormat<TPayload, '!'> { }; // AIS - Automatic Identification System
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+template <class TPayload, std::uint8_t stx = '$'>
+struct tFormatNoCRC
+{
+	enum : std::uint8_t { STX = stx };
+
+protected:
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
+	{
+		auto PosSTX = std::find(data.begin(), data.end(), STX);
+		auto PosETX = std::find(PosSTX, data.cend(), '\xa');
+		bytesToRemove = std::distance(data.begin(), PosETX);
+		const std::size_t PacketSize = std::distance(PosSTX, PosETX);
+		if (PacketSize < GetSize(0))
+			return {};
+		auto PayloadBeg = PosSTX + 1; // $\xd\xa
+		auto PayloadEnd = PosETX - 1; // $\xd\xa
+		return TPayload(PayloadBeg, PayloadEnd);
+	}
+
+	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 3; }; // $\xd\xa
+
+	static void Append(std::vector<std::uint8_t>& dst, const TPayload& payload)
+	{
+		dst.reserve(GetSize(payload.size()));
+		dst.push_back(STX);
+		for (auto i : payload)
+		{
+			dst.push_back(i);
+		}
+		dst.push_back('\xd');
+		dst.push_back('\xa');
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadCommon
 {
 	typedef std::vector<std::string> value_type;
