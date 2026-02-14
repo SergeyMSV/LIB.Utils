@@ -1,14 +1,17 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacketNMEA
 // 2019-01-31
-// C++14
+// C++17
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
+
+#include <libConfig.h>
 
 #include "utilsBase.h"
 #include "utilsCRC.h"
 
 #include <iomanip>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -26,7 +29,8 @@ struct tFormat
 	enum : std::uint8_t { STX = stx, CTX = '*' };
 
 protected:
-	static std::vector<std::uint8_t> TestPacket(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
+#ifdef LIB_UTILS_PACKET_DEPRECATED
+	static std::vector<std::uint8_t> TestPacket(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend) // DEPRECATED
 	{
 		const std::size_t Size = std::distance(cbegin, cend);
 
@@ -45,7 +49,7 @@ protected:
 		return std::vector<std::uint8_t>(cbegin, cbegin + GetSize(DataSize));
 	}
 
-	static bool TryParse(const std::vector<std::uint8_t>& packetVector, TPayload& payload)
+	static bool TryParse(const std::vector<std::uint8_t>& packetVector, TPayload& payload) // DEPRECATED
 	{
 		if (packetVector.size() < GetSize(0) || packetVector[0] != STX)
 			return false;
@@ -62,6 +66,37 @@ protected:
 
 		payload = TPayload(Begin, End);
 		return true;
+	}
+#endif // LIB_UTILS_PACKET_DEPRECATED
+
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
+	{
+		auto PosSTX = std::find(data.begin(), data.end(), STX);
+		bytesToRemove = std::distance(data.begin(), PosSTX);
+		auto PosETX = std::find(PosSTX, data.end(), '\xa');
+		if (PosETX == data.end()) // Whole Packet hasn't been received yet (partly received).
+			return {};
+		bytesToRemove = std::distance(data.begin(), PosETX);
+		const std::size_t PacketSize = std::distance(PosSTX, PosETX);
+		if (PacketSize < GetSize(0))
+			return {};
+		auto PayloadBeg = PosSTX + 1; // $*xx\xd\xa
+		auto PayloadEnd = PosETX - 4; // $*xx\xd\xa
+		std::uint8_t CRC = utils::crc::CRC08_NMEA(PayloadBeg, PayloadEnd);
+		std::uint8_t CRCPack = static_cast<std::uint8_t>(std::strtoul(reinterpret_cast<const char*>(&(*(PayloadEnd + 1))), nullptr, 16));
+		if (CRC != CRCPack)
+		{
+			PosSTX = std::find(PosSTX + 1, data.end(), STX); // That's for parsing damaged packets, something like that: "GNGG$GNGG$GNGGA,221$GPGSV,3,1,10,23,...".
+			bytesToRemove = std::distance(data.begin(), PosSTX);
+			return {};
+		}
+		return TPayload(PayloadBeg, PayloadEnd);
+	}
+
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data)
+	{
+		std::size_t BytesToRemove;
+		return Parse(data, BytesToRemove);
 	}
 
 	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 6; }; // $*xx\xd\xa
@@ -91,17 +126,19 @@ protected:
 		dst.insert(dst.end(), EndStr.cbegin(), EndStr.cend());
 	}
 
+#ifdef LIB_UTILS_PACKET_DEPRECATED
 private:
-	static bool VerifyCRC(std::vector<std::uint8_t>::const_iterator begin, std::size_t crcDataSize)
+	static bool VerifyCRC(std::vector<std::uint8_t>::const_iterator begin, std::size_t crcDataSize) // DEPRECATED
 	{
 		const std::uint8_t CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
 
-		const std::vector<std::uint8_t>::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
+		const std::vector<std::uint8_t>::const_iterator CRCBegin = begin + crcDataSize + 1; // 1 for '*'
 
 		const std::uint8_t CRCReceived = utils::Read<std::uint8_t>(CRCBegin, CRCBegin + 2, utils::tRadix::hex);
 
 		return CRC == CRCReceived;
 	}
+#endif // LIB_UTILS_PACKET_DEPRECATED
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <class TPayload> struct tFormatNMEA : public tFormat<TPayload, '$'> { };

@@ -1,11 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacket
 // 2019-06-20
-// C++14
+// C++17
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <libConfig.h>
+
 #include <algorithm>
+#include <optional>
 #include <vector>
 
 #include <cstdint>
@@ -38,6 +41,7 @@ public:
 		TPayload::Value = payloadValue;
 	}
 
+#ifdef LIB_UTILS_PACKET_DEPRECATED
 	static std::size_t Find(std::vector<std::uint8_t>& receivedData, tPacket& packet) // DEPRECATED
 	{
 		std::vector<std::uint8_t>::const_iterator Begin = receivedData.cbegin();
@@ -67,6 +71,24 @@ public:
 		}
 
 		return 0;
+	}
+#endif // LIB_UTILS_PACKET_DEPRECATED
+
+	static std::optional<tPacket> Find(std::vector<std::uint8_t>& data)
+	{
+		while (true)
+		{
+			if (data.empty())
+				break;
+			std::size_t BytesToRemove = 0;
+			std::optional<TPayload> PacketOpt = TFormat<TPayload>::Parse(data, BytesToRemove);
+			data.erase(data.begin(), data.begin() + BytesToRemove);
+				if (!PacketOpt.has_value())
+				continue;
+			return tPacket(*PacketOpt);
+		}
+
+		return {};
 	}
 
 	const payload_value_type& GetPayloadValue() const
