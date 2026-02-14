@@ -24,6 +24,7 @@ struct tFormatStar
 	enum : std::uint8_t { STX = '*' };
 
 protected:
+#ifdef LIB_UTILS_PACKET_DEPRECATED
 	static std::vector<std::uint8_t> TestPacket(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		const std::size_t Size = std::distance(cbegin, cend);
@@ -66,6 +67,40 @@ protected:
 
 		return true;
 	}
+#endif // LIB_UTILS_PACKET_DEPRECATED
+
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
+	{
+		auto PosSTX = std::find(data.begin(), data.end(), STX);
+		const std::size_t PacketSizePossible = std::distance(PosSTX, data.end());
+		bytesToRemove = std::distance(data.begin(), PosSTX);
+		if (PacketSizePossible < GetSize(0))
+			return{};
+		auto SizeBeg = PosSTX + 1;
+		auto SizeEnd = PosSTX + sizeof(tFieldDataSize);
+		tFieldDataSize PayloadSize = 0;
+		std::copy(SizeBeg, SizeEnd, reinterpret_cast<std::uint8_t*>(&PayloadSize));
+		if (PacketSizePossible < GetSize(PayloadSize))
+			return {};
+		std::size_t ContentSize = sizeof(tFieldDataSize) + PayloadSize;
+		std::uint16_t CRC = utils::crc::CRC16_CCITT(SizeBeg, SizeBeg + ContentSize);
+		std::uint16_t CRCPack = *(SizeBeg + ContentSize);
+		CRCPack |= *(SizeBeg + ContentSize + 1) << 8;
+		if (CRC != CRCPack)
+		{
+			PosSTX = std::find(PosSTX + 1, data.end(), STX); // That's for parsing damaged packets, something like that: " 0x2A, 0x09, 0x00, 0x2A, 0x09, 0x00, 0x01,...".
+			bytesToRemove = std::distance(data.begin(), PosSTX);
+			return {};
+		}
+		auto PayloadBeg = SizeEnd + 1;
+		return TPayload(PayloadBeg, PayloadBeg + PayloadSize);
+	}
+
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data)
+	{
+		std::size_t BytesToRemove;
+		return Parse(data, BytesToRemove);
+	}
 
 	static std::size_t GetSize(std::size_t payloadSize) { return sizeof(STX) + sizeof(tFieldDataSize) + payloadSize + 2; } // 2 - for CRC
 
@@ -89,6 +124,7 @@ protected:
 		utils::Append(dst, CRC);
 	}
 
+#ifdef LIB_UTILS_PACKET_DEPRECATED
 private:
 	static bool VerifyCRC(std::vector<std::uint8_t>::const_iterator begin, std::size_t crcDataSize)
 	{
@@ -100,6 +136,7 @@ private:
 
 		return CRC == CRCReceived;
 	}
+#endif // LIB_UTILS_PACKET_DEPRECATED
 };
 
 namespace example
@@ -164,21 +201,37 @@ struct tPayloadMsg : public utils::packet::tPayload<tPayloadMsgData>
 	{}
 };
 
-class tPacketMsg : public utils::packet::tPacket<tFormatStar, tPayloadMsg>
+using tPacketMsgBase = utils::packet::tPacket<tFormatStar, tPayloadMsg>;
+
+class tPacketMsg : public tPacketMsgBase
 {
-	explicit tPacketMsg(const payload_value_type& payloadValue)
-		:tPacket(payloadValue)
+	explicit tPacketMsg(const payload_value_type& payloadValue) = delete;
+	explicit tPacketMsg(payload_value_type&& payloadValue)
+		:tPacket(std::move(payloadValue))
 	{}
 
 public:
 	tPacketMsg() = default;
+	explicit tPacketMsg(const tPayloadMsg& payload) = delete;
+	explicit tPacketMsg(tPayloadMsg&& payload)
+	{
+		*static_cast<tPayloadMsg*>(this) = std::move(payload);
+	}
+
+	static std::optional<tPacketMsg> Find(std::vector<std::uint8_t>& data)
+	{
+		std::optional<tPacketMsgBase> PacketOpt = tPacketMsgBase::Find(data);
+		if (!PacketOpt.has_value())
+			return {};
+		return tPacketMsg(std::move(*PacketOpt));
+	}
 
 	static tPacketMsg MakeSomeMessage_01(const std::vector<std::uint8_t>& msgData)
 	{
 		payload_value_type Pld;
 		Pld.MsgId = 0x01;
 		Pld.Payload = msgData;
-		return tPacketMsg(Pld);
+		return tPacketMsg(std::move(Pld));
 	}
 	// ... Make-functions for other packets
 };

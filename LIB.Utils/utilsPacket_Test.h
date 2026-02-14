@@ -3,6 +3,7 @@
 
 #include "utilsTest.h"
 
+#include <optional>
 #include <string>
 #include <vector>
 
