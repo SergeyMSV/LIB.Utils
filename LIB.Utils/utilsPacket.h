@@ -23,7 +23,7 @@ template
 	template <class> class TFormat,
 	class TPayload
 >
-class tPacket : private TFormat<TPayload>, private TPayload
+class tPacket : private TFormat<TPayload>, public TPayload
 {
 public:
 	typedef TPayload payload_type;
@@ -31,14 +31,18 @@ public:
 
 	tPacket() = default;
 
-	explicit tPacket(const TPayload& payload)
+	explicit tPacket(const TPayload& payload) = delete;
+
+	explicit tPacket(TPayload&& payload)
 	{
-		TPayload::Value = payload.Value;
+		*static_cast<TPayload*>(this) = std::move(payload);
 	}
 
-	explicit tPacket(const payload_value_type& payloadValue)
+	explicit tPacket(const payload_value_type& payloadValue) = delete;
+
+	explicit tPacket(payload_value_type&& payloadValue)
 	{
-		TPayload::Value = payloadValue;
+		TPayload::Value = std::move(payloadValue);
 	}
 
 	static std::optional<tPacket> Find(std::vector<std::uint8_t>& data)
@@ -50,11 +54,11 @@ public:
 			std::size_t BytesToRemove = 0;
 			std::optional<TPayload> PacketOpt = TFormat<TPayload>::Parse(data, BytesToRemove);
 			data.erase(data.begin(), data.begin() + BytesToRemove);
-				if (!PacketOpt.has_value())
-				continue;
-			return tPacket(*PacketOpt);
+			if (PacketOpt.has_value())
+				return tPacket(std::move(*PacketOpt));
+			if (!BytesToRemove)
+				break;
 		}
-
 		return {};
 	}
 
