@@ -71,12 +71,11 @@ protected:
 
 	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
 	{
-		auto PosSTX = std::find(data.begin(), data.end(), STX);
-		bytesToRemove = std::distance(data.begin(), PosSTX);
-		auto PosETX = std::find(PosSTX, data.end(), '\xa');
+		auto PosETX = std::find(data.begin(), data.end(), '\xa');
 		if (PosETX == data.end()) // Whole Packet hasn't been received yet (partly received).
 			return {};
-		bytesToRemove = std::distance(data.begin(), PosETX);
+		bytesToRemove = std::distance(data.begin(), PosETX) + 1; // +1 for ETX
+		auto PosSTX = FindReverse(data.begin(), PosETX, STX);
 		const std::size_t PacketSize = std::distance(PosSTX, PosETX);
 		if (PacketSize < GetSize(0))
 			return {};
