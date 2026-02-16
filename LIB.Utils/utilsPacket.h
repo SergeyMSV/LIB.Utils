@@ -41,39 +41,6 @@ public:
 		TPayload::Value = payloadValue;
 	}
 
-#ifdef LIB_UTILS_PACKET_DEPRECATED
-	static std::size_t Find(std::vector<std::uint8_t>& receivedData, tPacket& packet) // DEPRECATED
-	{
-		std::vector<std::uint8_t>::const_iterator Begin = receivedData.cbegin();
-
-		while (true)
-		{
-			Begin = std::find(Begin, receivedData.cend(), TFormat<TPayload>::STX);
-
-			if (Begin == receivedData.cend())
-				break;
-
-			std::vector<std::uint8_t> PacketVector = TFormat<TPayload>::TestPacket(Begin, receivedData.cend());
-
-			if (PacketVector.empty())
-			{
-				Begin++;
-				continue;
-			}
-
-			if (!TFormat<TPayload>::TryParse(PacketVector, packet))
-				continue;
-
-			std::size_t EraseSize = std::distance(receivedData.cbegin(), Begin);
-			EraseSize += PacketVector.size();
-			receivedData.erase(receivedData.begin(), receivedData.begin() + EraseSize);
-			return PacketVector.size();
-		}
-
-		return 0;
-	}
-#endif // LIB_UTILS_PACKET_DEPRECATED
-
 	static std::optional<tPacket> Find(std::vector<std::uint8_t>& data)
 	{
 		while (true)
