@@ -127,42 +127,6 @@ struct tFormat
 	};
 
 protected:
-#ifdef LIB_UTILS_PACKET_DEPRECATED
-	static std::vector<std::uint8_t> TestPacket(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
-	{
-		const std::size_t Size = std::distance(cbegin, cend);
-
-		if (Size > containerSizePosition && *cbegin == STX)
-		{
-			const std::uint8_t DataSize = *(cbegin + containerSizePosition);
-
-			if (DataSize <= ContainerPayloadSizeMax && Size >= GetSize(DataSize) && CheckMsgId(static_cast<tMsgId>(*(cbegin + containerMsgIdPosition))))
-			{
-				return std::vector<std::uint8_t>(cbegin, cbegin + GetSize(DataSize));
-			}
-		}
-
-		return {};
-	}
-
-	static bool TryParse(const std::vector<std::uint8_t>& packetVector, TPayload& payload)
-	{
-		if (packetVector.size() > containerSizePosition && packetVector[0] == STX)
-		{
-			const std::uint8_t DataSize = *(packetVector.cbegin() + containerSizePosition);
-
-			if (DataSize <= ContainerPayloadSizeMax && packetVector.size() == GetSize(DataSize))
-			{
-				payload = TPayload(packetVector.cbegin() + 1, packetVector.cend()); // +1 STX
-
-				return true;
-			}
-		}
-
-		return false;
-	}
-#endif // LIB_UTILS_PACKET_DEPRECATED
-
 	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
 	{
 		auto PosSTX = std::find(data.begin(), data.end(), STX);
