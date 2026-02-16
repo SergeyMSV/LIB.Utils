@@ -29,46 +29,6 @@ struct tFormat
 	enum : std::uint8_t { STX = stx, CTX = '*' };
 
 protected:
-#ifdef LIB_UTILS_PACKET_DEPRECATED
-	static std::vector<std::uint8_t> TestPacket(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend) // DEPRECATED
-	{
-		const std::size_t Size = std::distance(cbegin, cend);
-
-		if (Size < GetSize(0) || *cbegin != STX)
-			return {};
-
-		const std::vector<std::uint8_t>::const_iterator Begin = cbegin + 1;
-		const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, cend, CTX);
-		if (End == cend)
-			return {};
-
-		const std::size_t DataSize = std::distance(Begin, End);
-		if (Size < GetSize(DataSize) || !VerifyCRC(Begin, DataSize))
-			return {};
-
-		return std::vector<std::uint8_t>(cbegin, cbegin + GetSize(DataSize));
-	}
-
-	static bool TryParse(const std::vector<std::uint8_t>& packetVector, TPayload& payload) // DEPRECATED
-	{
-		if (packetVector.size() < GetSize(0) || packetVector[0] != STX)
-			return false;
-
-		const std::vector<std::uint8_t>::const_iterator Begin = packetVector.cbegin() + 1;
-		const std::vector<std::uint8_t>::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
-		if (End == packetVector.cend())
-			return false;
-
-		const std::size_t DataSize = std::distance(Begin, End);
-
-		if (packetVector.size() != GetSize(DataSize) || !VerifyCRC(Begin, DataSize))
-			return false;
-
-		payload = TPayload(Begin, End);
-		return true;
-	}
-#endif // LIB_UTILS_PACKET_DEPRECATED
-
 	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
 	{
 		auto PosETX = std::find(data.begin(), data.end(), '\xa');
@@ -124,20 +84,6 @@ protected:
 
 		dst.insert(dst.end(), EndStr.cbegin(), EndStr.cend());
 	}
-
-#ifdef LIB_UTILS_PACKET_DEPRECATED
-private:
-	static bool VerifyCRC(std::vector<std::uint8_t>::const_iterator begin, std::size_t crcDataSize) // DEPRECATED
-	{
-		const std::uint8_t CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
-
-		const std::vector<std::uint8_t>::const_iterator CRCBegin = begin + crcDataSize + 1; // 1 for '*'
-
-		const std::uint8_t CRCReceived = utils::Read<std::uint8_t>(CRCBegin, CRCBegin + 2, utils::tRadix::hex);
-
-		return CRC == CRCReceived;
-	}
-#endif // LIB_UTILS_PACKET_DEPRECATED
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <class TPayload> struct tFormatNMEA : public tFormat<TPayload, '$'> { };
