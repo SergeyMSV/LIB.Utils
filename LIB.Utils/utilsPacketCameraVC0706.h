@@ -351,7 +351,7 @@ class tPacketCmd : public tPacketCmdBase
 {
 	explicit tPacketCmd(const payload_value_type& payloadValue) = delete;
 	explicit tPacketCmd(payload_value_type&& payloadValue)
-		: tPacket(std::move(payloadValue))
+		:tPacket(std::move(payloadValue))
 	{
 	}
 
