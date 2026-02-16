@@ -60,6 +60,23 @@ void UnitTest_PacketNMEA()
 	UnitTest_Packet_Make("Parse CRC: Make MYRMC 2",
 		tPacketNMEA(std::vector<std::string>{ "MYRMC", "PartA", "PartB", "PartC" }));
 
+	std::cout << "\n""utils::packet::nmea::Packet NMEA NoCRC\n";
+
+	using tPacketNMEANoCRC = packet::tPacket<packet::nmea::tFormatNoCRC, packet::nmea::tPayloadCommon>;
+
+	UnitTest_Packet_Find<tPacketNMEANoCRC>("Parse NoCRC: Just a packet",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36\xd\xa",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36\xd\xa");
+
+	UnitTest_Packet_Find<tPacketNMEANoCRC>("Parse NoCRC: Rubbish",
+		"GNGG$GNGG$GNGGA,221$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa,081,36*7F\xd\xa",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
+
+	UnitTest_Packet_Find<tPacketNMEANoCRC>("Parse NoCRC: parts",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,", "47,07,29,116,41,08,09,081,36\xd\xa",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36\xd\xa");
+
+
 	std::cout << "\n""utils::packet::nmea::tPayloadString\n";
 
 	using tPacketNMEA2 = packet::tPacket<packet::nmea::tFormatNMEA, packet::nmea::tPayloadString>;
