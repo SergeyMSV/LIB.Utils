@@ -24,51 +24,6 @@ struct tFormatStar
 	enum : std::uint8_t { STX = '*' };
 
 protected:
-#ifdef LIB_UTILS_PACKET_DEPRECATED
-	static std::vector<std::uint8_t> TestPacket(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
-	{
-		const std::size_t Size = std::distance(cbegin, cend);
-
-		if (Size < GetSize(0) || *cbegin != STX)
-			return {};
-
-		tFieldDataSize DataSize = 0;
-
-		const std::vector<std::uint8_t>::const_iterator Begin = cbegin + 1;
-		const std::vector<std::uint8_t>::const_iterator End = Begin + sizeof(tFieldDataSize);
-
-		std::copy(Begin, End, reinterpret_cast<std::uint8_t*>(&DataSize));
-
-		if (Size < GetSize(DataSize) || !VerifyCRC(Begin, sizeof(tFieldDataSize) + DataSize))
-			return {};
-
-		return std::vector<std::uint8_t>(cbegin, cbegin + GetSize(DataSize));
-	}
-
-	static bool TryParse(const std::vector<std::uint8_t>& packetVector, TPayload& payload)
-	{
-		if (packetVector.size() < GetSize(0) || packetVector[0] != STX)
-			return false;
-
-		tFieldDataSize DataSize = 0;
-
-		std::vector<std::uint8_t>::const_iterator Begin = packetVector.cbegin() + 1;
-		std::vector<std::uint8_t>::const_iterator End = Begin + sizeof(tFieldDataSize);
-
-		std::copy(Begin, End, reinterpret_cast<std::uint8_t*>(&DataSize));
-
-		if (packetVector.size() != GetSize(DataSize) || !VerifyCRC(Begin, sizeof(tFieldDataSize) + DataSize))
-			return false;
-
-		Begin = End;
-		End += DataSize;
-
-		payload = TPayload(Begin, End);
-
-		return true;
-	}
-#endif // LIB_UTILS_PACKET_DEPRECATED
-
 	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
 	{
 		auto PosSTX = std::find(data.begin(), data.end(), STX);
@@ -123,20 +78,6 @@ protected:
 
 		utils::Append(dst, CRC);
 	}
-
-#ifdef LIB_UTILS_PACKET_DEPRECATED
-private:
-	static bool VerifyCRC(std::vector<std::uint8_t>::const_iterator begin, std::size_t crcDataSize)
-	{
-		std::uint16_t CRC = utils::crc::CRC16_CCITT(begin, begin + crcDataSize);
-
-		std::vector<std::uint8_t>::const_iterator CRCBegin = begin + crcDataSize;
-
-		std::uint16_t CRCReceived = utils::Read<std::uint16_t>(CRCBegin, CRCBegin + sizeof(CRC));
-
-		return CRC == CRCReceived;
-	}
-#endif // LIB_UTILS_PACKET_DEPRECATED
 };
 
 namespace example
