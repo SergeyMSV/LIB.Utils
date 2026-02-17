@@ -45,8 +45,11 @@ void UnitTest_Packet_Find(const std::string& testName, const std::vector<std::ui
 	std::vector<std::uint8_t> dataRaw = raw1;
 
 	std::optional<T> PacketOpt = T::Find(dataRaw);
-	dataRaw.insert(dataRaw.end(), raw2.begin(), raw2.end());
-	PacketOpt = T::Find(dataRaw);
+	if (!PacketOpt.has_value())
+	{
+		dataRaw.insert(dataRaw.end(), raw2.begin(), raw2.end());
+		PacketOpt = T::Find(dataRaw);
+	}
 	bool Result = PacketOpt.has_value();
 
 	if (data.empty())
@@ -62,6 +65,12 @@ void UnitTest_Packet_Find(const std::string& testName, const std::vector<std::ui
 	}
 
 	utils::test::RESULT(testName.c_str(), Result);
+}
+
+template<typename T>
+void UnitTest_Packet_Find(const std::string& testName, const std::vector<std::uint8_t>& raw1, const std::vector<std::uint8_t>& raw2, const T& packet)
+{
+	UnitTest_Packet_Find<T>(testName, raw1, raw2, packet.ToVector());
 }
 
 template<typename T>

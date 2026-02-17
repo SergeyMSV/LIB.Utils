@@ -26,35 +26,13 @@ struct tFormatStar
 protected:
 	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
 	{
-		auto PosSTX = std::find(data.begin(), data.end(), STX);
-		const std::size_t PacketSizePossible = std::distance(PosSTX, data.end());
-		bytesToRemove = std::distance(data.begin(), PosSTX);
-		if (PacketSizePossible < GetSize(0))
-			return{};
-		auto SizeBeg = PosSTX + 1;
-		auto SizeEnd = PosSTX + sizeof(tFieldDataSize);
-		tFieldDataSize PayloadSize = 0;
-		std::copy(SizeBeg, SizeEnd, reinterpret_cast<std::uint8_t*>(&PayloadSize));
-		if (PacketSizePossible < GetSize(PayloadSize))
-			return {};
-		std::size_t ContentSize = sizeof(tFieldDataSize) + PayloadSize;
-		std::uint16_t CRC = utils::crc::CRC16_CCITT(SizeBeg, SizeBeg + ContentSize);
-		std::uint16_t CRCPack = *(SizeBeg + ContentSize);
-		CRCPack |= *(SizeBeg + ContentSize + 1) << 8;
-		if (CRC != CRCPack)
-		{
-			PosSTX = std::find(PosSTX + 1, data.end(), STX); // That's for parsing damaged packets, something like that: " 0x2A, 0x09, 0x00, 0x2A, 0x09, 0x00, 0x01,...".
-			bytesToRemove = std::distance(data.begin(), PosSTX);
-			return {};
-		}
-		auto PayloadBeg = SizeEnd + 1;
-		return TPayload(PayloadBeg, PayloadBeg + PayloadSize);
+		return Parse(data.begin(), data.end(), bytesToRemove);
 	}
 
 	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data)
 	{
 		std::size_t BytesToRemove;
-		return Parse(data, BytesToRemove);
+		return Parse(data.begin(), data.end(), BytesToRemove);
 	}
 
 	static std::size_t GetSize(std::size_t payloadSize) { return sizeof(STX) + sizeof(tFieldDataSize) + payloadSize + 2; } // 2 - for CRC
@@ -77,6 +55,41 @@ protected:
 		std::uint16_t CRC = utils::crc::CRC16_CCITT(dst.end() - DataSize, dst.end());
 
 		utils::Append(dst, CRC);
+	}
+
+protected:
+	template<typename InputIt>
+	static std::optional<TPayload> Parse(InputIt begin, InputIt end, std::size_t& bytesToRemove)
+	{
+		InputIt PosSTX = std::find(begin, end, STX);
+		const std::size_t PacketSizePossible = std::distance(PosSTX, end);
+		bytesToRemove = std::distance(begin, PosSTX);
+		if (PacketSizePossible < GetSize(0))
+			return{};
+		InputIt SizeBeg = PosSTX + 1;
+		InputIt SizeEnd = PosSTX + sizeof(tFieldDataSize);
+		tFieldDataSize PayloadSize = 0;
+		std::copy(SizeBeg, SizeEnd, reinterpret_cast<std::uint8_t*>(&PayloadSize));
+		if (PacketSizePossible >= GetSize(PayloadSize))
+		{
+			std::size_t ContentSize = sizeof(tFieldDataSize) + PayloadSize;
+			std::uint16_t CRC = utils::crc::CRC16_CCITT(SizeBeg, SizeBeg + ContentSize);
+			std::uint16_t CRCPack = *(SizeBeg + ContentSize);
+			CRCPack |= *(SizeBeg + ContentSize + 1) << 8;
+			if (CRC == CRCPack)
+			{
+				bytesToRemove = std::distance(begin, PosSTX + GetSize(PayloadSize));
+				InputIt PayloadBeg = SizeEnd + 1;
+				return TPayload(PayloadBeg, PayloadBeg + PayloadSize);
+			}
+		}
+		const InputIt BeginNew = PosSTX + 1;
+		std::size_t BytesToRemoveR = 0;
+		std::optional<TPayload> PackOpt = Parse(BeginNew, end, BytesToRemoveR);
+		if (!PackOpt.has_value())
+			return {};
+		bytesToRemove = std::distance(begin, BeginNew) + BytesToRemoveR;
+		return PackOpt;
 	}
 };
 

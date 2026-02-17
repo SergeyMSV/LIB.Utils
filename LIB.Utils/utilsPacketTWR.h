@@ -186,13 +186,17 @@ struct tPayloadBase : public utils::packet::tPayload<tPayloadData>
 	{}
 };
 
-class tPacketBase : public utils::packet::tPacket<utils::packet::star::tFormatStar, tPayloadBase>
+using tPacketBaseBase = utils::packet::tPacket<utils::packet::star::tFormatStar, tPayloadBase>;
+
+class tPacketBase : public tPacketBaseBase
 {
 public:
 	tPacketBase() = default;
-	explicit tPacketBase(const payload_value_type& payloadValue)
-		:tPacket(payloadValue)
-	{}
+	explicit tPacketBase(const payload_value_type& payloadValue) = delete;
+	explicit tPacketBase(payload_value_type&& payloadValue)
+		: tPacket(std::move(payloadValue))
+	{
+	}
 
 	tMsgId GetMsgId() const { return GetPayloadValue().MsgId; }
 	tMsgStatus GetMsgStatus() const { return GetPayloadValue().MsgStatus; }
@@ -204,12 +208,27 @@ public:
 
 class tPacketCmd : public tPacketBase
 {
-	explicit tPacketCmd(const payload_value_type& payloadValue)
-		:tPacketBase(payloadValue)
-	{}
+	explicit tPacketCmd(const payload_value_type& payloadValue) = delete;
+	explicit tPacketCmd(payload_value_type&& payloadValue)
+		:tPacketBase(std::move(payloadValue))
+	{
+	}
 
 public:
 	tPacketCmd() = default;
+	explicit tPacketCmd(const tPayloadBase& payload) = delete;
+	explicit tPacketCmd(tPayloadBase&& payload)
+	{
+		*static_cast<tPayloadBase*>(this) = std::move(payload);
+	}
+
+	static std::optional<tPacketCmd> Find(std::vector<std::uint8_t>& data)
+	{
+		std::optional<tPacketBaseBase> PacketOpt = tPacketBaseBase::Find(data);
+		if (!PacketOpt.has_value())
+			return {};
+		return tPacketCmd(std::move(*PacketOpt));
+	}
 
 	static tPacketCmd Make_Restart()
 	{
@@ -289,18 +308,33 @@ private:
 		Pld.MsgId = id;
 		Pld.Endpoint = ep;
 		Pld.Payload = msgData;
-		return tPacketCmd(Pld);
+		return tPacketCmd(std::move(Pld));
 	}
 };
 
 class tPacketRsp : public tPacketBase
 {
-	explicit tPacketRsp(const payload_value_type& payloadValue)
-		:tPacketBase(payloadValue)
-	{}
+	explicit tPacketRsp(const payload_value_type& payloadValue) = delete;
+	explicit tPacketRsp(payload_value_type&& payloadValue)
+		:tPacketBase(std::move(payloadValue))
+	{
+	}
 
 public:
 	tPacketRsp() = default;
+	explicit tPacketRsp(const tPayloadBase& payload) = delete;
+	explicit tPacketRsp(tPayloadBase&& payload)
+	{
+		*static_cast<tPayloadBase*>(this) = std::move(payload);
+	}
+
+	static std::optional<tPacketRsp> Find(std::vector<std::uint8_t>& data)
+	{
+		std::optional<tPacketBaseBase> PacketOpt = tPacketBaseBase::Find(data);
+		if (!PacketOpt.has_value())
+			return {};
+		return tPacketRsp(std::move(*PacketOpt));
+	}
 
 	static tPacketRsp Make(const tPacketBase& pack)
 	{
@@ -336,7 +370,7 @@ private:
 		Pld.MsgStatus = status;
 		Pld.Endpoint = ep;
 		Pld.Payload = msgData;
-		return tPacketRsp(Pld);
+		return tPacketRsp(std::move(Pld));
 	}
 };
 
