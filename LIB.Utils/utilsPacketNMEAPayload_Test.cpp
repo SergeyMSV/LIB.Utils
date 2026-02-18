@@ -17,25 +17,29 @@ namespace utils
 template<class TPayload, class TArg>
 void UnitTest_PacketNMEAPayload(const std::string& name, const TArg& msg)
 {
-	using tPacketNMEA = utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon>;
+	using tPacketNMEA = utils::packet::tPacket<utils::packet::nmea::tFormat, utils::packet::nmea::tPayloadCommon>;
 
 	std::vector<std::uint8_t> DataVector(msg.cbegin(), msg.cend());
 	const std::string PacketNew(DataVector.cbegin(), DataVector.cend());
 
-	tPacketNMEA PacketFound;
-	tPacketNMEA::Find(DataVector, PacketFound);
-	const std::vector<std::uint8_t> PacketFoundVec = PacketFound.ToVector();
-	const std::string PacketFoundStr(PacketFoundVec.cbegin(), PacketFoundVec.cend());
+	std::string PacketFoundStr;
+	utils::packet::nmea::tPayloadCommon::value_type PacketFoundData;
 
-	utils::packet::nmea::tPayloadCommon::value_type PacketFoundData = PacketFound.GetPayloadValue();
+	std::optional<tPacketNMEA> PacketFoundOpt = tPacketNMEA::Find(DataVector);
+	if (PacketFoundOpt.has_value())
+	{
+		const std::vector<std::uint8_t> PacketFoundVec = PacketFoundOpt->ToVector();
+		PacketFoundStr = std::string(PacketFoundVec.cbegin(), PacketFoundVec.cend());
+
+		PacketFoundData = PacketFoundOpt->GetPayloadValue();
+	}
+
 	TPayload PayloadParsed(PacketFoundData);
 
 	//if (PayloadParsed.GNSS.Value == TPayload::gnss_type::tGNSS_State::UNKNOWN) // Parsed!!
 	//	return;
 
-	const utils::packet::nmea::tPayloadCommon::value_type PacketData1 = PayloadParsed.GetPayload();
-
-	tPacketNMEA Packet2(PacketData1);
+	tPacketNMEA Packet2(PayloadParsed.GetPayload());
 
 	std::vector<std::uint8_t> PacketRaw = Packet2.ToVector();
 	std::string PacketRes(PacketRaw.cbegin(), PacketRaw.cend());
@@ -51,17 +55,23 @@ void UnitTest_PacketNMEAPayload(const std::string& name, const TArg& msg)
 template<class TPayload, class TArg>
 void UnitTest_PacketNMEAPayloadERR(const std::string& name, const TArg& msg)
 {
-	using tPacketNMEA = utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon>;
+	using tPacketNMEA = utils::packet::tPacket<utils::packet::nmea::tFormat, utils::packet::nmea::tPayloadCommon>;
 
 	std::vector<std::uint8_t> DataVector(msg.cbegin(), msg.cend());
 	const std::string PacketNew(DataVector.cbegin(), DataVector.cend());
 
-	tPacketNMEA PacketFound;
-	tPacketNMEA::Find(DataVector, PacketFound);
-	const std::vector<std::uint8_t> PacketFoundVec = PacketFound.ToVector();
-	const std::string PacketFoundStr(PacketFoundVec.cbegin(), PacketFoundVec.cend());
+	std::vector<std::uint8_t> PacketFoundVec;
+	utils::packet::nmea::tPayloadCommon::value_type PacketFoundData;
 
-	utils::packet::nmea::tPayloadCommon::value_type PacketFoundData = PacketFound.GetPayloadValue();
+	std::optional<tPacketNMEA> PacketFoundOpt = tPacketNMEA::Find(DataVector);
+	if (PacketFoundOpt.has_value())
+	{
+		PacketFoundVec = PacketFoundOpt->ToVector();
+		const std::string PacketFoundStr(PacketFoundVec.cbegin(), PacketFoundVec.cend());
+
+		PacketFoundData = PacketFoundOpt->GetPayloadValue();
+	}
+
 	TPayload PayloadParsed(PacketFoundData);
 
 #ifdef SHOW_RESULTS
@@ -81,7 +91,7 @@ void UnitTest_PacketNMEAPayload()
 
 	//utils::packet::nmea::
 
-	typedef utils::packet::tPacket<utils::packet::nmea::tFormatNMEA, utils::packet::nmea::tPayloadCommon> tPacketNMEA;
+	typedef utils::packet::tPacket<utils::packet::nmea::tFormat, utils::packet::nmea::tPayloadCommon> tPacketNMEA;
 
 	{
 		tPacketNMEA Packet;

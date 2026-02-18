@@ -80,11 +80,14 @@ protected:
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <class TPayload> struct tFormatNMEA : public tFormat<TPayload, '$'> { };
-template <class TPayload> struct tFormatNMEAAIS : public tFormat<TPayload, '!'> { }; // AIS - Automatic Identification System
+template <class TPayload>
+using tFormatNMEA = tFormat<TPayload>;
+
+template <class TPayload>
+using tFormatAIS = tFormat<TPayload, '!'>;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <class TPayload, std::uint8_t stx = '$'>
-struct tFormatNoCRC
+struct tFormatNMEANoCRC
 {
 	enum : std::uint8_t { STX = stx };
 

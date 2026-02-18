@@ -176,8 +176,11 @@ private:
 	}
 };
 
-template <class TPayload> struct tFormatCmd : public tFormat<TPayload, 'V', ContainerCmdSize> { };
-template <class TPayload> struct tFormatRet : public tFormat<TPayload, 'v', ContainerRetSize> { };
+template <class TPayload>
+using tFormatCmd = tFormat<TPayload, 'V', ContainerCmdSize>;
+
+template <class TPayload>
+using tFormatRet = tFormat<TPayload, 'v', ContainerRetSize>;
 
 struct tDataCmd
 {
