@@ -17,11 +17,12 @@ namespace star
 {
 
 template <class TPayload>
-struct tFormatStar
+struct tFormat
 {
-	typedef std::uint16_t tFieldDataSize;
-
 	enum : std::uint8_t { STX = '*' };
+
+private:
+	static constexpr std::size_t m_MaxPacketSize = 1029; // [STX - 1][PayloadSize - 2][Payload - up to 1024][CRC16 CCITT - 2] = 1029 bytes
 
 protected:
 	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
@@ -35,25 +36,19 @@ protected:
 		return Parse(data.begin(), data.end(), BytesToRemove);
 	}
 
-	static std::size_t GetSize(std::size_t payloadSize) { return sizeof(STX) + sizeof(tFieldDataSize) + payloadSize + 2; } // 2 - for CRC
+	static std::size_t GetSize(std::size_t payloadSize) { return sizeof(STX) + 2 + payloadSize + 2; } // 2 for PayloadSize and 2 for CRC
 
 	void Append(std::vector<std::uint8_t>& dst, const TPayload& payload) const
 	{
 		dst.reserve(GetSize(payload.size()));
-
 		dst.push_back(STX);
-
 		utils::Append(dst, static_cast<std::uint16_t>(payload.size()));
-
 		for (const auto i : payload)
 		{
 			dst.push_back(i);
 		}
-
-		std::size_t DataSize = sizeof(tFieldDataSize) + payload.size();
-
+		std::size_t DataSize = 2 + payload.size(); // 2 for PayloadSize
 		std::uint16_t CRC = utils::crc::CRC16_CCITT(dst.end() - DataSize, dst.end());
-
 		utils::Append(dst, CRC);
 	}
 
@@ -67,19 +62,20 @@ protected:
 		if (PacketSizePossible < GetSize(0))
 			return{};
 		InputIt SizeBeg = PosSTX + 1;
-		InputIt SizeEnd = PosSTX + sizeof(tFieldDataSize);
-		tFieldDataSize PayloadSize = 0;
+		InputIt SizeEnd = SizeBeg + 2; // 2 for PayloadSize
+		std::uint16_t PayloadSize = 0;
 		std::copy(SizeBeg, SizeEnd, reinterpret_cast<std::uint8_t*>(&PayloadSize));
-		if (PacketSizePossible >= GetSize(PayloadSize))
+		const std::size_t PacketSize = GetSize(PayloadSize);
+		if (PacketSize <= PacketSizePossible && PacketSize <= m_MaxPacketSize)
 		{
-			std::size_t ContentSize = sizeof(tFieldDataSize) + PayloadSize;
+			std::size_t ContentSize = 2 + PayloadSize; // 2 for PayloadSize
 			std::uint16_t CRC = utils::crc::CRC16_CCITT(SizeBeg, SizeBeg + ContentSize);
 			std::uint16_t CRCPack = *(SizeBeg + ContentSize);
 			CRCPack |= *(SizeBeg + ContentSize + 1) << 8;
 			if (CRC == CRCPack)
 			{
 				bytesToRemove = std::distance(begin, PosSTX + GetSize(PayloadSize));
-				InputIt PayloadBeg = SizeEnd + 1;
+				InputIt PayloadBeg = SizeEnd;
 				return TPayload(PayloadBeg, PayloadBeg + PayloadSize);
 			}
 		}
@@ -103,7 +99,7 @@ namespace example
 
 
 // [Payload, its size can be up to 1024-Bytes]
-using tPacketSimple = utils::packet::tPacket<tFormatStar, std::vector<std::uint8_t>>;
+using tPacketSimple = utils::packet::tPacket<tFormat, std::vector<std::uint8_t>>;
 
 // [MsgId 1-Byte][Payload, its size can be up to 1023-Bytes]
 struct tPayloadMsgData
@@ -155,7 +151,7 @@ struct tPayloadMsg : public utils::packet::tPayload<tPayloadMsgData>
 	{}
 };
 
-using tPacketMsgBase = utils::packet::tPacket<tFormatStar, tPayloadMsg>;
+using tPacketMsgBase = utils::packet::tPacket<tFormat, tPayloadMsg>;
 
 class tPacketMsg : public tPacketMsgBase
 {

@@ -119,9 +119,11 @@ enum class tMsgStatus : std::uint8_t
 template <class TPayload, std::uint8_t stx, std::uint8_t containerSize>
 struct tFormat 
 {
+	enum : std::uint8_t { STX = stx };
+
+private:
 	enum : std::uint8_t
 	{
-		STX = stx,
 		containerMsgIdPosition = 2,
 		containerSizePosition = containerSize - 1,
 	};
@@ -160,9 +162,7 @@ protected:
 	void Append(std::vector<std::uint8_t>& dst, const TPayload& payload) const
 	{
 		dst.reserve(payload.size() + 1); // +1 STX
-
 		dst.push_back(STX);
-
 		for (const auto& i : payload)
 		{
 			dst.push_back(i);

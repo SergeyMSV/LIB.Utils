@@ -130,7 +130,7 @@ struct tSPIPortSettings
 
 class tPayloadData // [MsgId 1-Byte][MsgStatus (for Rsp; in case of Cmd = 0) 1-Byte][Endpoint 1-Byte][Payload, its size can be up to 1022-Bytes]
 {
-	static constexpr std::size_t HeaderSize = 3;
+	static constexpr std::size_t m_HeaderSize = 3;
 
 public:
 	tMsgId MsgId = tMsgId::None;
@@ -146,18 +146,18 @@ public:
 	tPayloadData(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		const std::size_t DataSize = std::distance(cbegin, cend);
-		if (DataSize < HeaderSize)
+		if (DataSize < m_HeaderSize)
 			return;
 
 		MsgId = static_cast<tMsgId>(*cbegin);
 		MsgStatus = static_cast<tMsgStatus>(*(cbegin + 1));
 		Endpoint = static_cast<tEndpoint>(*(cbegin + 2));
-		Payload = std::vector<std::uint8_t>(cbegin + HeaderSize, cend);
+		Payload = std::vector<std::uint8_t>(cbegin + m_HeaderSize, cend);
 	}
 
 	std::size_t size() const
 	{
-		return HeaderSize + Payload.size();
+		return m_HeaderSize + Payload.size();
 	}
 
 	std::uint8_t operator[] (const std::size_t index) const
@@ -171,7 +171,7 @@ public:
 		case 1: return static_cast<std::uint8_t>(MsgStatus);
 		case 2: return static_cast<std::uint8_t>(Endpoint);
 		}
-		return Payload[index - HeaderSize];
+		return Payload[index - m_HeaderSize];
 	}
 
 	bool operator == (const tPayloadData& val) const = default;
@@ -186,7 +186,7 @@ struct tPayloadBase : public utils::packet::tPayload<tPayloadData>
 	{}
 };
 
-using tPacketBaseBase = utils::packet::tPacket<utils::packet::star::tFormatStar, tPayloadBase>;
+using tPacketBaseBase = utils::packet::tPacket<utils::packet::star::tFormat, tPayloadBase>;
 
 class tPacketBase : public tPacketBaseBase
 {

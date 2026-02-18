@@ -63,25 +63,19 @@ protected:
 	static void Append(std::vector<std::uint8_t>& dst, const TPayload& payload)
 	{
 		dst.reserve(GetSize(payload.size()));
-
 		dst.push_back(STX);
-
 		for (auto i : payload)
 		{
 			dst.push_back(i);
 		}
+		dst.push_back(CTX);
 
 		const std::uint8_t CRC = utils::crc::CRC08_NMEA(payload.begin(), payload.end());
 
-		dst.push_back(CTX);
-
 		std::stringstream SStr;
-
 		SStr << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << static_cast<uint16_t>(CRC);
 		SStr << "\xd\xa";
-
 		const std::string EndStr = SStr.str();
-
 		dst.insert(dst.end(), EndStr.cbegin(), EndStr.cend());
 	}
 };
