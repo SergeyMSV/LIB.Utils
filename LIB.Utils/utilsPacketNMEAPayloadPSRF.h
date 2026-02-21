@@ -19,7 +19,7 @@ namespace sirf
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadTXT : public type::tTypeVerified
 {
-	std::vector<std::string> Text;
+	std::vector<std::string> Texts;
 
 	tPayloadTXT() = default;
 	explicit tPayloadTXT(const tPayloadCommon::value_type& val)
@@ -32,7 +32,7 @@ struct tPayloadTXT : public type::tTypeVerified
 
 		for (std::size_t i = 1; i < val.size(); ++i)
 		{
-			Text.push_back(val[i]);
+			Texts.push_back(val[i]);
 		}
 	}
 
@@ -42,7 +42,7 @@ struct tPayloadTXT : public type::tTypeVerified
 	{
 		tPayloadCommon::value_type Data;
 		Data.push_back("PSRFTXT");
-		for (auto i : Text)
+		for (auto i : Texts)
 		{
 			Data.push_back(i);
 		}
