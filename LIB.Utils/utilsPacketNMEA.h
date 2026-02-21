@@ -219,6 +219,8 @@ struct tPayloadCommon
 		AppendData(cbegin, cend);
 	}
 
+	bool IsVerified() { return true; }
+
 	std::size_t size() const
 	{
 		std::size_t Size = 0;
@@ -284,6 +286,8 @@ struct tPayloadString
 	{
 		Value.insert(Value.end(), cbegin, cend);
 	}
+
+	bool IsVerified() { return true; }
 
 	std::size_t size() const
 	{
