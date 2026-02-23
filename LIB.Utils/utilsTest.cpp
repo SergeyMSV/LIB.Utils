@@ -74,8 +74,12 @@ void ASSERT(bool value)
 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+int RESULT_CountTests = 0;
+int RESULT_CountErrors = 0;
 void RESULT(const char* msg, bool result)
 {
+	++RESULT_CountTests;
+
 #ifndef __GNUC__
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -100,6 +104,8 @@ void RESULT(const char* msg, bool result)
 		std::cout << "\x1b[3" << tConsoleColor_Yellow << ";4" << tConsoleColor_Red << "m";
 #endif//__GNUC__
 
+		++RESULT_CountErrors;
+
 		std::cout << "ERROR";
 
 #ifndef __GNUC__
@@ -115,6 +121,11 @@ void RESULT(const char* msg, bool result)
 void RESULT(const std::string& msg, bool result)
 {
 	RESULT(msg.c_str(), result);
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
+void RESULT_Total()
+{
+	std::cout << std::dec << "Errors: " << RESULT_CountErrors << " (from tests: " << RESULT_CountTests << ")\n";
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 void WARNING(const char* msg, bool show)
