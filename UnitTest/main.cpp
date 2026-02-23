@@ -1,3 +1,5 @@
+#include <utilsTest.h>
+
 namespace utils
 {
 	void UnitTest_Base();
@@ -59,6 +61,8 @@ int main()
 	UnitTest_Version();
 
 	UnitTest_tLog();
+
+	utils::test::RESULT_Total();
 
 	return 0;
 }

@@ -1,3 +1,5 @@
+#include <utilsTest.h>
+
 namespace utils
 {
 	void UnitTest_PacketMQTTv3_1_1();
@@ -6,5 +8,8 @@ namespace utils
 int main()
 {
 	utils::UnitTest_PacketMQTTv3_1_1();
-	return 0; 
+
+	utils::test::RESULT_Total();
+
+	return 0;
 }
