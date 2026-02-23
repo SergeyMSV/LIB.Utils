@@ -212,6 +212,8 @@ void UnitTest_PacketMQTTv3_1_1()
 	UnitTest_PacketMQTT(tPacketPINGREQ(), "Pack PINGREQ serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketPINGRESP(), "Pack PINGRESP serialize-deserialize");
 	UnitTest_PacketMQTT(tPacketDISCONNECT(), "Pack DISCONNECT serialize-deserialize");
+
+	std::cout << std::endl;
 }
 
 void UnitTest_PacketMQTT_RemainingLengthParse(const std::string& cap, const std::vector<std::uint8_t>& data, std::uint32_t packetLength)
