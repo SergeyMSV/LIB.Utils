@@ -20,6 +20,8 @@ void UnitTest_Test()
 
 	ASSERT(true);
 
+	RESULT_Total();
+
 	std::cout << std::endl;
 }
 

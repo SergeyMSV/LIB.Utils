@@ -20,6 +20,7 @@ namespace utils
 void ASSERT(bool value);
 void RESULT(const char* msg, bool result);
 void RESULT(const std::string& msg, bool result);
+void RESULT_Total();
 void WARNING(const char* msg, bool show = true);
 void WARNING(const std::string& msg, bool show = true);
 
