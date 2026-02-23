@@ -7,6 +7,34 @@
 namespace utils
 {
 
+static std::vector<std::uint8_t> MakePacket(std::uint16_t size)
+{
+	if (size < 5)
+	{
+		utils::test::RESULT("MakePacket - WRONG PACKET SIZE !!!", false);
+		return {};
+	}
+
+	const std::size_t PayloadSize = size - 5;
+
+	auto WriteUInt16 = [](std::vector<std::uint8_t>& packet, std::uint16_t value)
+		{
+			packet.push_back(value & 0x00FF);
+			packet.push_back((value >> 8) & 0x00FF);
+		};
+	std::vector<std::uint8_t> Packet;
+	Packet.reserve(size);
+	Packet.push_back('*');
+	WriteUInt16(Packet, static_cast<std::uint16_t>(PayloadSize));
+	for (int i = 0; i < PayloadSize; ++i)
+	{
+		Packet.push_back(static_cast<std::uint8_t>(i));
+	}
+	std::uint16_t CRC = utils::crc::CRC16_CCITT(Packet.begin() + 1, Packet.end());
+	WriteUInt16(Packet, CRC);
+	return Packet;
+}
+
 void UnitTest_PacketStar()
 {
 	std::cout << "\n""utils::packet::tPacketStar\n";
@@ -22,7 +50,6 @@ void UnitTest_PacketStar()
 					  0x2A, 0x09, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xB0, 0x8D },
 		std::vector<std::uint8_t>{ 0x2A, 0x09, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xB0, 0x8D });
 
-
 	UnitTest_Packet_Find<tPacketSimple>("std::vector<std::uint8_t> Test 3",
 		std::vector<std::uint8_t>{ 0x2A, 0x09, 0x00,
 					  0x2A, 0x09, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xB0, 0x8D,
@@ -34,9 +61,10 @@ void UnitTest_PacketStar()
 					  0x2A, 0x09, 0x00 },
 		std::vector<std::uint8_t>{});
 
-	//UnitTest_Packet_Parse<tPacketSimple>("std::vector<std::uint8_t> Parse 1",
-	//	std::vector<std::uint8_t>{ 0x2A, 0x09, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xB0, 0x8D },
-	//	std::vector<std::uint8_t>{ 0x2A, 0x09, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xB0, 0x8D });
+	UnitTest_Packet_Find<tPacketSimple>("std::vector<std::uint8_t> Test 5 parts",
+		std::vector<std::uint8_t>{ 0x2A, 0x09, 0x00, 0x01, 0x02, 0x03, 0x04,},
+		std::vector<std::uint8_t>{ 0x05, 0x06, 0x07, 0x08, 0x09, 0xB0, 0x8D },
+		std::vector<std::uint8_t>{ 0x2A, 0x09, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xB0, 0x8D });
 
 	using tPacketMsg = packet::star::example::tPacketMsg;
 
@@ -61,10 +89,19 @@ void UnitTest_PacketStar()
 					  0x2A, 0x09, 0x00 },
 		std::vector<std::uint8_t>{});
 
+	{
+		std::vector<std::uint8_t> Data = MakePacket(1029);
+		UnitTest_Packet_Find<tPacketSimple>("Packet size 1029 (payload 1024)", Data, Data);
+	}
+	{
+		std::vector<std::uint8_t> Data = MakePacket(5);
+		UnitTest_Packet_Find<tPacketSimple>("Packet size 5 (payload 0)", Data, Data);
+	}
+
 	UnitTest_Packet_Parse<tPacketMsg>("tPacketCmd Parse: MakeSomeMessage_01",
 		std::vector<std::uint8_t>{ 0x2A, 0x09, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0xB0, 0x8D },
 		tPacketMsg::MakeSomeMessage_01({ 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 }));
-
+		
 	UnitTest_Packet_Make("tPayloadCommon Make: MakeSomeMessage_01",
 		tPacketMsg::MakeSomeMessage_01({ 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09 }));
 

@@ -15,6 +15,7 @@ namespace utils
 	void UnitTest_MIFARE();
 	//void UnitTest_PacketBNTBX2();
 	void UnitTest_PacketCameraVC0706();
+	void UnitTest_PacketJSON();
 	void UnitTest_PacketMQTTv3_1_1();
 	void UnitTest_PacketNMEA();
 	void UnitTest_PacketNMEAPayload();
@@ -46,6 +47,7 @@ int main()
 	UnitTest_MIFARE();
 	//UnitTest_PacketBNTBX2();
 	UnitTest_PacketCameraVC0706();
+	UnitTest_PacketJSON();
 	UnitTest_PacketMQTTv3_1_1();
 	UnitTest_PacketNMEA();
 	UnitTest_PacketNMEAPayload();

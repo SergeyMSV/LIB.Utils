@@ -9,12 +9,16 @@ namespace utils
 
 void UnitTest_PacketNMEA()
 {
-	std::cout << "\n""utils::packet_NMEA\n";
+	std::cout << "\n""utils::packet::nmea\n";
 
-	using tPacketNMEA = packet::tPacket<packet_NMEA::tFormatNMEA, packet_NMEA::tPayloadCommon>;
+	using tPacketNMEA = packet::tPacket<packet::nmea::tFormatNMEA, packet::nmea::tPayloadCommon>;
 
 	UnitTest_Packet_Find<tPacketNMEA>("Parse CRC: Just a packet",
 		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
+
+	UnitTest_Packet_Find<tPacketNMEA>("Parse CRC: parts",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,", "47,07,29,116,41,08,09,081,36*7F\xd\xa",
 		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
 
 	UnitTest_Packet_Find<tPacketNMEA>("Parse CRC: Rubbish",
@@ -56,9 +60,26 @@ void UnitTest_PacketNMEA()
 	UnitTest_Packet_Make("Parse CRC: Make MYRMC 2",
 		tPacketNMEA(std::vector<std::string>{ "MYRMC", "PartA", "PartB", "PartC" }));
 
-	std::cout << "\n""utils::packet_NMEA::tPayloadString\n";
+	std::cout << "\n""utils::packet::nmea::Packet NMEA NoCRC\n";
 
-	using tPacketNMEA2 = packet::tPacket<packet_NMEA::tFormatNMEA, packet_NMEA::tPayloadString>;
+	using tPacketNMEANoCRC = packet::tPacket<packet::nmea::tFormatNMEANoCRC, packet::nmea::tPayloadCommon>;
+
+	UnitTest_Packet_Find<tPacketNMEANoCRC>("Parse NoCRC: Just a packet",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36\xd\xa",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36\xd\xa");
+
+	UnitTest_Packet_Find<tPacketNMEANoCRC>("Parse NoCRC: Rubbish",
+		"GNGG$GNGG$GNGGA,221$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa,081,36*7F\xd\xa",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36\xd\xa");
+
+	UnitTest_Packet_Find<tPacketNMEANoCRC>("Parse NoCRC: parts",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,", "47,07,29,116,41,08,09,081,36\xd\xa",
+		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36\xd\xa");
+
+
+	std::cout << "\n""utils::packet::nmea::tPayloadString\n";
+
+	using tPacketNMEA2 = packet::tPacket<packet::nmea::tFormatNMEA, packet::nmea::tPayloadString>;
 
 	UnitTest_Packet_Find<tPacketNMEA2>("Parse CRC: Just a packet",
 		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa",
@@ -103,14 +124,13 @@ void UnitTest_PacketNMEA()
 	UnitTest_Packet_Make("Parse CRC: Make MYRMC 2",
 		tPacketNMEA2("MYRMC,Test_1,Test_2,Test_3"));
 
+	std::cout << "\n""Packet NMEA AIS\n";
 
-	std::cout << "\n""tPacketNMEABin\n";
-
-	using tPacketNMEABin = packet::tPacket<packet_NMEA::tFormatNMEABin, packet_NMEA::tPayloadCommon>;
+	using tPacketNMEAAIS = packet::tPacket<packet::nmea::tFormatAIS, packet::nmea::tPayloadCommon>;
 
 	UnitTest_Packet_Parse("Parse CRC: Just a encapsulation packet",
 		"!AIVDM,1,1,,1,1P000Oh1IT1svTP2r:43grwb05q4,0*01\xd\xa",
-		tPacketNMEABin(std::vector<std::string>{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" }));
+		tPacketNMEAAIS(std::vector<std::string>{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" }));
 
 	//CRC matches by chance
 	//UnitTest_Packet_Parse<tPacketNMEABin>("Parse CRC: Rubbish & encapsulation packet",
@@ -118,12 +138,12 @@ void UnitTest_PacketNMEA()
 	//	{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" });
 
 	//Added '5' into the header
-	UnitTest_Packet_Parse<tPacketNMEABin>("Parse CRC: Rubbish & encapsulation packet",
+	UnitTest_Packet_Parse<tPacketNMEAAIS>("Parse CRC: Rubbish & encapsulation packet",
 		"!AIVDM!AIVDM!AIV5DM!AIVDM!AIVDM,1,1,,1,1P000Oh1IT1svTP2r:43grwb05q4,0*01\xd\xa,081,36*7F\xd\xa",
-		tPacketNMEABin(std::vector<std::string>{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" }));
+		tPacketNMEAAIS(std::vector<std::string>{ "AIVDM", "1", "1", "", "1", "1P000Oh1IT1svTP2r:43grwb05q4", "0" }));
 
-	UnitTest_Packet_Make<tPacketNMEABin>("Parse CRC: Make MYRMC 3 encapsulation packet",
-		tPacketNMEABin(std::vector<std::string>{ "MYRMC", "PartA", "PartB", "PartC" }));
+	UnitTest_Packet_Make<tPacketNMEAAIS>("Parse CRC: Make MYRMC 3 encapsulation packet",
+		tPacketNMEAAIS(std::vector<std::string>{ "MYRMC", "PartA", "PartB", "PartC" }));
 
 	std::cout << std::endl;
 }
