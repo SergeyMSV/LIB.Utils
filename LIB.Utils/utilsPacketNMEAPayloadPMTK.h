@@ -1,84 +1,192 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// utilsPacketNMEAPayloadPMTK.h
+// utilsPacketNMEAPayloadPMTK
 // 2020-02-07
-// Standard ISO/IEC 114882, C++11
+// C++17
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "utilsBase.h"
 #include "utilsPacketNMEA.h"
 #include "utilsPacketNMEAType.h"
+#include "utilsPacketNMEAPayloadP.h"
 
 namespace utils
 {
-	namespace packet_NMEA
-	{
-///////////////////////////////////////////////////////////////////////////////////////////////////
-namespace hidden
+namespace packet
 {
+namespace nmea
+{
+namespace mtk
+{
+///////////////////////////////////////////////////////////////////////////////////////////////////
+using tContentP = base::tContentP<4>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct tContentPMTK : public tContentP
+{
+	tContentPMTK() = default;
+	explicit tContentPMTK(const std::vector<std::string>& val)
+		:tContentP(val)
+	{
+		Verify();
+	}
+	explicit tContentPMTK(const tContentP& val)
+	{
+		Verify();
+	}
 
-struct tPayloadPMTK001
+private:
+	void Verify()
+	{
+		SetVerified(Value.size() >= 2 && Value[0] == "PMTK");
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct tContentPMTK_TEST : public type::tTypeVerified
+{
+	tContentPMTK_TEST() = default;
+	explicit tContentPMTK_TEST(const std::vector<std::string>& val)
+	{
+		Verify(tContentPMTK(val));
+	}
+	explicit tContentPMTK_TEST(const tContentPMTK& val)
+	{
+		Verify(val);
+	}
+
+	std::vector<std::string> GetPayload() const
+	{
+		std::vector<std::string> Data;
+		Data.push_back("PMTK000");
+		return Data;
+	}
+
+private:
+	void Verify(const tContentPMTK& parsed)
+	{
+		SetVerified(parsed.Value.size() >= 2 && parsed.Value[0] == "PMTK");
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct tContentACK : public type::tTypeVerified
 {
 	enum class tStatus : std::uint8_t
 	{
-		InvalidCommand = 0,//0 = Invalid command / packet
-		UnsupportedCommand,//1 = Unsupported command / packet type
-		Failed,//2 = Valid command / packet, but action failed.
-		Succeeded,//3 = Valid command / packet, and action succeeded
+		InvalidCommand,			// 0 = Invalid command / packet
+		UnsupportedCommand,		// 1 = Unsupported command / packet type
+		Failed,					// 2 = Valid command / packet, but action failed.
+		Succeeded,				// 3 = Valid command / packet, and action succeeded
 	};
 
-	typedef Type::tUInt<std::uint16_t, 3> command_type;
-	typedef Type::tUInt<tStatus, 1> status_type;
+	using tCmd = type::tUIntFixed<3>;
+	using tFlag = type::tUIntFixed<1>;
 
-	command_type CMD;
-	status_type Status;
+	tCmd Cmd;
+	tFlag Status;
 
-	tPayloadPMTK001() = default;
-	explicit tPayloadPMTK001(const tPayloadCommon::value_type& val)
+	tContentACK() = default;
+	explicit tContentACK(const std::vector<std::string>& val)
 	{
-		if (Try(val))
-		{
-			CMD = command_type(val[1]);
-			Status = status_type(val[2]);
-		}
+		SetValues(tContentPMTK(val));
+	}
+	explicit tContentACK(const tContentPMTK& val)
+	{
+		SetValues(val);
 	}
 
-	static const char* GetID() { return "PMTK001"; }
+	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(Cmd, Status); }
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	std::vector<std::string> GetPayload() const
 	{
-		return val.size() >= 3 && !std::strcmp(val[0].c_str(), GetID());
-	}
-
-	tPayloadCommon::value_type GetPayload() const
-	{
-		tPayloadCommon::value_type Data;
-
-		Data.push_back(GetID());
-		Data.push_back(CMD.ToString());
+		std::vector<std::string> Data;
+		Data.push_back("PMTK001");
+		Data.push_back(Cmd.ToString());
 		Data.push_back(Status.ToString());
-
 		return Data;
 	}
-};
 
-}
+private:
+	void SetValues(const tContentPMTK& parsed)
+	{
+		if (!parsed.IsVerified() || parsed.Value.size() != 4 || parsed.Value[1] != "001")
+		{
+			SetVerified(false);
+			return;
+		}
+		Cmd = tCmd(parsed.Value[2]);
+		Status = tFlag(parsed.Value[3]);
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//struct tContentACK_GNSS_SEARCH_MODE : public type::tTypeVerified
+//{
+//	enum class tStatus : std::uint8_t
+//	{
+//		InvalidCommand,			// 0 = Invalid command / packet
+//		UnsupportedCommand,		// 1 = Unsupported command / packet type
+//		Failed,					// 2 = Valid command / packet, but action failed.
+//		Succeeded,				// 3 = Valid command / packet, and action succeeded
+//	};
+//
+//	using tCmd = type::tUIntFixed<3>;
+//	using tFlag = type::tUIntFixed<1>;
+//
+//	tCmd Cmd;
+//	tFlag Status;
+//
+//	tContentACK_GNSS_SEARCH_MODE() = default;
+//	explicit tContentACK_GNSS_SEARCH_MODE(const std::vector<std::string>& val)
+//	{
+//		tContentPMTK Parsed(val);
+//		if (!Parsed.IsVerified() || Parsed.Value.size() != 4 || Parsed.Value[1] != "001")
+//		{
+//			SetVerified(false);
+//			return;
+//		}
+//		Cmd = tCmd(val[1]);
+//		Status = tFlag(val[2]);
+//
+//	}
+//
+//	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(Cmd, Status); }
+//
+//	std::vector<std::string> GetPayload() const
+//	{
+//		std::vector<std::string> Data;
+//		Data.push_back("PMTK001");
+//		Data.push_back(Cmd.ToString());
+//		Data.push_back(Status.ToString());
+//		return Data;
+//	}
+//
+//private:
+//	void SetValues(const tContentPMTK& parsed)
+//	{
+//		if (!parsed.IsVerified() || parsed.Value.size() != 4 || parsed.Value[1] != "001")
+//		{
+//			SetVerified(false);
+//			return;
+//		}
+//		Cmd = tCmd(parsed.Value[2]);
+//		Status = tFlag(parsed.Value[3]);
+//	}
+//};
+
+/*
 
 template <int CmdID>
-struct tPayloadPMTK001 : public hidden::tPayloadPMTK001
+struct tContentPMTK001 : public hidden::tContentPMTK001
 {
-	explicit tPayloadPMTK001(const tPayloadCommon::value_type& val)
-		:hidden::tPayloadPMTK001(val)
+	explicit tContentPMTK001(const std::vector<std::string>& val)
+		:hidden::tContentPMTK001(val)
 	{ }
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	static bool Try(const std::vector<std::string>& val)
 	{
-		return val.size() == 3 && hidden::tPayloadPMTK001::Try(val);
+		return val.size() == 3 && hidden::tContentPMTK001::Try(val);
 	}
 };
 
 template <>
-struct tPayloadPMTK001<355> : public hidden::tPayloadPMTK001
+struct tContentPMTK001<355> : public hidden::tContentPMTK001
 {
 	typedef Type::tUInt<std::uint8_t, 0> status_type;
 
@@ -86,8 +194,8 @@ struct tPayloadPMTK001<355> : public hidden::tPayloadPMTK001
 	status_type GLONASS;
 	status_type BEIDOU;
 
-	explicit tPayloadPMTK001(const tPayloadCommon::value_type& val)
-		:hidden::tPayloadPMTK001(val)
+	explicit tContentPMTK001(const std::vector<std::string>& val)
+		:hidden::tContentPMTK001(val)
 	{
 		if (Try(val))
 		{
@@ -97,14 +205,14 @@ struct tPayloadPMTK001<355> : public hidden::tPayloadPMTK001
 		}
 	}
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	static bool Try(const std::vector<std::string>& val)
 	{
-		return val.size() == 7 && hidden::tPayloadPMTK001::Try(val);
+		return val.size() == 7 && hidden::tContentPMTK001::Try(val);
 	}
 
-	tPayloadCommon::value_type GetPayload() const
+	std::vector<std::string> GetPayload() const
 	{
-		tPayloadCommon::value_type Data = hidden::tPayloadPMTK001::GetPayload();
+		std::vector<std::string> Data = hidden::tContentPMTK001::GetPayload();
 
 		Data.push_back(GPS.ToString());
 		Data.push_back(GLONASS.ToString());
@@ -115,7 +223,7 @@ struct tPayloadPMTK001<355> : public hidden::tPayloadPMTK001
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPMTK010
+struct tContentPMTK010
 {
 	enum class tStatus : std::uint8_t
 	{
@@ -130,25 +238,25 @@ struct tPayloadPMTK010
 
 	status_type Status;
 
-	tPayloadPMTK010() = default;
-	explicit tPayloadPMTK010(const tPayloadCommon::value_type& val)
+	tContentPMTK010() = default;
+	explicit tContentPMTK010(const std::vector<std::string>& val)
 	{
 		if (Try(val))
 		{
-			Status = status_type(val[1]);
+			Status = status_type::Parse(val[1]);
 		}
 	}
 
 	static const char* GetID() { return "PMTK010"; }
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	static bool Try(const std::vector<std::string>& val)
 	{
 		return val.size() == 2 && !std::strcmp(val[0].c_str(), GetID());
 	}
 
-	tPayloadCommon::value_type GetPayload() const
+	std::vector<std::string> GetPayload() const
 	{
-		tPayloadCommon::value_type Data;
+		std::vector<std::string> Data;
 
 		Data.push_back(GetID());
 		Data.push_back(Status.ToString());
@@ -157,14 +265,14 @@ struct tPayloadPMTK010
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPMTK011
+struct tContentPMTK011
 {
 	typedef std::string message_type;
 
 	message_type Message;
 
-	tPayloadPMTK011() = default;
-	explicit tPayloadPMTK011(const tPayloadCommon::value_type& val)
+	tContentPMTK011() = default;
+	explicit tContentPMTK011(const std::vector<std::string>& val)
 	{
 		if (Try(val))
 		{
@@ -174,14 +282,14 @@ struct tPayloadPMTK011
 
 	static const char* GetID() { return "PMTK011"; }
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	static bool Try(const std::vector<std::string>& val)
 	{
 		return val.size() == 2 && !std::strcmp(val[0].c_str(), GetID());
 	}
 
-	tPayloadCommon::value_type GetPayload() const
+	std::vector<std::string> GetPayload() const
 	{
-		tPayloadCommon::value_type Data;
+		std::vector<std::string> Data;
 
 		Data.push_back(GetID());
 		Data.push_back(Message);
@@ -202,10 +310,10 @@ enum class tPayloadPMTK10xResetState : std::uint8_t
 };
 
 template <tPayloadPMTK10xResetState State>
-struct tPayloadPMTK10xReset
+struct tContentPMTK10xReset
 {
-	tPayloadPMTK10xReset() = default;
-	explicit tPayloadPMTK10xReset(const tPayloadCommon::value_type& val) {}
+	tContentPMTK10xReset() = default;
+	explicit tContentPMTK10xReset(const std::vector<std::string>& val) {}
 
 	static const char* GetID()
 	{
@@ -222,14 +330,14 @@ struct tPayloadPMTK10xReset
 		return "";
 	}
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	static bool Try(const std::vector<std::string>& val)
 	{
 		return val.size() == 1 && !std::strcmp(val[0].c_str(), GetID());
 	}
 
-	tPayloadCommon::value_type GetPayload() const
+	std::vector<std::string> GetPayload() const
 	{
-		tPayloadCommon::value_type Data;
+		std::vector<std::string> Data;
 
 		Data.push_back(GetID());
 
@@ -239,12 +347,12 @@ struct tPayloadPMTK10xReset
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-typedef hidden::tPayloadPMTK10xReset<hidden::tPayloadPMTK10xResetState::Hot> tPayloadPMTK101ResetHot;
-typedef hidden::tPayloadPMTK10xReset<hidden::tPayloadPMTK10xResetState::Warm> tPayloadPMTK102ResetWarm;
-typedef hidden::tPayloadPMTK10xReset<hidden::tPayloadPMTK10xResetState::Cold> tPayloadPMTK103ResetCold;
-typedef hidden::tPayloadPMTK10xReset<hidden::tPayloadPMTK10xResetState::Full> tPayloadPMTK104ResetFull;
+typedef hidden::tContentPMTK10xReset<hidden::tPayloadPMTK10xResetState::Hot> tPayloadPMTK101ResetHot;
+typedef hidden::tContentPMTK10xReset<hidden::tPayloadPMTK10xResetState::Warm> tPayloadPMTK102ResetWarm;
+typedef hidden::tContentPMTK10xReset<hidden::tPayloadPMTK10xResetState::Cold> tPayloadPMTK103ResetCold;
+typedef hidden::tContentPMTK10xReset<hidden::tPayloadPMTK10xResetState::Full> tPayloadPMTK104ResetFull;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPMTK314R2
+struct tContentPMTK314R2
 {
 	typedef Type::tUInt<std::uint8_t, 0> status_type;
 
@@ -256,11 +364,11 @@ struct tPayloadPMTK314R2
 	status_type GSV;
 	status_type ZDA;
 
-	tPayloadPMTK314R2() = default;
-	tPayloadPMTK314R2(std::uint8_t gll, std::uint8_t rmc, std::uint8_t vtg, std::uint8_t gga, std::uint8_t gsa, std::uint8_t gsv, std::uint8_t zda)
+	tContentPMTK314R2() = default;
+	tContentPMTK314R2(std::uint8_t gll, std::uint8_t rmc, std::uint8_t vtg, std::uint8_t gga, std::uint8_t gsa, std::uint8_t gsv, std::uint8_t zda)
 		:GLL(gll), RMC(rmc), VTG(vtg), GGA(gga), GSA(gsa), GSV(gsv), ZDA(zda)
 	{ }
-	explicit tPayloadPMTK314R2(const tPayloadCommon::value_type& val)
+	explicit tContentPMTK314R2(const std::vector<std::string>& val)
 	{
 		if (Try(val))
 		{
@@ -276,14 +384,14 @@ struct tPayloadPMTK314R2
 
 	static const char* GetID() { return "PMTK314"; }
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	static bool Try(const std::vector<std::string>& val)
 	{
 		return val.size() == 20 && !std::strcmp(val[0].c_str(), GetID());
 	}
 
-	tPayloadCommon::value_type GetPayload() const
+	std::vector<std::string> GetPayload() const
 	{
-		tPayloadCommon::value_type Data;
+		std::vector<std::string> Data;
 
 		Data.push_back(GetID());
 		Data.push_back(GLL.ToString());
@@ -310,7 +418,7 @@ struct tPayloadPMTK314R2
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPMTK314R3
+struct tContentPMTK314R3
 {
 	typedef Type::tUInt<std::uint8_t, 0> status_type;
 
@@ -327,14 +435,14 @@ struct tPayloadPMTK314R3
 	status_type DTM;
 	status_type GBS;
 
-	tPayloadPMTK314R3() = default;
-	tPayloadPMTK314R3(std::uint8_t gll, std::uint8_t rmc, std::uint8_t vtg, std::uint8_t gga, std::uint8_t gsa, std::uint8_t gsv, std::uint8_t grs, std::uint8_t gst, std::uint8_t zda, std::uint8_t mchn, std::uint8_t dtm, std::uint8_t gbs)
+	tContentPMTK314R3() = default;
+	tContentPMTK314R3(std::uint8_t gll, std::uint8_t rmc, std::uint8_t vtg, std::uint8_t gga, std::uint8_t gsa, std::uint8_t gsv, std::uint8_t grs, std::uint8_t gst, std::uint8_t zda, std::uint8_t mchn, std::uint8_t dtm, std::uint8_t gbs)
 		:GLL(gll), RMC(rmc), VTG(vtg), GGA(gga), GSA(gsa), GSV(gsv), GRS(grs), GST(gst), ZDA(zda), MCHN(mchn), DTM(dtm), GBS(gbs)
 	{ }
-	tPayloadPMTK314R3(std::uint8_t gll, std::uint8_t rmc, std::uint8_t vtg, std::uint8_t gga, std::uint8_t gsa, std::uint8_t gsv, std::uint8_t zda)
-		:tPayloadPMTK314R3(gll, rmc, vtg, gga, gsa, gsv, 0, 0, zda, 0, 0, 0)
+	tContentPMTK314R3(std::uint8_t gll, std::uint8_t rmc, std::uint8_t vtg, std::uint8_t gga, std::uint8_t gsa, std::uint8_t gsv, std::uint8_t zda)
+		:tContentPMTK314R3(gll, rmc, vtg, gga, gsa, gsv, 0, 0, zda, 0, 0, 0)
 	{ }	
-	explicit tPayloadPMTK314R3(const tPayloadCommon::value_type& val)
+	explicit tContentPMTK314R3(const std::vector<std::string>& val)
 	{
 		if (Try(val))
 		{
@@ -355,14 +463,14 @@ struct tPayloadPMTK314R3
 
 	static const char* GetID() { return "PMTK314"; }
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	static bool Try(const std::vector<std::string>& val)
 	{
 		return val.size() == 22 && !std::strcmp(val[0].c_str(), GetID());
 	}
 
-	tPayloadCommon::value_type GetPayload() const
+	std::vector<std::string> GetPayload() const
 	{
-		tPayloadCommon::value_type Data;
+		std::vector<std::string> Data;
 
 		Data.push_back(GetID());
 		Data.push_back(GLL.ToString());
@@ -391,18 +499,18 @@ struct tPayloadPMTK314R3
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPMTK353
+struct tContentPMTK353
 {
 	typedef Type::tUInt<std::uint8_t, 0> status_type;
 
 	status_type GPS;
 	status_type GLONASS;
 
-	tPayloadPMTK353() = default;
-	tPayloadPMTK353(bool gps, bool glonass)
+	tContentPMTK353() = default;
+	tContentPMTK353(bool gps, bool glonass)
 		:GPS(gps ? 1 : 0), GLONASS(glonass ? 1 : 0)
 	{ }
-	explicit tPayloadPMTK353(const tPayloadCommon::value_type& val)
+	explicit tContentPMTK353(const std::vector<std::string>& val)
 	{
 		if (Try(val))
 		{
@@ -413,14 +521,14 @@ struct tPayloadPMTK353
 
 	static const char* GetID() { return "PMTK353"; }
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	static bool Try(const std::vector<std::string>& val)
 	{
 		return val.size() == 3 && !std::strcmp(val[0].c_str(), GetID());
 	}
 
-	tPayloadCommon::value_type GetPayload() const
+	std::vector<std::string> GetPayload() const
 	{
-		tPayloadCommon::value_type Data;
+		std::vector<std::string> Data;
 
 		Data.push_back(GetID());
 		Data.push_back(GPS.ToString());
@@ -440,7 +548,7 @@ struct tPayloadPMTK353
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-struct tPayloadPMTK705
+struct tContentPMTK705
 {
 	typedef std::string release_type;
 	typedef std::string build_type;
@@ -452,11 +560,11 @@ struct tPayloadPMTK705
 	internal_use_1_type InternalUse1;
 	internal_use_2_type InternalUse2;
 
-	tPayloadPMTK705() = default;
-	tPayloadPMTK705(const std::string& release, const std::string& revision, const std::string& internalUse1, const std::string& internalUse2)
+	tContentPMTK705() = default;
+	tContentPMTK705(const std::string& release, const std::string& revision, const std::string& internalUse1, const std::string& internalUse2)
 		:Release(release), Build(revision), InternalUse1(internalUse1), InternalUse2(internalUse2)
 	{ }
-	explicit tPayloadPMTK705(const tPayloadCommon::value_type& val)
+	explicit tContentPMTK705(const std::vector<std::string>& val)
 	{
 		if (Try(val))
 		{
@@ -469,14 +577,14 @@ struct tPayloadPMTK705
 
 	static const char* GetID() { return "PMTK705"; }
 
-	static bool Try(const tPayloadCommon::value_type& val)
+	static bool Try(const std::vector<std::string>& val)
 	{
 		return val.size() == 5 && !std::strcmp(val[0].c_str(), GetID());
 	}
 
-	tPayloadCommon::value_type GetPayload() const
+	std::vector<std::string> GetPayload() const
 	{
-		tPayloadCommon::value_type Data;
+		std::vector<std::string> Data;
 
 		Data.push_back(GetID());
 		Data.push_back(Release);
@@ -486,7 +594,9 @@ struct tPayloadPMTK705
 
 		return Data;
 	}
-};
+};*/
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-	}
+}
+}
+}
 }
