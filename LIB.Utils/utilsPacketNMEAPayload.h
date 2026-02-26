@@ -705,7 +705,6 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	//$GPGSV,1,1,00*79
 	//$GLGSV,1,1,00*65
 	//$GNRMC,000016.799,V,,,,,0.00,0.00,060180,,,N*5C
-	//$GNVTG,0.00,T,,M,0.00,N,0.00,K,N*2C
 	//$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1575.198853*6F
 	//$PTWS,JAM,SIGNAL,VAL,INDEX,9,FREQ,1575.133911*68
 	//$PTWS,JAM,SIGNAL,VAL,INDEX,10,FREQ,1575.264771*59
@@ -713,11 +712,15 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	//$GPGSA,A,1,,,,,,,,,,,,,,,*1E
 	//$GLGSA,A,1,,,,,,,,,,,,,,,*02
 
+	//$GNVTG,0.00,T,,M,0.00,N,0.00,K,N*2C
+	//$GNVTG,87.26,T,,M,2.16,N,4.01,K,A*18
+
 	using tTime = type::tTimeNoNull<3>;										// 000000.000
 	using tDate = type::tDateNoNull;
 	using tLatitude = type::tLatitude<4>;									// 0000.0000,?
 	using tLongitude = type::tLongitude<4>;									// 00000.0000,?
 	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
+	using tSatID = type::tUIntFixed<2>;										// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 	using tHDOP = type::tFloatPrecisionFixed<2, 2>;							// ?.00
 	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 1>;			// ?.0,M
 	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 1>;	// ?.0,M
@@ -728,8 +731,10 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	using tMode = type::tModeNoNull;										// A
 
 	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
 	using tContentGSV = generic::tContentGSV;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
+	using tContentVTG = base::tContentVTG9<tCourse, tSpeed>;
 }
 
 namespace sirf_gsu_7x
