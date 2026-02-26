@@ -346,8 +346,8 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tDate>(99, 12, 31, "tDate 99,12,31", "311299");
 	UnitTest_PacketNMEAType_Test<tDate>("010203", "tDate parse 010203", "010203");
 	UnitTest_PacketNMEAType_Test<tDate>("311299", "tDate parse 311299", "311299");
-	UnitTest_PacketNMEAType_Test<tDate>(1044046800, "tDate 3,2,1", "010203");
-	UnitTest_PacketNMEAType_Test<tDate>(946587600, "tDate 99,12,31", "311299");
+	UnitTest_PacketNMEAType_Test<tDate>(1044057600, "tDate 3,2,1", "010203");
+	UnitTest_PacketNMEAType_Test<tDate>(946598400, "tDate 99,12,31", "311299");
 	UnitTest_PacketNMEAType_TestERR<tDate>(100, 13, 33, "tDate 100,12,31 (wrong)");
 	//UnitTest_PacketNMEAType_TestERR<tDate>("", "tDate parse empty");
 	UnitTest_PacketNMEAType_TestERR<tDate>("501333", "tDate parse 501333 (wrong)");

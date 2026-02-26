@@ -98,6 +98,7 @@ public:
 	value_type GetValue() const { return m_Value.GetValue(); }
 
 	std::string ToString() const { return m_Value.ToString(); }
+	std::string ToStringEx() const { return m_Value.ToStringEx(); } // [TBD] That is not perfect.
 	std::string ToStringValue() const { return m_Value.ToStringValue(); } // [TBD] That is not perfect.
 	std::string ToStringHemisphere() const { return m_Value.ToStringHemisphere(); } // [TBD] That is not perfect.
 };
