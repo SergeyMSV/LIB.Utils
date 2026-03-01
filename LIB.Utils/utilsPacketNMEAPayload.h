@@ -789,6 +789,11 @@ namespace sirf_gsu_7x
 	using tContentVTG = base::tContentVTG9<tCourse, tSpeed>;
 	using tContentZDA = base::tContentZDA<tTime, tDay, tMonth, tYear, tLocalZoneHours, tLocalZoneMinutes>;
 }
+
+namespace sirf_lr9548s
+{
+	//$GPGGA,214300.330,1122.3344,N,12233.4455,E,0,00,99.9,-0014.3,M,0014.3,M,000.0,0000*XX
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
 }
