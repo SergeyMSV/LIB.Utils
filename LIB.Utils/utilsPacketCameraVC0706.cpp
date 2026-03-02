@@ -1,9 +1,13 @@
 #include "utilsPacketCameraVC0706.h"
 
+#include "utilsBase.h"
+
 namespace utils
 {
-	namespace packet_CameraVC0706
-	{
+namespace packet
+{
+namespace vc0706
+{
 
 tMsgId tPacketCmd::GetMsgId() const
 {
@@ -15,7 +19,7 @@ tPacketCmd tPacketCmd::MakeGetVersion(std::uint8_t sn)
 	tPacketCmd::payload_value_type Cmd;
 	Cmd.SerialNumber = sn;
 	Cmd.MsgId = tMsgId::GetVersion;
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 tPacketCmd tPacketCmd::MakeSetSerialNumber(std::uint8_t sn, std::uint8_t value)
@@ -24,7 +28,7 @@ tPacketCmd tPacketCmd::MakeSetSerialNumber(std::uint8_t sn, std::uint8_t value)
 	Cmd.SerialNumber = sn;
 	Cmd.MsgId = tMsgId::SetSerialNumber;
 	Cmd.Payload.push_back(value);
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 #pragma pack(push, 1)
@@ -41,11 +45,11 @@ struct tSetPortUART_BR
 #pragma pack(pop)
 
 constexpr tSetPortUART_BR SetPortUART_BR[] = {
-{ 0xAE, 0xC8 },//9600
-{ 0x56, 0xE4 },//19200
-{ 0x2A, 0xF2 },//38400
-{ 0x1C, 0x1C },//57600
-{ 0x0D, 0xA6 } //115200
+{ 0xAE, 0xC8 }, // 9600
+{ 0x56, 0xE4 }, // 19200
+{ 0x2A, 0xF2 }, // 38400
+{ 0x1C, 0x1C }, // 57600
+{ 0x0D, 0xA6 }, // 115200
 };
 
 #pragma pack(push, 1)
@@ -64,11 +68,11 @@ struct tSetPortUARTHS_BR
 #pragma pack(pop)
 
 constexpr tSetPortUARTHS_BR SetPortUARTHS_BR[] = {
-{ 0x03, 0xC8, 0x00, 0x2B },//38400
-{ 0x01, 0x30, 0x00, 0x1D },//57600
-{ 0x02, 0x98, 0x00, 0x0E },//115200
-{ 0x02, 0xA6, 0x00, 0x03 },//460800
-{ 0x03, 0x53, 0x00, 0x01 } //921600
+{ 0x03, 0xC8, 0x00, 0x2B }, // 38400
+{ 0x01, 0x30, 0x00, 0x1D }, // 57600
+{ 0x02, 0x98, 0x00, 0x0E }, // 115200
+{ 0x02, 0xA6, 0x00, 0x03 }, // 460800
+{ 0x03, 0x53, 0x00, 0x01 }, // 921600
 };
 
 tPacketCmd tPacketCmd::MakeSetPort(std::uint8_t sn, tUARTBaudrate baudrate)
@@ -82,7 +86,7 @@ tPacketCmd tPacketCmd::MakeSetPort(std::uint8_t sn, tUARTBaudrate baudrate)
 	const tSetPortUART_BR Port = SetPortUART_BR[static_cast<std::size_t>(baudrate)];
 	Cmd.Payload.push_back(Port.S1RELH);
 	Cmd.Payload.push_back(Port.S1RELL);
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 tPacketCmd tPacketCmd::MakeSetPort(std::uint8_t sn, tUARTHSBaudrate baudrate)
@@ -98,7 +102,7 @@ tPacketCmd tPacketCmd::MakeSetPort(std::uint8_t sn, tUARTHSBaudrate baudrate)
 	Cmd.Payload.push_back(Port.S1RELHL);
 	Cmd.Payload.push_back(Port.S1RELLH);
 	Cmd.Payload.push_back(Port.S1RELLL);
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 tPacketCmd tPacketCmd::MakeSystemReset(std::uint8_t sn)
@@ -106,7 +110,7 @@ tPacketCmd tPacketCmd::MakeSystemReset(std::uint8_t sn)
 	tPacketCmd::payload_value_type Cmd;
 	Cmd.SerialNumber = sn;
 	Cmd.MsgId = tMsgId::SystemReset;
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 constexpr tDataReg DataReg_Port{ 0x0007, 1 };
@@ -124,7 +128,7 @@ tPacketCmd tPacketCmd::MakeReadDataReg(tMemoryDataReg memory, std::uint8_t sn, t
 	Cmd.Payload.push_back(reg.Size);
 	Cmd.Payload.push_back(static_cast<std::uint8_t>(reg.Address >> 8));
 	Cmd.Payload.push_back(static_cast<std::uint8_t>(reg.Address));
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 tPacketCmd tPacketCmd::MakeReadDataReg_Port(tMemoryDataReg memory, std::uint8_t sn)
@@ -152,7 +156,7 @@ tPacketCmd tPacketCmd::MakeReadDataReg_Compression(tMemoryDataReg memory, std::u
 	return MakeReadDataReg(memory, sn, DataReg_Compression);
 }
 
-tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tDataReg reg, const tVectorUInt8& data)
+tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tDataReg reg, const std::vector<std::uint8_t>& data)
 {
 	assert(reg.Size == data.size());
 
@@ -164,7 +168,7 @@ tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, 
 	Cmd.Payload.push_back(static_cast<std::uint8_t>(reg.Address >> 8));
 	Cmd.Payload.push_back(static_cast<std::uint8_t>(reg.Address));
 	Cmd.Payload.insert(Cmd.Payload.end(), data.cbegin(), data.cend());
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 tPacketCmd tPacketCmd::MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tPort port)
@@ -198,7 +202,7 @@ enum class tFBufType : std::uint8_t
 enum class tFBufTransferMode : std::uint8_t
 {
 	MCU,
-	DMA,//Unstable. It's possible to read some pictures through UARTHS and then the camera freezes and doesn't answer through both ports.
+	DMA, // Unstable. It's possible to read some pictures through UARTHS and then the camera freezes and doesn't answer through both ports.
 };
 
 #pragma pack(push, 1)
@@ -206,8 +210,8 @@ union tFBufControlModeRead
 {
 	struct
 	{
-		std::uint8_t TRANSFER_MODE : 1;//tFBufTransferMode
-		std::uint8_t PortDst : 2;//tPort - destination port
+		std::uint8_t TRANSFER_MODE : 1; // tFBufTransferMode
+		std::uint8_t PortDst : 2; // tPort - destination port
 		std::uint8_t NONAME  : 1;
 		std::uint8_t : 4;
 	}Field;
@@ -230,7 +234,7 @@ tPacketCmd tPacketCmd::MakeReadFBufCurrent(tPort portDst, std::uint8_t sn, std::
 	ControlModeRead.Field.NONAME = 1;
 	Cmd.Payload.push_back(ControlModeRead.Value);
 
-	tVectorUInt8 LocalVec = utils::ToVector(address);
+	std::vector<std::uint8_t> LocalVec = utils::ToVector(address);
 	std::reverse(LocalVec.begin(), LocalVec.end());
 	Cmd.Payload.insert(Cmd.Payload.end(), LocalVec.cbegin(), LocalVec.cend());
 
@@ -242,7 +246,7 @@ tPacketCmd tPacketCmd::MakeReadFBufCurrent(tPort portDst, std::uint8_t sn, std::
 	std::reverse(LocalVec.begin(), LocalVec.end());
 	Cmd.Payload.insert(Cmd.Payload.end(), LocalVec.cbegin(), LocalVec.cend());
 
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 tPacketCmd tPacketCmd::MakeGetFBufLenCurrent(std::uint8_t sn)
@@ -251,7 +255,7 @@ tPacketCmd tPacketCmd::MakeGetFBufLenCurrent(std::uint8_t sn)
 	Cmd.SerialNumber = sn;
 	Cmd.MsgId = tMsgId::GetFBufLength;
 	Cmd.Payload.push_back(static_cast<std::uint8_t>(tFBufType::Current));
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 tPacketCmd tPacketCmd::MakeGetFBufLenNext(std::uint8_t sn)
@@ -260,7 +264,7 @@ tPacketCmd tPacketCmd::MakeGetFBufLenNext(std::uint8_t sn)
 	Cmd.SerialNumber = sn;
 	Cmd.MsgId = tMsgId::GetFBufLength;
 	Cmd.Payload.push_back(static_cast<std::uint8_t>(tFBufType::Next));
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 enum class tFBufCtrlFrame : std::uint8_t
@@ -277,7 +281,7 @@ tPacketCmd tPacketCmd::MakeFBufCtrlStopCurrentFrame(std::uint8_t sn)
 	Cmd.SerialNumber = sn;
 	Cmd.MsgId = tMsgId::FBufCtrl;
 	Cmd.Payload.push_back(static_cast<std::uint8_t>(tFBufCtrlFrame::StopCurrent));
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 tPacketCmd tPacketCmd::MakeFBufCtrlResumeFrame(std::uint8_t sn)
@@ -286,7 +290,7 @@ tPacketCmd tPacketCmd::MakeFBufCtrlResumeFrame(std::uint8_t sn)
 	Cmd.SerialNumber = sn;
 	Cmd.MsgId = tMsgId::FBufCtrl;
 	Cmd.Payload.push_back(static_cast<std::uint8_t>(tFBufCtrlFrame::Resume));
-	return tPacketCmd(Cmd);
+	return tPacketCmd(std::move(Cmd));
 }
 
 tMsgId tPacketRet::GetMsgId() const
@@ -526,5 +530,6 @@ tUARTHSBaudrate ToUARTHSBaudrate(std::uint32_t value)
 	return tUARTHSBaudrate::BR_ERR;
 }
 
-	}
+}
+}
 }

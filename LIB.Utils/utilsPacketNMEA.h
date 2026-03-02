@@ -1,117 +1,153 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacketNMEA
 // 2019-01-31
-// Standard ISO/IEC 114882, C++14
+// C++17
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
+
+#include <libConfig.h>
 
 #include "utilsBase.h"
 #include "utilsCRC.h"
 
 #include <iomanip>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
 
 namespace utils
 {
-namespace packet_NMEA
+namespace packet
+{
+namespace nmea
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template <class TPayload, std::uint8_t stx = '$'>
 struct tFormat
 {
-	enum : std::uint8_t { STX = stx, CTX = '*' };
+	enum : std::uint8_t { STX = stx };
+
+	// The maximum number of characters in a sentence shall be 82, consisting of a maximum of 79 characters between the starting delimiter "$" or "!" and the terminating <CR><LF>.
+	static constexpr std::size_t m_MaxPacketSize = 100;
 
 protected:
-	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
 	{
-		std::size_t Size = std::distance(cbegin, cend);
-
-		if (Size >= GetSize(0) && *cbegin == STX)
+		const auto PosETX = std::find(data.begin(), data.end(), '\xa');
+		if (PosETX == data.end()) // Whole Packet hasn't been received yet (partly received).
 		{
-			const tVectorUInt8::const_iterator Begin = cbegin + 1;
-			const tVectorUInt8::const_iterator End = std::find(Begin, cend, CTX);
-
-			if (End != cend)
-			{
-				const std::size_t DataSize = std::distance(Begin, End);
-
-				if (Size >= GetSize(DataSize) && VerifyCRC(Begin, DataSize))
-				{
-					return tVectorUInt8(cbegin, cbegin + GetSize(DataSize));
-				}
-			}
+			if (data.size() > m_MaxPacketSize)
+				bytesToRemove = data.size() - m_MaxPacketSize;
+			return {};
 		}
-
-		return tVectorUInt8();
+		bytesToRemove = std::distance(data.begin(), PosETX) + 1; // +1 for ETX
+		auto PosSTX = FindReverse(data.begin(), PosETX, STX);
+		const std::size_t PacketSize = std::distance(PosSTX, PosETX);
+		if (PacketSize < GetSize(0) || *(PosETX - 4) != '*')
+			return {};
+		auto PayloadBeg = PosSTX + 1; // $*xx\xd\xa
+		auto PayloadEnd = PosETX - 4; // $*xx\xd\xa
+		std::uint8_t CRC = utils::crc::CRC08_NMEA(PayloadBeg, PayloadEnd);
+		std::uint8_t CRCPack = static_cast<std::uint8_t>(std::strtoul(reinterpret_cast<const char*>(&(*(PayloadEnd + 1))), nullptr, 16));
+		if (CRC != CRCPack)
+		{
+			PosSTX = std::find(PosSTX + 1, data.end(), STX); // That's for parsing damaged packets, something like that: "GNGG$GNGG$GNGGA,221$GPGSV,3,1,10,23,...".
+			bytesToRemove = std::distance(data.begin(), PosSTX);
+			return {};
+		}
+		return TPayload(PayloadBeg, PayloadEnd);
 	}
 
-	static bool TryParse(const tVectorUInt8& packetVector, TPayload& payload)
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data)
 	{
-		if (packetVector.size() >= GetSize(0) && packetVector[0] == STX)
-		{
-			const tVectorUInt8::const_iterator Begin = packetVector.cbegin() + 1;
-			const tVectorUInt8::const_iterator End = std::find(Begin, packetVector.cend(), CTX);
-
-			if (End != packetVector.cend())
-			{
-				const std::size_t DataSize = std::distance(Begin, End);
-
-				if (packetVector.size() == GetSize(DataSize) && VerifyCRC(Begin, DataSize))
-				{
-					payload = TPayload(Begin, End);
-
-					return true;
-				}
-			}
-		}
-
-		return false;
+		std::size_t BytesToRemove;
+		return Parse(data, BytesToRemove);
 	}
 
-	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 6; };//$*xx\xd\xa
+	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 6; }; // $*xx\xd\xa
 
-	static void Append(tVectorUInt8& dst, const TPayload& payload)
+	static void Append(std::vector<std::uint8_t>& dst, const TPayload& payload)
 	{
 		dst.reserve(GetSize(payload.size()));
-
 		dst.push_back(STX);
-
 		for (auto i : payload)
 		{
 			dst.push_back(i);
 		}
+		dst.push_back('*');
 
 		const std::uint8_t CRC = utils::crc::CRC08_NMEA(payload.begin(), payload.end());
 
-		dst.push_back(CTX);
-
-		std::stringstream SStream;
-
-		SStream << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << static_cast<uint16_t>(CRC);
-		SStream << "\xd\xa";
-
-		const std::string EndStr = SStream.str();
-
+		std::stringstream SStr;
+		SStr << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << static_cast<uint16_t>(CRC);
+		SStr << "\xd\xa";
+		const std::string EndStr = SStr.str();
 		dst.insert(dst.end(), EndStr.cbegin(), EndStr.cend());
-	}
-
-private:
-	static bool VerifyCRC(tVectorUInt8::const_iterator begin, std::size_t crcDataSize)
-	{
-		const std::uint8_t CRC = utils::crc::CRC08_NMEA(begin, begin + crcDataSize);
-
-		const tVectorUInt8::const_iterator CRCBegin = begin + crcDataSize + 1;//1 for '*'
-
-		const std::uint8_t CRCReceived = utils::Read<std::uint8_t>(CRCBegin, CRCBegin + 2, utils::tRadix::hex);
-
-		return CRC == CRCReceived;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <class TPayload> struct tFormatNMEA : public tFormat<TPayload, '$'> { };
-template <class TPayload> struct tFormatNMEABin : public tFormat<TPayload, '!'> { };
+template <class TPayload>
+using tFormatNMEA = tFormat<TPayload>;
+
+template <class TPayload>
+using tFormatAIS = tFormat<TPayload, '!'>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+template <class TPayload, std::uint8_t stx = '$'>
+struct tFormatNMEANoCRC
+{
+	enum : std::uint8_t { STX = stx };
+
+	// The maximum number of characters in a sentence shall be 82, consisting of a maximum of 79 characters between the starting delimiter "$" or "!" and the terminating <CR><LF>.
+	static constexpr std::size_t m_MaxPacketSize = 100;
+
+protected:
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
+	{
+		const auto PosETX = std::find(data.begin(), data.end(), '\xa');
+		if (PosETX == data.end()) // Whole Packet hasn't been received yet (partly received).
+		{
+			if (data.size() > m_MaxPacketSize)
+				bytesToRemove = data.size() - m_MaxPacketSize;
+			return {};
+		}
+		bytesToRemove = std::distance(data.begin(), PosETX) + 1; // +1 for ETX
+		const auto PosSTX = FindReverse(data.begin(), PosETX, STX);
+		const std::size_t PacketSize = std::distance(PosSTX, PosETX);
+		if (PacketSize < GetSize(0))
+			return {};
+		// If a packet doesn't contain CRC - that's OK, but if the packet contains CRC, that CRC must be right.
+		auto PayloadBeg = PosSTX + 1; // $\xd\xa
+		auto PayloadEnd = PosETX - 1; // $\xd\xa
+		if (PacketSize > 5 && *(PosETX - 4) == '*') // $*xx\xd\xa - If the packet contains CRC last field shouldn't contain that CRC.
+		{
+			PayloadEnd = PosETX - 4;
+			std::uint8_t CRC = utils::crc::CRC08_NMEA(PayloadBeg, PayloadEnd);
+			std::uint8_t CRCPack = static_cast<std::uint8_t>(std::strtoul(reinterpret_cast<const char*>(&(*(PayloadEnd + 1))), nullptr, 16));
+			if (CRC != CRCPack)
+			{
+				const auto PosSTX2 = std::find(PosSTX + 1, data.end(), STX); // That's for parsing damaged packets, something like that: "GNGG$GNGG$GNGGA,221$GPGSV,3,1,10,23,...".
+				bytesToRemove = std::distance(data.begin(), PosSTX2);
+				return {};
+			}
+		}
+		return TPayload(PayloadBeg, PayloadEnd);
+	}
+
+	static std::size_t GetSize(std::size_t payloadSize) { return payloadSize + 3; }; // $\xd\xa
+
+	static void Append(std::vector<std::uint8_t>& dst, const TPayload& payload)
+	{
+		dst.reserve(GetSize(payload.size()));
+		dst.push_back(STX);
+		for (auto i : payload)
+		{
+			dst.push_back(i);
+		}
+		dst.push_back('\xd');
+		dst.push_back('\xa');
+	}
+};
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tPayloadCommon
 {
@@ -130,16 +166,16 @@ struct tPayloadCommon
 		tIterator() = delete;
 		tIterator(const tPayloadCommon* obj, bool begin) :m_pObj(obj), m_DataSize(m_pObj->size())
 		{
-			if (m_DataSize > 0 && m_pObj->Value[0].size() > 0)
+			if (!m_DataSize || !m_pObj->Value[0].size())
+				return;
+
+			if (begin)
 			{
-				if (begin)
-				{
-					m_DataPtr = &m_pObj->Value[0][0];
-				}
-				else
-				{
-					m_DataIndex = m_DataSize;
-				}
+				m_DataPtr = &m_pObj->Value[0][0];
+			}
+			else
+			{
+				m_DataIndex = m_DataSize;
 			}
 		}
 
@@ -147,9 +183,7 @@ struct tPayloadCommon
 		tIterator& operator ++ ()
 		{
 			if (m_DataIndex < m_DataSize)
-			{
 				++m_DataIndex;
-			}
 
 			std::size_t DataIndex = m_DataIndex;
 
@@ -200,7 +234,7 @@ struct tPayloadCommon
 		:Value(value)
 	{}
 
-	tPayloadCommon(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadCommon(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		AppendData(cbegin, cend);
 	}
@@ -219,10 +253,8 @@ struct tPayloadCommon
 			Size += i.size();
 		}
 
-		if (Value.size() > 0)//that's for ','
-		{
+		if (Value.size() > 0) // that's for ','
 			Size += Value.size() - 1;
-		}
 
 		return Size;
 	}
@@ -241,22 +273,22 @@ private:
 	template <class It>
 	void AppendData(It begin, It end)
 	{
-		std::string LocalString;
+		std::string Str;
 
 		for (It i = begin; i != end; ++i)
 		{
 			if (*i == ',')
 			{
-				Value.push_back(LocalString);
-				LocalString.clear();
+				Value.push_back(Str);
+				Str.clear();
 			}
 			else
 			{
-				LocalString.push_back(static_cast<char>(*i));
+				Str.push_back(static_cast<char>(*i));
 			}
 		}
 
-		Value.push_back(LocalString);
+		Value.push_back(Str);
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -273,7 +305,7 @@ struct tPayloadString
 		:Value(value)
 	{}
 
-	tPayloadString(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadString(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		Value.insert(Value.end(), cbegin, cend);
 	}
@@ -294,5 +326,11 @@ struct tPayloadString
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+using tPacketNMEA_Common_CRC = utils::packet::tPacket<tFormatNMEA, utils::packet::nmea::tPayloadCommon>;
+using tPacketNMEA_Common_NoCRC = utils::packet::tPacket<tFormatNMEANoCRC, utils::packet::nmea::tPayloadCommon>;
+using tPacketNMEA_String_CRC = utils::packet::tPacket<tFormatNMEA, utils::packet::nmea::tPayloadString>;
+using tPacketNMEA_String_NoCRC = utils::packet::tPacket<tFormatNMEANoCRC, utils::packet::nmea::tPayloadString>;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+}
 }
 }

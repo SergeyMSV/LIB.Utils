@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacketTWR
 // 2017-12-01
-// Standard ISO/IEC 114882, C++20
+// C++20
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -10,7 +10,9 @@
 
 namespace utils
 {
-namespace packet_TWR
+namespace packet
+{
+namespace twr
 {
 
 enum class tMsgId : std::uint8_t
@@ -33,10 +35,20 @@ enum class tMsgId : std::uint8_t
 	//I2C_Read,
 	//I2C_Write,
 	//I2C_Stop,
-	SPI_Request = 0x40,
+	SPI_Open = 0x40,
+	SPI_Close,
+	SPI_Request,
 	SPI_GetSettings,
 	SPI_SetSettings,
 	SPI_SetChipControl, // Enable, RESET, etc.
+	UART_Receive = 0x50,
+	UART_Send,
+	UART_GetSettings,
+	UART_SetSettings,
+	UART_SetRTS,
+	UART_GetCTS,
+	UART_SetDTR,
+	UART_SetDSR,
 };
 
 enum class tMsgStatus : std::uint8_t
@@ -46,6 +58,7 @@ enum class tMsgStatus : std::uint8_t
 	WrongPayloadSize = 0x02,
 	WrongPayloadFormat = 0x03,
 
+	NotAvailable = 0xFC,
 	NotSupported = 0xFD,
 	Message = 0xFE, // Response packet contains an error message instead of its datagram.
 	Unknown = 0xFF,
@@ -61,7 +74,7 @@ enum class tEndpoint : std::uint8_t
 	I2C1 = 0x40,
 	ISO7816 = 0x50,
 	RS485 = 0x60,
-	SPI0_CS0 = 0x70,
+	SPI0_CS0 = 0x70, // from 0x70 up to 0x9F;
 	SPI0_CS1,
 	SPI0_CS2,
 	SPI1_CS0,
@@ -70,8 +83,17 @@ enum class tEndpoint : std::uint8_t
 	SPI2_CS0,
 	SPI2_CS1,
 	SPI2_CS2,
-	SPI_END,
-	GPIO_00 = 0xA0,
+	SPI_END, // It can be equal to 0xA0, because it definitely is not a part of SPI.
+	UART0 = 0xA0, // from 0xA0 up to 0xAF; 16 ports
+	UART1,
+	UART2,
+	UART3,
+	UART4,
+	UART5,
+	UART_END, // It can be equal to 0xB0, because it definitely is not a part of UART.
+	// 0xB0 - free
+	// 0xC0 - free
+	GPIO_00 = 0xD0, // from 0xD0 up to 0xFF; D,E,F => 16 * 3 = 48 pins.
 	GPIO_01,
 	GPIO_02,
 	GPIO_03,
@@ -106,36 +128,36 @@ struct tSPIPortSettings
 };
 #pragma pack(pop)
 
-class tPayloadTWRData // [MsgId 1-Byte][MsgStatus (for Rsp; in case of Cmd = 0) 1-Byte][Endpoint 1-Byte][Payload, its size can be up to 1022-Bytes]
+class tPayloadData // [MsgId 1-Byte][MsgStatus (for Rsp; in case of Cmd = 0) 1-Byte][Endpoint 1-Byte][Payload, its size can be up to 1022-Bytes]
 {
-	static constexpr std::size_t HeaderSize = 3;
+	static constexpr std::size_t m_HeaderSize = 3;
 
 public:
 	tMsgId MsgId = tMsgId::None;
 	tMsgStatus MsgStatus = tMsgStatus::None; // it's used for Rsp-packet
 	tEndpoint Endpoint = tEndpoint::Control;
-	tVectorUInt8 Payload; // Payload for Cmd and Rsp must be of the same size. It relates to SPI request for reading.
+	std::vector<std::uint8_t> Payload; // Payload for Cmd and Rsp must be of the same size. It relates to SPI request for reading.
 
-	tPayloadTWRData() = default;
-	tPayloadTWRData(tMsgId id, tEndpoint ep, const tVectorUInt8& payload)
+	tPayloadData() = default;
+	tPayloadData(tMsgId id, tEndpoint ep, const std::vector<std::uint8_t>& payload)
 		:MsgId(id), Endpoint(ep), Payload(payload)
 	{}
 
-	tPayloadTWRData(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadData(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		const std::size_t DataSize = std::distance(cbegin, cend);
-		if (DataSize < HeaderSize)
+		if (DataSize < m_HeaderSize)
 			return;
 
 		MsgId = static_cast<tMsgId>(*cbegin);
 		MsgStatus = static_cast<tMsgStatus>(*(cbegin + 1));
 		Endpoint = static_cast<tEndpoint>(*(cbegin + 2));
-		Payload = tVectorUInt8(cbegin + HeaderSize, cend);
+		Payload = std::vector<std::uint8_t>(cbegin + m_HeaderSize, cend);
 	}
 
 	std::size_t size() const
 	{
-		return HeaderSize + Payload.size();
+		return m_HeaderSize + Payload.size();
 	}
 
 	std::uint8_t operator[] (const std::size_t index) const
@@ -149,99 +171,130 @@ public:
 		case 1: return static_cast<std::uint8_t>(MsgStatus);
 		case 2: return static_cast<std::uint8_t>(Endpoint);
 		}
-		return Payload[index - HeaderSize];
+		return Payload[index - m_HeaderSize];
 	}
 
-	bool operator == (const tPayloadTWRData& val) const = default;
-	bool operator != (const tPayloadTWRData& val) const = default;
+	bool operator == (const tPayloadData& val) const = default;
+	bool operator != (const tPayloadData& val) const = default;
 };
 
-struct tPayloadTWR : public packet::tPayload<tPayloadTWRData>
+struct tPayloadBase : public utils::packet::tPayload<tPayloadData>
 {
-	tPayloadTWR() = default;
-	tPayloadTWR(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadBase() = default;
+	tPayloadBase(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 		:tPayload(cbegin, cend)
 	{}
 };
 
-class tPacketTWR : public packet::tPacket<packet_Star::tFormatStar, tPayloadTWR>
+using tPacketBaseBase = utils::packet::tPacket<utils::packet::star::tFormat, tPayloadBase>;
+
+class tPacketBase : public tPacketBaseBase
 {
 public:
-	tPacketTWR() = default;
-	explicit tPacketTWR(const payload_value_type& payloadValue)
-		:tPacket(payloadValue)
-	{}
+	tPacketBase() = default;
+	explicit tPacketBase(const payload_value_type& payloadValue) = delete;
+	explicit tPacketBase(payload_value_type&& payloadValue)
+		: tPacket(std::move(payloadValue))
+	{
+	}
 
 	tMsgId GetMsgId() const { return GetPayloadValue().MsgId; }
 	tMsgStatus GetMsgStatus() const { return GetPayloadValue().MsgStatus; }
 	tEndpoint GetEndpoint() const { return  GetPayloadValue().Endpoint; }
-	tVectorUInt8 GetPayload() const { return GetPayloadValue().Payload; }
+	std::vector<std::uint8_t> GetPayload() const { return GetPayloadValue().Payload; }
 
 	static bool CheckEndpointSPI(tEndpoint ep) { return ep >= tEndpoint::SPI0_CS0 && ep < tEndpoint::SPI_END; }
 };
 
-class tPacketTWRCmd : public tPacketTWR
+class tPacketCmd : public tPacketBase
 {
-	explicit tPacketTWRCmd(const payload_value_type& payloadValue)
-		:tPacketTWR(payloadValue)
-	{}
+	explicit tPacketCmd(const payload_value_type& payloadValue) = delete;
+	explicit tPacketCmd(payload_value_type&& payloadValue)
+		:tPacketBase(std::move(payloadValue))
+	{
+	}
 
 public:
-	tPacketTWRCmd() = default;
+	tPacketCmd() = default;
+	explicit tPacketCmd(const tPayloadBase& payload) = delete;
+	explicit tPacketCmd(tPayloadBase&& payload)
+	{
+		*static_cast<tPayloadBase*>(this) = std::move(payload);
+	}
 
-	static tPacketTWRCmd Make_Restart()
+	static std::optional<tPacketCmd> Find(std::vector<std::uint8_t>& data)
+	{
+		std::optional<tPacketBaseBase> PacketOpt = tPacketBaseBase::Find(data);
+		if (!PacketOpt.has_value())
+			return {};
+		return tPacketCmd(std::move(*PacketOpt));
+	}
+
+	static tPacketCmd Make_Restart()
 	{
 		return Make(tMsgId::Restart, tEndpoint::Control, {});
 	}
 
-	static tPacketTWRCmd Make_GetVersion()
+	static tPacketCmd Make_GetVersion()
 	{
 		return Make(tMsgId::GetVersion, tEndpoint::Control, {});
 	}
 
-	static tPacketTWRCmd Make_DEMO_Request(tEndpoint ep, const tVectorUInt8& msgData)
+	static tPacketCmd Make_DEMO_Request(tEndpoint ep, const std::vector<std::uint8_t>& msgData)
 	{
 		assert(ep == tEndpoint::DEMO);
 		return Make(tMsgId::DEMO_Request, ep, msgData);
 	}
 
-	static tPacketTWRCmd Make_GPIO_GetState(tEndpoint ep)
+	static tPacketCmd Make_GPIO_GetState(tEndpoint ep)
 	{
 		// [TBD] verify endpoint from args, if it is wrong an exception must be thrown
 		return Make(tMsgId::GPIO_GetState, ep, {});
 	}
 
-	static tPacketTWRCmd Make_GPIO_SetState(tEndpoint ep, bool state)
+	static tPacketCmd Make_GPIO_SetState(tEndpoint ep, bool state)
 	{
 		// [TBD] verify endpoint from args, if it is wrong an exception must be thrown
-		tVectorUInt8 Data;
+		std::vector<std::uint8_t> Data;
 		Data.push_back(state ? 0x01 : 0x00);
 		return Make(tMsgId::GPIO_SetState, ep, Data);
 	}
 
-	static tPacketTWRCmd Make_SPI_Request(tEndpoint ep, const tVectorUInt8& msgData)
+	static tPacketCmd Make_SPI_Open(tEndpoint ep)
+	{
+		assert(CheckEndpointSPI(ep));
+		return Make(tMsgId::SPI_Open, ep, {});
+	}
+
+	static tPacketCmd Make_SPI_Close(tEndpoint ep)
+	{
+		assert(CheckEndpointSPI(ep));
+		return Make(tMsgId::SPI_Close, ep, {});
+	}
+
+	static tPacketCmd Make_SPI_Request(tEndpoint ep, const std::vector<std::uint8_t>& msgData)
 	{
 		assert(CheckEndpointSPI(ep));
 		return Make(tMsgId::SPI_Request, ep, msgData);
 	}
 
-	static tPacketTWRCmd Make_SPI_GetSettings(tEndpoint ep)
+	static tPacketCmd Make_SPI_GetSettings(tEndpoint ep)
 	{
 		assert(CheckEndpointSPI(ep));
 		return Make(tMsgId::SPI_GetSettings, ep, {});
 	}
 
-	static tPacketTWRCmd Make_SPI_SetSettings(tEndpoint ep, uint32_t freq)
+	static tPacketCmd Make_SPI_SetSettings(tEndpoint ep, uint32_t freq)
 	{
 		assert(CheckEndpointSPI(ep));
-		tVectorUInt8 Data = utils::ToVector(freq);
+		std::vector<std::uint8_t> Data = utils::ToVector(freq);
 		return Make(tMsgId::SPI_SetSettings, ep, Data);
 	}
 
-	static tPacketTWRCmd Make_SPI_SetChipControl(tEndpoint ep, tChipControl ctrl)
+	static tPacketCmd Make_SPI_SetChipControl(tEndpoint ep, tChipControl ctrl)
 	{
 		assert(CheckEndpointSPI(ep));
-		tVectorUInt8 Data;
+		std::vector<std::uint8_t> Data;
 		Data.push_back(ctrl.Value);
 		return Make(tMsgId::SPI_SetChipControl, ep, Data);
 	}
@@ -249,64 +302,78 @@ public:
 	// ... Make-functions for other packets
 
 private:
-	static tPacketTWRCmd Make(tMsgId id, tEndpoint ep, const tVectorUInt8& msgData)
+	static tPacketCmd Make(tMsgId id, tEndpoint ep, const std::vector<std::uint8_t>& msgData)
 	{
-		tPayloadTWRData Pld;
-		//tPayloadTWR::value_type Pld; // GCC: "'struct utils::packet_TWR::tPayloadTWR utils::packet_TWR::tPayloadTWR::tPayloadTWR' is inaccessible within this context"
+		payload_value_type Pld;
 		Pld.MsgId = id;
 		Pld.Endpoint = ep;
 		Pld.Payload = msgData;
-		return tPacketTWRCmd(Pld);
+		return tPacketCmd(std::move(Pld));
 	}
 };
 
-class tPacketTWRRsp : public tPacketTWR
+class tPacketRsp : public tPacketBase
 {
-	explicit tPacketTWRRsp(const payload_value_type& payloadValue)
-		:tPacketTWR(payloadValue)
-	{}
+	explicit tPacketRsp(const payload_value_type& payloadValue) = delete;
+	explicit tPacketRsp(payload_value_type&& payloadValue)
+		:tPacketBase(std::move(payloadValue))
+	{
+	}
 
 public:
-	tPacketTWRRsp() = default;
+	tPacketRsp() = default;
+	explicit tPacketRsp(const tPayloadBase& payload) = delete;
+	explicit tPacketRsp(tPayloadBase&& payload)
+	{
+		*static_cast<tPayloadBase*>(this) = std::move(payload);
+	}
 
-	static tPacketTWRRsp Make(const tPacketTWR& pack)
+	static std::optional<tPacketRsp> Find(std::vector<std::uint8_t>& data)
+	{
+		std::optional<tPacketBaseBase> PacketOpt = tPacketBaseBase::Find(data);
+		if (!PacketOpt.has_value())
+			return {};
+		return tPacketRsp(std::move(*PacketOpt));
+	}
+
+	static tPacketRsp Make(const tPacketBase& pack)
 	{
 		return Make(pack.GetMsgId(), tMsgStatus::None, pack.GetEndpoint(), {});
 	}
 
 	template <class T>
-	static tPacketTWRRsp Make(const tPacketTWR& pack, const T& data)
+	static tPacketRsp Make(const tPacketBase& pack, const T& data)
 	{
 		return Make(pack.GetMsgId(), tMsgStatus::None, pack.GetEndpoint(), utils::ToVector(data));
 	}
 
-	static tPacketTWRRsp Make(const tPacketTWR& pack, const tVectorUInt8& data)
+	static tPacketRsp Make(const tPacketBase& pack, const std::vector<std::uint8_t>& data)
 	{
 		return Make(pack.GetMsgId(), tMsgStatus::None, pack.GetEndpoint(), data);
 	}
 
-	static tPacketTWRRsp Make_ERR(const tPacketTWR& pack, tMsgStatus status)
+	static tPacketRsp Make_ERR(const tPacketBase& pack, tMsgStatus status)
 	{
 		return Make(pack.GetMsgId(), status, pack.GetEndpoint(), {});
 	}
 
-	static tPacketTWRRsp Make_ERR(const tPacketTWR& pack, tMsgStatus status, const std::string& data)
+	static tPacketRsp Make_ERR(const tPacketBase& pack, tMsgStatus status, const std::string& data)
 	{
 		return Make(pack.GetMsgId(), status, pack.GetEndpoint(), { data.begin(), data.end() });
 	}
 
 private:
-	static tPacketTWRRsp Make(tMsgId id, tMsgStatus status, tEndpoint ep, const tVectorUInt8& msgData)
+	static tPacketRsp Make(tMsgId id, tMsgStatus status, tEndpoint ep, const std::vector<std::uint8_t>& msgData)
 	{
-		tPayloadTWRData Pld;
-		//tPayloadTWR::value_type Pld; // GCC: "'struct utils::packet_TWR::tPayloadTWR utils::packet_TWR::tPayloadTWR::tPayloadTWR' is inaccessible within this context"
+		payload_value_type Pld;
 		Pld.MsgId = id;
 		Pld.MsgStatus = status;
 		Pld.Endpoint = ep;
 		Pld.Payload = msgData;
-		return tPacketTWRRsp(Pld);
+		return tPacketRsp(std::move(Pld));
 	}
 };
 
+}
 }
 }

@@ -1,11 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // utilsPacket
 // 2019-06-20
-// C++14
+// C++17
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include <libConfig.h>
+
 #include <algorithm>
+#include <optional>
 #include <vector>
 
 #include <cstdint>
@@ -20,7 +23,7 @@ template
 	template <class> class TFormat,
 	class TPayload
 >
-class tPacket : private TFormat<TPayload>, private TPayload
+class tPacket : private TFormat<TPayload>, public TPayload
 {
 public:
 	typedef TPayload payload_type;
@@ -28,44 +31,35 @@ public:
 
 	tPacket() = default;
 
-	explicit tPacket(const TPayload& payload)
+	explicit tPacket(const TPayload& payload) = delete;
+
+	explicit tPacket(TPayload&& payload)
 	{
-		TPayload::Value = payload.Value;
+		*static_cast<TPayload*>(this) = std::move(payload);
 	}
 
-	explicit tPacket(const payload_value_type& payloadValue)
+	explicit tPacket(const payload_value_type& payloadValue) = delete;
+
+	explicit tPacket(payload_value_type&& payloadValue)
 	{
-		TPayload::Value = payloadValue;
+		TPayload::Value = std::move(payloadValue);
 	}
 
-	static std::size_t Find(std::vector<std::uint8_t>& receivedData, tPacket& packet)
+	static std::optional<tPacket> Find(std::vector<std::uint8_t>& data)
 	{
-		std::vector<std::uint8_t>::const_iterator Begin = receivedData.cbegin();
-
-		for (;;)
+		while (true)
 		{
-			Begin = std::find(Begin, receivedData.cend(), TFormat<TPayload>::STX);
-
-			if (Begin == receivedData.cend())
+			if (data.empty())
 				break;
-
-			std::vector<std::uint8_t> PacketVector = TFormat<TPayload>::TestPacket(Begin, receivedData.cend());
-
-			if (PacketVector.size() > 0)
-			{
-				if (!TFormat<TPayload>::TryParse(PacketVector, packet))
-					continue;
-
-				std::size_t EraseSize = std::distance(receivedData.cbegin(), Begin);
-				EraseSize += PacketVector.size();
-				receivedData.erase(receivedData.begin(), receivedData.begin() + EraseSize);
-				return PacketVector.size();
-			}
-
-			Begin++;
+			std::size_t BytesToRemove = 0;
+			std::optional<TPayload> PacketOpt = TFormat<TPayload>::Parse(data, BytesToRemove);
+			data.erase(data.begin(), data.begin() + BytesToRemove);
+			if (PacketOpt.has_value())
+				return tPacket(std::move(*PacketOpt));
+			if (!BytesToRemove)
+				break;
 		}
-
-		return 0;
+		return {};
 	}
 
 	const payload_value_type& GetPayloadValue() const
