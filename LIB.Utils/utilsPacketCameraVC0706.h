@@ -1,7 +1,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-// utilsPacketCameraVC0706.h
+// utilsPacketCameraVC0706
 // 2017-02-01
-// Standard ISO/IEC 114882, C++20
+// C++20
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
@@ -9,25 +9,26 @@
 
 #include <iterator>
 #include <string>
-#include <vector>
 
 namespace utils
 {
-	namespace packet_CameraVC0706
-	{
+namespace packet
+{
+namespace vc0706
+{
 
 constexpr char Version[][15] = {"VC0703 1.00", "VC0706 1.00" };
 
-constexpr std::size_t ContainerCmdSize = 4;//STX, SerialNumber, Command(MsgId), PayloadSize
-constexpr std::size_t ContainerRetSize = 5;//STX, SerialNumber, Command(MsgId), Status, PayloadSize
-constexpr std::size_t ContainerCmdHeaderSize = ContainerCmdSize - 1;//SerialNumber, Command(MsgId), PayloadSize
-constexpr std::size_t ContainerRetHeaderSize = ContainerRetSize - 1;//SerialNumber, Command(MsgId), Status, PayloadSize
+constexpr std::size_t ContainerCmdSize = 4; // STX, SerialNumber, Command(MsgId), PayloadSize
+constexpr std::size_t ContainerRetSize = 5; // STX, SerialNumber, Command(MsgId), Status, PayloadSize
+constexpr std::size_t ContainerCmdHeaderSize = ContainerCmdSize - 1; // SerialNumber, Command(MsgId), PayloadSize
+constexpr std::size_t ContainerRetHeaderSize = ContainerRetSize - 1; // SerialNumber, Command(MsgId), Status, PayloadSize
 constexpr std::size_t ContainerPayloadSizeMax = 16;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 enum class tMsgId : std::uint8_t
 {
 	None               = 0x00,
-	GetVersion         = 0x11,//Get Firmware version information
+	GetVersion         = 0x11, // Get Firmware version information
 	SetSerialNumber    = 0x21,
 	SetPort            = 0x24,
 	SystemReset        = 0x26,
@@ -35,8 +36,8 @@ enum class tMsgId : std::uint8_t
 	WriteDataReg       = 0x31,
 	ReadFBuf           = 0x32,
 	WriteFBuf          = 0x33,
-	GetFBufLength      = 0x34,//Get image size in frame buffer
-	SetFBufLength      = 0x35,//Set image size in frame buffer
+	GetFBufLength      = 0x34, // Get image size in frame buffer
+	SetFBufLength      = 0x35, // Set image size in frame buffer
 	FBufCtrl           = 0x36,
 	CommMotionCtrl     = 0x37,
 	CommMotionStatus   = 0x38,
@@ -110,64 +111,58 @@ enum class tMsgStatus : std::uint8_t
 	CmdCannotBeExecuted = 0x04,
 	CmdExecutionError   = 0x05,
 
-	WrongDataSize       = 0xFE,//this code is for parser when it can't parse it for some reason
-	WrongPacket         = 0xFF,//this code is for parser when it can't parse it for some reason
+	WrongDataSize       = 0xFE, // this code is for parser when it can't parse it for some reason
+	WrongPacket         = 0xFF, // this code is for parser when it can't parse it for some reason
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <class TPayload, std::uint8_t stx, std::uint8_t containerSize>
 struct tFormat 
 {
+	enum : std::uint8_t { STX = stx };
+
+private:
 	enum : std::uint8_t
 	{
-		STX = stx,
 		containerMsgIdPosition = 2,
 		containerSizePosition = containerSize - 1,
 	};
 
 protected:
-	static tVectorUInt8 TestPacket(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data, std::size_t& bytesToRemove)
 	{
-		const std::size_t Size = std::distance(cbegin, cend);
-
-		if (Size > containerSizePosition && *cbegin == STX)
+		auto PosSTX = std::find(data.begin(), data.end(), STX);
+		const std::size_t PacketSizePossible = std::distance(PosSTX, data.end());
+		bytesToRemove = std::distance(data.begin(), PosSTX);
+		if (PacketSizePossible < GetSize(0) || !CheckMsgId(static_cast<tMsgId>(*(PosSTX + containerMsgIdPosition))))
+			return{};
+		const std::uint8_t DataSize = *(PosSTX + containerSizePosition);
+		if (DataSize > ContainerPayloadSizeMax)
 		{
-			const std::uint8_t DataSize = *(cbegin + containerSizePosition);
-
-			if (DataSize <= ContainerPayloadSizeMax && Size >= GetSize(DataSize) && CheckMsgId(static_cast<tMsgId>(*(cbegin + containerMsgIdPosition))))
-			{
-				return tVectorUInt8(cbegin, cbegin + GetSize(DataSize));
-			}
+			PosSTX = std::find(PosSTX + 1, data.end(), STX); // That's for parsing damaged packets, something like that: "0x56, 0x21, 0x11,	0x56, 0x21, 0x11, 0x0B, 'V', 'C', '0', '7', '0', '3', ' ', '1', '.', '0', '0'".
+			bytesToRemove = std::distance(data.begin(), PosSTX);
+			return{};
 		}
-
-		return {};
+		if (PacketSizePossible < GetSize(DataSize))
+			return{};
+		auto PayloadBeg = PosSTX + 1; // +1 STX
+		auto PayloadEnd = PayloadBeg + (GetSize(DataSize) - 1); // -1 STX
+		bytesToRemove = std::distance(data.begin(), PayloadEnd);
+		return TPayload(PayloadBeg, PayloadEnd); // +1 STX
 	}
 
-	static bool TryParse(const tVectorUInt8& packetVector, TPayload& payload)
+	static std::optional<TPayload> Parse(const std::vector<std::uint8_t>& data)
 	{
-		if (packetVector.size() > containerSizePosition && packetVector[0] == STX)
-		{
-			const std::uint8_t DataSize = *(packetVector.cbegin() + containerSizePosition);
-
-			if (DataSize <= ContainerPayloadSizeMax && packetVector.size() == GetSize(DataSize))
-			{
-				payload = TPayload(packetVector.cbegin() + 1, packetVector.cend());//+1 STX
-
-				return true;
-			}
-		}
-
-		return false;
+		std::size_t BytesToRemove;
+		return Parse(data, BytesToRemove);
 	}
 
 	static std::size_t GetSize(std::size_t payloadSize) { return containerSize + payloadSize; }
 
-	void Append(tVectorUInt8& dst, const TPayload& payload) const
+	void Append(std::vector<std::uint8_t>& dst, const TPayload& payload) const
 	{
-		dst.reserve(payload.size() + 1);//+1 STX
-
+		dst.reserve(payload.size() + 1); // +1 STX
 		dst.push_back(STX);
-
 		for (const auto& i : payload)
 		{
 			dst.push_back(i);
@@ -177,31 +172,28 @@ protected:
 private:
 	static bool CheckMsgId(tMsgId msgId)
 	{
-		for (auto i : MsgIdSupported)
-		{
-			if (i == msgId)
-				return true;
-		}
-
-		return false;
+		return std::find(std::begin(MsgIdSupported), std::end(MsgIdSupported), msgId) != std::end(MsgIdSupported);
 	}
 };
 
-template <class TPayload> struct tFormatCmd : public tFormat<TPayload, 'V', ContainerCmdSize> { };
-template <class TPayload> struct tFormatRet : public tFormat<TPayload, 'v', ContainerRetSize> { };
+template <class TPayload>
+using tFormatCmd = tFormat<TPayload, 'V', ContainerCmdSize>;
+
+template <class TPayload>
+using tFormatRet = tFormat<TPayload, 'v', ContainerRetSize>;
 
 struct tDataCmd
 {
 	std::uint8_t SerialNumber = 0;
 	tMsgId MsgId = tMsgId::None;
-	tVectorUInt8 Payload;
+	std::vector<std::uint8_t> Payload;
 
 	tDataCmd() = default;
-	tDataCmd(std::uint8_t serialNumber, tMsgId msgId, const tVectorUInt8& payload)
+	tDataCmd(std::uint8_t serialNumber, tMsgId msgId, const std::vector<std::uint8_t>& payload)
 		:SerialNumber(serialNumber), MsgId(msgId), Payload(payload)
 	{}
 
-	tDataCmd(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tDataCmd(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		const std::size_t DataSize = std::distance(cbegin, cend);
 		if (DataSize < ContainerCmdHeaderSize)
@@ -209,8 +201,8 @@ struct tDataCmd
 
 		SerialNumber = *cbegin++;
 		MsgId = static_cast<tMsgId>(*cbegin++);
-		++cbegin;//PayloadSize
-		Payload = tVectorUInt8(cbegin, cend);
+		++cbegin; // PayloadSize
+		Payload = std::vector<std::uint8_t>(cbegin, cend);
 	}
 
 	std::size_t size() const
@@ -229,7 +221,7 @@ struct tDataCmd
 		case 1: return static_cast<std::uint8_t>(MsgId);
 		case 2: return static_cast<std::uint8_t>(Payload.size());
 		}
-		return Payload[index - 3];//ContainerCmdHeaderSize
+		return Payload[index - 3]; // ContainerCmdHeaderSize
 	}
 
 	bool operator == (const tDataCmd& val) const = default;
@@ -241,14 +233,14 @@ struct tDataRet
 	std::uint8_t SerialNumber = 0;
 	tMsgId MsgId = tMsgId::None;
 	tMsgStatus MsgStatus = tMsgStatus::None;
-	tVectorUInt8 Payload;
+	std::vector<std::uint8_t> Payload;
 
 	tDataRet() = default;
-	tDataRet(std::uint8_t serialNumber, tMsgId msgId, tMsgStatus msgStatus, const tVectorUInt8& payload)
+	tDataRet(std::uint8_t serialNumber, tMsgId msgId, tMsgStatus msgStatus, const std::vector<std::uint8_t>& payload)
 		:SerialNumber(serialNumber), MsgId(msgId), MsgStatus(msgStatus), Payload(payload)
 	{}
 
-	tDataRet(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tDataRet(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		const std::size_t DataSize = std::distance(cbegin, cend);
 		if (DataSize < ContainerRetHeaderSize)
@@ -257,9 +249,9 @@ struct tDataRet
 		SerialNumber = *cbegin++;
 		MsgId = static_cast<tMsgId>(*cbegin++);
 		MsgStatus = static_cast<tMsgStatus>(*cbegin++);
-		++cbegin;//PayloadSize
+		++cbegin; // PayloadSize
 
-		Payload = tVectorUInt8(cbegin, cend);
+		Payload = std::vector<std::uint8_t>(cbegin, cend);
 	}
 
 	std::size_t size() const
@@ -279,7 +271,7 @@ struct tDataRet
 		case 2: return static_cast<std::uint8_t>(MsgStatus);
 		case 3: return static_cast<std::uint8_t>(Payload.size());
 		}
-		return Payload[index - 4];//ContainerRetHeaderSize
+		return Payload[index - 4]; // ContainerRetHeaderSize
 	}
 
 	bool operator == (const tDataRet& val) const = default;
@@ -343,7 +335,7 @@ struct tDataReg
 struct tPayloadCmd : public packet::tPayload<tDataCmd>
 {
 	tPayloadCmd() = default;
-	tPayloadCmd(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadCmd(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 		:tPayload(cbegin, cend)
 	{}
 };
@@ -351,19 +343,36 @@ struct tPayloadCmd : public packet::tPayload<tDataCmd>
 struct tPayloadRet : public packet::tPayload<tDataRet>
 {
 	tPayloadRet() = default;
-	tPayloadRet(tVectorUInt8::const_iterator cbegin, tVectorUInt8::const_iterator cend)
+	tPayloadRet(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 		:tPayload(cbegin, cend)
 	{}
 };
 
-class tPacketCmd : public packet::tPacket<tFormatCmd, tPayloadCmd>
+using tPacketCmdBase = packet::tPacket<tFormatCmd, tPayloadCmd>;
+
+class tPacketCmd : public tPacketCmdBase
 {
-	explicit tPacketCmd(const payload_value_type & payloadValue)
-		: tPacket(payloadValue)
-	{}
+	explicit tPacketCmd(const payload_value_type& payloadValue) = delete;
+	explicit tPacketCmd(payload_value_type&& payloadValue)
+		:tPacket(std::move(payloadValue))
+	{
+	}
 
 public:
 	tPacketCmd() = default;
+	explicit tPacketCmd(const tPayloadCmd& payload) = delete;
+	explicit tPacketCmd(tPayloadCmd&& payload)
+	{
+		*static_cast<tPayloadCmd*>(this) = std::move(payload);
+	}
+
+	static std::optional<tPacketCmd> Find(std::vector<std::uint8_t>& data)
+	{
+		std::optional<tPacketCmdBase> PacketOpt = tPacketCmdBase::Find(data);
+		if (!PacketOpt.has_value())
+			return {};
+		return tPacketCmd(std::move(*PacketOpt));
+	}
 
 	tMsgId GetMsgId() const;
 
@@ -380,7 +389,7 @@ public:
 	static tPacketCmd MakeReadDataReg_Resolution(tMemoryDataReg memory, std::uint8_t sn);
 	static tPacketCmd MakeReadDataReg_Compression(tMemoryDataReg memory, std::uint8_t sn);
 
-	static tPacketCmd MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tDataReg reg, const tVectorUInt8& data);
+	static tPacketCmd MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tDataReg reg, const std::vector<std::uint8_t>& data);
 	static tPacketCmd MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tPort port);
 	static tPacketCmd MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tUARTBaudrate baudrate);
 	static tPacketCmd MakeWriteDataReg(tMemoryDataReg memory, std::uint8_t sn, tUARTHSBaudrate baudrate);
@@ -416,9 +425,32 @@ union tFBufLen
 
 //using tFBufLen1 = std::uint32_t;
 
-class tPacketRet : public packet::tPacket<tFormatRet, tPayloadRet>
+using tPacketRetBase = packet::tPacket<tFormatRet, tPayloadRet>;
+
+class tPacketRet : public tPacketRetBase
 {
+	explicit tPacketRet(const payload_value_type& payloadValue) = delete;
+	explicit tPacketRet(payload_value_type&& payloadValue)
+		:tPacket(std::move(payloadValue))
+	{
+	}
+
 public:
+	tPacketRet() = default;
+	explicit tPacketRet(const tPayloadRet& payload) = delete;
+	explicit tPacketRet(tPayloadRet&& payload)
+	{
+		*static_cast<tPayloadRet*>(this) = std::move(payload);
+	}
+
+	static std::optional<tPacketRet> Find(std::vector<std::uint8_t>& data)
+	{
+		std::optional<tPacketRetBase> PacketOpt = tPacketRetBase::Find(data);
+		if (!PacketOpt.has_value())
+			return {};
+		return tPacketRet(std::move(*PacketOpt));
+	}
+
 	tMsgId GetMsgId() const;
 	tMsgStatus GetMsgStatus() const;
 
@@ -446,5 +478,6 @@ std::string ToString(tResolution value);
 tResolution ToResolution(const std::string& value);
 tUARTHSBaudrate ToUARTHSBaudrate(std::uint32_t value);
 
-	}
+}
+}
 }
