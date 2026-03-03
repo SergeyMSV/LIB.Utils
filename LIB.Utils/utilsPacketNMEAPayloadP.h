@@ -17,41 +17,56 @@ namespace nmea
 namespace base
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-template <int preHeaderSize>
+template <int... ints>
 struct tContentP : public type::tTypeVerified // 'P' stands for proprietary
 {
 	std::vector<std::string> Value;
 
+private:
+	int m_HeaderParts = 0;
+
+public:
 	tContentP() = default;
 	explicit tContentP(const std::vector<std::string>& val)
 	{
-		if (val.empty())
-			SetVerified(false);
-		for (std::size_t i = 0; i < val.size(); ++i)
+		if (val.size() < 1)
 		{
-			if (!i && val[i].size() > preHeaderSize)
-			{
-				Value.push_back(val[i].substr(0, preHeaderSize));
-				Value.push_back(val[i].substr(preHeaderSize));
-				continue;
-			}
+			SetVerified(false);
+			return;
+		}
+		int Position = 0;
+		((!Parse(val[0], ints, Position)) || ...);
+		for (std::size_t i = 1; i < val.size(); ++i)
+		{
 			Value.push_back(val[i]);
 		}
 	}
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data;
-		for (std::size_t i = 1; i < Value.size(); ++i)
+		std::string Header;
+		for (std::size_t i = 0; i < m_HeaderParts && i < Value.size(); ++i)
 		{
-			if (i == 1)
-			{
-				Data.push_back(Value[0] + Value[1]);
-				continue;
-			}
+			Header += Value[i];
+		}
+		std::vector<std::string> Data;
+		Data.push_back(Header);
+		for (std::size_t i = m_HeaderParts; i < Value.size(); ++i)
+		{
 			Data.push_back(Value[i]);
 		}
 		return Data;
+	}
+
+private:
+	bool Parse(const std::string& values, int size, int& position)
+	{
+		if (position >= values.size())
+			return false;
+		Value.push_back(values.substr(position, size));
+		position += size;
+		++m_HeaderParts;
+		return true;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
