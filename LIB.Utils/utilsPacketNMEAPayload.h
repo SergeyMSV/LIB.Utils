@@ -22,6 +22,7 @@ template
 	typename TTime,
 	typename TLatitude,
 	typename TLongitude,
+	typename TQuality,
 	typename TSatQty,
 	typename THDOP,
 	typename TAltitude,
@@ -35,7 +36,7 @@ struct tContentGGA : public type::tTypeVerified	// Global Positioning System Fix
 	TTime Time;								// UTC Time
 	TLatitude Latitude;
 	TLongitude Longitude;
-	type::tQuality Quality = type::tQuality(0);	// GPS Quality Indicator (Position Fix Indicator, 1 digit)
+	TQuality Quality = TQuality(0);			// GPS Quality Indicator (Position Fix Indicator, 1 digit)
 	TSatQty SatUsed = TSatQty(0);			// Satellites Used
 	THDOP HDOP;								// Horizontal Dilution of Precision 
 	TAltitude Altitude;						// Altitude re: mean-sea-level (geoid), meters
@@ -55,7 +56,7 @@ struct tContentGGA : public type::tTypeVerified	// Global Positioning System Fix
 		Time = TTime(val[1]);
 		Latitude = TLatitude(val[2], val[3]);
 		Longitude = TLongitude(val[4], val[5]);
-		Quality = type::tQuality(val[6]);
+		Quality = TQuality(val[6]);
 		SatUsed = TSatQty(val[7]);
 		HDOP = THDOP(val[8]);
 		Altitude = TAltitude(val[9], val[10]);
@@ -621,6 +622,7 @@ namespace mtk_eb500 // MT3329	AXN_1.30
 	using tDate = type::tDateNoNull;
 	using tLatitude = type::tLatitudeNoNull<4>;								// 0000.0000,?
 	using tLongitude = type::tLongitudeNoNull<4>;							// 00000.0000,?
+	using tQuality = type::tQualityNoNull;									// 0
 	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
 	using tHDOP = type::tFloatPrecisionFixed<2, 2>;							// ?.00
 	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 1>;			// ?.0,M			[?] tFloatPrecisionFixed maybe NoNull too
@@ -631,7 +633,7 @@ namespace mtk_eb500 // MT3329	AXN_1.30
 	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;					// 0.00 - 999.99
 	using tMode = type::tModeNoNull;										// A
 
-	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGSV = generic::tContentGSV;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 }
@@ -657,6 +659,7 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 	using tDate = type::tDateNoNull;
 	using tLatitude = type::tLatitude<6>;									// 0000.000000,?
 	using tLongitude = type::tLongitude<6>;									// 00000.000000,?
+	using tQuality = type::tQualityNoNull;									// 0
 	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
 	using tHDOP = type::tFloatPrecisionFixed<2, 2>;							// ?.00
 	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 3>;			// ?.000,M
@@ -667,7 +670,7 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;					// 0.00 - 999.99
 	using tMode = type::tModeNoNull;										// A
 
-	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGLL = base::tContentGLL8<tLatitude, tLongitude, tTime, tMode>;
 	using tContentGSV = generic::tContentGSV;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
@@ -719,6 +722,7 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	using tDate = type::tDateNoNull;
 	using tLatitude = type::tLatitude<4>;									// 0000.0000,?
 	using tLongitude = type::tLongitude<4>;									// 00000.0000,?
+	using tQuality = type::tQualityNoNull;									// 0
 	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
 	using tSatID = type::tUIntFixed<2>;										// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 	using tHDOP = type::tFloatPrecisionFixed<2, 2>;							// ?.00
@@ -730,7 +734,7 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;					// 0.00 - 999.99
 	using tMode = type::tModeNoNull;										// A
 
-	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
 	using tContentGSV = generic::tContentGSV;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
@@ -739,20 +743,11 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 
 namespace sirf_gsu_7x
 {
-	// Not valid
-	// $GPGGA,000000.000,0000.0000,N,00000.0000,E,0,00,99.9,00000.0,M,0000.0,M,000.0,0000*??
-	// $GPRMC,000000.000,V,0000.0000,N,00000.0000,E,9999.99,999.99,000000,,*??
-	// 
-	// Valid
-	// $GPGGA,000000.000,0000.0000,N,00000.0000,E,1,12,00.1,00123.4,M,0012.3,M,000.0,0000*??
-	// $GPRMC,000000.000,A,0000.0000,N,00000.0000,E,0012.34,123.45,000000,,*??
-	// 
-	// $GPGSV,3,1,12,01,01,001,,02,02,002,,03,03,003,,04,04,004,*??
-
 	using tTime = type::tTimeNoNull<3>;									// 000000.000
 	using tDate = type::tDateNoNull;
 	using tLatitude = type::tLatitudeNoNull<4>;							// 0000.0000,?
 	using tLongitude = type::tLongitudeNoNull<4>;						// 00000.0000,?
+	using tQuality = type::tQualityNoNull;								// 0
 	using tSatQty = type::tUIntFixedNoNull<2>;							// 00
 	using tSatID = type::tUIntFixed<2>;									// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 	using tHDOP = type::tFloatFixedNoNull<2, 1>;						// 00.0
@@ -768,13 +763,39 @@ namespace sirf_gsu_7x
 	using tLocalZoneHours = type::tIntFixed<2>;							// 00 to ±13 hrs
 	using tLocalZoneMinutes = type::tUIntFixed<2>;						// 00 to +59
 	
-	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGLL = base::tContentGLL7<tLatitude, tLongitude, tTime>;
 	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
 	using tContentGSV = generic::tContentGSV;
 	using tContentRMC = base::tContentRMC12<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate>;
 	using tContentVTG = base::tContentVTG9<tCourse, tSpeed>;
 	using tContentZDA = base::tContentZDA<tTime, tDay, tMonth, tYear, tLocalZoneHours, tLocalZoneMinutes>;
+}
+
+namespace sirf_lr9548s
+{
+	using tTime = type::tTimeNoNull<3>;									// 000000.000
+	using tDate = type::tDateNoNull;
+	using tLatitude = type::tLatitudeNoNull<4>;							// 0000.0000,?
+	using tLongitude = type::tLongitudeNoNull<4>;						// 00000.0000,?
+	using tQuality = type::tQualityNoNull;								// 0
+	using tSatQty = type::tUIntFixedNoNull<2>;							// 00
+	using tSatID = type::tUIntFixed<2>;									// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
+	using tHDOP = type::tFloatFixedNoNull<2, 1>;						// 00.0
+	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 1>;		// ?.0,M		-14.2,M
+	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 1>;// ?.0,M
+	using tDiffAge = type::tFloatPrecisionFixedNoNull<3, 1>;			// ?.0
+	using tDiffStation = type::tUIntFixedNoNull<4>;						// 0000
+	using tSpeed = type::tFloatNoNull<4, 2>;							// ?.?
+	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;				// ?.99
+	using tMode = type::tModeNoNull;									// A
+
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGLL = base::tContentGLL7<tLatitude, tLongitude, tTime>;
+	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
+	using tContentGSV = generic::tContentGSV;
+	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
+	using tContentVTG = base::tContentVTG9<tCourse, tSpeed>;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
