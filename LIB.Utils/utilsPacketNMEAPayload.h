@@ -781,13 +781,13 @@ namespace sirf_lr9548s
 	using tQuality = type::tQualityNoNull;								// 0
 	using tSatQty = type::tUIntFixedNoNull<2>;							// 00
 	using tSatID = type::tUIntFixed<2>;									// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
-	using tHDOP = type::tFloatFixedNoNull<2, 1>;						// 00.0
+	using tHDOP = type::tFloatPrecisionFixedNoNull<2, 1>;				// ?.0
 	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 1>;		// ?.0,M		-14.2,M
 	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 1>;// ?.0,M
 	using tDiffAge = type::tFloatPrecisionFixedNoNull<3, 1>;			// ?.0
 	using tDiffStation = type::tUIntFixedNoNull<4>;						// 0000
 	using tSpeed = type::tFloatNoNull<4, 2>;							// ?.?
-	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;				// ?.99
+	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;				// ?.00
 	using tMode = type::tModeNoNull;									// A
 
 	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
@@ -795,7 +795,7 @@ namespace sirf_lr9548s
 	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
 	using tContentGSV = generic::tContentGSV;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
-	using tContentVTG = base::tContentVTG9<tCourse, tSpeed>;
+	using tContentVTG = base::tContentVTG10<tCourse, tSpeed, tMode>;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }

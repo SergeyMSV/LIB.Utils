@@ -210,6 +210,21 @@ void UnitTest_PacketNMEAPayload()
 
 	std::cout << '\n';
 
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentGGA>("sirf_lr9548s GGA 1", "$GPGGA,001630.035,0000.0000,N,00000.0000,E,0,00,50.0,0.0,M,0.0,M,0.0,0000*74\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentGGA>("sirf_lr9548s GGA 2", "$GPGGA,215750.098,1122.3344,N,12233.4455,E,1,03,3.7,-14.3,M,14.3,M,0.0,0000*6C\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentGSA>("sirf_lr9548s GSA 1", "$GPGSA,A,1,,,,,,,,,,,,,50.0,50.0,50.0*05\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentGSA>("sirf_lr9548s GSA 2", "$GPGSA,A,2,07,08,09,,,,,,,,,,3.8,3.7,1.0*3B\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentGSV>("sirf_lr9548s GSV 1", "$GPGSV,3,1,12,07,00,000,,10,00,000,,13,00,000,,16,00,000,*7B\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentRMC>("sirf_lr9548s RMC 1", "$GPRMC,001629.033,V,0000.0000,N,00000.0000,E,0.0,0.00,160406,,,N*4F\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentRMC>("sirf_lr9548s RMC 2", "$GPRMC,215750.098,A,1122.3344,N,12233.4455,E,0.15,19.29,160706,,,A*5B\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentVTG>("sirf_lr9548s VTG 1", "$GPVTG,0.00,T,,M,0.0,N,0.0,K,N*32\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentVTG>("sirf_lr9548s VTG 2", "$GPVTG,19.81,T,,M,0.20,N,0.4,K,N*35\xd\xa");
+
+	UnitTest_PacketNMEA_CRC_ERR<sirf_gsu_7x::tContentRMC>("sirf_lr9548s RMC 1", "$GPRMC,215750.098,A,1122.3344,N,12233.4455,E,0.153,19.29,160706,,,A*68\xd\xa");
+	UnitTest_PacketNMEA_CRC_ERR<sirf_gsu_7x::tContentRMC>("sirf_lr9548s RMC 2", "$GPRMC,215750.098,A,1122.3344,N,12233.4455,E,1230.15,19.29,160706,,,A*6B\xd\xa");
+
+	std::cout << '\n';
+
 	UnitTest_PacketNMEA_CRC<base::tContentP<1, 3, 3>>("tContentP 1", "$PMTK000*32\xd\xa");
 	UnitTest_PacketNMEA_CRC<base::tContentP<1, 3, 2, 4>>("tContentP 2", "$PMTK000*32\xd\xa");
 	//UnitTest_PacketNMEA_CRC<base::tContentP<1, 3>>("tContentP 3", "$PMTK000*32\xd\xa");
