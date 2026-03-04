@@ -237,6 +237,11 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>(-12.3456,    "tFloatFixed<2,4> -12.3456", "-12.3456");
 	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>(-1.3456,     "tFloatFixed<2,4> -1.3456", "-01.3456");
 	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>("-7.3456", "tFloatFixed<2,4> -7.3456");
+	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>(".3456",   "tFloatFixed<2,4> .3456");
+	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>(".",       "tFloatFixed<2,4> .");
+	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>(".3",      "tFloatFixed<2,4> .3");
+	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>("2.6",     "tFloatFixed<2,4> 2.6");
+	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>("12.",     "tFloatFixed<2,4> 12. ");
 
 	UnitTest_PacketNMEAType_TestERR<tTypeNoNull<tFloatFixed<2, 4>>>("tTypeNoNull<tFloatFixed<2,4>> empty 1");
 	UnitTest_PacketNMEAType_TestERR<tTypeNoNull<tFloatFixed<2, 4>>>("", "tTypeNoNull<tFloatFixed<2,4>> empty 2");
@@ -257,6 +262,38 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tFloatFixedUnit<5, 1>>("", "",        "tFloatFixedUnit<5,1> empty 2", ",");
 	UnitTest_PacketNMEAType_Test<tFloatFixedUnit<5, 1>>("", "R",       "tFloatFixedUnit<5,1> ,R", ",R");
 	UnitTest_PacketNMEAType_Test<tFloatFixedUnit<5, 1>>("00000.0", "", "tFloatFixedUnit<5,1> 00000.0,", "00000.0,");
+
+	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>(             "tFloat<2,4> empty 1",  "");
+	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>("",          "tFloat<2,4> empty 2",  "");
+	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>("-00.0000",  "tFloat<2,4> -00.0000", "0.0");
+	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>("-12.3",     "tFloat<2,4> -12.3",    "-12.3");
+	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>("-2.3",      "tFloat<2,4> -2.3",     "-2.3");
+	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>("2.6",       "tFloat<2,4> 2.6",      "2.6");
+	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>("-12.3456",  "tFloat<2,4> -12.3456", "-12.3456");
+	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>(-12.3456,    "tFloat<2,4> -12.3456", "-12.3456");
+	UnitTest_PacketNMEAType_Test<tFloat<2, 4>>(-1.3456,     "tFloat<2,4> -1.3456",  "-1.3456");
+	UnitTest_PacketNMEAType_TestERR<tFloat<2, 4>>("127.3456", "tFloat<2,4> 123.3456");
+	UnitTest_PacketNMEAType_TestERR<tFloat<2, 4>>(".3456",    "tFloat<2,4> .3456");
+	UnitTest_PacketNMEAType_TestERR<tFloat<2, 4>>(".",        "tFloat<2,4> .");
+	UnitTest_PacketNMEAType_TestERR<tFloat<2, 4>>(".3",       "tFloat<2,4> .3");
+	UnitTest_PacketNMEAType_TestERR<tFloat<2, 4>>("12.",      "tFloat<2,4> 12.");
+	
+	UnitTest_PacketNMEAType_TestERR<tFloatNoNull<2, 4>>(    "tFloatNoNull<2,4> empty 1");
+	UnitTest_PacketNMEAType_TestERR<tFloatNoNull<2, 4>>("", "tFloatNoNull<2,4> empty 2");
+	
+	UnitTest_PacketNMEAType_Test<tUFloat<2, 4>>(               "tUFloat<2,4> empty 1",  "");
+	UnitTest_PacketNMEAType_Test<tUFloat<2, 4>>("",            "tUFloat<2,4> empty 2",  "");
+	UnitTest_PacketNMEAType_Test<tUFloat<2, 4>>("00.0000",     "tUFloat<2,4> 00.0000",  "0.0");
+	UnitTest_PacketNMEAType_Test<tUFloat<2, 4>>("12.3",        "tUFloat<2,4> 12.3" ,    "12.3");
+	UnitTest_PacketNMEAType_Test<tUFloat<2, 4>>("2.3",         "tUFloat<2,4> 2.3",      "2.3");
+	UnitTest_PacketNMEAType_Test<tUFloat<2, 4>>("12.3456",     "tUFloat<2,4> 12.3456",  "12.3456");
+	UnitTest_PacketNMEAType_Test<tUFloat<2, 4>>(12.3456,       "tUFloat<2,4> 12.3456",  "12.3456");
+	UnitTest_PacketNMEAType_Test<tUFloat<2, 4>>(1.3456,        "tUFloat<2,4> 1.3456",   "1.3456");
+	UnitTest_PacketNMEAType_TestERR<tUFloat<2, 4>>("127.3456", "tUFloat<2,4> 123.3456");
+	UnitTest_PacketNMEAType_TestERR<tUFloat<2, 4>>("-7.3456",  "tUFloat<2,4> -7.3456");
+
+	UnitTest_PacketNMEAType_TestERR<tUFloatNoNull<2, 4>>(     "tFloatNoNull<2,4> empty 1");
+	UnitTest_PacketNMEAType_TestERR<tUFloatNoNull<2, 4>>("",  "tFloatNoNull<2,4> empty 2");
 
 	UnitTest_PacketNMEAType_TestERR<tFloatFixedUnitNoNull<5, 1>>(               "tFloatFloatFixedUnitNoNulltFixedUnit<5,1> empty 1");
 	UnitTest_PacketNMEAType_TestERR<tFloatFixedUnitNoNull<5, 1>>("", "",        "tFloatFixedUnitNoNull<5,1> empty 2");
