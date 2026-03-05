@@ -653,7 +653,7 @@ class tTimeBase
 	TSecond m_Second;
 
 public:
-	using value_type = std::uint32_t;
+	using value_type = double;
 
 	tTimeBase() = default;
 	explicit tTimeBase(tTypeVerified::tStatus verified) :m_Hour(verified), m_Minute(verified), m_Second(verified) {}
@@ -698,7 +698,7 @@ public:
 
 	value_type GetValue() const // in seconds
 	{
-		return m_Hour.GetValue() * 3600 + m_Minute.GetValue() * 60 + static_cast<std::uint32_t>(m_Second.GetValue());
+		return m_Hour.GetValue() * 3600 + m_Minute.GetValue() * 60 + m_Second.GetValue();
 	}
 
 	std::uint8_t GetHour() const { return static_cast<std::uint8_t>(m_Hour.GetValue()); }
