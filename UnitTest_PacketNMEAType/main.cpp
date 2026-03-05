@@ -1,3 +1,5 @@
+#include <utilsTest.h>
+
 namespace utils
 {
 	void UnitTest_PacketNMEAType();
@@ -6,6 +8,8 @@ namespace utils
 int main()
 {
 	utils::UnitTest_PacketNMEAType();
+
+	utils::test::RESULT_Total();
 
 	return 0;
 }
