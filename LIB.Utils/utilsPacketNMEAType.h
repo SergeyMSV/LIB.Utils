@@ -608,7 +608,7 @@ class tDate
 	tValue m_Year;
 
 public:
-	using value_type = typename tValue::value_type;
+	using value_type = std::time_t;
 
 	tDate() = default;
 	explicit tDate(tTypeVerified::tStatus verified) :m_Day(verified), m_Month(verified), m_Year(verified) {}
