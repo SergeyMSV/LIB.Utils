@@ -84,6 +84,7 @@ struct tContentPSRF_SetSerialPort : public tContentPSRF // PSRF100
 	explicit tContentPSRF_SetSerialPort(const std::uint32_t baudrate)
 		:Protocol(tProtocol::NMEA), Baudrate(baudrate)
 	{
+		SetVerified(CheckBaudrate(Baudrate));
 	}
 
 	static const char* GetID() { return "100"; }
