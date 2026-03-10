@@ -71,9 +71,9 @@ struct tContentGGA : public type::tTypeVerified	// Global Positioning System Fix
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data;
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(Time.ToString());
 		Data.push_back(Latitude.ToStringValue());
@@ -128,9 +128,9 @@ struct tContentGLL7 : public type::tTypeVerified	// Geographic Position - Latitu
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data;
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(Latitude.ToStringValue());
 		Data.push_back(Latitude.ToStringHemisphere());
@@ -171,9 +171,9 @@ struct tContentGLL8 : public tContentGLL7<TLatitude, TLongitude, TTime> // NMEA 
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data = tBase::GetPayload();
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data = tBase::GetPayload();
 		Data.push_back(Mode.ToString());
 		return Data;
 	}
@@ -234,9 +234,9 @@ struct tContentGSA : public type::tTypeVerified	// GNSS DOP and Active Satellite
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data;
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(OperMode ? std::string(1, OperMode) : "");
 		Data.push_back(FixStatus.ToString());
@@ -318,9 +318,9 @@ struct tContentGSV : public type::tTypeVerified	// GNSS Satellites in View
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data;
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(MsgQty.ToString());
 		Data.push_back(MsgNum.ToString());
@@ -382,9 +382,9 @@ struct tContentRMC12 : public type::tTypeVerified	// Recommended Minimum Specifi
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data;
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(Time.ToString());
 		Data.push_back(Status.ToString());
@@ -433,9 +433,9 @@ struct tContentRMC13 : public tContentRMC12<TTime, TLatitude, TLongitude, TSpeed
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data = tBase::GetPayload();
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data = tBase::GetPayload();
 		Data.push_back(Mode.ToString());
 		return Data;
 	}
@@ -474,9 +474,9 @@ struct tContentVTG9 : public type::tTypeVerified	// Course Over Ground and Groun
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data;
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(Course.ToString());
 		Data.push_back("T");
@@ -518,9 +518,9 @@ struct tContentVTG10 : public tContentVTG9<TCourse, TSpeed>
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data = tBase::GetPayload();
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data = tBase::GetPayload();
 		Data.push_back(Mode.ToString());
 		return Data;
 	}
@@ -568,9 +568,9 @@ struct tContentZDA : public type::tTypeVerified	// Time & Date
 
 	std::vector<std::string> GetPayload() const
 	{
-		std::vector<std::string> Data;
 		if (!IsVerified())
-			return Data;
+			return {};
+		std::vector<std::string> Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(Time.ToString());
 		Data.push_back(Day.ToString());
