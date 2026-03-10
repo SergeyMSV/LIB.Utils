@@ -243,6 +243,7 @@ void UnitTest_PacketNMEAPayload()
 	//UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 2.1 wrong", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009*34\xd\xa"); // CRC is right. (not real, just for test)
 	//UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 2.2 wrong", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009*21\xd\xa"); // CRC is wrong. (not real, just for test)
 	UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 3", "$PSRFTXT,Firmware Checksum: 1fb5\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf::tContentPSRF_SetSerialPort>("sirf Set SerialPort (100)", "$PSRF100,0,9600,8,1,0*0C\xd\xa");
 
 	UnitTest_PacketNMEA_CRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy LEADTEK TEXT 1 Version", "$PSRFTXTVersion 322.000.000-LD00*23\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy LEADTEK TEXT 2", "$PSRFTXTCLK:  96250*09\xd\xa");
@@ -259,6 +260,13 @@ void UnitTest_PacketNMEAPayload()
 		auto Packet = tPacketNMEA_Common_CRC(Content.GetPayload());
 		std::vector<std::uint8_t> PacketVect = Packet.ToVector();
 		utils::test::RESULT("PMTK_TEST 1", PacketVect == utils::ToVector<std::string>("$PMTK000*32\xd\xa"));
+	}
+
+	{
+		sirf::tContentPSRF_SetSerialPort Content(38400);
+		auto Packet = tPacketNMEA_Common_CRC(Content.GetPayload());
+		std::vector<std::uint8_t> PacketVect = Packet.ToVector();
+		utils::test::RESULT("PSRF Set SerialPort 1", PacketVect == utils::ToVector<std::string>("$PSRF100,1,38400,8,1,0*3D\xd\xa"));
 	}
 
 	/*
