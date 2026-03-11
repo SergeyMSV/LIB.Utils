@@ -28,15 +28,17 @@ struct tContentPMTK : public tContentP
 	{
 		Verify();
 	}
-	explicit tContentPMTK(const tContentP& val)
-	{
-		Verify();
-	}
+	//explicit tContentPMTK(const tContentP& val)
+	//{
+	//	Verify();
+	//}
+
+	static const char* GetID() { return "PMTK"; }
 
 private:
 	void Verify()
 	{
-		SetVerified(Value.size() >= 2 && Value[0] == "PMTK");
+		SetVerified(Value.size() >= 2 && Value[0] == GetID());
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -113,6 +115,59 @@ private:
 		}
 		Cmd = tCmd(parsed.Value[2]);
 		Status = tFlag(parsed.Value[3]);
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct tContentPMTK_SetSerialPort : public tContentPMTK // PMTK251
+{
+	std::uint32_t Baudrate = 0;
+
+	explicit tContentPMTK_SetSerialPort(const std::vector<std::string>&val)
+		:tContentPMTK(val)
+	{
+		if (Value.size() != 7 || Value[1] != GetID())
+		{
+			SetVerified(false);
+			return;
+		}
+
+		const std::uint32_t Br = static_cast<std::uint32_t>(std::atoi(Value[3].c_str()));
+		if (!CheckBaudrate(Br))
+		{
+			SetVerified(false);
+			return;
+		}
+		Baudrate = Br;
+	}
+	explicit tContentPMTK_SetSerialPort(const std::uint32_t baudrate)
+		:Baudrate(baudrate)
+	{
+		SetVerified(CheckBaudrate(Baudrate));
+	}
+
+	static const char* GetID() { return "251"; }
+
+	std::vector<std::string> GetPayload() const
+	{
+		if (!IsVerified())
+			return {};
+		std::vector<std::string> Data;
+		Data.push_back(std::string(tContentPMTK::GetID()) + GetID());
+		Data.push_back(std::to_string(static_cast<int>(Baudrate)));
+		return Data;
+	}
+
+private:
+	bool CheckBaudrate(std::uint32_t br)
+	{
+		constexpr std::uint32_t BRs[] = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 }; // [TBD] - put right values from doc.
+		//constexpr std::uint32_t BRs[] = { 4800, 9600, 19200, 38400 }; // Legacy
+		for (auto i : BRs)
+		{
+			if (i == br)
+				return true;
+		}
+		return false;
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
