@@ -26,17 +26,21 @@ struct tContentPSRF : public tContentP
 	explicit tContentPSRF(const std::vector<std::string>& val)
 		:tContentP(val)
 	{
-		if (Value.size() < 2 || Value[0] != GetID())
-			SetVerified(false);
+		Verify();
 	}
-	explicit tContentPSRF(const tContentP& val)
-		:tContentP(val)
-	{
-		if (Value.size() < 2 || Value[0] != GetID())
-			SetVerified(false);
-	}
+	//explicit tContentPSRF(const tContentP& val)
+	//	:tContentP(val)
+	//{
+	//	Verify();
+	//}
 
 	static const char* GetID() { return "PSRF"; }
+
+private:
+	void Verify()
+	{
+		SetVerified(Value.size() >= 2 && Value[0] == GetID());
+	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tContentPSRF_TXT : public tContentPSRF
@@ -84,6 +88,7 @@ struct tContentPSRF_SetSerialPort : public tContentPSRF // PSRF100
 	explicit tContentPSRF_SetSerialPort(const std::uint32_t baudrate)
 		:Protocol(tProtocol::NMEA), Baudrate(baudrate)
 	{
+		SetVerified(CheckBaudrate(Baudrate));
 	}
 
 	static const char* GetID() { return "100"; }
