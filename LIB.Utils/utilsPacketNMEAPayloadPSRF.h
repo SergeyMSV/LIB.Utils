@@ -26,17 +26,21 @@ struct tContentPSRF : public tContentP
 	explicit tContentPSRF(const std::vector<std::string>& val)
 		:tContentP(val)
 	{
-		if (Value.size() < 2 || Value[0] != GetID())
-			SetVerified(false);
+		Verify();
 	}
-	explicit tContentPSRF(const tContentP& val)
-		:tContentP(val)
-	{
-		if (Value.size() < 2 || Value[0] != GetID())
-			SetVerified(false);
-	}
+	//explicit tContentPSRF(const tContentP& val)
+	//	:tContentP(val)
+	//{
+	//	Verify();
+	//}
 
 	static const char* GetID() { return "PSRF"; }
+
+private:
+	void Verify()
+	{
+		SetVerified(Value.size() >= 2 && Value[0] == GetID());
+	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tContentPSRF_TXT : public tContentPSRF
