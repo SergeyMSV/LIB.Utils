@@ -15,6 +15,11 @@ void UnitTest_Base()
 {
 	std::cout << "\n""utils::Base" << std::endl;
 
+	utils::test::RESULT("Contains 1", Contains<std::uint32_t>({ 0, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921680 }, 0));
+	utils::test::RESULT("Contains 2", Contains<std::uint32_t>({ 0, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921680 }, 19200));
+	utils::test::RESULT("Contains 3", Contains<std::uint32_t>({ 0, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921680 }, 921680));
+	utils::test::RESULT("Contains 4", !Contains<std::uint32_t>({ 0, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921680 }, 1234));
+
 	//////////////////////////////////////////////////////////////////////////////////////////////////
 	{
 		std::vector<std::uint8_t> Data{ 0x01,0x02,0x03,0x04 };
