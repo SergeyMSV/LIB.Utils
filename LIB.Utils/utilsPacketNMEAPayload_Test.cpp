@@ -246,9 +246,12 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<mtk::tContentPMTK_TEST>("mtk TEST 1", "$PMTK000*32\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk::tContentACK>("mtk ACK  1", "$PMTK001,604,3*32\xd\xa");
 
+	UnitTest_PacketNMEA_CRC<mtk::tContentPMTK_SetSerialPort>("mtk Set SerialPort (251)", "$PMTK251,38400*27\xd\xa");
+
 	// MTK
 
 	UnitTest_PacketNMEA_CRC("PMTK TEST 1", mtk::tContentPMTK_TEST(), "$PMTK000*32\xd\xa");
+	UnitTest_PacketNMEA_CRC("PMTK Set SerialPort 1", mtk::tContentPMTK_SetSerialPort(38400), "$PMTK251,38400*27\xd\xa");
 
 	// SiRF
 

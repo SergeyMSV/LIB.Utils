@@ -26,20 +26,10 @@ struct tContentPMTK : public tContentP
 	explicit tContentPMTK(const std::vector<std::string>& val)
 		:tContentP(val)
 	{
-		Verify();
-	}
-	//explicit tContentPMTK(const tContentP& val)
-	//{
-	//	Verify();
-	//}
-
-	static const char* GetID() { return "PMTK"; }
-
-private:
-	void Verify()
-	{
 		SetVerified(Value.size() >= 2 && Value[0] == GetID());
 	}
+
+	static const char* GetID() { return "PMTK"; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tContentPMTK_TEST : public type::tTypeVerified
@@ -118,6 +108,9 @@ private:
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+// The setting will return to the default value under two conditions.
+// 1. Full cold start command is issued
+// 2. Enter standby mode
 struct tContentPMTK_SetSerialPort : public tContentPMTK // PMTK251
 {
 	std::uint32_t Baudrate = 0;
@@ -125,13 +118,13 @@ struct tContentPMTK_SetSerialPort : public tContentPMTK // PMTK251
 	explicit tContentPMTK_SetSerialPort(const std::vector<std::string>&val)
 		:tContentPMTK(val)
 	{
-		if (Value.size() != 7 || Value[1] != GetID())
+		if (Value.size() != 3 || Value[1] != GetID())
 		{
 			SetVerified(false);
 			return;
 		}
 
-		const std::uint32_t Br = static_cast<std::uint32_t>(std::atoi(Value[3].c_str()));
+		const std::uint32_t Br = static_cast<std::uint32_t>(std::atoi(Value[2].c_str()));
 		if (!CheckBaudrate(Br))
 		{
 			SetVerified(false);
@@ -158,16 +151,10 @@ struct tContentPMTK_SetSerialPort : public tContentPMTK // PMTK251
 	}
 
 private:
-	bool CheckBaudrate(std::uint32_t br)
+	bool CheckBaudrate(std::uint32_t br) const
 	{
-		constexpr std::uint32_t BRs[] = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 }; // [TBD] - put right values from doc.
-		//constexpr std::uint32_t BRs[] = { 4800, 9600, 19200, 38400 }; // Legacy
-		for (auto i : BRs)
-		{
-			if (i == br)
-				return true;
-		}
-		return false;
+		return Contains<std::uint32_t>({ 0, 4800, 9600, 19200, 38400, 57600, 115200, 230400, 460800, 921680 }, br);
+		//return Contains<std::uint32_t>({ 0, 9600, 19200, 38400, 57600, 115200, 460800 }, br); // Legacy
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
