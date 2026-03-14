@@ -109,8 +109,8 @@ private:
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // The setting will return to the default value under two conditions.
-// 1. Full cold start command is issued
-// 2. Enter standby mode
+// 1. Full cold start command is issued		(MTK104-Full Cold Restart Command, $PMTK104*37)
+// 2. Enter standby mode					(MTK161-Standby Mode, $PMTK161,0*28)
 struct tContentPMTK_SetSerialPort : public tContentPMTK // PMTK251
 {
 	std::uint32_t Baudrate = 0;
