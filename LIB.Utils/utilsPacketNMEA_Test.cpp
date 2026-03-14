@@ -17,6 +17,10 @@ void UnitTest_PacketNMEA()
 		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa",
 		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
 
+	UnitTest_Packet_Find<tPacketNMEA>("Parse CRC: empty packet",
+		"$*00\xd\xa",
+		"");
+
 	UnitTest_Packet_Find<tPacketNMEA>("Parse CRC: parts",
 		"$GPGSV,3,1,10,23,38,230,44,29,71,156,", "47,07,29,116,41,08,09,081,36*7F\xd\xa",
 		"$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");

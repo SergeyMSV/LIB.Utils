@@ -122,6 +122,8 @@ struct tPayloadMsgData
 		Payload = std::vector<std::uint8_t>(cbegin, cend);
 	}
 
+	bool empty() const { return size() == 0; }
+
 	std::size_t size() const
 	{
 		return 1 + Payload.size();

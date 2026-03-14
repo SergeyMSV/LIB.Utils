@@ -69,6 +69,8 @@ protected:
 
 	static void Append(std::vector<std::uint8_t>& dst, const TPayload& payload)
 	{
+		if (payload.empty())
+			return;
 		dst.reserve(GetSize(payload.size()));
 		dst.push_back(STX);
 		for (auto i : payload)
@@ -229,20 +231,17 @@ struct tPayloadCommon
 	value_type Value{};
 
 	tPayloadCommon() = default;
-
-	explicit tPayloadCommon(const value_type& value)
-		:Value(value)
-	{}
-
+	explicit tPayloadCommon(const value_type& value) :Value(value) {}
 	tPayloadCommon(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		AppendData(cbegin, cend);
 	}
-
 	tPayloadCommon(std::string::const_iterator cbegin, std::string::const_iterator cend)
 	{
 		AppendData(cbegin, cend);
 	}
+
+	bool empty() const { return Value.empty(); }
 
 	std::size_t size() const
 	{
@@ -259,15 +258,8 @@ struct tPayloadCommon
 		return Size;
 	}
 
-	iterator begin() const
-	{
-		return iterator(this, true);
-	}
-
-	iterator end() const
-	{
-		return iterator(this, false);
-	}
+	iterator begin() const { return iterator(this, true); }
+	iterator end() const { return iterator(this, false); }
 
 private:
 	template <class It>
@@ -300,30 +292,16 @@ struct tPayloadString
 	value_type Value{};
 
 	tPayloadString() = default;
-
-	explicit tPayloadString(const value_type& value)
-		:Value(value)
-	{}
-
+	explicit tPayloadString(const value_type& value) :Value(value) {}
 	tPayloadString(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 	{
 		Value.insert(Value.end(), cbegin, cend);
 	}
 
-	std::size_t size() const
-	{
-		return Value.size();
-	}
-
-	iterator begin() const
-	{
-		return Value.begin();
-	}
-
-	iterator end() const
-	{
-		return Value.end();
-	}
+	bool empty() const { return Value.empty(); }
+	std::size_t size() const { return Value.size(); }
+	iterator begin() const { return Value.begin(); }
+	iterator end() const { return Value.end(); }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 using tPacketNMEA_Common_CRC = utils::packet::tPacket<tFormatNMEA, utils::packet::nmea::tPayloadCommon>;
