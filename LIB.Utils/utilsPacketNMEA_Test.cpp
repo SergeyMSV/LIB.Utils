@@ -13,6 +13,10 @@ void UnitTest_PacketNMEA()
 
 	using tPacketNMEA = packet::tPacket<packet::nmea::tFormatNMEA, packet::nmea::tPayloadCommon>;
 
+	UnitTest_Packet_Find<tPacketNMEA>("Parse CRC: empty packet",
+		"$*00\xd\xa",
+		"");
+
 	UnitTest_Packet_Make("Parse CRC: Make MYRMC Empty",
 		tPacketNMEA(std::vector<std::string>{ "MYRMC" }));
 
@@ -25,9 +29,9 @@ void UnitTest_PacketNMEA()
 	UnitTest_Packet_Make("Parse CRC: Make MYRMC 2",
 		tPacketNMEA(std::vector<std::string>{ "MYRMC", "PartA", "PartB", "PartC" }));
 
-	std::cout << "\n""utils::packet_NMEA::tPayloadString\n";
+	std::cout << "\n""utils::packet::nmea::tPayloadString\n";
 
-	using tPacketNMEA2 = packet::tPacket<packet_NMEA::tFormatNMEA, packet_NMEA::tPayloadString>;
+	using tPacketNMEA2 = packet::tPacket<packet::nmea::tFormatNMEA, packet::nmea::tPayloadString>;
 
 	UnitTest_Packet_Make("Parse CRC: Make MYRMC Empty",
 		tPacketNMEA2("MYRMC"));

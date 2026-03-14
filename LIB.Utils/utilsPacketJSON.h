@@ -97,6 +97,8 @@ struct tPayloadString
 		Value.insert(Value.end(), cbegin, cend);
 	}
 
+	bool empty() const { return Value.empty(); }
+
 	std::size_t size() const
 	{
 		return Value.size();
