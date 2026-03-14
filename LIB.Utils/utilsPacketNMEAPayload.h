@@ -618,6 +618,7 @@ namespace mtk_eb500 // MT3329	AXN_1.30
 	//
 	// $GPGSV,1,1,00*79
 	// $GPGSV,4,1,13,01,01,001,,02,02,002,22,03,33,003,33,04,04,004,*??
+
 	using tTime = type::tTimeNoNull<3>;										// 000000.000
 	using tDate = type::tDateNoNull;
 	using tLatitude = type::tLatitudeNoNull<4>;								// 0000.0000,?
@@ -661,6 +662,7 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 	using tLongitude = type::tLongitude<6>;									// 00000.000000,?
 	using tQuality = type::tQualityNoNull;									// 0
 	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
+	using tSatID = type::tUIntFixed<2>;										// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 	using tHDOP = type::tFloatPrecisionFixed<2, 2>;							// ?.00
 	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 3>;			// ?.000,M
 	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 3>;	// ?.000,M
@@ -672,6 +674,7 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 
 	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGLL = base::tContentGLL8<tLatitude, tLongitude, tTime, tMode>;
+	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
 	using tContentGSV = generic::tContentGSV;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 	using tContentVTG = base::tContentVTG10<tCourse, tSpeed, tMode>;
