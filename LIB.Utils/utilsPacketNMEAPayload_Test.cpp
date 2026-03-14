@@ -153,6 +153,9 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 3",	"$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,,280.701,M,14.501,M,,*42\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 3", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,0.00,280.701,M,14.501,M,,*5C\xd\xa");
 
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGSA>("mtk_eb800a GSA 1", "$GNGSA,A,3,12,24,02,06,29,14,32,31,03,25,19,,1.10,0.75,0.81*17\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGSA>("mtk_eb800a GSA 2", "$GNGSA,A,3,83,,,,,,,,,,,,1.10,0.75,0.81*1C\xd\xa");
+
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGLL>("mtk_eb800a GLL 1", "$GNGLL,1234.556677,N,12233.445566,E,123456.000,A,A*45\xd\xa");
 
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentVTG>("mtk_eb800a VTG 1", "$GNVTG,62.90,T,,M,0.00,N,0.00,K,N*11\xd\xa");
