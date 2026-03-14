@@ -155,6 +155,8 @@ public:
 		Payload = std::vector<std::uint8_t>(cbegin + m_HeaderSize, cend);
 	}
 
+	bool empty() const { return size() == 0; }
+
 	std::size_t size() const
 	{
 		return m_HeaderSize + Payload.size();

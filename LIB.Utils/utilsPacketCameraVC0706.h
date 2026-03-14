@@ -205,6 +205,8 @@ struct tDataCmd
 		Payload = std::vector<std::uint8_t>(cbegin, cend);
 	}
 
+	bool empty() const { return size() == 0; }
+
 	std::size_t size() const
 	{
 		return ContainerCmdHeaderSize + Payload.size();
@@ -253,6 +255,8 @@ struct tDataRet
 
 		Payload = std::vector<std::uint8_t>(cbegin, cend);
 	}
+
+	bool empty() const { return size() == 0; }
 
 	std::size_t size() const
 	{

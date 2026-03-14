@@ -69,11 +69,9 @@ public:
 
 	std::vector<std::uint8_t> ToVector() const
 	{
-		std::vector<std::uint8_t> PacketVector;
-
-		TFormat<TPayload>::Append(PacketVector, *this);
-
-		return PacketVector;
+		std::vector<std::uint8_t> Data;
+		TFormat<TPayload>::Append(Data, *this);
+		return Data;
 	}
 };
 
@@ -125,25 +123,14 @@ struct tPayload
 	value_type Value{};
 
 	tPayload() = default;
-
 	tPayload(std::vector<std::uint8_t>::const_iterator cbegin, std::vector<std::uint8_t>::const_iterator cend)
 		:Value(cbegin, cend)
 	{}
 
-	std::size_t size() const
-	{
-		return Value.size();
-	}
-
-	iterator begin() const
-	{
-		return iterator(this, true);
-	}
-
-	iterator end() const
-	{
-		return iterator(this, false);
-	}
+	bool empty() const { return Value.empty(); }
+	std::size_t size() const { return Value.size(); }
+	iterator begin() const { return iterator(this, true); }
+	iterator end() const { return iterator(this, false); }
 };
 
 }
