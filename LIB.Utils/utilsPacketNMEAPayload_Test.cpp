@@ -130,7 +130,6 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 2",	"$GNGGA,172905.087,0000.0000,N,00000.0000,E,0,10,,,M,,M,,*5B\xd\xa"); // C++14
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 3",	"$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,,280.7,M,14.5,M,,*42\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 4", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,0.00,280.7,M,14.5,M,,*5C\xd\xa");
-
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGSV>("mtk_eb500 GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGSV>("mtk_eb500 GSV 2", "$GPGSV,3,2,10,10,07,189,,05,05,220,,09,34,274,42,18,25,309,44*72\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGSV>("mtk_eb500 GSV 3", "$GPGSV,3,3,10,26,82,187,47,28,43,056,46*77\xd\xa");
@@ -142,24 +141,23 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGSV>("mtk_eb500 GSV 9", "$GLGSV,3,2,09,74,23,089,,67,22,338,,65,12,223,,83,05,008,*62\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGSV>("mtk_eb500 GSV 10", "$GLGSV,3,3,09,86,03,164,*52\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGSV>("mtk_eb500 GSV 20", "$GPGSV,1,1,00*79\xd\xa");
-
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentRMC>("mtk_eb500 RMC 1", "$GPRMC,032306.037,V,8960.0000,N,00000.0000,E,0.00,0.00,060180,,,N*7E\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentRMC>("mtk_eb500 RMC 2", "$GPRMC,191709.000,A,1122.3344,N,01122.3344,E,0.01,53.59,080417,,,D*5D\xd\xa");
 
 	std::cout << '\n';
 
-	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 1",	"$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"); // C++14
-	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 2",	"$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"); // C++14
-	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 3",	"$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,,280.701,M,14.501,M,,*42\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 1", "$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"); // C++14
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 2", "$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"); // C++14
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 3", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,,280.701,M,14.501,M,,*42\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 3", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,0.00,280.701,M,14.501,M,,*5C\xd\xa");
-
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGSA>("mtk_eb800a GSA 1", "$GNGSA,A,3,12,24,02,06,29,14,32,31,03,25,19,,1.10,0.75,0.81*17\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGSA>("mtk_eb800a GSA 2", "$GNGSA,A,3,83,,,,,,,,,,,,1.10,0.75,0.81*1C\xd\xa");
-
-	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGLL>("mtk_eb800a GLL 1", "$GNGLL,1234.556677,N,12233.445566,E,123456.000,A,A*45\xd\xa");
-
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGLL>("mtk_eb800a GLL 1", "$GNGLL,,,,,000106.799,V,N*64\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGLL>("mtk_eb800a GLL 2", "$GNGLL,1234.556677,N,12233.445566,E,123456.000,A,A*45\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentVTG>("mtk_eb800a VTG 1", "$GNVTG,62.90,T,,M,0.00,N,0.00,K,N*11\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentVTG>("mtk_eb800a VTG 2", "$GPVTG,62.90,T,,M,0.07,N,0.12,K,A*04\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentZDA>("mtk_eb800a ZDA 1", "$GNZDA,000106.799,06,01,1980,,*4F\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentZDA>("mtk_eb800a ZDA 2", "$GNZDA,200832.000,16,03,2026,,*41\xd\xa");
 
 	std::cout << '\n';
 

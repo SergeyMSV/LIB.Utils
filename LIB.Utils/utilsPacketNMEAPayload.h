@@ -380,6 +380,13 @@ struct tContentRMC12 : public type::tTypeVerified	// Recommended Minimum Specifi
 
 	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(GNSS, Time, Status, Latitude, Longitude, Speed, Course, Date); }
 
+	std::pair<std::time_t, std::uint32_t> GetDateTime() const
+	{
+		auto [DtSec, Milliseconds] = utils::packet::nmea::type::hidden::SplitDouble(Time.GetValue(), 3); // 3 -> milliseconds
+		std::time_t DateTime = Date.GetValue() + DtSec;
+		return { DateTime, Milliseconds };
+	}
+
 	std::vector<std::string> GetPayload() const
 	{
 		if (!IsVerified())
@@ -566,6 +573,17 @@ struct tContentZDA : public type::tTypeVerified	// Time & Date
 
 	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(GNSS, Time, Day, Month, Year, LocalZoneHours, LocalZoneMinutes); }
 
+	std::pair<std::time_t, std::uint32_t> GetDateTime() const
+	{
+		auto [DtSec, Milliseconds] = utils::packet::nmea::type::hidden::SplitDouble(Time.GetValue(), 3); // 3 -> milliseconds
+		tm DT{};
+		DT.tm_year = Year.GetValue() - 1900;
+		DT.tm_mon = Month.GetValue() - 1;
+		DT.tm_mday = Day.GetValue();
+		std::time_t DateTime = mktime(&DT);
+		return { DateTime + DtSec, Milliseconds };
+	}
+
 	std::vector<std::string> GetPayload() const
 	{
 		if (!IsVerified())
@@ -641,20 +659,8 @@ namespace mtk_eb500 // MT3329	AXN_1.30
 
 namespace mtk_eb800a // MT3339	AXN_3.8
 {
-	// $GNGGA,235949.799,,,,,0,0,,,M,,M,,*51
-	// $GPGSV,1,1,04,01,,,44,02,,,30,03,,,45,17,,,38*72
-	// $GLGSV,1,1,00*65
-	// $GNRMC,235949.799,V,,,,,0.00,0.00,050180,,,N*58
-	// $GNGGA,235950.277,,,,,0,0,,,M,,M,,*5C
-	// $GPGSV,1,1,04,01,,,44,02,,,31,03,,,45,04,,,04*??
-	// $GLGSV,1,1,00*65
-
-	// $GNRMC,225721.000,A,1234.567890,N,01234.567890,E,0.80,337.72,120126,,,A*??
-	// $GNGGA,225722.000,1234.567890,N,01234.567890,E,1,4,1.23,123.456,M,12.456,M,,*??
-	// $GPGSV,2,1,06,01,01,001,01,02,02,002,02,03,03,003,,04,,,04*??
-	// $GPGSV,2,2,06,05,,,05,06,,,06*??
-	// $GLGSV,2,1,05,65,65,065,65,66,66,066,66,67,67,067,,68,68,068,68*??
-	// $GLGSV,2,2,05,69,69,069,69*??
+	//$GNGLL,,,,,000106.799,V,N*64
+	//$GNZDA,000106.799,06,01,1980,,*4F
 
 	using tTime = type::tTimeNoNull<3>;										// 000000.000
 	using tDate = type::tDateNoNull;
@@ -671,6 +677,11 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 	using tSpeed = type::tFloatPrecisionFixedNoNull<4, 2>;					// 0.00 - 9999.99
 	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;					// 0.00 - 999.99
 	using tMode = type::tModeNoNull;										// A
+	using tDay = type::tUIntFixedNoNull<2>;									// 00
+	using tMonth = type::tUIntFixedNoNull<2>;								// 00
+	using tYear = type::tUIntFixedNoNull<4>;								// 1980
+	using tLocalZoneHours = type::tIntFixed<2>;								// 00 to ±13 hrs
+	using tLocalZoneMinutes = type::tUIntFixed<2>;							// 00 to +59
 
 	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGLL = base::tContentGLL8<tLatitude, tLongitude, tTime, tMode>;
@@ -678,6 +689,7 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 	using tContentGSV = generic::tContentGSV;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 	using tContentVTG = base::tContentVTG10<tCourse, tSpeed, tMode>;
+	using tContentZDA = base::tContentZDA<tTime, tDay, tMonth, tYear, tLocalZoneHours, tLocalZoneMinutes>;
 }
 //namespace mtk_axn_3_10
 //{
@@ -736,12 +748,19 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	using tSpeed = type::tFloatPrecisionFixedNoNull<4, 2>;					// 0.00 - 9999.99
 	using tCourse = type::tFloatPrecisionFixedNoNull<3, 2>;					// 0.00 - 999.99
 	using tMode = type::tModeNoNull;										// A
+	using tDay = type::tUIntFixedNoNull<2>;									// 00
+	using tMonth = type::tUIntFixedNoNull<2>;								// 00
+	using tYear = type::tUIntFixedNoNull<4>;								// 1980
+	using tLocalZoneHours = type::tIntFixed<2>;								// 00 to ±13 hrs
+	using tLocalZoneMinutes = type::tUIntFixed<2>;							// 00 to +59
 
 	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGLL = base::tContentGLL8<tLatitude, tLongitude, tTime, tMode>;
 	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
 	using tContentGSV = generic::tContentGSV;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 	using tContentVTG = base::tContentVTG9<tCourse, tSpeed>;
+	using tContentZDA = base::tContentZDA<tTime, tDay, tMonth, tYear, tLocalZoneHours, tLocalZoneMinutes>;
 }
 
 namespace sirf_gsu_7x
