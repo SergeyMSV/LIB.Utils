@@ -26,21 +26,10 @@ struct tContentPSRF : public tContentP
 	explicit tContentPSRF(const std::vector<std::string>& val)
 		:tContentP(val)
 	{
-		Verify();
-	}
-	//explicit tContentPSRF(const tContentP& val)
-	//	:tContentP(val)
-	//{
-	//	Verify();
-	//}
-
-	static const char* GetID() { return "PSRF"; }
-
-private:
-	void Verify()
-	{
 		SetVerified(Value.size() >= 2 && Value[0] == GetID());
 	}
+
+	static const char* GetID() { return "PSRF"; }
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 struct tContentPSRF_TXT : public tContentPSRF
@@ -108,16 +97,10 @@ struct tContentPSRF_SetSerialPort : public tContentPSRF // PSRF100
 	}
 
 private:
-	bool CheckBaudrate(std::uint32_t br)
+	bool CheckBaudrate(std::uint32_t br) const
 	{
-		constexpr std::uint32_t BRs[] = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 };
-		//constexpr std::uint32_t BRs[] = { 4800, 9600, 19200, 38400 }; // Legacy
-		for (auto i : BRs)
-		{
-			if (i == br)
-				return true;
-		}
-		return false;
+		return Contains<std::uint32_t>({ 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 }, br);
+		//return Contains<std::uint32_t>({ 4800, 9600, 19200, 38400 }, br); // Legacy
 	}
 };
 ///////////////////////////////////////////////////////////////////////////////////////////////////
