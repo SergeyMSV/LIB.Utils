@@ -12,6 +12,7 @@ void UnitTest_Path()
 {
 	std::cout << "\n""utils::path\n";
 
+#ifdef LIB_UTILS_PATH_DEPRECATED
 	{
 		time_t TimeNow = 1660214334;// std::time(nullptr);
 		tm* DateTime1 = std::localtime(&TimeNow);
@@ -24,6 +25,7 @@ void UnitTest_Path()
 
 		utils::test::RESULT("DateTime Parse", memcmp(DateTime1, &DateTime2, sizeof(tm)));
 	}
+#endif // LIB_UTILS_PATH_DEPRECATED
 
 	std::cout << "\n""utils::linux::GetAppName\n";
 
