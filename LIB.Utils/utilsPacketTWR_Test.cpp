@@ -131,6 +131,17 @@ void UnitTest_PacketTWR()
 	//	ShowPack(Pack);
 	//}
 
+	dispPack(tPacketCmd::Make_UART_Open(packet::twr::tEndpoint::UART1).ToVector());
+	dispPack(tPacketCmd::Make_UART_Close(packet::twr::tEndpoint::UART1).ToVector());
+	dispPack(tPacketCmd::Make_UART_Receive(packet::twr::tEndpoint::UART1).ToVector());
+	dispPack(tPacketCmd::Make_UART_Send(packet::twr::tEndpoint::UART1, { 'T','E','S','T' }).ToVector());
+
+	{
+		tPacketCmd Pack = tPacketCmd::Make_UART_Send(packet::twr::tEndpoint::UART1, { 'T','E','S','T' });
+		std::cout << "Cmd ";
+		ShowPack(Pack);
+	}
+
 	std::cout << std::endl;
 }
 
