@@ -176,6 +176,7 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 10", "$GPGGA,000124.168,3600.0000,N,13600.0000,E,0,00,99.9,00000.0,M,0000.0,M,000.0,0000*43\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 11", "$GPGGA,132652.908,1122.3344,N,12233.4455,E,0,00,99.9,00176.1,M,0014.4,M,000.0,0000*4B\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 12", "$GPGGA,112531.000,1122.3344,N,12233.4455,E,1,12,00.7,00639.3,M,0014.3,M,000.0,0000*4B\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 13", "$GPGGA,111520.707,1122.3344,N,12233.4455,E,0,00,99.9,-0013.7,M,0014.3,M,000.0,0000*53\xd\xa");
 	
 	// ERRs
 	UnitTest_PacketNMEA_CRC_ERR<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 2", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,,00.0,00280.7,M,0014.5,M,000.0,0000*40\xd\xa"); // ERR
