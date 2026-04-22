@@ -310,6 +310,7 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_TestERR<tFloatFixedNoNullUnitNoNull<5, 1>>(               "tFloatFixedNoNullUnitNoNull<5,1> empty 1");
 	UnitTest_PacketNMEAType_TestERR<tFloatFixedNoNullUnitNoNull<5, 1>>("", "",        "tFloatFixedNoNullUnitNoNull<5,1> empty 2");
 	UnitTest_PacketNMEAType_TestERR<tFloatFixedNoNullUnitNoNull<5, 1>>("00000.0", "", "tFloatFixedNoNullUnitNoNull<5,1> 00000.0,");
+	UnitTest_PacketNMEAType_TestERR<tFloatFixedNoNullUnitNoNull<5, 1>>("-0014.2", "", "tFloatFixedNoNullUnitNoNull<5,1> -0014.2,");
 	UnitTest_PacketNMEAType_TestERR<tFloatFixedNoNullUnitNoNull<5, 1>>("", "R",       "tFloatFixedNoNullUnitNoNull<5,1> ,R,");
 
 	UnitTest_PacketNMEAType_TestERR<tUFloatFixedNoNullUnitNoNull<5, 1>>(               "tUFloatFixedNoNullUnitNoNull<5,1> empty 1");
