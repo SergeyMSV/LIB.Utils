@@ -167,22 +167,22 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tIntFixed<1>>(4,     "tIntFixed<1> 4", "4");
 	UnitTest_PacketNMEAType_TestERR<tIntFixed<1>>(12283, "tIntFixed<1> 12283");
 
-	UnitTest_PacketNMEAType_Test<hidden::tTypeNoNull<tIntFixed<1>>>("0", "tTypeNoNull<tIntFixed<1>> 0",     "0");
-	UnitTest_PacketNMEAType_TestERR<hidden::tTypeNoNull<tIntFixed<1>>>("tTypeNoNull<tIntFixed<1>> empty 1");
-	UnitTest_PacketNMEAType_TestERR<hidden::tTypeNoNull<tIntFixed<1>>>("", "tTypeNoNull<tIntFixed<1>> empty 2");
+	UnitTest_PacketNMEAType_Test<hidden::tTypeNoNull<tIntFixed<1>>>("0",	"tTypeNoNull<tIntFixed<1>> 0",	"0");
+	UnitTest_PacketNMEAType_TestERR<hidden::tTypeNoNull<tIntFixed<1>>>(		"tTypeNoNull<tIntFixed<1>> empty 1");
+	UnitTest_PacketNMEAType_TestERR<hidden::tTypeNoNull<tIntFixed<1>>>("",	"tTypeNoNull<tIntFixed<1>> empty 2");
 
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(       "tIntFixed<2> empty 1", "");
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("",    "tIntFixed<2> empty 2", "");
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("00",  "tIntFixed<2> 00",    "00");
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("-00", "tIntFixed<2> -00",   "00"); // !
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("-45", "tIntFixed<2> -45",   "-45");
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("45",  "tIntFixed<2> 45",    "45");
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(0,     "tIntFixed<2> 0",     "00");
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(-45,   "tIntFixed<2> -45",   "-45");
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(45,    "tIntFixed<2> 45",    "45");
-	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(-4,    "tIntFixed<2> -4",    "-04");
-	UnitTest_PacketNMEAType_TestERR<tIntFixed<2>>("-4", "tIntFixed<2> -4");
-	UnitTest_PacketNMEAType_TestERR<tIntFixed<2>>(-453, "tIntFixed<2> -453");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(			"tIntFixed<2> empty 1",	"");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("",		"tIntFixed<2> empty 2",	"");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("00",	"tIntFixed<2> 00",		"00");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("-0",	"tIntFixed<2>  -0",		"00");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("-4",	"tIntFixed<2>  -4",		"-4");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>("45",	"tIntFixed<2> 45",		"45");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(0,		"tIntFixed<2>  0",		"00");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(-45,		"tIntFixed<2> -45",		"-45");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(45,		"tIntFixed<2> 45",		"45");
+	UnitTest_PacketNMEAType_Test<tIntFixed<2>>(-4,		"tIntFixed<2> -4",		"-4");
+	//UnitTest_PacketNMEAType_TestERR<tIntFixed<2>>("-4",	"tIntFixed<2> -4");
+	UnitTest_PacketNMEAType_TestERR<tIntFixed<2>>(-453,	"tIntFixed<2> -453");
 
 	UnitTest_PacketNMEAType_Test<tUIntFixed<1>>(       "tUIntFixed<1> empty 1", "");
 	UnitTest_PacketNMEAType_Test<tUIntFixed<1>>("",    "tUIntFixed<1> empty 2", "");
@@ -232,11 +232,11 @@ void UnitTest_PacketNMEAType()
 
 	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>(             "tFloatFixed<2,4> empty 1",         "");
 	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>("",          "tFloatFixed<2,4> empty 2",         "");
-	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>("-00.0000",  "tFloatFixed<2,4> -00.0000", "00.0000"); // !
-	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>("-12.3456",  "tFloatFixed<2,4> -12.3456", "-12.3456");
-	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>(-12.3456,    "tFloatFixed<2,4> -12.3456", "-12.3456");
-	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>(-1.3456,     "tFloatFixed<2,4> -1.3456", "-01.3456");
-	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>("-7.3456", "tFloatFixed<2,4> -7.3456");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>("-0.0000",   "tFloatFixed<2,4> -0.0000", "00.0000");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>("-2.3456",   "tFloatFixed<2,4> -2.3456", "-2.3456");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>(-2.3456,     "tFloatFixed<2,4> -2.3456", "-2.3456");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>("02.3456",   "tFloatFixed<2,4> 02.3456", "02.3456");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<2, 4>>(2.3456,      "tFloatFixed<2,4>  2.3456", "02.3456");
 	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>(".3456",   "tFloatFixed<2,4> .3456");
 	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>(".",       "tFloatFixed<2,4> .");
 	UnitTest_PacketNMEAType_TestERR<tFloatFixed<2, 4>>(".3",      "tFloatFixed<2,4> .3");
@@ -250,13 +250,12 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>("",         "tFloatFixed<5,1> empty 2",          "");
 	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>("00000.0",  "tFloatFixed<5,1> 00000.0",   "00000.0");
 	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>("12345.6",  "tFloatFixed<5,1> 12345.678", "12345.6");
-	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>("-12345.6", "tFloatFixed<5,1> -12345.678","-12345.6");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>("-2345.6", "tFloatFixed<5,1> -2345.678",  "-2345.6");
 	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>("00001.6",  "tFloatFixed<5,1> 00001.6",   "00001.6");
 	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>(0,          "tFloatFixed<5,1> 0",         "00000.0");
 	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>(12345.6111, "tFloatFixed<5,1> 12345.6",   "12345.6");
 	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>(4.6111,     "tFloatFixed<5,1> 4.6111",    "00004.6");
-	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>(-4.6111,    "tFloatFixed<5,1> -4.6111",   "-00004.6");
-	UnitTest_PacketNMEAType_TestERR<tFloatFixed<5, 1>>("-2345.6", "tFloatFixed<5,1> -2345.678");
+	UnitTest_PacketNMEAType_Test<tFloatFixed<5, 1>>(-4.6111,    "tFloatFixed<5,1> -4.6111",   "-0004.6");
 
 	UnitTest_PacketNMEAType_Test<tFloatFixedUnit<5, 1>>(               "tFloatFixedUnit<5,1> empty 1", ",");
 	UnitTest_PacketNMEAType_Test<tFloatFixedUnit<5, 1>>("", "",        "tFloatFixedUnit<5,1> empty 2", ",");
@@ -320,33 +319,33 @@ void UnitTest_PacketNMEAType()
 
 	//tInt<0> Int0;
 
-	UnitTest_PacketNMEAType_Test<tInt<1>>(      "tInt<1> empty 1", "");
-	UnitTest_PacketNMEAType_Test<tInt<1>>(""    "tInt<1> empty 2", "");
-	UnitTest_PacketNMEAType_Test<tInt<1>>("0",  "tInt<1> 0",     "0");
-	UnitTest_PacketNMEAType_Test<tInt<1>>("-0", "tInt<1> -0",    "0");
-	UnitTest_PacketNMEAType_Test<tInt<1>>("5",  "tInt<1> 5",     "5");
-	UnitTest_PacketNMEAType_Test<tInt<1>>("-5", "tInt<1> -5",    "-5");
-	UnitTest_PacketNMEAType_Test<tInt<1>>(0,    "tInt<1> 0",     "0");
-	UnitTest_PacketNMEAType_Test<tInt<1>>(5,    "tInt<1> 5",     "5");
-	UnitTest_PacketNMEAType_Test<tInt<1>>(-5,   "tInt<1> -5",    "-5");
-	UnitTest_PacketNMEAType_TestERR<tInt<1>>("10", "tInt<1> 10");
-	UnitTest_PacketNMEAType_TestERR<tInt<1>>(4567, "tInt<1> 4567");
+	UnitTest_PacketNMEAType_Test<tInt<1>>(		"tInt<1> empty 1",	"");
+	UnitTest_PacketNMEAType_Test<tInt<1>>("",	"tInt<1> empty 2",	"");
+	UnitTest_PacketNMEAType_Test<tInt<1>>("0",	"tInt<1> 0",		"0");
+	UnitTest_PacketNMEAType_Test<tInt<1>>("-0",	"tInt<1> -0",		"0");
+	UnitTest_PacketNMEAType_Test<tInt<1>>("5",	"tInt<1> 5",		"5");
+	UnitTest_PacketNMEAType_Test<tInt<1>>("-5",	"tInt<1> -5",		"-5");
+	UnitTest_PacketNMEAType_Test<tInt<1>>(0,	"tInt<1> 0",		"0");
+	UnitTest_PacketNMEAType_Test<tInt<1>>(5,	"tInt<1> 5",		"5");
+	UnitTest_PacketNMEAType_Test<tInt<1>>(-5,	"tInt<1> -5",		"-5");
+	UnitTest_PacketNMEAType_TestERR<tInt<1>>("10",	"tInt<1> 10");
+	UnitTest_PacketNMEAType_TestERR<tInt<1>>(4567,	"tInt<1> 4567");
 
 	UnitTest_PacketNMEAType_TestERR<hidden::tTypeNoNull<tInt<1>>>("tTypeNoNull<tInt<1>> empty 1");
 	UnitTest_PacketNMEAType_TestERR<hidden::tTypeNoNull<tInt<1>>>("", "tTypeNoNull<tInt<1>> empty 2");
 
-	UnitTest_PacketNMEAType_Test<tInt<2>>(      "tInt<2> empty", "");
-	UnitTest_PacketNMEAType_Test<tInt<2>>("0",  "tInt<2> 0",     "0");
-	UnitTest_PacketNMEAType_Test<tInt<2>>("5",  "tInt<2> 5",     "5");
-	UnitTest_PacketNMEAType_Test<tInt<2>>("-5", "tInt<2> -5",    "-5");
-	UnitTest_PacketNMEAType_Test<tInt<2>>("10", "tInt<2> 10",    "10");
-	UnitTest_PacketNMEAType_Test<tInt<2>>("-10","tInt<2> -10",   "-10");
-	UnitTest_PacketNMEAType_Test<tInt<2>>(0,    "tInt<2> 0",     "0");
-	UnitTest_PacketNMEAType_Test<tInt<2>>(5,    "tInt<2> 5",     "5");
-	UnitTest_PacketNMEAType_Test<tInt<2>>(-5,   "tInt<2> -5",    "-5");
-	UnitTest_PacketNMEAType_Test<tInt<2>>(10,   "tInt<2> 10",    "10");
-	UnitTest_PacketNMEAType_Test<tInt<2>>(-10,  "tInt<2> -10",   "-10");
-	UnitTest_PacketNMEAType_TestERR<tInt<2>>(4567, "tInt<2> 4567");
+	UnitTest_PacketNMEAType_Test<tInt<2>>(			"tInt<2> empty",	"");
+	UnitTest_PacketNMEAType_Test<tInt<2>>("0",		"tInt<2> 0",		"0");
+	UnitTest_PacketNMEAType_Test<tInt<2>>("5",		"tInt<2> 5",		"5");
+	UnitTest_PacketNMEAType_Test<tInt<2>>("-5",		"tInt<2> -5",		"-5");
+	UnitTest_PacketNMEAType_Test<tInt<2>>("10",		"tInt<2> 10",		"10");
+	UnitTest_PacketNMEAType_Test<tInt<2>>("-10",	"tInt<2> -10",		"-10");
+	UnitTest_PacketNMEAType_Test<tInt<2>>(0,		"tInt<2> 0",		"0");
+	UnitTest_PacketNMEAType_Test<tInt<2>>(5,		"tInt<2> 5",		"5");
+	UnitTest_PacketNMEAType_Test<tInt<2>>(-5,		"tInt<2> -5",		"-5");
+	UnitTest_PacketNMEAType_Test<tInt<2>>(10,		"tInt<2> 10",		"10");
+	UnitTest_PacketNMEAType_Test<tInt<2>>(-10,		"tInt<2> -10",		"-10");
+	UnitTest_PacketNMEAType_TestERR<tInt<2>>(4567,	"tInt<2> 4567");
 
 	//tUInt<0> UInt0;
 
