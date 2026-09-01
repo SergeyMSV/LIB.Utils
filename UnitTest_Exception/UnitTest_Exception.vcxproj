@@ -136,11 +136,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\LIB.Utils\utilsException.h" />
+    <ClInclude Include="..\LIB.Utils\utilsLog.h" />
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\LIB.Utils\utilsException.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsLog.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
