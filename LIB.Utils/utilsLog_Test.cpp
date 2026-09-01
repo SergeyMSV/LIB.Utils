@@ -101,6 +101,10 @@ void UnitTest_tLog()
 		}, 3, 2);
 
 	std::cout << std::endl;
+
+	std::cout << log::GetLogMessage("Log message", __FILE__, __LINE__);
+
+	std::cout << std::endl;
 }
 
 }
