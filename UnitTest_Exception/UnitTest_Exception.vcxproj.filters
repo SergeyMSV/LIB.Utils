@@ -11,10 +11,16 @@
     </ClInclude>
     <ClInclude Include="devConfig.h" />
     <ClInclude Include="libConfig.h" />
+    <ClInclude Include="..\LIB.Utils\utilsLog.h">
+      <Filter>LIB.Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsException.cpp">
+      <Filter>LIB.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsLog.cpp">
       <Filter>LIB.Utils</Filter>
     </ClCompile>
   </ItemGroup>
