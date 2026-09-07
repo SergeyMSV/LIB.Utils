@@ -54,6 +54,16 @@ void UnitTest_Linux()
 #endif // _WIN32
 	}
 
+	{
+		std::time_t Res = linux::GetTimeSystem();
+		std::cout << "time system = " << Res << '\n';
+	}
+
+	{
+		std::time_t Res = linux::GetTimeRTC(0);
+		std::cout << "time RTC0 = " << Res << '\n';
+	}
+
 	std::cout << std::endl;
 }
 
