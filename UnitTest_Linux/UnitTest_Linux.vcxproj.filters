@@ -5,6 +5,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include=".vscode">
+      <UniqueIdentifier>{f192920f-b28d-443b-a89d-8dbb35672ecd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -42,5 +45,16 @@
     <ClInclude Include="..\LIB.Utils\utilsLog.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".vscode\c_cpp_properties.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include=".vscode\launch.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include=".vscode\tasks.json">
+      <Filter>.vscode</Filter>
+    </None>
   </ItemGroup>
 </Project>
