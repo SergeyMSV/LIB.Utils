@@ -5,8 +5,6 @@
 #ifdef __cpp_lib_containers_ranges
 namespace std23 = std;
 #else // __cpp_lib_containers_ranges
-namespace utils
-{
 namespace std23
 {
 template<typename T>
@@ -28,8 +26,5 @@ public:
 		this->insert(pos, range.cbegin(), range.cend());
 	}
 };
-
 }
-}
-
 #endif // __cpp_lib_containers_ranges
