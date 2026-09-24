@@ -177,6 +177,8 @@
     <ClCompile Include="..\Lib.Utils\utilsPatternState_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPortSerial.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsPortSerial_Test.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsRand.cpp" />
+    <ClCompile Include="..\LIB.Utils\utilsRand_Test.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsString.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsString_Test.cpp" />
     <ClCompile Include="..\Lib.Utils\utilsTest.cpp" />
@@ -214,6 +216,7 @@
     <ClInclude Include="..\Lib.Utils\utilsPatternCommand.h" />
     <ClInclude Include="..\Lib.Utils\utilsPatternState.h" />
     <ClInclude Include="..\LIB.Utils\utilsPortSerial.h" />
+    <ClInclude Include="..\LIB.Utils\utilsRand.h" />
     <ClInclude Include="..\LIB.Utils\utilsString.h" />
     <ClInclude Include="..\Lib.Utils\utilsTest.h" />
     <ClInclude Include="..\Lib.Utils\utilsTrap.h" />
