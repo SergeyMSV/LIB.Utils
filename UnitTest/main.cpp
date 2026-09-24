@@ -26,6 +26,7 @@ namespace utils
 	void UnitTest_PatternCommmand();
 	void UnitTest_PatternState();
 	void UnitTest_PortSerial();
+	void UnitTest_Rand();
 	void UnitTest_String();
 	void UnitTest_Test();
 	void UnitTest_Trap();
@@ -59,6 +60,7 @@ int main()
 	UnitTest_PatternCommmand();
 	UnitTest_PatternState();
 	UnitTest_PortSerial();
+	UnitTest_Rand();
 	UnitTest_String();
 	//UnitTest_Test();
 	UnitTest_Trap();
