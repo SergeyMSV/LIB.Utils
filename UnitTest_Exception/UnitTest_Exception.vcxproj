@@ -24,6 +24,7 @@
     <ProjectGuid>{0d5cf91f-f8be-4c9b-bb55-ce627a92ccfe}</ProjectGuid>
     <RootNamespace>UnitTestException</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Exception</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
