@@ -24,6 +24,7 @@
     <ProjectGuid>{ddfd098a-7e7c-4f69-afce-c077b095ea57}</ProjectGuid>
     <RootNamespace>UnitTestMQTT</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>PacketMQTTv3_1_1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

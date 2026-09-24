@@ -23,6 +23,7 @@
     <ProjectGuid>{F5030552-583B-4C42-9E52-369A5760BDD2}</ProjectGuid>
     <RootNamespace>CPPDEMOProtocol1</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Packet</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -23,6 +23,7 @@
     <ProjectGuid>{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}</ProjectGuid>
     <RootNamespace>CPPDEMOProtocol1</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Chrono</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
