@@ -64,6 +64,21 @@ void UnitTest_Linux()
 		std::cout << "time RTC0 = " << Res << '\n';
 	}
 
+	std::cout << '\n';
+
+	{
+		std::vector<linux::tHwmon> Res = linux::GetHwmon();
+		test::RESULT("hwmon",
+			Res.size() == 5 &&
+			Res[4].ID == "hwmon4" &&
+			Res[4].Name == "aht20" &&
+			Res[4].Label == "opio_sens_aht20" &&
+			Res[4].Temperature == "-25020" &&
+			Res[4].Humidity == "54123" &&
+			Res[4].Reg == 0x38
+		);
+	}
+
 	std::cout << std::endl;
 }
 
