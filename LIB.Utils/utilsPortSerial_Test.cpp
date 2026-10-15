@@ -52,9 +52,16 @@ void UnitTest_PortSerial()
 
 		boost::asio::io_context ioc;
 
+#ifdef _WIN32
 		const std::string PortID = "COM1";
+#else // _WIN32
+		const std::string PortID = "/dev/ttyS0";
+#endif // _WIN32
 
 		tBoard Port(ioc, PortID);
+
+		const bool Ready = Port.IsReady();
+		test::WARNING("SerialPort: check if the port " + PortID + " has been opened with another application", !Ready);
 
 		std::thread Thread_ioc([&ioc]() { ioc.run(); });
 
@@ -81,9 +88,16 @@ void UnitTest_PortSerial()
 
 	{ // 1-Wire Port DALLAS
 		boost::asio::io_context ioc;
+#ifdef _WIN32
 		const std::string PortID = "COM4";
+#else // _WIN32
+		const std::string PortID = "/dev/ttyS4";
+#endif // _WIN32
 		tBoardOneWire Port(ioc, PortID, tBoardOneWire::tSpeed::Norm);// tBoardOneWire::tSpeed::Fast);
 		std::thread Thread_ioc([&ioc]() { ioc.run(); });
+
+		const bool Ready = Port.IsReady();
+		test::WARNING("SerialPort: check if the port " + PortID + " has been opened with another application", !Ready);
 
 		//std::vector<std::uint8_t> Rsp = Port.Transaction({ 0x81, 0xFF }, 0);
 		//std::vector<std::uint8_t> Rsp = Port.Transaction({ 0x7E, 0x7E }, 0);
