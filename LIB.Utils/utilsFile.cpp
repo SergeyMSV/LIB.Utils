@@ -1,11 +1,12 @@
 #include "utilsFile.h"
 
+#include <algorithm>
 #include <filesystem>
 
 namespace utils
 {
-	namespace file
-	{
+namespace file
+{
 
 std::optional<std::string> ReplaceFileNamePrefix(const std::string& path, const std::string& from, const std::string& to)
 {
@@ -76,5 +77,5 @@ void RemoveFilesWithPrefix(const std::string& path, const std::string& prefix)
 	}
 }
 
-	}
+}
 }
