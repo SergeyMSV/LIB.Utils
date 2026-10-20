@@ -7,17 +7,18 @@
 
 #include <libConfig.h>
 
-#include <string>
-
 #include <algorithm>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <string>
+
+#include <cstdint>
 
 namespace utils
 {
-	namespace test
-	{
+namespace test
+{
 
 void ASSERT(bool value);
 void RESULT(const char* msg, bool result);
@@ -33,5 +34,6 @@ std::string ToStringHEX(const T& val, bool space)
 	std::for_each(val.begin(), val.end(), [&SStr, &space](std::uint8_t val) { SStr << std::setfill('0') << std::setw(2) << std::hex << (int)val << (space ? " " : ""); });
 	return SStr.str();
 }
-	}
+
+}
 }
