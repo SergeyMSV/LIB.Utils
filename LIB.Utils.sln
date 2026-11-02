@@ -3,85 +3,87 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32407.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Base", "UnitTest_Base\UnitTest_Base.vcxproj", "{555B7583-500F-47F0-8255-5284A8DA8158}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Base", "UnitTest_Base\UnitTest_Base.vcxproj", "{555B7583-500F-47F0-8255-5284A8DA8158}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_CRC", "UnitTest_CRC\UnitTest_CRC.vcxproj", "{D33AE98E-E578-418F-9AF3-810179FB0A84}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CRC", "UnitTest_CRC\UnitTest_CRC.vcxproj", "{D33AE98E-E578-418F-9AF3-810179FB0A84}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Packet", "UnitTest_Packet\UnitTest_Packet.vcxproj", "{F5030552-583B-4C42-9E52-369A5760BDD2}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Packet", "UnitTest_Packet\UnitTest_Packet.vcxproj", "{F5030552-583B-4C42-9E52-369A5760BDD2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketBNTBX", "UnitTest_PacketBNTBX\UnitTest_PacketBNTBX.vcxproj", "{A2E734E4-C50E-410A-8760-90EC6965F2CC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketBNTBX", "UnitTest_PacketBNTBX\UnitTest_PacketBNTBX.vcxproj", "{A2E734E4-C50E-410A-8760-90EC6965F2CC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketStar", "UnitTest_PacketStar\UnitTest_PacketStar.vcxproj", "{D06F90AB-EC1A-4C54-864B-BE11E79732CB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketStar", "UnitTest_PacketStar\UnitTest_PacketStar.vcxproj", "{D06F90AB-EC1A-4C54-864B-BE11E79732CB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Test", "UnitTest_Test\UnitTest_Test.vcxproj", "{2A67C330-A537-423A-92FE-8FFD6E34EADE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "UnitTest_Test\UnitTest_Test.vcxproj", "{2A67C330-A537-423A-92FE-8FFD6E34EADE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest", "UnitTest\UnitTest.vcxproj", "{8A2CEEF1-8CEA-434B-A859-E072C7ED2D2E}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "!UnitTest", "UnitTest\UnitTest.vcxproj", "{8A2CEEF1-8CEA-434B-A859-E072C7ED2D2E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketNMEA", "UnitTest_PacketNMEA\UnitTest_PacketNMEA.vcxproj", "{CCDB6DC3-8A63-492A-997D-B529D596F946}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketNMEA", "UnitTest_PacketNMEA\UnitTest_PacketNMEA.vcxproj", "{CCDB6DC3-8A63-492A-997D-B529D596F946}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Key", "UnitTest_Key\UnitTest_Key.vcxproj", "{1EF24B0A-95F0-4873-808F-F44D3D11E378}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Key", "UnitTest_Key\UnitTest_Key.vcxproj", "{1EF24B0A-95F0-4873-808F-F44D3D11E378}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_CryptoAES", "UnitTest_CryptoAES\UnitTest_CryptoAES.vcxproj", "{2C11D15C-5BA7-4C19-8D45-C0651EF8F051}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CryptoAES", "UnitTest_CryptoAES\UnitTest_CryptoAES.vcxproj", "{2C11D15C-5BA7-4C19-8D45-C0651EF8F051}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_CryptoRSA", "UnitTest_CryptoRSA\UnitTest_CryptoRSA.vcxproj", "{06AE7ED4-E54F-4EAA-B5D7-0E826B7D0F1F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CryptoRSA", "UnitTest_CryptoRSA\UnitTest_CryptoRSA.vcxproj", "{06AE7ED4-E54F-4EAA-B5D7-0E826B7D0F1F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Charset", "UnitTest_Charset\UnitTest_Charset.vcxproj", "{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Charset", "UnitTest_Charset\UnitTest_Charset.vcxproj", "{F7CC3B5D-675D-4AD5-8CCE-61BAB6C06FA6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Shell", "UnitTest_Shell\UnitTest_Shell.vcxproj", "{2B2AADDD-03C6-4540-B112-2BF2735A1108}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shell", "UnitTest_Shell\UnitTest_Shell.vcxproj", "{2B2AADDD-03C6-4540-B112-2BF2735A1108}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Trap", "UnitTest_Trap\UnitTest_Trap.vcxproj", "{ABAD4865-852B-4948-A4A4-C26C31B09E26}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Trap", "UnitTest_Trap\UnitTest_Trap.vcxproj", "{ABAD4865-852B-4948-A4A4-C26C31B09E26}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PatternCommand", "UnitTest_PatternCommand\UnitTest_PatternCommand.vcxproj", "{FED291CF-4E8F-437B-A364-B5258D91BBAA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PatternCommand", "UnitTest_PatternCommand\UnitTest_PatternCommand.vcxproj", "{FED291CF-4E8F-437B-A364-B5258D91BBAA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PatternState", "UnitTest_PatternState\UnitTest_PatternState.vcxproj", "{574ABF5F-8460-4E7C-BC67-B8B3B3EDCC93}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PatternState", "UnitTest_PatternState\UnitTest_PatternState.vcxproj", "{574ABF5F-8460-4E7C-BC67-B8B3B3EDCC93}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Log", "UnitTest_Log\UnitTest_Log.vcxproj", "{4EC56D9E-06A1-4B70-85A3-E45600735397}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Log", "UnitTest_Log\UnitTest_Log.vcxproj", "{4EC56D9E-06A1-4B70-85A3-E45600735397}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketNMEAType", "UnitTest_PacketNMEAType\UnitTest_PacketNMEAType.vcxproj", "{F2B4657D-5715-4F40-A6B3-B2DE0EEC8634}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketNMEAType", "UnitTest_PacketNMEAType\UnitTest_PacketNMEAType.vcxproj", "{F2B4657D-5715-4F40-A6B3-B2DE0EEC8634}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketNMEAPayload", "UnitTest_PacketNMEAPayload\UnitTest_PacketNMEAPayload.vcxproj", "{507182A1-464A-4274-9485-9784FF4B1AC7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketNMEAPayload", "UnitTest_PacketNMEAPayload\UnitTest_PacketNMEAPayload.vcxproj", "{507182A1-464A-4274-9485-9784FF4B1AC7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Chrono", "UnitTest_Chrono\UnitTest_Chrono.vcxproj", "{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Chrono", "UnitTest_Chrono\UnitTest_Chrono.vcxproj", "{EB51DE3D-9FD7-47AE-AE42-76A5028BDA28}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketCameraVC0706", "UnitTest_PacketCameraVC0706\UnitTest_PacketCameraVC0706.vcxproj", "{E15DBCED-F359-4E6E-9226-986B128FCEA6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketCameraVC0706", "UnitTest_PacketCameraVC0706\UnitTest_PacketCameraVC0706.vcxproj", "{E15DBCED-F359-4E6E-9226-986B128FCEA6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Path", "UnitTest_Path\UnitTest_Path.vcxproj", "{03F980A2-4424-48B5-AC80-5D58E51E0E97}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Path", "UnitTest_Path\UnitTest_Path.vcxproj", "{03F980A2-4424-48B5-AC80-5D58E51E0E97}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Linux", "UnitTest_Linux\UnitTest_Linux.vcxproj", "{493E18F9-D691-49AD-81EF-E97F3DF1807A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Linux", "UnitTest_Linux\UnitTest_Linux.vcxproj", "{493E18F9-D691-49AD-81EF-E97F3DF1807A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Web", "UnitTest_Web\UnitTest_Web.vcxproj", "{A64B844F-D7AA-4329-9B62-E65F602827D7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Web", "UnitTest_Web\UnitTest_Web.vcxproj", "{A64B844F-D7AA-4329-9B62-E65F602827D7}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Arch_7z2201", "UnitTest_Arch_7z2201\UnitTest_Arch_7z2201.vcxproj", "{6C0DFADE-1574-4203-8D56-9EAD84FC512C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Arch_7z2201", "UnitTest_Arch_7z2201\UnitTest_Arch_7z2201.vcxproj", "{6C0DFADE-1574-4203-8D56-9EAD84FC512C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_File", "UnitTest_File\UnitTest_File.vcxproj", "{873D3538-3269-473B-BFD9-522E71945B77}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "File", "UnitTest_File\UnitTest_File.vcxproj", "{873D3538-3269-473B-BFD9-522E71945B77}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketTWR", "UnitTest_PacketTWR\UnitTest_PacketTWR.vcxproj", "{E8E1B3AA-63B5-4CA6-BC4D-472FEE35E253}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketTWR", "UnitTest_PacketTWR\UnitTest_PacketTWR.vcxproj", "{E8E1B3AA-63B5-4CA6-BC4D-472FEE35E253}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PortSerial", "UnitTest_PortSerial\UnitTest_PortSerial.vcxproj", "{552288CD-8EEF-4251-B306-692D28236449}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PortSerial", "UnitTest_PortSerial\UnitTest_PortSerial.vcxproj", "{552288CD-8EEF-4251-B306-692D28236449}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_DALLAS", "UnitTest_DALLAS\UnitTest_DALLAS.vcxproj", "{F730BD51-FBF0-4640-9088-C90A1360859D}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DALLAS", "UnitTest_DALLAS\UnitTest_DALLAS.vcxproj", "{F730BD51-FBF0-4640-9088-C90A1360859D}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Multithread", "UnitTest_Multithread\UnitTest_Multithread.vcxproj", "{8CFFE7EC-A5FA-4B95-9573-ADD7309AF380}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Multithread", "UnitTest_Multithread\UnitTest_Multithread.vcxproj", "{8CFFE7EC-A5FA-4B95-9573-ADD7309AF380}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_MIFARE", "UnitTest_MIFARE\UnitTest_MIFARE.vcxproj", "{D6BD2444-0EA2-4976-AAD9-2A6C4A77FF02}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MIFARE", "UnitTest_MIFARE\UnitTest_MIFARE.vcxproj", "{D6BD2444-0EA2-4976-AAD9-2A6C4A77FF02}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Version", "UnitTest_Version\UnitTest_Version.vcxproj", "{F39AEFB4-95D5-4D47-A697-BFEE36AA41CB}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Version", "UnitTest_Version\UnitTest_Version.vcxproj", "{F39AEFB4-95D5-4D47-A697-BFEE36AA41CB}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Exception", "UnitTest_Exception\UnitTest_Exception.vcxproj", "{0D5CF91F-F8BE-4C9B-BB55-CE627A92CCFE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Exception", "UnitTest_Exception\UnitTest_Exception.vcxproj", "{0D5CF91F-F8BE-4C9B-BB55-CE627A92CCFE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Std", "UnitTest_Std\UnitTest_Std.vcxproj", "{7054524F-9D49-460B-8965-2D6B4422AA86}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Std", "UnitTest_Std\UnitTest_Std.vcxproj", "{7054524F-9D49-460B-8965-2D6B4422AA86}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Time", "UnitTest_Time\UnitTest_Time.vcxproj", "{C117DFF8-B796-47F7-BFA6-66FC2A5892EA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Time", "UnitTest_Time\UnitTest_Time.vcxproj", "{C117DFF8-B796-47F7-BFA6-66FC2A5892EA}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketMQTTv3_1_1", "UnitTest_PacketMQTTv3_1_1\UnitTest_PacketMQTTv3_1_1.vcxproj", "{DDFD098A-7E7C-4F69-AFCE-C077B095EA57}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketMQTTv3_1_1", "UnitTest_PacketMQTTv3_1_1\UnitTest_PacketMQTTv3_1_1.vcxproj", "{DDFD098A-7E7C-4F69-AFCE-C077B095EA57}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_String", "UnitTest_String\UnitTest_String.vcxproj", "{5B6D1E83-1238-41A2-9EF3-9BBFDBD88E73}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "String", "UnitTest_String\UnitTest_String.vcxproj", "{5B6D1E83-1238-41A2-9EF3-9BBFDBD88E73}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_PacketJSON", "UnitTest_PacketJSON\UnitTest_PacketJSON.vcxproj", "{8A9A55A4-4212-403D-865B-4C7FE8FECFDE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketJSON", "UnitTest_PacketJSON\UnitTest_PacketJSON.vcxproj", "{8A9A55A4-4212-403D-865B-4C7FE8FECFDE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Windows", "UnitTest_Windows\UnitTest_Windows.vcxproj", "{C2515509-6FFD-45CA-9BFB-BECE9C3BBAC0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Windows", "UnitTest_Windows\UnitTest_Windows.vcxproj", "{C2515509-6FFD-45CA-9BFB-BECE9C3BBAC0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest_Rand", "UnitTest_Rand\UnitTest_Rand.vcxproj", "{EBDE2DBC-7B44-4F4A-B597-838EE25D30EE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Rand", "UnitTest_Rand\UnitTest_Rand.vcxproj", "{EBDE2DBC-7B44-4F4A-B597-838EE25D30EE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PacketGSM_MUX", "UnitTest_PacketGSM_MUX\UnitTest_PacketGSM_MUX.vcxproj", "{7DC6F463-4560-4941-807F-1FAFB231D8E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -411,6 +413,14 @@ Global
 		{EBDE2DBC-7B44-4F4A-B597-838EE25D30EE}.Release|x64.Build.0 = Release|x64
 		{EBDE2DBC-7B44-4F4A-B597-838EE25D30EE}.Release|x86.ActiveCfg = Release|Win32
 		{EBDE2DBC-7B44-4F4A-B597-838EE25D30EE}.Release|x86.Build.0 = Release|Win32
+		{7DC6F463-4560-4941-807F-1FAFB231D8E2}.Debug|x64.ActiveCfg = Debug|x64
+		{7DC6F463-4560-4941-807F-1FAFB231D8E2}.Debug|x64.Build.0 = Debug|x64
+		{7DC6F463-4560-4941-807F-1FAFB231D8E2}.Debug|x86.ActiveCfg = Debug|Win32
+		{7DC6F463-4560-4941-807F-1FAFB231D8E2}.Debug|x86.Build.0 = Debug|Win32
+		{7DC6F463-4560-4941-807F-1FAFB231D8E2}.Release|x64.ActiveCfg = Release|x64
+		{7DC6F463-4560-4941-807F-1FAFB231D8E2}.Release|x64.Build.0 = Release|x64
+		{7DC6F463-4560-4941-807F-1FAFB231D8E2}.Release|x86.ActiveCfg = Release|Win32
+		{7DC6F463-4560-4941-807F-1FAFB231D8E2}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
