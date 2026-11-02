@@ -59,9 +59,12 @@ void UnitTest_File()
 		std::ofstream{ "test_root_fs/tmpram/cam_2022-08-02_12-11.jpg" };
 		std::ofstream{ "test_root_fs/tmpram/cam_2022-08-02_13-11.jpg" };
 		std::ofstream{ "test_root_fs/tmpram/cam_2022-08-02_14-11.jpg" };
+		std::ofstream{ "test_root_fs/tmpram/cam_2022-08-02_12-11.log" };
+		std::ofstream{ "test_root_fs/tmpram/cam_2022-08-02_13-11.log" };
+		std::ofstream{ "test_root_fs/tmpram/cam_2022-08-02_14-11.log" };
 		std::ofstream{ "test_root_fs/tmpram/temp_file.txt" };
 
-		std::deque<std::string> List = utils::file::GetFilesLatest("test_root_fs/tmpram", "cam_", 2);
+		std::deque<std::string> List = utils::file::GetFilesLatest("test_root_fs/tmpram", "cam_", ".jpg", 2);
 		utils::test::RESULT("GetFilesList", List.size() == 2 &&
 			List[0] == "test_root_fs/tmpram\\cam_2022-08-02_13-11.jpg" &&
 			List[1] == "test_root_fs/tmpram\\cam_2022-08-02_14-11.jpg");
@@ -76,8 +79,8 @@ void UnitTest_File()
 		std::ofstream{ "test_root_fs/tmpram/cam_2022-08-02_14-11.jpg" };
 		std::ofstream{ "test_root_fs/tmpram/temp_file.txt" };
 
-		utils::file::RemoveFilesOutdated("test_root_fs/tmpram", "cam_", 1);
-		std::deque<std::string> List = utils::file::GetFilesLatest("test_root_fs/tmpram", "cam_", 2);
+		utils::file::RemoveFilesOutdated("test_root_fs/tmpram", "cam_", "jpg", 1);
+		std::deque<std::string> List = utils::file::GetFilesLatest("test_root_fs/tmpram", "cam_", "jpg", 2);
 		utils::test::RESULT("RemoveFilesOutdated", List.size() == 1 &&
 			List[0] == "test_root_fs/tmpram\\cam_2022-08-02_14-11.jpg");
 
@@ -92,7 +95,7 @@ void UnitTest_File()
 		std::ofstream{ "test_root_fs/tmpram/temp_file.txt" };
 
 		utils::file::RemoveFilesWithPrefix("test_root_fs/tmpram", "cam_");
-		std::deque<std::string> List = utils::file::GetFilesLatest("test_root_fs/tmpram", "cam_", 2);
+		std::deque<std::string> List = utils::file::GetFilesLatest("test_root_fs/tmpram", "cam_", "jpg", 2);
 		utils::test::RESULT("RemoveFilesWithPrefix", List.empty());
 
 		std::filesystem::remove_all("test_root_fs/tmpram");
