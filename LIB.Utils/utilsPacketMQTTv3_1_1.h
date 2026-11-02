@@ -5,6 +5,7 @@
 // 
 // Specification: mqtt-v3.1.1.pdf (MQTT Version 3.1.1 Plus Errata 01; OASIS Standard Incorporating Approved Errata 01; 10 December 2015)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma once
 
 #include <libConfig.h>
 
