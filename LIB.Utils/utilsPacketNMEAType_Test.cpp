@@ -31,7 +31,7 @@ void UnitTest_PacketNMEAType_TestERR(const std::string& msg)
 }
 
 template <class T, class TArg>
-void UnitTest_PacketNMEAType_Test(TArg arg, const std::string& msg,  const std::string& res)
+T UnitTest_PacketNMEAType_Test(TArg arg, const std::string& msg,  const std::string& res)
 {
 	if constexpr (std::is_same_v<TArg, const char*>)
 	{
@@ -41,6 +41,8 @@ void UnitTest_PacketNMEAType_Test(TArg arg, const std::string& msg,  const std::
 		std::cout << A.ToString() << " --> " << A.GetValue() << '\n';
 #endif // SHOW_RESULTS
 		utils::test::RESULT(msg, A.IsVerified() && A.ToString() == res);
+
+		return A;
 	}
 	else
 	{
@@ -49,6 +51,8 @@ void UnitTest_PacketNMEAType_Test(TArg arg, const std::string& msg,  const std::
 		std::cout << A.ToString() << " --> " << A.GetValue() << '\n';
 #endif // SHOW_RESULTS
 		utils::test::RESULT(msg, A.IsVerified() && A.ToString() == res);
+
+		return A;
 	}
 }
 
@@ -417,7 +421,14 @@ void UnitTest_PacketNMEAType()
 	UnitTest_PacketNMEAType_Test<tDate>("010203",			"tDate parse 010203",				"010203");
 	UnitTest_PacketNMEAType_Test<tDate>("311299",			"tDate parse 311299",				"311299");
 	UnitTest_PacketNMEAType_Test<tDate>(1044057600,			"tDate 3,2,1",						"010203");
-	UnitTest_PacketNMEAType_Test<tDate>(946598400,			"tDate 99,12,31",					"311299");
+	{
+		tDate date = UnitTest_PacketNMEAType_Test<tDate>(946598400, "tDate 99,12,31", "311299");
+		utils::test::RESULT("tDate 99,12,31 - date", date.GetValue() == 946598400);
+	}
+	{
+		tDate date = UnitTest_PacketNMEAType_Test<tDate>(1703980800, "tDate 23,12,31", "311223");
+		utils::test::RESULT("tDate 23,12,31 - date", date.GetValue() == 1703980800);
+	}
 	UnitTest_PacketNMEAType_TestERR<tDate>(100, 13, 33,		"tDate 100,12,31 (wrong)");
 	//UnitTest_PacketNMEAType_TestERR<tDate>("", "tDate parse empty");
 	UnitTest_PacketNMEAType_TestERR<tDate>("501333",		"tDate parse 501333 (wrong)");
