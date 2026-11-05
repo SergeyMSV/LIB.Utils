@@ -17,7 +17,7 @@ namespace utils
 {
 
 template<class TPacket, class TContent>
-void UnitTest_PacketNMEA(const std::string& name, const std::string& msg)
+TContent UnitTest_PacketNMEA(const std::string& name, const std::string& msg)
 {
 	std::vector<std::uint8_t> DataVector(msg.begin(), msg.end());
 
@@ -50,12 +50,14 @@ void UnitTest_PacketNMEA(const std::string& name, const std::string& msg)
 		std::cout << '\n';
 #endif // SHOW_RESULTS
 	utils::test::RESULT(name, PayloadParsed.IsVerified() && msg == PacketRes);
+
+	return PayloadParsed;
 }
 
 template<class TContent>
-void UnitTest_PacketNMEA_CRC(const std::string& name, const std::string& msg)
+TContent UnitTest_PacketNMEA_CRC(const std::string& name, const std::string& msg)
 {
-	UnitTest_PacketNMEA<packet::nmea::tPacketNMEA_Common_CRC, TContent>(name, msg);
+	return UnitTest_PacketNMEA<packet::nmea::tPacketNMEA_Common_CRC, TContent>(name, msg);
 }
 
 template<class TContent>
@@ -156,10 +158,15 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGSA>("mtk_eb800a GSA 2", "$GNGSA,A,3,83,,,,,,,,,,,,1.10,0.75,0.81*1C\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGLL>("mtk_eb800a GLL 1", "$GNGLL,,,,,000106.799,V,N*64\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGLL>("mtk_eb800a GLL 2", "$GNGLL,1234.556677,N,12233.445566,E,123456.000,A,A*45\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGSV>("mtk_eb800a GSV 1", "$GLGSV,3,3,09,86,03,,*61\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentVTG>("mtk_eb800a VTG 1", "$GNVTG,62.90,T,,M,0.00,N,0.00,K,N*11\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentVTG>("mtk_eb800a VTG 2", "$GPVTG,62.90,T,,M,0.07,N,0.12,K,A*04\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentZDA>("mtk_eb800a ZDA 1", "$GNZDA,000106.799,06,01,1980,,*4F\xd\xa");
-	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentZDA>("mtk_eb800a ZDA 2", "$GNZDA,200832.000,16,03,2026,,*41\xd\xa");
+	{
+		auto content = UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentZDA>("mtk_eb800a ZDA 2", "$GNZDA,200832.000,16,03,2026,,*41\xd\xa"); // 2026-03-16 20:08:32.000 = 1773691712
+		std::pair<std::time_t, std::uint32_t> time = content.GetDateTime();
+		utils::test::RESULT("mtk_eb800a ZDA 2 - time", time.first == 1773691712 && time.second == 0);
+	}
 
 	std::cout << '\n';
 
