@@ -234,9 +234,16 @@ void tLog::WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tC
 
 #endif // LIB_UTILS_LOG
 
+tLogFile::tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity)
+	:m_FilesPath(filesPath), m_FilesQtyMax(filesQtyMax), m_FileNamePrefix(fileNamePrefix), m_FileCapacity(fileCapacity)
+{
+}
+
 void tLogFile::WriteLogFile(const std::string& text)
 {
 }
+
+bool tLogFile::Open() const;
 
 std::string GetLogMessage(const std::string& msg, const std::string& filename, int line)
 {

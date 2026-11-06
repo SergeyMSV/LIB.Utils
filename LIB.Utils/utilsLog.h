@@ -94,16 +94,21 @@ class tLogFile : tLog
 	const std::string m_FileNamePrefix;
 	const std::uint32_t m_FileCapacity; // in bytes
 
+	std::filesystem::path m_FilePathName;
+	//mutable std::mutex m_FileMtx;
+
 public:
 	tLogFile() = delete;
-	tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity)
-		:m_FilesPath(filesPath), m_FilesQtyMax(filesQtyMax), m_FileNamePrefix(fileNamePrefix), m_FileCapacity(fileCapacity)
-	{
-	}
+	tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity);
+	tLogFile(const tLogFile&) = delete;
+	tLogFile(const tLogFile&&) = delete;
 
 protected:
 	//void WriteLog(const std::string& a_text) override {}
 	void WriteLogFile(const std::string& a_text) override final;
+
+protected:
+	bool Open() const;
 };
 
 std::string GetLogMessage(const std::string& msg, const std::string& filename, int line);
