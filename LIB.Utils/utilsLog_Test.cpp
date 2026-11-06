@@ -10,11 +10,6 @@
 class tLogger : public utils::log::tLog
 {
 protected:
-	std::string GetLabel() const override final
-	{
-		return "SIGN";
-	}
-
 	void WriteLog(const std::string& text) override final
 	{
 		std::cout << text;
