@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <format>
 #include <iomanip>
 #include <sstream>
 #include <time.h>
@@ -12,6 +13,37 @@ namespace log
 {
 
 #ifdef LIB_UTILS_LOG
+
+#ifdef LIB_UTILS_LOG_COLOR
+static std::string ToString(tColor a_color)
+{
+	std::string color = "\x1b[";
+	switch (a_color)
+	{
+	case tColor::None:         color += "0";  break;
+	case tColor::Black:        color += "30"; break;
+	case tColor::Red:          color += "31"; break;
+	case tColor::Green:        color += "32"; break;
+	case tColor::Yellow:       color += "33"; break;
+	case tColor::Blue:         color += "34"; break;
+	case tColor::Magenta:      color += "35"; break;
+	case tColor::Cyan:         color += "36"; break;
+	case tColor::White:        color += "37"; break;
+	case tColor::Default:      color += "39"; break;
+	case tColor::LightGray:    color += "90"; break;
+	case tColor::LightRed:     color += "91"; break;
+	case tColor::LightGreen:   color += "92"; break;
+	case tColor::LightYellow:  color += "93"; break;
+	case tColor::LightBlue:    color += "94"; break;
+	case tColor::LightMagenta: color += "95"; break;
+	case tColor::LightCyan:    color += "96"; break;
+	case tColor::LightWhite:   color += "97"; break;
+	default:                   color += "39"; break;
+	}
+	color += "m";
+	return color;
+}
+#endif //LIB_UTILS_LOG_COLOR
 
 void tLog::Write(bool timestamp, const std::string& msg, tColor color)
 {
@@ -166,75 +198,44 @@ void tLog::WriteHex(bool timestamp, const std::string& msg, const std::vector<st
 	WriteHex(timestamp, msg, tColor::Default, data, tColor::Default);
 }
 
-void tLog::WriteLog(bool timestamp, bool endl, const std::string& text, tColor textColor)
+template<typename Unit>
+static std::string GetTimestamp()
+{
+	auto timeNowRaw = std::chrono::system_clock::now();
+	auto timeNow = std::chrono::time_point_cast<Unit>(timeNowRaw);
+	return std::format("{:%T}", timeNow);
+}
+
+void tLog::WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tColor a_textColor)
 {
 	std::lock_guard<std::mutex> Lock(m_Mtx);
 
-	std::string Str;
-	Str.reserve(80); // [#]
-
-	if (timestamp)
+	std::string strHeader;
 	{
-		const auto TimeNow = std::chrono::system_clock::now();
+		std::stringstream sstr;
+		if (a_timestamp)
+		{
 #ifdef LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
-		const auto Time_us = std::chrono::time_point_cast<std::chrono::microseconds>(TimeNow);
-		const auto TimeFract = static_cast<unsigned int>(Time_us.time_since_epoch().count() % 1000000);
-		const int Digits = 6;
+			sstr << GetTimestamp<std::chrono::microseconds>();
 #else // LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
-		const auto Time_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(TimeNow);
-		const auto TimeFract = static_cast<unsigned int>(Time_ms.time_since_epoch().count() % 1000);
-		const int Digits = 3;
+			sstr << GetTimestamp<std::chrono::milliseconds>();
 #endif // LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
-		time_t Time = std::chrono::system_clock::to_time_t(TimeNow);
-
-		tm TmBuf;
-#ifdef _WIN32
-		localtime_s(&TmBuf, &Time);
-#else // _WIN32
-		localtime_r(&Time, &TmBuf);
-#endif // _WIN32
-		std::stringstream SStr;
-		SStr << std::put_time(&TmBuf, "%T") << '.';
-		SStr << std::setfill('0') << std::setw(Digits) << TimeFract << ' ';
-
+			sstr << ' ';
+		}
 		const std::string Label = GetLabel();
 		if (!Label.empty())
-			SStr << std::setfill(' ') << std::setw(4) << Label << ' ';
-		Str = SStr.str();
+			sstr << std::setfill(' ') << std::setw(4) << Label << ' ';
+		strHeader = sstr.str();
 	}
 
-	std::string StrNoColor = Str + text + (endl ? "\n" : "");
-	WriteLogFile(StrNoColor);
+	const std::string strNoColor = strHeader + a_text + (a_endl ? "\n" : ""); // The text is not colored.
 
+	WriteLogFile(strNoColor);
 #ifndef LIB_UTILS_LOG_COLOR
-	WriteLog(StrNoColor);
+	WriteLog(strNoColor);
 #else
-	Str += "\x1b[";
-
-	switch (textColor)
-	{
-	case tColor::Black:        Str += "30"; break;
-	case tColor::Red:          Str += "31"; break;
-	case tColor::Green:        Str += "32"; break;
-	case tColor::Yellow:       Str += "33"; break;
-	case tColor::Blue:         Str += "34"; break;
-	case tColor::Magenta:      Str += "35"; break;
-	case tColor::Cyan:         Str += "36"; break;
-	case tColor::White:        Str += "37"; break;
-	case tColor::Default:      Str += "39"; break;
-	case tColor::LightGray:    Str += "90"; break;
-	case tColor::LightRed:     Str += "91"; break;
-	case tColor::LightGreen:   Str += "92"; break;
-	case tColor::LightYellow:  Str += "93"; break;
-	case tColor::LightBlue:    Str += "94"; break;
-	case tColor::LightMagenta: Str += "95"; break;
-	case tColor::LightCyan:    Str += "96"; break;
-	case tColor::LightWhite:   Str += "97"; break;
-	default:                   Str += "39"; break;
-	}
-
-	Str += "m" + text + "\x1b[0m" + (endl ? "\n" : "");
-	WriteLog(Str);
+	const std::string str = strHeader + ToString(a_textColor) + a_text + ToString(tColor::None) + (a_endl ? "\n" : "");
+	WriteLog(str);
 #endif // LIB_UTILS_LOG_COLOR
 }
 
