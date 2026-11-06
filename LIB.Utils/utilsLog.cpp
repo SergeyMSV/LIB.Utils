@@ -211,21 +211,14 @@ void tLog::WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tC
 	std::lock_guard<std::mutex> Lock(m_Mtx);
 
 	std::string strHeader;
+	if (a_timestamp)
 	{
-		std::stringstream sstr;
-		if (a_timestamp)
-		{
 #ifdef LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
-			sstr << GetTimestamp<std::chrono::microseconds>();
+		strHeader = GetTimestamp<std::chrono::microseconds>();
 #else // LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
-			sstr << GetTimestamp<std::chrono::milliseconds>();
+		strHeader = GetTimestamp<std::chrono::milliseconds>();
 #endif // LIB_UTILS_LOG_TIMESTAMP_MICROSECONDS
-			sstr << ' ';
-		}
-		const std::string Label = GetLabel();
-		if (!Label.empty())
-			sstr << std::setfill(' ') << std::setw(4) << Label << ' ';
-		strHeader = sstr.str();
+		strHeader += ' ';
 	}
 
 	const std::string strNoColor = strHeader + a_text + (a_endl ? "\n" : ""); // The text is not colored.
