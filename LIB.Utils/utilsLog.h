@@ -80,8 +80,6 @@ public:
 	void WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data) LIB_UTILS_IMPL
 
 protected:
-	virtual std::string GetLabel() const { return {}; }
-
 	virtual void WriteLog(const std::string& text) = 0;
 	virtual void WriteLogFile(const std::string& text) {}
 
