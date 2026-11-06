@@ -1,11 +1,9 @@
 #include "utilsLog.h"
+#include "utilsFile.h"
 
 #include <chrono>
-#include <filesystem>
 #include <format>
 #include <iomanip>
-#include <sstream>
-#include <time.h>
 
 namespace utils
 {
@@ -234,6 +232,43 @@ void tLog::WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tC
 
 #endif // LIB_UTILS_LOG
 
+tLogFile::tFile::tFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity)
+{
+	auto LogList = utils::file::GetFilesLatest(filesPath, fileNamePrefix, ".log", filesQtyMax);
+	/*m_FilePath = LogList.empty() ? "" : LogList.back();
+
+	std::fstream File;
+
+	if (!m_FilePath.empty())
+	{
+		auto FileSize = std::filesystem::file_size(m_FilePath);
+		if (FileSize < conf.Capacity)
+			File = std::fstream(m_FilePath, std::ios::app);
+	}
+
+	const utils::time::tDateTime timeNow = utils::time::tDateTime::Now();
+
+	if (!File.is_open())
+	{
+		std::string Path = conf.Path + "/";
+		std::string FileName = conf.Prefix + timeNow.ToStringPath() + ".log";
+
+		m_FilePath = Path + FileName;
+		File = std::fstream(m_FilePath, std::ios::out);
+	}
+
+	if (File.good())
+		File << timeNow.ToString() << " ";
+
+	File.close();
+
+	utils::file::RemoveFilesOutdated(conf.Path, conf.Prefix, ".log", conf.QtyMax);*/
+}
+
+tLogFile::tFile::~tFile()
+{
+}
+
 tLogFile::tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity)
 	:m_FilesPath(filesPath), m_FilesQtyMax(filesQtyMax), m_FileNamePrefix(fileNamePrefix), m_FileCapacity(fileCapacity)
 {
@@ -242,8 +277,6 @@ tLogFile::tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, cons
 void tLogFile::WriteLogFile(const std::string& text)
 {
 }
-
-bool tLogFile::Open() const;
 
 std::string GetLogMessage(const std::string& msg, const std::string& filename, int line)
 {

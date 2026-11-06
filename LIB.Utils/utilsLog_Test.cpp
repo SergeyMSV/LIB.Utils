@@ -99,6 +99,8 @@ void UnitTest_tLog()
 
 	std::cout << log::GetLogMessage("Log message", __FILE__, __LINE__);
 
+	log::tLogFile LogFile("test_root_fs/tmpram", 3, "mxtest", 100);
+
 	std::cout << std::endl;
 }
 

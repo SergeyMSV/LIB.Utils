@@ -7,6 +7,7 @@
 
 #include <libConfig.h>
 
+#include <filesystem>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -89,6 +90,16 @@ private:
 
 class tLogFile : tLog
 {
+	struct tFile
+	{
+		tFile() = delete;
+		tFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity);
+		tFile(const tFile&) = delete;
+		tFile(const tFile&&) = delete;
+		~tFile();
+	};
+
+
 	const std::string m_FilesPath;
 	const std::uint32_t m_FilesQtyMax = 0;
 	const std::string m_FileNamePrefix;
@@ -104,7 +115,7 @@ public:
 	tLogFile(const tLogFile&&) = delete;
 
 protected:
-	//void WriteLog(const std::string& a_text) override {}
+	void WriteLog(const std::string& a_text) override {}
 	void WriteLogFile(const std::string& a_text) override final;
 
 protected:
