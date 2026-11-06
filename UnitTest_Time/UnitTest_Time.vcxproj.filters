@@ -8,6 +8,9 @@
     <ClCompile Include="..\LIB.Utils\utilsTime_Test.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Lib.Utils">
@@ -20,6 +23,9 @@
   <ItemGroup>
     <ClInclude Include="libConfig.h" />
     <ClInclude Include="..\LIB.Utils\utilsTime.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsTest.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
   </ItemGroup>
