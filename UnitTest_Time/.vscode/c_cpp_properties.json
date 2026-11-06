@@ -7,9 +7,9 @@
         "${workspaceFolder}/../LIB.Utils/**"
       ],
       "defines": [],
-      "compilerPath": "/usr/bin/gcc-11",
-      "cStandard": "c11",
-      "cppStandard": "c++20",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "c23",
+      "cppStandard": "c++26",
       "intelliSenseMode": "gcc-x64"
     }
   ],

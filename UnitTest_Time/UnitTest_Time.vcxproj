@@ -136,11 +136,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\LIB.Utils\utilsTest.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsTime.cpp" />
     <ClCompile Include="..\LIB.Utils\utilsTime_Test.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\LIB.Utils\utilsTest.h" />
     <ClInclude Include="..\LIB.Utils\utilsTime.h" />
     <ClInclude Include="libConfig.h" />
   </ItemGroup>
