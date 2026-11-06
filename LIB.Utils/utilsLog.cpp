@@ -234,6 +234,10 @@ void tLog::WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tC
 
 #endif // LIB_UTILS_LOG
 
+void tLogFile::WriteLogFile(const std::string& text)
+{
+}
+
 std::string GetLogMessage(const std::string& msg, const std::string& filename, int line)
 {
 	const std::filesystem::path Path(filename); // C++17

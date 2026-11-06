@@ -80,11 +80,30 @@ public:
 	void WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data) LIB_UTILS_IMPL
 
 protected:
-	virtual void WriteLog(const std::string& text) = 0;
-	virtual void WriteLogFile(const std::string& text) {}
+	virtual void WriteLog(const std::string& a_text) = 0;
+	virtual void WriteLogFile(const std::string& a_text) {}
 
 private:
 	virtual void WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tColor a_textColor) LIB_UTILS_IMPL
+};
+
+class tLogFile : tLog
+{
+	const std::string m_FilesPath;
+	const std::uint32_t m_FilesQtyMax = 0;
+	const std::string m_FileNamePrefix;
+	const std::uint32_t m_FileCapacity; // in bytes
+
+public:
+	tLogFile() = delete;
+	tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity)
+		:m_FilesPath(filesPath), m_FilesQtyMax(filesQtyMax), m_FileNamePrefix(fileNamePrefix), m_FileCapacity(fileCapacity)
+	{
+	}
+
+protected:
+	//void WriteLog(const std::string& a_text) override {}
+	void WriteLogFile(const std::string& a_text) override final;
 };
 
 std::string GetLogMessage(const std::string& msg, const std::string& filename, int line);
