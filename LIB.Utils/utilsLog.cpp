@@ -248,6 +248,7 @@ static std::string GetTimestampPath()
 
 tLogFile::tFile::tFile(tLogFile& a_obj)
 {
+	bool isFileNew = false;
 	if (a_obj.m_FilePath.empty())
 	{
 		auto LogList = utils::file::GetFilesLatest(a_obj.m_FilesPath, a_obj.m_FilenamePrefix, m_FileExtension, a_obj.m_FilesQtyMax);
@@ -259,16 +260,19 @@ tLogFile::tFile::tFile(tLogFile& a_obj)
 		else
 		{
 			a_obj.m_FilePath = MakeFilePath(a_obj.m_FilesPath, a_obj.m_FilenamePrefix);
+			isFileNew = true;
 		}
 	}
-	else if (!IsFileAcceptable(a_obj.m_FilesPath, a_obj))
+	else if (!IsFileAcceptable(a_obj.m_FilePath, a_obj))
 	{
 		a_obj.m_FilePath = MakeFilePath(a_obj.m_FilesPath, a_obj.m_FilenamePrefix);
+		isFileNew = true;
 	}
 
 	m_File = std::fstream(a_obj.m_FilePath, std::ios::app);
 
-	utils::file::RemoveFilesOutdated(a_obj.m_FilesPath, a_obj.m_FilenamePrefix, m_FileExtension, a_obj.m_FilesQtyMax);
+	if (isFileNew)
+		utils::file::RemoveFilesOutdated(a_obj.m_FilesPath, a_obj.m_FilenamePrefix, m_FileExtension, a_obj.m_FilesQtyMax);
 }
 
 tLogFile::tFile::~tFile()
@@ -321,13 +325,13 @@ void tLogFile::WriteLogFile(const std::string& a_text)
 	tFile(*this).Write(a_text);
 }
 
+#endif // LIB_UTILS_LOG_FILE
+
 std::string GetLogMessage(const std::string& msg, const std::string& filename, int line)
 {
 	const std::filesystem::path Path(filename); // C++17
 	return msg + " " + Path.filename().string() + ":" + std::to_string(line);
 }
-
-#endif // LIB_UTILS_LOG_FILE
 
 }
 }

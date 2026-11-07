@@ -15,6 +15,10 @@
 
 #include <cstdint>
 
+#ifdef LIB_UTILS_LOG_FILE
+#define LIB_UTILS_LOG
+#endif // LIB_UTILS_LOG_FILE
+
 namespace utils
 {
 namespace log
