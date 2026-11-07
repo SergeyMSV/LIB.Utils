@@ -5,6 +5,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include=".vscode">
+      <UniqueIdentifier>{b44e62ea-f90c-4181-968e-456c8a0ed07f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -17,6 +20,9 @@
     <ClCompile Include="..\Lib.Utils\utilsTest.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsFile.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="devConfig.h" />
@@ -27,5 +33,20 @@
     <ClInclude Include="..\Lib.Utils\utilsTest.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsFile.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".vscode\c_cpp_properties.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include=".vscode\launch.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include=".vscode\tasks.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include="UnitTest_Log.code-workspace" />
   </ItemGroup>
 </Project>
