@@ -7,6 +7,8 @@
 
 #include <libConfig.h>
 
+#include <filesystem>
+#include <fstream>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -80,12 +82,55 @@ public:
 	void WriteHex(bool timestamp, const std::string& msg, const std::vector<std::uint8_t>& data) LIB_UTILS_IMPL
 
 protected:
-	virtual void WriteLog(const std::string& text) = 0;
-	virtual void WriteLogFile(const std::string& text) {}
+	virtual void WriteLog(const std::string& a_text) = 0;
+	virtual void WriteLogFile(const std::string& a_text) {}
 
 private:
 	virtual void WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tColor a_textColor) LIB_UTILS_IMPL
 };
+
+#ifdef LIB_UTILS_LOG_FILE
+
+class tLogFile : public tLog
+{
+	static constexpr char m_FileExtension[] = ".log";
+
+	class tFile
+	{
+		std::fstream m_File;
+
+	public:
+		explicit tFile(tLogFile& a_obj);
+		~tFile();
+
+		bool IsReady() const { return m_File.good(); }
+		void Write(const std::string& a_text);
+
+	private:
+		bool IsFileAcceptable(const std::filesystem::path& a_filepath, const tLogFile& a_obj) const;
+		std::filesystem::path MakeFilePath(const std::string& a_filesPath, const std::string& a_filenamePrefix) const;
+	};
+
+	const std::string m_FilesPath;
+	const std::uint32_t m_FilesQtyMax = 0;
+	const std::string m_FilenamePrefix;
+	const std::uint32_t m_FileCapacity; // in bytes
+
+	std::filesystem::path m_FilePath;
+	//mutable std::mutex m_FileMtx;
+
+public:
+	tLogFile() = delete;
+	tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& filenamePrefix, std::uint32_t fileCapacity);
+	tLogFile(const tLogFile&) = delete;
+	tLogFile(const tLogFile&&) = delete;
+
+protected:
+	void WriteLog(const std::string& a_text) override {}
+	void WriteLogFile(const std::string& a_text) override final;
+};
+
+#endif // LIB_UTILS_LOG_FILE
 
 std::string GetLogMessage(const std::string& msg, const std::string& filename, int line);
 
