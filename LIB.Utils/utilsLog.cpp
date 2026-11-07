@@ -206,8 +206,6 @@ static std::string GetTimestamp()
 
 void tLog::WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tColor a_textColor)
 {
-	std::lock_guard<std::mutex> Lock(m_Mtx);
-
 	std::string strHeader;
 	if (a_timestamp)
 	{
@@ -219,12 +217,13 @@ void tLog::WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tC
 		strHeader += ' ';
 	}
 
-	const std::string strNoColor = strHeader + a_text + (a_endl ? "\n" : ""); // The text is not colored.
+	std::lock_guard<std::mutex> Lock(m_Mtx);
 
+	const std::string strNoColor = strHeader + a_text + (a_endl ? "\n" : ""); // The text is not colored.
 	WriteLogFile(strNoColor);
 #ifndef LIB_UTILS_LOG_COLOR
 	WriteLog(strNoColor);
-#else
+#else // LIB_UTILS_LOG_COLOR
 	const std::string str = strHeader + ToString(a_textColor) + a_text + ToString(tColor::None) + (a_endl ? "\n" : "");
 	WriteLog(str);
 #endif // LIB_UTILS_LOG_COLOR
@@ -232,17 +231,54 @@ void tLog::WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tC
 
 #endif // LIB_UTILS_LOG
 
-tLogFile::tFile::tFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity)
+static std::string GetTimestampPath()
 {
-	auto LogList = utils::file::GetFilesLatest(filesPath, fileNamePrefix, ".log", filesQtyMax);
-	/*m_FilePath = LogList.empty() ? "" : LogList.back();
+	auto timeNowRaw = std::chrono::system_clock::now();
+	auto timeNow = std::chrono::time_point_cast<std::chrono::seconds>(timeNowRaw);
+	return std::format("{:%Y-%m-%d_%H-%M-%S}", timeNow);
+}
 
-	std::fstream File;
+//static std::string GetDate()
+//{
+//	auto timeNow = std::chrono::system_clock::now();
+//	return std::format("{:%Y-%m-%d}", timeNow);
+//}
 
-	if (!m_FilePath.empty())
+tLogFile::tFile::tFile(tLogFile& a_obj)
+{
+	if (a_obj.m_FilePath.empty())
 	{
-		auto FileSize = std::filesystem::file_size(m_FilePath);
-		if (FileSize < conf.Capacity)
+		auto LogList = utils::file::GetFilesLatest(a_obj.m_FilesPath, a_obj.m_FilenamePrefix, ".log", a_obj.m_FilesQtyMax);
+		std::string filePath = LogList.empty() ? "" : LogList.back();
+		if (IsFileAcceptable(filePath, a_obj))
+		{
+			a_obj.m_FilePath = filePath;
+		}
+		else
+		{
+			a_obj.m_FilePath = MakeFilePath(a_obj.m_FilesPath, a_obj.m_FilenamePrefix);
+		}
+	}
+	else if (!IsFileAcceptable(a_obj.m_FilesPath, a_obj))
+	{
+		a_obj.m_FilePath = MakeFilePath(a_obj.m_FilesPath, a_obj.m_FilenamePrefix);
+	m_File = std::fstream(a_obj.m_FilePath, std::ios::app);
+	}
+
+	/*if (m_File.good())
+
+
+
+
+	auto LogList = utils::file::GetFilesLatest(m_obj.m_FilesPath, m_obj.m_FileNamePrefix, ".log", m_obj.m_FilesQtyMax);
+	std::string filePath = LogList.empty() ? "" : LogList.back(); // [TBD] может быть надо положить в obj
+
+	//std::fstream file;
+
+	if (!filePath.empty())
+	{
+		auto fileSize = std::filesystem::file_size(m_FilePath);
+		if (fileSize < conf.Capacity)
 			File = std::fstream(m_FilePath, std::ios::app);
 	}
 
@@ -267,15 +303,68 @@ tLogFile::tFile::tFile(const std::string& filesPath, std::uint32_t filesQtyMax, 
 
 tLogFile::tFile::~tFile()
 {
+	m_File.close();
+}
+
+void tLogFile::tFile::Write(const std::string& a_text)
+{
+	if (m_File.good())
+		m_File << a_text;
+}
+
+bool tLogFile::tFile::IsFileAcceptable(const std::filesystem::path& a_filepath, const tLogFile& a_obj) const
+{
+	if (a_filepath.empty())
+		return false;
+	auto fileSize = std::filesystem::file_size(a_filepath);
+	if (fileSize >= a_obj.m_FileCapacity)
+		return false;
+	std::string filename = a_filepath.filename().replace_extension().string();
+	if (!filename.starts_with(a_obj.m_FilenamePrefix))
+		return false;
+	filename.erase(0, a_obj.m_FilenamePrefix.size());
+	std::chrono::sys_seconds tp;
+	std::istringstream iss(filename);
+	iss >> std::chrono::parse("%Y-%m-%d_%H-%M-%S", tp);
+	if (iss.fail())
+		return false;
+	auto dateFile = std::chrono::floor<std::chrono::days>(tp);
+	auto dateNowRaw = std::chrono::system_clock::now();
+	auto dateNow = std::chrono::floor<std::chrono::days>(dateNowRaw);
+	return dateFile == dateNow;	
+}
+
+std::filesystem::path tLogFile::tFile::MakeFilePath(const std::string& a_filesPath, const std::string& a_filenamePrefix) const
+{
+	std::filesystem::path path = a_filesPath;
+	std::string filename = a_filenamePrefix + GetTimestampPath() + ".log";
+	return path / filename;
+}
+
+std::filesystem::path tLogFile::tFile::GetFilePathName(tLogFile& obj)
+{
+	/*auto LogList = utils::file::GetFilesLatest(obj.m_FilesPath, obj.m_FileNamePrefix, ".log", obj.m_FilesQtyMax);
+	std::string filePath = LogList.empty() ? "" : LogList.back(); // [TBD] может быть надо положить в obj
+	if (!filePath.empty())
+	{
+		auto fileSize = std::filesystem::file_size(filePath);
+		if (fileSize < obj.m_FileCapacity)
+			m_File = std::fstream(filePath, std::ios::app);
+	}
+
+	if (!m_File.good())
+		*/
+	return {};
 }
 
 tLogFile::tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity)
-	:m_FilesPath(filesPath), m_FilesQtyMax(filesQtyMax), m_FileNamePrefix(fileNamePrefix), m_FileCapacity(fileCapacity)
+	:m_FilesPath(filesPath), m_FilesQtyMax(filesQtyMax), m_FilenamePrefix(fileNamePrefix), m_FileCapacity(fileCapacity)
 {
 }
 
-void tLogFile::WriteLogFile(const std::string& text)
+void tLogFile::WriteLogFile(const std::string& a_text)
 {
+	tFile(*this).Write(a_text);
 }
 
 std::string GetLogMessage(const std::string& msg, const std::string& filename, int line)

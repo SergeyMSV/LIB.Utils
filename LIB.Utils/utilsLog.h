@@ -8,6 +8,7 @@
 #include <libConfig.h>
 
 #include <filesystem>
+#include <fstream>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -88,38 +89,42 @@ private:
 	virtual void WriteLog(bool a_timestamp, bool a_endl, const std::string& a_text, tColor a_textColor) LIB_UTILS_IMPL
 };
 
-class tLogFile : tLog
+class tLogFile : public tLog
 {
-	struct tFile
+	class tFile
 	{
-		tFile() = delete;
-		tFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity);
-		tFile(const tFile&) = delete;
-		tFile(const tFile&&) = delete;
-		~tFile();
-	};
+		std::fstream m_File;
 
+	public:
+		explicit tFile(tLogFile& a_obj);
+		~tFile();
+
+		bool IsReady() const { return m_File.good(); }
+		void Write(const std::string& a_text);
+
+	private:
+		bool IsFileAcceptable(const std::filesystem::path& a_filepath, const tLogFile& a_obj) const;
+		std::filesystem::path MakeFilePath(const std::string& a_filesPath, const std::string& a_filenamePrefix) const;
+		std::filesystem::path GetFilePathName(tLogFile& obj);
+	};
 
 	const std::string m_FilesPath;
 	const std::uint32_t m_FilesQtyMax = 0;
-	const std::string m_FileNamePrefix;
+	const std::string m_FilenamePrefix;
 	const std::uint32_t m_FileCapacity; // in bytes
 
-	std::filesystem::path m_FilePathName;
+	std::filesystem::path m_FilePath;
 	//mutable std::mutex m_FileMtx;
 
 public:
 	tLogFile() = delete;
-	tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& fileNamePrefix, std::uint32_t fileCapacity);
+	tLogFile(const std::string& filesPath, std::uint32_t filesQtyMax, const std::string& filenamePrefix, std::uint32_t fileCapacity);
 	tLogFile(const tLogFile&) = delete;
 	tLogFile(const tLogFile&&) = delete;
 
 protected:
 	void WriteLog(const std::string& a_text) override {}
 	void WriteLogFile(const std::string& a_text) override final;
-
-protected:
-	bool Open() const;
 };
 
 std::string GetLogMessage(const std::string& msg, const std::string& filename, int line);
