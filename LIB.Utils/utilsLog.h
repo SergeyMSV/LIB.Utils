@@ -69,6 +69,8 @@ public:
 	void WriteLine() LIB_UTILS_IMPL
 	void WriteLine(bool timestamp, const std::string& msg, tColor color) LIB_UTILS_IMPL
 	void WriteLine(bool timestamp, const std::string& msg) LIB_UTILS_IMPL
+	void WriteLine(const std::string& msg, tColor color) LIB_UTILS_IMPL
+	void WriteLine(const std::string& msg) LIB_UTILS_IMPL
 #ifdef LIB_UTILS_LOG_DEPRECATED
 	void WriteLine(bool timestamp, tColor colorText, const std::string& msg) LIB_UTILS_IMPL // DEPRECATED
 
