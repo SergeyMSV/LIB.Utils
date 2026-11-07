@@ -78,7 +78,17 @@ void tLog::WriteLine(bool timestamp, const std::string& msg, tColor color)
 
 void tLog::WriteLine(bool timestamp, const std::string& msg)
 {
-	WriteLine(timestamp, msg, tColor::Default);
+	WriteLog(timestamp, true, msg, tColor::Default);
+}
+
+void tLog::WriteLine(const std::string& msg, tColor color)
+{
+	WriteLog(true, true, msg, color);
+}
+
+void tLog::WriteLine(const std::string& msg)
+{
+	WriteLog(true, true, msg, tColor::Default);
 }
 
 #ifdef LIB_UTILS_LOG_DEPRECATED
