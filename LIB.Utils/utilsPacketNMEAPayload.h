@@ -671,6 +671,7 @@ namespace mtk_eb500 // MT3329	AXN_1.30
 namespace mtk_eb800a // MT3339	AXN_3.8
 {
 	//$GNGLL,,,,,000106.799,V,N*64
+	//$GNRMC,210805.445,V,,,,,-0.01,260.46,081126,,,N*7E\xd\xa"); - ER: GNRMC 210805.445 V     -0.01 260.46 081126   N (speed over ground is negative) - [such messages are ignored]
 	//$GNZDA,000106.799,06,01,1980,,*4F
 
 	using tTime = type::tTimeNoNull<3>;										// 000000.000
