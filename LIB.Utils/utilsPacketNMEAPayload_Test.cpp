@@ -161,8 +161,14 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGSV>("mtk_eb800a GSV 1", "$GLGSV,3,3,09,86,03,,*61\xd\xa");
 	UnitTest_PacketNMEA_CRC_ERR<mtk_eb800a::tContentGSV>("mtk_eb800a GSV 2", "$GPGSV,3,3,10,11,01,025,,193,,,*75\xd\xa"); // 193 - sv, SatID = 193 is an error
 	UnitTest_PacketNMEA_CRC_ERR<mtk_eb800a::tContentGSV>("mtk_eb800a GSV 3", "$GPGSV,2,2,08,11,22,219,,13,40,335,,14,25,057,,193,,,*73\xd\xa"); // 193 - sv, SatID = 193 is an error
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentRMC>("mtk_eb800a RMC 1", "$GPRMC,032306.028,V,8960.000000,N,00000.000000,E,0.00,0.00,060180,,,N*70\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentRMC>("mtk_eb800a RMC 2", "$GPRMC,191709.000,A,1122.334455,N,01122.334455,E,0.01,53.59,080417,,,D*5D\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentRMC>("mtk_eb800a RMC 3", "$GPRMC,191709.000,A,1122.000055,N,01122.334455,E,0.01,53.09,080417,,,D*58\xd\xa");
+	UnitTest_PacketNMEA_CRC_ERR<mtk_eb800a::tContentRMC>("mtk_eb800a RMC 3", "$GNRMC,210805.445,V,,,,,-0.01,260.46,081126,,,N*7E\xd\xa"); // 21:07:26.353 ER: GNRMC 210805.445 V     -0.01 260.46 081126   N (speed over ground is negative) - [such messages are ignored]
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentVTG>("mtk_eb800a VTG 1", "$GNVTG,62.90,T,,M,0.00,N,0.00,K,N*11\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentVTG>("mtk_eb800a VTG 2", "$GPVTG,62.90,T,,M,0.07,N,0.12,K,A*04\xd\xa");
+	UnitTest_PacketNMEA_CRC_ERR<mtk_eb800a::tContentVTG>("mtk_eb800a VTG 3", "$GNVTG,167.84,T,,M,-0.01,N,-0.01,K,N*20\xd\xa"); // Speed is negative - that's an error
+	UnitTest_PacketNMEA_CRC_ERR<mtk_eb800a::tContentVTG>("mtk_eb800a VTG 4", "$GNVTG,167.84,T,,M,0.00,N,-0.01,K,N*0C\xd\xa"); // Speed is negative - that's an error
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentZDA>("mtk_eb800a ZDA 1", "$GNZDA,000106.799,06,01,1980,,*4F\xd\xa");
 	{
 		auto content = UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentZDA>("mtk_eb800a ZDA 2", "$GNZDA,200832.000,16,03,2026,,*41\xd\xa"); // 2026-03-16 20:08:32.000 = 1773691712
