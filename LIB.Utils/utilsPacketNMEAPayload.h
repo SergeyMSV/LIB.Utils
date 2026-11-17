@@ -649,7 +649,7 @@ namespace mtk_eb500 // MT3329	AXN_1.30
 	// $GPGSV,4,1,13,01,01,001,,02,02,002,22,03,33,003,33,04,04,004,*??
 
 	using tTime = type::tTimeNoNull<3>;										// 000000.000
-	using tDate = type::tDateNoNull;
+	using tDate = type::tDateNoNull;										// 000000
 	using tLatitude = type::tLatitudeNoNull<4>;								// 0000.0000,?
 	using tLongitude = type::tLongitudeNoNull<4>;							// 00000.0000,?
 	using tQuality = type::tQualityNoNull;									// 0
@@ -675,7 +675,7 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 	//$GNZDA,000106.799,06,01,1980,,*4F
 
 	using tTime = type::tTimeNoNull<3>;										// 000000.000
-	using tDate = type::tDateNoNull;
+	using tDate = type::tDateNoNull;										// 000000
 	using tLatitude = type::tLatitude<6>;									// 0000.000000,?
 	using tLongitude = type::tLongitude<6>;									// 00000.000000,?
 	using tQuality = type::tQualityNoNull;									// 0
@@ -761,7 +761,7 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	//$GNVTG,87.26,T,,M,2.16,N,4.01,K,A*18
 
 	using tTime = type::tTimeNoNull<3>;										// 000000.000
-	using tDate = type::tDateNoNull;
+	using tDate = type::tDateNoNull;										// 000000
 	using tLatitude = type::tLatitude<4>;									// 0000.0000,?
 	using tLongitude = type::tLongitude<4>;									// 00000.0000,?
 	using tQuality = type::tQualityNoNull;									// 0
@@ -793,7 +793,7 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 namespace sirf_gsu_7x
 {
 	using tTime = type::tTimeNoNull<3>;									// 000000.000
-	using tDate = type::tDateNoNull;
+	using tDate = type::tDateNoNull;									// 000000
 	using tLatitude = type::tLatitudeNoNull<4>;							// 0000.0000,?
 	using tLongitude = type::tLongitudeNoNull<4>;						// 00000.0000,?
 	using tQuality = type::tQualityNoNull;								// 0
@@ -824,7 +824,7 @@ namespace sirf_gsu_7x
 namespace sirf_lr9548s
 {
 	using tTime = type::tTimeNoNull<3>;									// 000000.000
-	using tDate = type::tDateNoNull;
+	using tDate = type::tDateNoNull;									// 000000
 	using tLatitude = type::tLatitudeNoNull<4>;							// 0000.0000,?
 	using tLongitude = type::tLongitudeNoNull<4>;						// 00000.0000,?
 	using tQuality = type::tQualityNoNull;								// 0

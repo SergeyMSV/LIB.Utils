@@ -113,8 +113,6 @@ void UnitTest_PacketNMEAPayload()
 
 	using namespace utils::packet::nmea;
 
-	//utils::packet::nmea::
-
 	typedef utils::packet::tPacket<utils::packet::nmea::tFormat, utils::packet::nmea::tPayloadCommon> tPacketNMEA;
 
 	{
@@ -130,9 +128,51 @@ void UnitTest_PacketNMEAPayload()
 
 	std::cout << '\n';
 
-	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 1",	"$GNGGA,172905.087,0000.0000,N,00000.0000,E,0,0,,,M,,M,,*6A\xd\xa"); // C++14
-	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 2",	"$GNGGA,172905.087,0000.0000,N,00000.0000,E,0,10,,,M,,M,,*5B\xd\xa"); // C++14
-	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 3",	"$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,,280.7,M,14.5,M,,*42\xd\xa");
+	// Proprietary
+	UnitTest_PacketNMEA_CRC<base::tContentP<1, 3, 3>>("tContentP 1,3,3: P MTK 000", "$PMTK000*32\xd\xa");
+	UnitTest_PacketNMEA_CRC<base::tContentP<1, 3, 2, 4>>("tContentP 1,3,2,4: P MTK 00 0", "$PMTK000*32\xd\xa");
+	//UnitTest_PacketNMEA_CRC<base::tContentP<1, 3>>("tContentP 3", "$PMTK000*32\xd\xa");
+	UnitTest_PacketNMEA_CRC<base::tContentP<4, 3>>("base Proprietary 1", "$PMTK000*32\xd\xa");
+	UnitTest_PacketNMEA_CRC<base::tContentP<4, 3>>("base Proprietary 2", "$PMTK011,MTKGPS*08\xd\xa");
+	UnitTest_PacketNMEA_CRC<base::tContentP<4, 3>>("base Proprietary 3", "$PMTK001,355,3,1,1,0,0*33\xd\xa");
+	UnitTest_PacketNMEA_NoCRC<base::tContentP<4, 3>>("base Proprietary 10", "$PSRFTXT,CHNL: 12\xd\xa");
+
+	std::cout << '\n';
+
+	// MTK
+	UnitTest_PacketNMEA_CRC<mtk::tContentPMTK_TEST>("mtk TEST 1", "$PMTK000*32\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk::tContentACK>("mtk ACK  1", "$PMTK001,604,3*32\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk::tContentPMTK_SetSerialPort>("mtk Set SerialPort (251)", "$PMTK251,38400*27\xd\xa");
+	UnitTest_PacketNMEA_CRC("PMTK TEST 1", mtk::tContentPMTK_TEST(), "$PMTK000*32\xd\xa");
+	UnitTest_PacketNMEA_CRC("PMTK Set SerialPort 1", mtk::tContentPMTK_SetSerialPort(38400), "$PMTK251,38400*27\xd\xa");
+
+	std::cout << '\n';
+
+	// SiRF
+	UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 1", "$PSRFTXT,NMEA: ID 101 Ack Input\xd\xa");
+	UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 2", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009\xd\xa");
+	//UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 2.1 wrong", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009*34\xd\xa"); // CRC is right. (not real, just for test)
+	//UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 2.2 wrong", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009*21\xd\xa"); // CRC is wrong. (not real, just for test)
+	UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 3", "$PSRFTXT,Firmware Checksum: 1fb5\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf::tContentPSRF_SetSerialPort>("sirf Set SerialPort (100)", "$PSRF100,0,9600,8,1,0*0C\xd\xa");
+	UnitTest_PacketNMEA_CRC("PSRF Set SerialPort 1", sirf::tContentPSRF_SetSerialPort(38400), "$PSRF100,1,38400,8,1,0*3D\xd\xa");
+	//UnitTest_PacketNMEA_CRC("PSRF Set SerialPort 1", sirf::tContentPSRF_SetSerialPort(38500), "$PSRF100,1,38500,8,1,0*3C\xd\xa");
+
+	std::cout << '\n';
+
+	// SiRF legacy
+	UnitTest_PacketNMEA_CRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy LEADTEK TEXT 1 Version", "$PSRFTXTVersion 322.000.000-LD00*23\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy LEADTEK TEXT 2", "$PSRFTXTCLK:  96250*09\xd\xa");
+	UnitTest_PacketNMEA_NoCRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy GSU TEXT 1", "$PSRFTXT,NMEA: ID 101 Ack Input\xd\xa");
+	UnitTest_PacketNMEA_NoCRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy GSU TEXT 2", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009\xd\xa");
+	UnitTest_PacketNMEA_NoCRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy GSU TEXT 3", "$PSRFTXT,Firmware Checksum: 1fb5\xd\xa");
+
+	std::cout << '\n';
+
+	// MTK EB-500
+	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 1", "$GNGGA,172905.087,0000.0000,N,00000.0000,E,0,0,,,M,,M,,*6A\xd\xa"); // C++14
+	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 2", "$GNGGA,172905.087,0000.0000,N,00000.0000,E,0,10,,,M,,M,,*5B\xd\xa"); // C++14
+	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 3", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,,280.7,M,14.5,M,,*42\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGGA>("mtk_eb500 GGA 4", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,2,0.00,280.7,M,14.5,M,,*5C\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGSV>("mtk_eb500 GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb500::tContentGSV>("mtk_eb500 GSV 2", "$GPGSV,3,2,10,10,07,189,,05,05,220,,09,34,274,42,18,25,309,44*72\xd\xa");
@@ -150,10 +190,11 @@ void UnitTest_PacketNMEAPayload()
 
 	std::cout << '\n';
 
+	// MTK EB-800A
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 1", "$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa"); // C++14
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 2", "$GNGGA,172905.087,,,,,0,10,,,M,,M,,*60\xd\xa"); // C++14
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 3", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,,280.701,M,14.501,M,,*42\xd\xa");
-	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 3", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,0.00,280.701,M,14.501,M,,*5C\xd\xa");
+	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGGA>("mtk_eb800a GGA 4", "$GPGGA,000124.168,0000.000000,N,00000.000000,E,6,2,0.00,280.701,M,14.501,M,,*5C\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGSA>("mtk_eb800a GSA 1", "$GNGSA,A,3,12,24,02,06,29,14,32,31,03,25,19,,1.10,0.75,0.81*17\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGSA>("mtk_eb800a GSA 2", "$GNGSA,A,3,83,,,,,,,,,,,,1.10,0.75,0.81*1C\xd\xa");
 	UnitTest_PacketNMEA_CRC<mtk_eb800a::tContentGLL>("mtk_eb800a GLL 1", "$GNGLL,,,,,000106.799,V,N*64\xd\xa");
@@ -178,35 +219,30 @@ void UnitTest_PacketNMEAPayload()
 
 	std::cout << '\n';
 
+	// SiRF GSU-7x
 	// The parsers shall not cause an error.
 	//UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 1", "$GP,000124.168,0000.0000,N,00000.0000,E,6,02,,00280.7,M,0014.5,M,,*33\xd\xa");
 	//UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 1", "$GPG,000124.168,0000.0000,N,00000.0000,E,6,02,,00280.7,M,0014.5,M,,*74\xd\xa");
 	//UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 1", "$GPGG,000124.168,0000.0000,N,00000.0000,E,6,02,,00280.7,M,0014.5,M,,*33\xd\xa");
-
-	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 2",  "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,0014.5,M,000.0,0000*42\xd\xa");
-	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 3",  "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,-014.5,M,000.0,0000*5F\xd\xa");
-	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 4",  "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,-0280.7,M,0014.5,M,000.0,0000*5F\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 2", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,0014.5,M,000.0,0000*42\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 3", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,00280.7,M,-014.5,M,000.0,0000*5F\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 4", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,00.0,-0280.7,M,0014.5,M,000.0,0000*5F\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 10", "$GPGGA,000124.168,3600.0000,N,13600.0000,E,0,00,99.9,00000.0,M,0000.0,M,000.0,0000*43\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 11", "$GPGGA,132652.908,1122.3344,N,12233.4455,E,0,00,99.9,00176.1,M,0014.4,M,000.0,0000*4B\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 12", "$GPGGA,112531.000,1122.3344,N,12233.4455,E,1,12,00.7,00639.3,M,0014.3,M,000.0,0000*4B\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 13", "$GPGGA,111520.707,1122.3344,N,12233.4455,E,0,00,99.9,-0013.7,M,0014.3,M,000.0,0000*53\xd\xa");
-	
-	// ERRs
 	UnitTest_PacketNMEA_CRC_ERR<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 2", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,,00.0,00280.7,M,0014.5,M,000.0,0000*40\xd\xa"); // ERR
 	UnitTest_PacketNMEA_CRC_ERR<sirf_gsu_7x::tContentGGA>("sirf_gsu_7x GGA 1", "$GPGGA,000124.168,0000.0000,N,00000.0000,E,6,02,,00280.7,M,0014.5,M,000.0,0000*5C\xd\xa"); // ERR
 	//UnitTest_PacketNME_CRC<sirf_gsu_7x::tContentGGA>("$GNGGA,172905.087,,,,,0,0,,,M,,M,,*51\xd\xa");
 	//UnitTest_PacketNME_CRC<sirf_gsu_7x::tContentGGA>("$GPGGA,134734,0000.0000,N,00000.0000,E,6,02,,00280.70,M,014.50,M,,*52\xd\xa");
-
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGLL>("sirf_gsu_7x GLL 1", "$GPGLL,3600.0000,N,13600.0000,E,000124.168,V*2A\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGLL>("sirf_gsu_7x GLL 2", "$GPGLL,1122.3344,N,12233.4455,E,132652.908,V*22\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGLL>("sirf_gsu_7x GLL 3", "$GPGLL,1122.3344,N,12233.4455,E,112531.000,A*30\xd\xa");
-
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGSA>("sirf_gsu_7x GSA 1", "$GPGSA,A,1,,,,,,,,,,,,,99.9,99.9,99.9*09\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGSA>("sirf_gsu_7x GSA 2", "$GPGSA,A,3,07,30,21,09,20,05,27,16,04,13,08,14,01.3,00.7,01.0*06\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGSA>("sirf_gsu_7x GSA 3", "$GPGSA,A,3,23,29,07,08,09,18,26,28,,,,,12.3,45.6,78.9*08\xd\xa");
 	UnitTest_PacketNMEA_CRC_ERR<sirf_gsu_7x::tContentGSA>("sirf_gsu_7x GSA 10", "$GPGSA,A,8,07,30,21,09,20,05,27,16,04,13,08,14,01.3,00.7,01.0*0D\xd\xa");
 	UnitTest_PacketNMEA_CRC_ERR<sirf_gsu_7x::tContentGSA>("sirf_gsu_7x GSA 11", "$GPGSA,R,3,07,30,21,09,20,05,27,16,04,13,08,14,01.3,00.7,01.0*15\xd\xa");
-
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGSV>("sirf_gsu_7x GSV  1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGSV>("sirf_gsu_7x GSV  2", "$GPGSV,3,2,10,10,07,189,,05,05,220,,09,34,274,42,18,25,309,44*72\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGSV>("sirf_gsu_7x GSV  3", "$GPGSV,3,3,10,26,82,187,47,28,43,056,46*77\xd\xa");
@@ -218,16 +254,13 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGSV>("sirf_gsu_7x GSV  9", "$GLGSV,3,2,09,74,23,089,,67,22,338,,65,12,223,,83,05,008,*62\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGSV>("sirf_gsu_7x GSV 10", "$GLGSV,3,3,09,86,03,164,*52\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentGSV>("sirf_gsu_7x GSV 11", "$GPGSV,3,1,12,07,48,075,74,10,36,135,,13,-2,128,,16,-5,240,34*79\xd\xa"); // that's a real one but it's not correct.
-
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentRMC>("sirf_gsu_7x RMC 1", "$GPRMC,000400.148,V,3600.0000,N,13600.0000,E,9999.99,999.99,180109,,*24\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentRMC>("sirf_gsu_7x RMC 2", "$GPRMC,123456.789,V,1122.3344,N,01122.3344,E,9999.99,999.99,180109,,*2D\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentRMC>("sirf_gsu_7x RMC 3", "$GPRMC,123456.789,V,1122.3344,N,12233.4455,E,9999.99,999.99,180109,,*2C\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentRMC>("sirf_gsu_7x RMC 4", "$GPRMC,123456.789,A,1122.3344,N,01122.3344,E,0052.58,132.68,180109,,*37\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentRMC>("sirf_gsu_7x RMC 5", "$GPRMC,123456.789,A,1122.3344,N,12233.4455,E,0052.58,132.68,180109,,*36\xd\xa");
-
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentVTG>("sirf_gsu_7x VTG 1", "$GPVTG,999.99,T,,M,9999.99,N,9999.99,K*59\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentVTG>("sirf_gsu_7x VTG 2", "$GPVTG,132.68,T,,M,0052.58,N,0097.38,K*51\xd\xa");
-
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentZDA>("sirf_gsu_7x ZDA 1", "$GPZDA,000125.168,25,01,2009,,*52\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentZDA>("sirf_gsu_7x ZDA 2", "$GPZDA,000125.168,25,01,2009,00,00*52\xd\xa"); // last two fields are not supported
 	UnitTest_PacketNMEA_CRC<sirf_gsu_7x::tContentZDA>("sirf_gsu_7x ZDA 3", "$GPZDA,000125.168,25,01,2009,-3,59*40\xd\xa"); // last two fields are not supported
@@ -235,6 +268,7 @@ void UnitTest_PacketNMEAPayload()
 
 	std::cout << '\n';
 
+	// SiRF LR9548S
 	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentGGA>("sirf_lr9548s GGA 1", "$GPGGA,001630.035,0000.0000,N,00000.0000,E,0,00,50.0,0.0,M,0.0,M,0.0,0000*74\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentGGA>("sirf_lr9548s GGA 2", "$GPGGA,215750.098,1122.3344,N,12233.4455,E,1,03,3.7,-14.3,M,14.3,M,0.0,0000*6C\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentGSA>("sirf_lr9548s GSA 1", "$GPGSA,A,1,,,,,,,,,,,,,50.0,50.0,50.0*05\xd\xa");
@@ -244,56 +278,14 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentGSV>("sirf_lr9548s GSV 3", "$GPGSV,3,3,12,09,07,000,,12,04,000,,07,-10,000,,08,-11,000,*7D\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentRMC>("sirf_lr9548s RMC 1", "$GPRMC,001629.033,V,0000.0000,N,00000.0000,E,0.0,0.00,160406,,,N*4F\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentRMC>("sirf_lr9548s RMC 2", "$GPRMC,215750.098,A,1122.3344,N,12233.4455,E,0.15,19.29,160706,,,A*5B\xd\xa");
+	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentRMC>("sirf_lr9548s RMC 3", "$GPRMC,215750.098,A,1122.3344,N,12233.4455,E,1230.15,19.29,160706,,,A*6B\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentVTG>("sirf_lr9548s VTG 1", "$GPVTG,0.00,T,,M,0.0,N,0.0,K,N*32\xd\xa");
 	UnitTest_PacketNMEA_CRC<sirf_lr9548s::tContentVTG>("sirf_lr9548s VTG 2", "$GPVTG,19.81,T,,M,0.20,N,0.4,K,N*35\xd\xa");
-
-	UnitTest_PacketNMEA_CRC_ERR<sirf_gsu_7x::tContentRMC>("sirf_lr9548s RMC 1", "$GPRMC,215750.098,A,1122.3344,N,12233.4455,E,0.153,19.29,160706,,,A*68\xd\xa");
-	UnitTest_PacketNMEA_CRC_ERR<sirf_gsu_7x::tContentRMC>("sirf_lr9548s RMC 2", "$GPRMC,215750.098,A,1122.3344,N,12233.4455,E,1230.15,19.29,160706,,,A*6B\xd\xa");
+	UnitTest_PacketNMEA_CRC_ERR<sirf_lr9548s::tContentRMC>("sirf_lr9548s RMC 1", "$GPRMC,215750.098,A,1122.3344,N,12233.4455,E,0.153,19.29,160706,,,A*68\xd\xa");
 
 	std::cout << '\n';
 
-	UnitTest_PacketNMEA_CRC<base::tContentP<1, 3, 3>>("tContentP 1", "$PMTK000*32\xd\xa");
-	UnitTest_PacketNMEA_CRC<base::tContentP<1, 3, 2, 4>>("tContentP 2", "$PMTK000*32\xd\xa");
-	//UnitTest_PacketNMEA_CRC<base::tContentP<1, 3>>("tContentP 3", "$PMTK000*32\xd\xa");
-
-	UnitTest_PacketNMEA_CRC<base::tContentP<4, 3>>("base Proprietary 1", "$PMTK000*32\xd\xa");
-	UnitTest_PacketNMEA_CRC<base::tContentP<4, 3>>("base Proprietary 2", "$PMTK011,MTKGPS*08\xd\xa");
-	UnitTest_PacketNMEA_CRC<base::tContentP<4, 3>>("base Proprietary 3", "$PMTK001,355,3,1,1,0,0*33\xd\xa");
-
-	UnitTest_PacketNMEA_NoCRC<base::tContentP<4, 3>>("base Proprietary 10", "$PSRFTXT,CHNL: 12\xd\xa");
-	
-	UnitTest_PacketNMEA_CRC<mtk::tContentPMTK_TEST>("mtk TEST 1", "$PMTK000*32\xd\xa");
-	UnitTest_PacketNMEA_CRC<mtk::tContentACK>("mtk ACK  1", "$PMTK001,604,3*32\xd\xa");
-
-	UnitTest_PacketNMEA_CRC<mtk::tContentPMTK_SetSerialPort>("mtk Set SerialPort (251)", "$PMTK251,38400*27\xd\xa");
-
-	// MTK
-
-	UnitTest_PacketNMEA_CRC("PMTK TEST 1", mtk::tContentPMTK_TEST(), "$PMTK000*32\xd\xa");
-	UnitTest_PacketNMEA_CRC("PMTK Set SerialPort 1", mtk::tContentPMTK_SetSerialPort(38400), "$PMTK251,38400*27\xd\xa");
-
-	// SiRF
-
-	UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 1", "$PSRFTXT,NMEA: ID 101 Ack Input\xd\xa");
-	UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 2", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009\xd\xa");
-	//UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 2.1 wrong", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009*34\xd\xa"); // CRC is right. (not real, just for test)
-	//UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 2.2 wrong", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009*21\xd\xa"); // CRC is wrong. (not real, just for test)
-	UnitTest_PacketNMEA_NoCRC<sirf::tContentPSRF_TXT>("sirf TEXT 3", "$PSRFTXT,Firmware Checksum: 1fb5\xd\xa");
-	UnitTest_PacketNMEA_CRC<sirf::tContentPSRF_SetSerialPort>("sirf Set SerialPort (100)", "$PSRF100,0,9600,8,1,0*0C\xd\xa");
-
-	UnitTest_PacketNMEA_CRC("PSRF Set SerialPort 1", sirf::tContentPSRF_SetSerialPort(38400), "$PSRF100,1,38400,8,1,0*3D\xd\xa");
-	//UnitTest_PacketNMEA_CRC("PSRF Set SerialPort 1", sirf::tContentPSRF_SetSerialPort(38500), "$PSRF100,1,38500,8,1,0*3C\xd\xa");
-
-	// SiRF legacy
-
-	UnitTest_PacketNMEA_CRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy LEADTEK TEXT 1 Version", "$PSRFTXTVersion 322.000.000-LD00*23\xd\xa");
-	UnitTest_PacketNMEA_CRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy LEADTEK TEXT 2", "$PSRFTXTCLK:  96250*09\xd\xa");
-	UnitTest_PacketNMEA_NoCRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy GSU TEXT 1", "$PSRFTXT,NMEA: ID 101 Ack Input\xd\xa");
-	UnitTest_PacketNMEA_NoCRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy GSU TEXT 2", "$PSRFTXT,GSU-7x : Position Co.,Ltd.2009\xd\xa");
-	UnitTest_PacketNMEA_NoCRC<sirf_legacy::tContentPSRF_TXT>("sirf legacy GSU TEXT 3", "$PSRFTXT,Firmware Checksum: 1fb5\xd\xa");
-	
 	// Telit
-
 	UnitTest_PacketNMEA_CRC<telit::tContentJAM_SIGNAL>("telit JAM 1", "$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa");
 	UnitTest_PacketNMEA_CRC<telit::tContentJAM_SIGNAL>("telit JAM 2", "$PTWS,JAM,SIGNAL,VAL,INDEX,18,FREQ,1574.990234*54\xd\xa");
 	UnitTest_PacketNMEA_CRC<telit::tContentVERSION>("telit VERSION 1", "$PTWS,VERSION,VAL,v13-2.2.0-STD-3.8.13-N96-B2*3F\xd\xa");
