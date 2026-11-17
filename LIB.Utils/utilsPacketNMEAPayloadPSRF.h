@@ -5,7 +5,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "utilsPacketNMEAType.h"
 #include "utilsPacketNMEAPayloadP.h"
 
 namespace utils
@@ -85,11 +84,11 @@ struct tContentPSRF_SetSerialPort : public tContentPSRF // PSRF100
 	{
 		if (!IsVerified())
 			return {};
-		std::vector<std::string> Data;
+		std::vector<std::string> Data; // PSRF100,1,9600,8,1,0 -> NMEA 9600
 		Data.push_back(std::string(tContentPSRF::GetID()) + GetID());
 		Data.push_back(std::to_string(static_cast<int>(Protocol)));
 		Data.push_back(std::to_string(static_cast<int>(Baudrate)));
-		Data.push_back("8"); // DataBits	8,7 (SiRF protocol is only valid for 8 data bits, 1stop bit, and no parity)
+		Data.push_back("8"); // DataBits	8,7 (SiRF protocol is only valid for 8 data bits, 1 stop bit, and no parity)
 		Data.push_back("1"); // StopBits	0,1
 		Data.push_back("0"); // Parity		0=None, 1=Odd, 2=Even
 		return Data;

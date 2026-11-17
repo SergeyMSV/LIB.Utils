@@ -7,6 +7,8 @@
 
 #include "utilsPacketNMEAType.h"
 
+#include <vector>
+
 namespace utils
 {
 namespace packet
