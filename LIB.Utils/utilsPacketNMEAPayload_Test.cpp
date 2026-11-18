@@ -123,8 +123,8 @@ void UnitTest_PacketNMEAPayload()
 	
 	std::cout << '\n';
 
-	UnitTest_PacketNMEA_CRC<generic::tContentGSV>("generic GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
-	UnitTest_PacketNMEA_CRC_ERR<generic::tContentGSV>("generic GSV wrong 1", "$GPGSQ,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
+	//UnitTest_PacketNMEA_CRC<generic::tContentGSV>("generic GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
+	//UnitTest_PacketNMEA_CRC_ERR<generic::tContentGSV>("generic GSV wrong 1", "$GPGSQ,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
 
 	std::cout << '\n';
 

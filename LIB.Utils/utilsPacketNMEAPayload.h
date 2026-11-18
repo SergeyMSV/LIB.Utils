@@ -23,7 +23,6 @@ template
 	typename TTime,
 	typename TLatitude,
 	typename TLongitude,
-	typename TQuality,
 	typename TSatQty,
 	typename THDOP,
 	typename TAltitude,
@@ -33,11 +32,13 @@ template
 >
 struct tContentGGA : public type::tTypeVerified	// Global Positioning System Fix Data
 {
+	using tQuality = type::tQualityNoNull;	// 0
+
 	type::tGNSS GNSS;
 	TTime Time;								// UTC Time
 	TLatitude Latitude;
 	TLongitude Longitude;
-	TQuality Quality = TQuality(0);			// GPS Quality Indicator (Position Fix Indicator, 1 digit)
+	tQuality Quality = tQuality(0);			// GPS Quality Indicator (Position Fix Indicator, 1 digit)
 	TSatQty SatUsed = TSatQty(0);			// Satellites Used
 	THDOP HDOP;								// Horizontal Dilution of Precision 
 	TAltitude Altitude;						// Altitude re: mean-sea-level (geoid), meters
@@ -57,7 +58,7 @@ struct tContentGGA : public type::tTypeVerified	// Global Positioning System Fix
 		Time = TTime(val[1]);
 		Latitude = TLatitude(val[2], val[3]);
 		Longitude = TLongitude(val[4], val[5]);
-		Quality = TQuality(val[6]);
+		Quality = tQuality(val[6]);
 		SatUsed = TSatQty(val[7]);
 		HDOP = THDOP(val[8]);
 		Altitude = TAltitude(val[9], val[10]);
@@ -182,19 +183,19 @@ struct tContentGLL8 : public tContentGLL7<TLatitude, TLongitude, TTime> // NMEA 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template
 <
-	typename TSatID,
 	typename THDOP
 >
 struct tContentGSA : public type::tTypeVerified	// GNSS DOP and Active Satellites
 {
 	using tFixStatus = type::tUIntFixedNoNull<1>;
+	using tSatID = type::tUIntFixed<2>;				// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 
 	static constexpr std::size_t ChannelQty = 12;
 
 	type::tGNSS GNSS;
 	char OperMode = 0;						// M = Manual, forced to operate in 2D or 3D mode; A = Automatic, allowed to automatically switch 2D/3D
 	tFixStatus FixStatus = tFixStatus(0);	// 1 = Fix not available, 2 = 2D, 3 = 3D
-	TSatID SatsOnChannels[ChannelQty];		// ID numbers of satellites used in solution
+	tSatID SatsOnChannels[ChannelQty];		// ID numbers of satellites used in solution
 	THDOP PDOP;
 	THDOP HDOP;
 	THDOP VDOP;
@@ -212,7 +213,7 @@ struct tContentGSA : public type::tTypeVerified	// GNSS DOP and Active Satellite
 		FixStatus = tFixStatus(val[2]);
 		for (std::size_t i = 0; i < ChannelQty; ++i)
 		{
-			SatsOnChannels[i] = TSatID(val[3 + i]);
+			SatsOnChannels[i] = tSatID(val[3 + i]);
 		}
 		PDOP = THDOP(val[15]);
 		HDOP = THDOP(val[16]);
@@ -254,28 +255,29 @@ struct tContentGSA : public type::tTypeVerified	// GNSS DOP and Active Satellite
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 template
 <
-	typename TMsgQty,
-	typename TMsgNum,
-	typename TSatQty,
-	typename TSatID,
 	typename TElevation,
 	typename TAzimuth,
 	typename TSNR
 >
 struct tContentGSV : public type::tTypeVerified	// GNSS Satellites in View
 {
-	type::tGNSS GNSS;
-	TMsgQty MsgQty;							// Total number of messages, 1 to 9
-	TMsgNum MsgNum;							// Message number, 1 to 9
-	TSatQty SatInView;						// Satellites in View 
+	using tMsgQty = type::tUIntFixedNoNull<1>;			// 0		Total number of messages, 1 to 9
+	using tMsgNum = type::tUIntFixedNoNull<1>;			// 0		Message number, 1 to 9
+	using tSatInViewQty = type::tUIntFixedNoNull<2>;	// 00 - 99
+	using tSatID = type::tUIntFixedNoNull<2>;			// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 
 	struct tSatellite
 	{
-		TSatID ID;							// Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
+		tSatID ID;							// Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 		TElevation Elevation;				// Degree (Maximum 90)
 		TAzimuth Azimuth;					// Degree (Range 0 to 359)
 		TSNR SNR;							// SNR (C/No) 00-99 dB-Hz, null when not tracking
 	};
+
+	type::tGNSS GNSS;
+	tMsgQty MsgQty;							// Total number of messages, 1 to 9
+	tMsgNum MsgNum;							// Message number, 1 to 9
+	tSatInViewQty SatInView;				// Satellites in View 
 	std::vector<tSatellite> Sats;
 
 	tContentGSV() = default;
@@ -287,15 +289,15 @@ struct tContentGSV : public type::tTypeVerified	// GNSS Satellites in View
 			return;
 		}
 		GNSS = type::tGNSS(val[0]);
-		MsgQty = TMsgQty(val[1]);
-		MsgNum = TMsgNum(val[2]);
-		SatInView = TSatQty(val[3]);
+		MsgQty = tMsgQty(val[1]);
+		MsgNum = tMsgNum(val[2]);
+		SatInView = tSatInViewQty(val[3]);
 		const int SatQtyMsg = static_cast<int>((val.size() - 3) / 4);
 		for (int i = 1; i <= SatQtyMsg; ++i)
 		{
 			int Index = 4 * i;
 			tSatellite Sat{};
-			Sat.ID = TSatID(val[Index]);
+			Sat.ID = tSatID(val[Index]);
 			Sat.Elevation = TElevation(val[Index + 1]);
 			Sat.Azimuth = TAzimuth(val[Index + 2]);
 			Sat.SNR = TSNR(val[Index + 3]);
@@ -609,31 +611,6 @@ std::optional<T> Parse(const TArg& value)
 	return Pack;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-namespace generic
-{
-	using tMsgQty = type::tUIntFixedNoNull<1>;						// 0		Total number of messages, 1 to 9
-	using tMsgNum = type::tUIntFixedNoNull<1>;						// 0		Message number, 1 to 9
-	using tSatInViewQty = type::tUIntFixedNoNull<2>;				// 00 - 99
-	using tSatID = type::tUIntFixedNoNull<2>;						// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
-	using tElevation = type::tUIntFixedNoNull<2>;					// 00		Degree (Maximum 90)
-	using tAzimuth = type::tUIntFixedNoNull<3>;						// 000		Degree (Range 0 to 359)
-	using tSNR = type::tUIntFixed<2>;								// 00		SNR (C/No) 00-99 dB-Hz, null when not tracking
-
-	using tContentGSV = base::tContentGSV<tMsgQty, tMsgNum, tSatInViewQty, tSatID, tElevation, tAzimuth, tSNR>;
-}
-
-namespace advanced
-{
-	using tMsgQty = type::tUIntFixedNoNull<1>;						// 0			Total number of messages, 1 to 9
-	using tMsgNum = type::tUIntFixedNoNull<1>;						// 0			Message number, 1 to 9
-	using tSatInViewQty = type::tUIntFixedNoNull<2>;				// 00 - 99
-	using tSatID = type::tUIntFixedNoNull<2>;						// 00			Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
-	using tElevation = type::tIntFixedNoNull<2>;					// 00, -1, -12	Degree (Maximum 90) (can be negative)
-	using tAzimuth = type::tUIntFixedNoNull<3>;						// 000			Degree (Range 0 to 359)
-	using tSNR = type::tUIntFixed<2>;								// 00			SNR (C/No) 00-99 dB-Hz, null when not tracking
-
-	using tContentGSV = base::tContentGSV<tMsgQty, tMsgNum, tSatInViewQty, tSatID, tElevation, tAzimuth, tSNR>;
-}
 
 namespace mtk_eb500 // MT3329	AXN_1.30
 {
@@ -652,19 +629,21 @@ namespace mtk_eb500 // MT3329	AXN_1.30
 	using tDate = type::tDateNoNull;										// 000000
 	using tLatitude = type::tLatitudeNoNull<4>;								// 0000.0000,?
 	using tLongitude = type::tLongitudeNoNull<4>;							// 00000.0000,?
-	using tQuality = type::tQualityNoNull;									// 0
 	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
-	using tHDOP = type::tUFloatPrecisionFixed<2, 2>;							// ?.00
+	using tHDOP = type::tUFloatPrecisionFixed<2, 2>;						// ?.00
 	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 1>;			// ?.0,M			[?] tFloatPrecisionFixed maybe NoNull too
 	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 1>;	// ?.0,M			[?] tFloatPrecisionFixed maybe NoNull too
 	using tDiffAge = type::tUFloatPrecisionFixed<3, 1>;						// 0.0 - 999.9				[?]
 	using tDiffStation = type::tUIntFixed<4>;								// 0000 - 9999
+	using tElevation = type::tUIntFixedNoNull<2>;							// 00		Degree (Maximum 90)
+	using tAzimuth = type::tUIntFixedNoNull<3>;								// 000		Degree (Range 0 to 359)
+	using tSNR = type::tUIntFixed<2>;										// 00		SNR (C/No) 00-99 dB-Hz, null when not tracking
 	using tSpeed = type::tUFloatPrecisionFixedNoNull<4, 2>;					// 0.00 - 9999.99
 	using tCourse = type::tUFloatPrecisionFixedNoNull<3, 2>;				// 0.00 - 999.99
 	using tMode = type::tModeNoNull;										// A
 
-	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
-	using tContentGSV = generic::tContentGSV;
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGSV = base::tContentGSV<tElevation, tAzimuth, tSNR>;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 }
 
@@ -678,14 +657,15 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 	using tDate = type::tDateNoNull;										// 000000
 	using tLatitude = type::tLatitude<6>;									// 0000.000000,?
 	using tLongitude = type::tLongitude<6>;									// 00000.000000,?
-	using tQuality = type::tQualityNoNull;									// 0
 	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
-	using tSatID = type::tUIntFixed<2>;										// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 	using tHDOP = type::tUFloatPrecisionFixed<2, 2>;						// ?.00
 	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 3>;			// ?.000,M
 	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 3>;	// ?.000,M
 	using tDiffAge = type::tUFloatPrecisionFixed<3, 1>;						// 0.0 - 999.9			[?]
 	using tDiffStation = type::tUIntFixed<4>;								// 0000 - 9999
+	using tElevation = type::tUIntFixed<2>;									// 00		Degree (Maximum 90)
+	using tAzimuth = type::tUIntFixed<3>;									// 000		Degree (Range 0 to 359)
+	using tSNR = type::tUIntFixed<2>;										// 00		SNR (C/No) 00-99 dB-Hz, null when not tracking
 	using tSpeed = type::tUFloatPrecisionFixedNoNull<4, 2>;					// 0.00 - 9999.99
 	using tCourse = type::tUFloatPrecisionFixedNoNull<3, 2>;				// 0.00 - 999.99
 	using tMode = type::tModeNoNull;										// A
@@ -695,25 +675,10 @@ namespace mtk_eb800a // MT3339	AXN_3.8
 	using tLocalZoneHours = type::tIntFixed<2>;								// 00 to �13 hrs
 	using tLocalZoneMinutes = type::tUIntFixed<2>;							// 00 to +59
 
-namespace gsv
-{
-	// $GPGSV,1,1,01,01,35,,*??
-
-	using tMsgQty = type::tUIntFixedNoNull<1>;								// 0		Total number of messages, 1 to 9
-	using tMsgNum = type::tUIntFixedNoNull<1>;								// 0		Message number, 1 to 9
-	using tSatInViewQty = type::tUIntFixedNoNull<2>;						// 00 - 99
-	using tSatID = type::tUIntFixedNoNull<2>;								// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
-	using tElevation = type::tUIntFixed<2>;									// 00		Degree (Maximum 90)
-	using tAzimuth = type::tUIntFixed<3>;									// 000		Degree (Range 0 to 359)
-	using tSNR = type::tUIntFixed<2>;										// 00		SNR (C/No) 00-99 dB-Hz, null when not tracking
-
-	using tContentGSV = base::tContentGSV<tMsgQty, tMsgNum, tSatInViewQty, tSatID, tElevation, tAzimuth, tSNR>;
-}
-
-	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGLL = base::tContentGLL8<tLatitude, tLongitude, tTime, tMode>;
-	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
-	using tContentGSV = gsv::tContentGSV;
+	using tContentGSA = base::tContentGSA<tHDOP>;
+	using tContentGSV = base::tContentGSV<tElevation, tAzimuth, tSNR>;;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 	using tContentVTG = base::tContentVTG10<tCourse, tSpeed, tMode>;
 	using tContentZDA = base::tContentZDA<tTime, tDay, tMonth, tYear, tLocalZoneHours, tLocalZoneMinutes>;
@@ -764,14 +729,15 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	using tDate = type::tDateNoNull;										// 000000
 	using tLatitude = type::tLatitude<4>;									// 0000.0000,?
 	using tLongitude = type::tLongitude<4>;									// 00000.0000,?
-	using tQuality = type::tQualityNoNull;									// 0
 	using tSatQty = type::tUIntNoNull<2>;									// 0 - 99
-	using tSatID = type::tUIntFixed<2>;										// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 	using tHDOP = type::tUFloatPrecisionFixed<2, 2>;						// ?.00
 	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 1>;			// ?.0,M
 	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 1>;	// ?.0,M
 	using tDiffAge = type::tUFloatPrecisionFixed<3, 1>;						// 0.0 - 999.9			[?]
 	using tDiffStation = type::tUIntFixed<4>;								// 0000 - 9999
+	using tElevation = type::tUIntFixedNoNull<2>;							// 00		Degree (Maximum 90)
+	using tAzimuth = type::tUIntFixedNoNull<3>;								// 000		Degree (Range 0 to 359)
+	using tSNR = type::tUIntFixed<2>;										// 00		SNR (C/No) 00-99 dB-Hz, null when not tracking
 	using tSpeed = type::tUFloatPrecisionFixedNoNull<4, 2>;					// 0.00 - 9999.99
 	using tCourse = type::tUFloatPrecisionFixedNoNull<3, 2>;				// 0.00 - 999.99
 	using tMode = type::tModeNoNull;										// A
@@ -781,10 +747,10 @@ namespace mtk_sc872_a // MT3333	AXN_3.84
 	using tLocalZoneHours = type::tIntFixed<2>;								// 00 to �13 hrs
 	using tLocalZoneMinutes = type::tUIntFixed<2>;							// 00 to +59
 
-	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGLL = base::tContentGLL8<tLatitude, tLongitude, tTime, tMode>;
-	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
-	using tContentGSV = generic::tContentGSV;
+	using tContentGSA = base::tContentGSA<tHDOP>;
+	using tContentGSV = base::tContentGSV<tElevation, tAzimuth, tSNR>;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 	using tContentVTG = base::tContentVTG9<tCourse, tSpeed>;
 	using tContentZDA = base::tContentZDA<tTime, tDay, tMonth, tYear, tLocalZoneHours, tLocalZoneMinutes>;
@@ -796,14 +762,15 @@ namespace sirf_gsu_7x
 	using tDate = type::tDateNoNull;									// 000000
 	using tLatitude = type::tLatitudeNoNull<4>;							// 0000.0000,?
 	using tLongitude = type::tLongitudeNoNull<4>;						// 00000.0000,?
-	using tQuality = type::tQualityNoNull;								// 0
 	using tSatQty = type::tUIntFixedNoNull<2>;							// 00
-	using tSatID = type::tUIntFixed<2>;									// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 	using tHDOP = type::tUFloatFixedNoNull<2, 1>;						// 00.0
 	using tAltitude = type::tFloatFixedStrictNoNullUnitNoNull<5, 1>;	// 00000.0,M		-0014.2,M
 	using tGeoidSeparation = type::tFloatFixedNoNullUnitNoNull<4, 1>;	// 0000.0,M			-014.2,M
 	using tDiffAge = type::tUFloatFixedNoNull<3, 1>;					// 000.0
 	using tDiffStation = type::tUIntFixedNoNull<4>;						// 0000
+	using tElevation = type::tIntFixedNoNull<2>;						// 00, -1, -12	Degree (Maximum 90) (can be negative)
+	using tAzimuth = type::tUIntFixedNoNull<3>;							// 000			Degree (Range 0 to 359)
+	using tSNR = type::tUIntFixed<2>;									// 00			SNR (C/No) 00-99 dB-Hz, null when not tracking
 	using tSpeed = type::tUFloatFixedNoNull<4, 2>;						// 9999.99
 	using tCourse = type::tUFloatFixedNoNull<3, 2>;						// 999.99
 	using tDay = type::tUIntFixedNoNull<2>;								// 00
@@ -812,10 +779,10 @@ namespace sirf_gsu_7x
 	using tLocalZoneHours = type::tIntFixed<2>;							// 00 to �13 hrs	(not supported)
 	using tLocalZoneMinutes = type::tUIntFixed<2>;						// 00 to +59		(not supported)
 	
-	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGLL = base::tContentGLL7<tLatitude, tLongitude, tTime>;
-	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
-	using tContentGSV = advanced::tContentGSV;
+	using tContentGSA = base::tContentGSA<tHDOP>;
+	using tContentGSV = base::tContentGSV<tElevation, tAzimuth, tSNR>;
 	using tContentRMC = base::tContentRMC12<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate>;
 	using tContentVTG = base::tContentVTG9<tCourse, tSpeed>;
 	using tContentZDA = base::tContentZDA<tTime, tDay, tMonth, tYear, tLocalZoneHours, tLocalZoneMinutes>;
@@ -827,22 +794,23 @@ namespace sirf_lr9548s
 	using tDate = type::tDateNoNull;									// 000000
 	using tLatitude = type::tLatitudeNoNull<4>;							// 0000.0000,?
 	using tLongitude = type::tLongitudeNoNull<4>;						// 00000.0000,?
-	using tQuality = type::tQualityNoNull;								// 0
 	using tSatQty = type::tUIntFixedNoNull<2>;							// 00
-	using tSatID = type::tUIntFixed<2>;									// 00		Satellite ID (GPS: 1-32, SBAS 33-64 (33=PRN120), GLONASS: 65-96) 
 	using tHDOP = type::tFloatPrecisionFixedNoNull<2, 1>;				// ?.0
 	using tAltitude = type::tFloatPrecisionFixedUnitNoNull<5, 1>;		// ?.0,M		-14.2,M
 	using tGeoidSeparation = type::tFloatPrecisionFixedUnitNoNull<4, 1>;// ?.0,M
 	using tDiffAge = type::tFloatPrecisionFixedNoNull<3, 1>;			// ?.0
 	using tDiffStation = type::tUIntFixedNoNull<4>;						// 0000
+	using tElevation = type::tIntFixedNoNull<2>;						// 00, -1, -12	Degree (Maximum 90) (can be negative)
+	using tAzimuth = type::tUIntFixedNoNull<3>;							// 000			Degree (Range 0 to 359)
+	using tSNR = type::tUIntFixed<2>;									// 00			SNR (C/No) 00-99 dB-Hz, null when not tracking
 	using tSpeed = type::tUFloatNoNull<4, 2>;							// ?.?
 	using tCourse = type::tUFloatPrecisionFixedNoNull<3, 2>;			// ?.00
 	using tMode = type::tModeNoNull;									// A
 
-	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tQuality, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
 	using tContentGLL = base::tContentGLL7<tLatitude, tLongitude, tTime>;
-	using tContentGSA = base::tContentGSA<tSatID, tHDOP>;
-	using tContentGSV = advanced::tContentGSV;
+	using tContentGSA = base::tContentGSA<tHDOP>;
+	using tContentGSV = base::tContentGSV<tElevation, tAzimuth, tSNR>;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 	using tContentVTG = base::tContentVTG10<tCourse, tSpeed, tMode>;
 }
