@@ -120,7 +120,12 @@ void UnitTest_PacketNMEAPayload()
 		std::vector<std::uint8_t> RawPacket = Packet.ToVector();
 		std::cout << std::string(RawPacket.cbegin(), RawPacket.cend()) << '\n';
 	}
-	
+
+	std::cout << '\n';
+
+	// Standard NMEA 0183
+	UnitTest_PacketNMEA_CRC<base::tContentTXT>("ublox_tim4h TXT 3", "$GPTXT,01,01,25,DR MODE - ANTENNA FAULT^21*38\xd\xa");
+
 	std::cout << '\n';
 
 	//UnitTest_PacketNMEA_CRC<generic::tContentGSV>("generic GSV 1", "$GPGSV,3,1,10,23,38,230,44,29,71,156,47,07,29,116,41,08,09,081,36*7F\xd\xa");
@@ -289,7 +294,54 @@ void UnitTest_PacketNMEAPayload()
 	UnitTest_PacketNMEA_CRC<telit::tContentJAM_SIGNAL>("telit JAM 1", "$PTWS,JAM,SIGNAL,VAL,INDEX,8,FREQ,1574.990234*65\xd\xa");
 	UnitTest_PacketNMEA_CRC<telit::tContentJAM_SIGNAL>("telit JAM 2", "$PTWS,JAM,SIGNAL,VAL,INDEX,18,FREQ,1574.990234*54\xd\xa");
 	UnitTest_PacketNMEA_CRC<telit::tContentVERSION>("telit VERSION 1", "$PTWS,VERSION,VAL,v13-2.2.0-STD-3.8.13-N96-B2*3F\xd\xa");
-	
+
+	std::cout << '\n';
+
+	// U-Blox TIM-4H
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGGA>("ublox_tim4h GGA 1", "$GPGGA,,,,,,0,00,99.99,,,,,,*48\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGGA>("ublox_tim4h GGA 2", "$GPGGA,221314.00,,,,,0,00,99.99,,,,,,*61\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGGA>("ublox_tim4h GGA 3", "$GPGGA,223154.99,1234.56789,N,12345.67891,E,1,05,1.26,-582.2,M,14.4,M,,*7F\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGSA>("ublox_tim4h GSA 1", "$GPGSA,A,1,,,,,,,,,,,,,99.99,99.99,99.99*30\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGSA>("ublox_tim4h GSA 2", "$GPGSA,A,2,02,23,10,,,,,,,,,,11.62,11.57,1.00*06\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGLL>("ublox_tim4h GLL 1", "$GPGLL,,,,,,V,N*64\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGLL>("ublox_tim4h GLL 2", "$GPGLL,,,,,112208.00,V,N*42\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGLL>("ublox_tim4h GLL 3", "$GPGLL,1234.56789,N,12345.67891,E,113507.00,A,A*69\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGSV>("ublox_tim4h GSV 1", "$GPGSV,1,1,00*79\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGSV>("ublox_tim4h GSV 2", "$GPGSV,2,1,07,01,11,111,,02,12,112,,03,13,305,35,04,07,044,47*7F\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentGSV>("ublox_tim4h GSV 3", "$GPGSV,2,1,06,02,23,285,,24,09,071,,14,,,32,08,49,286,35*42\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentRMC>("ublox_tim4h RMC 1", "$GPRMC,,V,,,,,,,,,,N*53\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentRMC>("ublox_tim4h RMC 2", "$GPRMC,112207.00,V,,,,,,,240410,,,N*79\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentRMC>("ublox_tim4h RMC 3", "$GPRMC,113507.00,A,1234.56789,N,12345.67891,E,1.637,52.16,240410,,,A*5E\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentRMC>("ublox_tim4h RMC 4", "$GPRMC,091106.00,A,1234.56789,N,12345.67891,E,0.900,251.61,030407,,,A*68\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentVTG>("ublox_tim4h VTG 1", "$GPVTG,,,,,,,,,N*30\xd\xa"); // Statements in fixed fields can disappear in empty messages.
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentVTG>("ublox_tim4h VTG 2", "$GPVTG,52.16,T,,M,1.637,N,3.033,K,A*0D\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentVTG>("ublox_tim4h VTG 3", "$GPVTG,251.61,T,,M,0.900,N,1.669,K,A*3D\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentZDA>("ublox_tim4h ZDA 1", "$GPZDA,,,,,00,00*48\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentZDA>("ublox_tim4h ZDA 2", "$GPZDA,112206.00,24,04,2010,00,00*61\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentZDA>("ublox_tim4h ZDA 3", "$GPZDA,091106.00,03,04,2007,00,00*6B\xd\xa");
+	{
+		auto content = UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentZDA>("ublox_tim4h ZDA 4", "$GPZDA,091106.00,03,04,2007,00,00*6B\xd\xa"); // 2026-03-16 20:08:32.000 = 1773691712
+		std::pair<std::time_t, std::uint32_t> time = content.GetDateTime();
+		auto tp = std::chrono::system_clock::from_time_t(time.first); // system_clock::time_point
+		auto tp_ymd = std::chrono::year_month_day{ std::chrono::floor<std::chrono::days>(tp) };
+
+		const int year_now = 2026;
+		// GPS WNRO: if the receiver specifies date from the past - it's possible to add 1024 weeks.
+		const auto WNRO = std::chrono::weeks(1024); // 1024 weeks = 7168 days
+		if (tp_ymd.year() < std::chrono::year(year_now - 18))
+			tp += WNRO;
+
+		tp_ymd = std::chrono::year_month_day{ std::chrono::floor<std::chrono::days>(tp) };
+		std::chrono::year_month_day ymd_real(std::chrono::year(year_now), std::chrono::month(11), std::chrono::day(17));
+		utils::test::RESULT("ublox_tim4h ZDA 5 - date, time & WNRO", time.first == 1175591466 && time.second == 0 && tp_ymd == ymd_real);
+	}
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentTXT>("ublox_tim4h TXT 1", "$GPTXT,01,01,02,u-blox ag - www.u-blox.com*50\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentTXT>("ublox_tim4h TXT 2", "$GPTXT,01,01,02,ANTARIS ATR062x HW 04070501*2C\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentTXT>("ublox_tim4h TXT 3", "$GPTXT,01,01,02,EXT CORE       5.00    Jan 09 2006 12:00:00*6F\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentTXT>("ublox_tim4h TXT 4", "$GPTXT,01,01,02,INT EXT0 (RCV) M4H1.1  Jan 09 2006 15:39:54*79\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentTXT>("ublox_tim4h TXT 5", "$GPTXT,01,01,02,LIC 1234-5678-90AB-CDEF-4312*29\xd\xa");
+	UnitTest_PacketNMEA_CRC<ublox_tim4h::tContentTXT>("ublox_tim4h TXT 6", "$GPTXT,01,01,02,QDS 12345678901*1B\xd\xa");
+
 	std::cout << std::endl;
 }
 

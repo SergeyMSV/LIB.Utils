@@ -51,5 +51,8 @@
     <ClInclude Include="..\LIB.Utils\utilsPacketNMEAPayloadP.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsPacketNMEAPayloadPUBX.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

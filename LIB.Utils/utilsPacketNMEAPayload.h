@@ -454,7 +454,8 @@ struct tContentRMC13 : public tContentRMC12<TTime, TLatitude, TLongitude, TSpeed
 template
 <
 	typename TCourse,
-	typename TSpeed
+	typename TSpeed,
+	bool ConstFixedFields = true
 >
 struct tContentVTG9 : public type::tTypeVerified	// Course Over Ground and Ground Speed
 {
@@ -466,12 +467,27 @@ struct tContentVTG9 : public type::tTypeVerified	// Course Over Ground and Groun
 	tContentVTG9() = default;
 	explicit tContentVTG9(const std::vector<std::string>& val)
 	{
-		if (val.size() < 9 || val[0].size() < 3 || std::strcmp(&val[0][2], GetID()) ||
-			val[2] != "T" || val[3] != "" || val[4] != "M" || val[6] != "N" || val[8] != "K")
+		if (val.size() < 9 || val[0].size() < 3 || std::strcmp(&val[0][2], GetID()) || val[3] != "")
 		{
 			SetVerified(false);
 			return;
 		}
+
+		if constexpr (ConstFixedFields)
+		{
+			if (val[2] != "T" || val[4] != "M" || val[6] != "N" || val[8] != "K")
+			{
+				SetVerified(false);
+				return;
+			}
+		}
+		// Some receivers can leave fixed fields empty if there is no other data included in the message.
+		else if ((val[1] != "" && val[2] != "T" && val[4] != "M") || (val[5] != "" && val[6] != "N") || (val[7] != "" && val[8] != "K"))
+		{
+			SetVerified(false);
+			return;
+		}
+
 		GNSS = type::tGNSS(val[0]);
 		Course = TCourse(val[1]);
 		Speed = TSpeed(val[5]);
@@ -489,13 +505,13 @@ struct tContentVTG9 : public type::tTypeVerified	// Course Over Ground and Groun
 		std::vector<std::string> Data;
 		Data.push_back(GNSS.ToString() + GetID());
 		Data.push_back(Course.ToString());
-		Data.push_back("T");
+		Data.push_back(ConstFixedFields || !Course.IsEmpty() ? "T" : "");
 		Data.push_back("");
-		Data.push_back("M");
+		Data.push_back(ConstFixedFields || !Course.IsEmpty() ? "M" : "");
 		Data.push_back(Speed.ToString());
-		Data.push_back("N");
+		Data.push_back(ConstFixedFields || !Speed.IsEmpty() ? "N" : "");
 		Data.push_back(SpeedKmH.ToString());
-		Data.push_back("K");
+		Data.push_back(ConstFixedFields || !SpeedKmH.IsEmpty() ? "K" : "");
 		return Data;
 	}
 };
@@ -504,11 +520,12 @@ template
 <
 	typename TCourse,
 	typename TSpeed,
-	typename TMode
+	typename TMode,
+	bool ConstFixedFields = true
 >
-struct tContentVTG10 : public tContentVTG9<TCourse, TSpeed>
+struct tContentVTG10 : public tContentVTG9<TCourse, TSpeed, ConstFixedFields>
 {
-	using tBase = tContentVTG9<TCourse, TSpeed>;
+	using tBase = tContentVTG9<TCourse, TSpeed, ConstFixedFields>;
 
 	TMode Mode;								// Positioning system Mode Indicator
 
@@ -596,6 +613,59 @@ struct tContentZDA : public type::tTypeVerified	// Time & Date
 		Data.push_back(Year.ToString());
 		Data.push_back(LocalZoneHours.ToString());
 		Data.push_back(LocalZoneMinutes.ToString());
+		return Data;
+	}
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+struct tContentTXT : public type::tTypeVerified
+{
+	using tMsgQty = type::tUIntFixedNoNull<2>;			// 00	Total number of sentences, 01 to 99
+	using tMsgNum = type::tUIntFixedNoNull<2>;			// 00	Sentence number, 01 to 99
+	using tMsgID = type::tUIntFixedNoNull<2>;			// 00	Text identifier
+	
+	//enum class tID : std::uint8_t
+	//{
+	//	ERROR,
+	//	WARNING,
+	//	NOTICE,
+	//	USER = 0x07,
+	//};
+
+	type::tGNSS GNSS;
+	tMsgQty MsgQty;
+	tMsgNum MsgNum;
+	tMsgID MsgID;
+	std::string Msg;
+
+	tContentTXT() = default;
+	explicit tContentTXT(const std::vector<std::string>& val)
+	{
+		if (val.size() == 6 || std::strcmp(&val[0][2], GetID()))
+		{
+			SetVerified(false);
+			return;
+		}
+		GNSS = type::tGNSS(val[0]);
+		MsgQty = tMsgQty(val[1]);
+		MsgNum = tMsgNum(val[2]);
+		MsgID = tMsgID(val[3]);
+		Msg = val[4];
+	}
+
+	static const char* GetID() { return "TXT"; }
+
+	bool IsVerified() const { return type::tTypeVerified::IsVerified() && type::IsVerified(GNSS, MsgQty, MsgNum, MsgID); }
+
+	std::vector<std::string> GetPayload() const
+	{
+		if (!IsVerified())
+			return {};
+		std::vector<std::string> Data;
+		Data.push_back(GNSS.ToString() + GetID());
+		Data.push_back(MsgQty.ToString());
+		Data.push_back(MsgNum.ToString());
+		Data.push_back(MsgID.ToString());
+		Data.push_back(Msg);
 		return Data;
 	}
 };
@@ -813,6 +883,40 @@ namespace sirf_lr9548s
 	using tContentGSV = base::tContentGSV<tElevation, tAzimuth, tSNR>;
 	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
 	using tContentVTG = base::tContentVTG10<tCourse, tSpeed, tMode>;
+}
+
+namespace ublox_tim4h
+{
+	using tTime = type::tTime<2>;										// 000000.00
+	using tDate = type::tDate;											// 000000
+	using tLatitude = type::tLatitude<5>;								// 0000.00000,?
+	using tLongitude = type::tLongitude<5>;								// 00000.00000,?
+	using tSatQty = type::tUIntFixedNoNull<2>;							// 00
+	using tHDOP = type::tUFloatPrecisionFixed<2, 2>;					// ?.00
+	using tAltitude = type::tFloatPrecisionFixedUnit<5, 1>;				// ?.0,M		-14.2,M
+	using tGeoidSeparation = type::tFloatPrecisionFixedUnit<4, 1>;		// ?.0,M
+	using tDiffAge = type::tFloatPrecisionFixed<3, 1>;					// ?.0
+	using tDiffStation = type::tUIntFixed<4>;							// 0000
+	using tElevation = type::tIntFixedNoNull<2>;						// 00, -1, -12	Degree (Maximum 90) (can be negative)
+	using tAzimuth = type::tUIntFixedNoNull<3>;							// 000			Degree (Range 0 to 359)
+	using tSNR = type::tUIntFixed<2>;									// 00			SNR (C/No) 00-99 dB-Hz, null when not tracking
+	using tSpeed = type::tUFloatPrecisionFixed<4, 3>;					// ?.000
+	using tCourse = type::tUFloatPrecisionFixed<3, 2>;					// ?.00
+	using tMode = type::tModeNoNull;									// A
+	using tDay = type::tUIntFixed<2>;									// 00
+	using tMonth = type::tUIntFixed<2>;									// 00
+	using tYear = type::tUIntFixed<4>;									// 1980
+	using tLocalZoneHours = type::tIntFixed<2>;							// 00 to �13 hrs	(not supported)
+	using tLocalZoneMinutes = type::tUIntFixed<2>;						// 00 to +59		(not supported)
+
+	using tContentGGA = base::tContentGGA<tTime, tLatitude, tLongitude, tSatQty, tHDOP, tAltitude, tGeoidSeparation, tDiffAge, tDiffStation>;
+	using tContentGLL = base::tContentGLL8<tLatitude, tLongitude, tTime, tMode>;
+	using tContentGSA = base::tContentGSA<tHDOP>;
+	using tContentGSV = base::tContentGSV<tElevation, tAzimuth, tSNR>;
+	using tContentRMC = base::tContentRMC13<tTime, tLatitude, tLongitude, tSpeed, tCourse, tDate, tMode>;
+	using tContentVTG = base::tContentVTG10<tCourse, tSpeed, tMode, false>; // Statements in fixed fields can disappear in empty messages. This is not the most useful message.
+	using tContentZDA = base::tContentZDA<tTime, tDay, tMonth, tYear, tLocalZoneHours, tLocalZoneMinutes>;
+	using tContentTXT = base::tContentTXT;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 }
