@@ -5,6 +5,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include=".vscode">
+      <UniqueIdentifier>{e8f6cc8a-9507-4e35-ae21-0832430fb409}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -15,6 +18,12 @@
       <Filter>Lib.Utils</Filter>
     </ClCompile>
     <ClCompile Include="..\Lib.Utils\utilsPacketNMEAPayload_Test.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsPacketNMEAPayloadPUBX.cpp">
+      <Filter>Lib.Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\LIB.Utils\utilsPacketNMEAPayload.cpp">
       <Filter>Lib.Utils</Filter>
     </ClCompile>
   </ItemGroup>
@@ -51,5 +60,20 @@
     <ClInclude Include="..\LIB.Utils\utilsPacketNMEAPayloadP.h">
       <Filter>Lib.Utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\LIB.Utils\utilsPacketNMEAPayloadPUBX.h">
+      <Filter>Lib.Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".vscode\c_cpp_properties.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include=".vscode\launch.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include=".vscode\tasks.json">
+      <Filter>.vscode</Filter>
+    </None>
+    <None Include="UnitTest_PacketNMEAPayload.code-workspace" />
   </ItemGroup>
 </Project>

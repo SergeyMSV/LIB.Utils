@@ -1,0 +1,64 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Build_for_ARM",
+      "command": "/usr/bin/arm-linux-gnueabihf-g++",
+      "args": [
+        "-std=c++26",
+        "-static",
+        "-Wall",
+        "-I${workspaceFolder}",
+        "-I${workspaceFolder}/../LIB.Utils",
+        "${workspaceFolder}/main.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsPacketNMEAPayload.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsPacketNMEAPayload_Test.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsPacketNMEAPayloadPUBX.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsPacketNMEAType.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsTest.cpp",
+        "-o",
+        "${workspaceFolder}/unit_test_packet_nmea_payload"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "type": "shell",
+      "label": "Build_for_PC",
+      "command": "/usr/bin/g++",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-std=c++26",
+        "-g",
+        "-Wall",
+        "-I${workspaceFolder}",
+        "-I${workspaceFolder}/../LIB.Utils",
+        "${workspaceFolder}/main.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsPacketNMEAPayload.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsPacketNMEAPayload_Test.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsPacketNMEAPayloadPUBX.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsPacketNMEAType.cpp",
+        "${workspaceFolder}/../LIB.Utils/utilsTest.cpp",
+        "-o",
+        "${workspaceFolder}/unit_test_packet_nmea_payload_dbg"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": "build",
+      "detail": "compiler: /usr/bin/g++"
+    }
+  ]
+}
