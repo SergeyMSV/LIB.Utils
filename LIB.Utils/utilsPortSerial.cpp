@@ -100,7 +100,8 @@ std::vector<std::uint8_t> tPortOneWireSync::Transaction(std::vector<std::uint8_t
 {
 	if (tx.empty())
 		return {};
-	tx.resize(tx.size() + rxSize, 0xFF);
+	const std::size_t TxSize = tx.size();
+	tx.resize(TxSize + rxSize, 0xFF);
 	std::vector<std::uint8_t> Rx = OW_Transaction(tx);
 	if (Rx.size() != tx.size())
 		return {};
@@ -109,7 +110,7 @@ std::vector<std::uint8_t> tPortOneWireSync::Transaction(std::vector<std::uint8_t
 		<< "Transaction TX: " << utils::test::ToStringHEX(tx, true) << '\n'
 		<< " <>         RX: " << utils::test::ToStringHEX(Rx, true) << '\n';
 #endif // LIB_UTILS_TEST_LOG
-	Rx.erase(Rx.begin(), Rx.begin() + 1);
+	Rx.erase(Rx.begin(), Rx.begin() + TxSize);
 	return Rx;
 }
 
