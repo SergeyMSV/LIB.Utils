@@ -156,8 +156,9 @@ std::vector<std::uint8_t> tPortOneWireSync::GetReceived(std::size_t rxSize)
 	if (BaudRate == 0)
 		return {};
 
+	constexpr int increaseMul = 100; // Reset doesn't work without increased timeout.
 	constexpr double BitsPerByte = 10.0; // [1 Start Bit] + [8 DataBits] + [1 StopBit]
-	const double ByteTime_us = BitsPerByte * 1000000.0 / BaudRate;
+	const double ByteTime_us = increaseMul * BitsPerByte * 1000000.0 / BaudRate;
 	const auto Timeout = std::chrono::microseconds(static_cast<std::int64_t>(std::ceil(ByteTime_us * rxSize))) + std::chrono::milliseconds(20); // + margin for asynchronous reading operation
 
 	m_Port.WaitReceived(rxSize, Timeout);
