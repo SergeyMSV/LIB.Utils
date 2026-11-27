@@ -19,6 +19,11 @@ public:
 	{
 	}
 
+	~tBoard() override
+	{
+		Close();
+	}
+
 	std::vector<std::uint8_t> GetReceived()
 	{
 		std::lock_guard<std::mutex> Lock(m_DataReceivedMtx);
@@ -29,7 +34,7 @@ public:
 	}
 
 protected:
-	void OnReceived(std::vector<std::uint8_t>& data) override
+	void OnReceived(const std::vector<std::uint8_t>& data) override
 	{
 		std::lock_guard<std::mutex> Lock(m_DataReceivedMtx);
 		m_DataReceived.insert(m_DataReceived.end(), data.begin(), data.end());

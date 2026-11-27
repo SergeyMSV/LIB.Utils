@@ -1,5 +1,6 @@
 #include "utilsPortSerial.h"
 
+#include <algorithm>
 #include <chrono>
 #include <thread>
 
@@ -22,16 +23,23 @@ tPortOneWireSync::tPort::tPort(boost::asio::io_context& ioc, const std::string& 
 {
 }
 
-bool tPortOneWireSync::tPort::IsReceived(std::size_t qty) const
+tPortOneWireSync::tPort::~tPort()
 {
-	std::lock_guard<std::mutex> Lock(m_Mtx);
-	return m_DataRcv.size() >= qty;
+	Close();
 }
 
-std::vector<std::uint8_t> tPortOneWireSync::tPort::GetReceived()
+bool tPortOneWireSync::tPort::WaitReceived(std::size_t qty, std::chrono::microseconds timeout)
+{
+	std::unique_lock<std::mutex> Lock(m_Mtx);
+	return m_Cv.wait_for(Lock, timeout, [this, qty]() { return m_DataRcv.size() >= qty; });
+}
+
+std::vector<std::uint8_t> tPortOneWireSync::tPort::GetReceived(std::size_t qty)
 {
 	std::lock_guard<std::mutex> Lock(m_Mtx);
-	std::vector<std::uint8_t> Data = std::move(m_DataRcv);
+	const std::size_t Size = std::min(qty, m_DataRcv.size());
+	std::vector<std::uint8_t> Data(m_DataRcv.begin(), m_DataRcv.begin() + Size);
+	m_DataRcv.erase(m_DataRcv.begin(), m_DataRcv.begin() + Size);
 	return Data;
 }
 
@@ -41,10 +49,13 @@ void tPortOneWireSync::tPort::ResetReceived()
 	m_DataRcv.clear();
 }
 
-void tPortOneWireSync::tPort::OnReceived(std::vector<std::uint8_t>& data)
+void tPortOneWireSync::tPort::OnReceived(const std::vector<std::uint8_t>& data)
 {
-	std::lock_guard<std::mutex> Lock(m_Mtx);
-	m_DataRcv.insert(m_DataRcv.end(), data.begin(), data.end());
+	{
+		std::lock_guard<std::mutex> Lock(m_Mtx);
+		m_DataRcv.insert(m_DataRcv.end(), data.begin(), data.end());
+	}
+	m_Cv.notify_all();
 }
 
 tPortOneWireSync::tGuardBR::tGuardBR(tPort* port, std::uint32_t baudRate) :m_pPort(port)
@@ -56,7 +67,7 @@ tPortOneWireSync::tGuardBR::tGuardBR(tPort* port, std::uint32_t baudRate) :m_pPo
 }
 tPortOneWireSync::tGuardBR::~tGuardBR()
 {
-	if (!m_pPort)
+	if (!m_pPort || m_BR == 0)
 		return;
 	m_pPort->SetBaudRate(m_BR);
 }
@@ -141,16 +152,16 @@ std::vector<std::uint8_t> tPortOneWireSync::OW_Transaction(const std::vector<std
 
 std::vector<std::uint8_t> tPortOneWireSync::GetReceived(std::size_t rxSize)
 {
-	double BytesPerSecond = m_Port.GetBaudRate() / 10; // 10 -> [1 Start Bit] + [8 DataBits] + [1 StopBit]
-	std::uint32_t Bytes_in_10us = static_cast<std::uint32_t>(std::ceil(100000 / BytesPerSecond)) + 100; // + 100us is a waiting for asynchronous reading operation
+	const std::uint32_t BaudRate = m_Port.GetBaudRate();
+	if (BaudRate == 0)
+		return {};
 
-	for (std::size_t i = 0; i < rxSize * Bytes_in_10us; ++i)
-	{
-		if (m_Port.IsReceived(rxSize))
-			break;
-		std::this_thread::sleep_for(std::chrono::microseconds(10));
-	}
-	return m_Port.GetReceived();
+	constexpr double BitsPerByte = 10.0; // [1 Start Bit] + [8 DataBits] + [1 StopBit]
+	const double ByteTime_us = BitsPerByte * 1000000.0 / BaudRate;
+	const auto Timeout = std::chrono::microseconds(static_cast<std::int64_t>(std::ceil(ByteTime_us * rxSize))) + std::chrono::milliseconds(20); // + margin for asynchronous reading operation
+
+	m_Port.WaitReceived(rxSize, Timeout);
+	return m_Port.GetReceived(rxSize);
 }
 
 std::vector<std::uint8_t> tPortOneWireSync::ByteToBit(const std::vector<std::uint8_t>& data)
