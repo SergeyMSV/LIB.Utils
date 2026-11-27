@@ -30,7 +30,7 @@ class tPortSerialAsync
 {
 	boost::asio::serial_port m_Port;
 
-	std::uint8_t m_Data[DataSizeRecv];
+	std::uint8_t m_Data[DataSizeRecv]{};
 
 	mutable std::mutex m_Mtx;
 	std::queue<std::vector<std::uint8_t>> m_DataSent;
@@ -39,7 +39,7 @@ class tPortSerialAsync
 
 public:
 	tPortSerialAsync(boost::asio::io_context& ioc, const std::string& id, std::uint32_t baudRate, tCharSize charSize, tStopBits stopBits, tParity parity, tFlowControl flowControl)
-		: m_Port(ioc)
+		:m_Port(ioc)
 	{
 		m_Port.open(id, m_ErrorCode);
 		if (!m_Port.is_open())
@@ -61,6 +61,7 @@ public:
 
 	virtual ~tPortSerialAsync()
 	{
+		m_Port.cancel(); // Force all pending async ops to complete with operation_aborted
 		m_Port.close();
 	}
 
@@ -74,10 +75,7 @@ public:
 		return !m_ErrorCode;
 	}
 
-	boost::system::error_code GetError() const
-	{
-		return m_ErrorCode;
-	}
+	boost::system::error_code GetError() const { return m_ErrorCode; }
 
 	std::uint32_t GetBaudRate() const
 	{
@@ -120,18 +118,19 @@ public:
 private:
     void Receive()
     {
-        m_Port.async_read_some(boost::asio::buffer(m_Data, sizeof(m_Data)),
-            [this](boost::system::error_code ec, std::size_t bytes_recvd)
-            {
-                if (!ec && bytes_recvd > 0)
-                {
+		m_Port.async_read_some(boost::asio::buffer(m_Data, sizeof(m_Data)),
+			[this](boost::system::error_code ec, std::size_t bytes_recvd)
+			{
+				if (!ec && bytes_recvd > 0)
+				{
 					std::vector<std::uint8_t> Data(m_Data, m_Data + bytes_recvd);
 					OnReceived(Data);
-                }
+				}
 
-				if (ec && !m_ErrorCode) // error list is in file C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\errno.h
+				if (ec) // error list is in file C:\Program Files (x86)\Windows Kits\10\Include\10.0.19041.0\ucrt\errno.h
 				{
-					m_ErrorCode = ec;
+					if (!m_ErrorCode)
+						m_ErrorCode = ec;
 					return;
 				}
 
